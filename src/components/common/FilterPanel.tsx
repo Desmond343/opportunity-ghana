@@ -23,13 +23,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-emerald-700" />
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Filters</h3>
+          <Filter className="w-4 h-4 text-[#006B3F]" />
+          <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider">Filters</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onReset}
-            className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-emerald-700 transition-colors"
+            className="flex items-center gap-1 text-xs font-semibold text-[#5F6368] hover:text-[#006B3F] transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
             Reset
@@ -48,7 +48,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       <div className="divide-y divide-slate-100">
         {/* Category Filter */}
         <div className="py-4">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2.5">
             Category
           </label>
           <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
@@ -56,13 +56,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               onClick={() => onFilterChange({ ...filters, category: 'All' })}
               className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
                 !filters.category || filters.category === 'All'
-                  ? 'bg-emerald-50 text-emerald-800 font-bold'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-[#006B3F] text-white font-bold shadow-2xs'
+                  : 'text-[#111111] hover:bg-[#E6F0EB] hover:text-[#006B3F]'
               }`}
             >
               <span>All Categories</span>
               {(!filters.category || filters.category === 'All') && (
-                <Check className="w-3.5 h-3.5 text-emerald-700" />
+                <Check className="w-3.5 h-3.5 text-white" />
               )}
             </button>
             {OPPORTUNITY_CATEGORIES.map((cat) => {
@@ -73,12 +73,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   onClick={() => onFilterChange({ ...filters, category: cat.id })}
                   className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
                     active
-                      ? 'bg-emerald-50 text-emerald-800 font-bold'
-                      : 'text-slate-600 hover:bg-slate-50'
+                      ? 'bg-[#006B3F] text-white font-bold shadow-2xs'
+                      : 'text-[#111111] hover:bg-[#E6F0EB] hover:text-[#006B3F]'
                   }`}
                 >
                   <span>{cat.name}</span>
-                  {active && <Check className="w-3.5 h-3.5 text-emerald-700" />}
+                  {active && <Check className="w-3.5 h-3.5 text-white" />}
                 </button>
               );
             })}
@@ -87,13 +87,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
         {/* Region Filter */}
         <div className="py-4">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
             Location / Region
           </label>
           <select
             value={filters.region || 'All Ghana'}
             onChange={(e) => onFilterChange({ ...filters, region: e.target.value })}
-            className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
           >
             {GHANA_REGIONS.map((region) => (
               <option key={region} value={region}>
@@ -105,13 +105,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
         {/* Education Level */}
         <div className="py-4">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
             Education Level
           </label>
           <select
             value={filters.educationLevel || 'All Education Levels'}
             onChange={(e) => onFilterChange({ ...filters, educationLevel: e.target.value })}
-            className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
           >
             {EDUCATION_LEVELS.map((level) => (
               <option key={level} value={level}>

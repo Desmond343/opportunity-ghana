@@ -68,10 +68,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 />
               </div>
               <div>
-                <span className="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-1 font-space">
-                  Opportunity <span className="text-emerald-700 font-extrabold">Ghana</span>
+                <span className="text-lg font-extrabold text-[#111111] tracking-tight flex items-center gap-1 font-space">
+                  Opportunity <span className="text-[#006B3F] font-extrabold">Ghana</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116] inline-block mb-1" title="Opportunity Ghana" />
                 </span>
-                <span className="hidden sm:block text-[10px] text-slate-500 font-medium -mt-1 tracking-wide">
+                <span className="hidden sm:block text-[10px] text-[#5F6368] font-medium -mt-1 tracking-wide">
                   Find opportunities • Advance your career
                 </span>
               </div>
@@ -90,8 +91,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                     onClick={() => handleNavClick(link.path)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                       isActive
-                        ? 'text-emerald-800 bg-emerald-50/80 font-bold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'text-[#006B3F] bg-[#E6F0EB] font-bold shadow-2xs'
+                        : 'text-[#5F6368] hover:text-[#111111] hover:bg-[#F7F9F8]'
                     }`}
                   >
                     {link.label}
@@ -110,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             {onOpenSearch && (
               <button
                 onClick={onOpenSearch}
-                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="p-2 text-[#5F6368] hover:text-[#111111] hover:bg-[#F7F9F8] rounded-xl transition-colors cursor-pointer"
                 title="Search (Quick Search)"
               >
                 <Search className="w-4 h-4" />
@@ -123,11 +124,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 onClick={() => handleNavClick('/admin')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${
                   currentPath.startsWith('/admin')
-                    ? 'bg-emerald-900 text-white shadow-xs'
-                    : 'bg-emerald-100/70 text-emerald-900 hover:bg-emerald-200/80'
+                    ? 'bg-[#006B3F] text-white shadow-xs'
+                    : 'bg-[#E6F0EB] text-[#006B3F] hover:bg-[#d6e7df]'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
                 CMS Admin
               </button>
             )}
@@ -135,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             {/* Primary CTA */}
             <button
               onClick={() => handleNavClick('/opportunities')}
-              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-[#006B3F] hover:bg-[#005632] rounded-xl transition-all shadow-xs cursor-pointer"
             >
               Find Opportunities
             </button>

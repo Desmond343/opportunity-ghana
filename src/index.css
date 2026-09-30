@@ -1,11 +1,97 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ghana-green: #006B3F;
+  --color-ghana-green-hover: #005632;
+  --color-ghana-green-light: #E6F0EB;
+  --color-ghana-gold: #FCD116;
+  --color-ghana-gold-hover: #E5BC0B;
+  --color-ghana-gold-light: #FEF9E7;
+  --color-ghana-red: #CE1126;
+  --color-ghana-red-hover: #B50E20;
+  --color-ghana-red-light: #FCE8EA;
+  --color-ghana-black: #111111;
+  --color-ghana-neutral-bg: #F7F9F8;
+  --color-ghana-border: #E5E7EB;
+  --color-ghana-text: #111111;
+  --color-ghana-secondary-text: #5F6368;
+  --color-ghana-muted-text: #737373;
+}
+
 @layer base {
   :root {
+    --ghana-green: #006B3F;
+    --ghana-green-hover: #005632;
+    --ghana-green-light: #E6F0EB;
+    --ghana-gold: #FCD116;
+    --ghana-gold-hover: #E5BC0B;
+    --ghana-gold-light: #FEF9E7;
+    --ghana-red: #CE1126;
+    --ghana-red-hover: #B50E20;
+    --ghana-red-light: #FCE8EA;
+    --ghana-black: #111111;
+    --background: #FFFFFF;
+    --background-secondary: #F7F9F8;
+    --border: #E5E7EB;
+    --text-primary: #111111;
+    --text-secondary: #5F6368;
+    --text-muted: #737373;
+
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  body {
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
   }
 }
 
 .font-space {
   font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Reusable Ghana Brand Button System */
+.btn-ghana-primary {
+  background-color: #006B3F;
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-ghana-primary:hover {
+  background-color: #005632;
+}
+
+.btn-ghana-secondary {
+  background-color: #FFFFFF;
+  color: #006B3F;
+  border: 1.5px solid #006B3F;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-ghana-secondary:hover {
+  background-color: #E6F0EB;
+}
+
+.btn-ghana-accent {
+  background-color: #FCD116;
+  color: #111111;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-ghana-accent:hover {
+  background-color: #E5BC0B;
+}
+
+.btn-ghana-danger {
+  background-color: #CE1126;
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-ghana-danger:hover {
+  background-color: #B50E20;
 }

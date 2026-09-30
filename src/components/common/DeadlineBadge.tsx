@@ -31,9 +31,9 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <span
         title={info.detailText}
-        className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-300 shadow-2xs animate-pulse ${className}`}
+        className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FCE8EA] text-[#CE1126] border border-[#CE1126]/30 shadow-2xs animate-pulse ${className}`}
       >
-        <AlertTriangle className="w-3 h-3 text-rose-600" />
+        <AlertTriangle className="w-3 h-3 text-[#CE1126]" />
         <span>{info.label}</span>
       </span>
     );
@@ -43,9 +43,9 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <span
         title={info.detailText}
-        className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 ${className}`}
+        className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF9E7] text-[#8C6D00] border border-[#FCD116]/50 ${className}`}
       >
-        <Clock className="w-3 h-3 text-amber-600" />
+        <Clock className="w-3 h-3 text-[#8C6D00]" />
         <span>{info.label}</span>
       </span>
     );
@@ -54,9 +54,9 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
   return (
     <span
       title={info.detailText}
-      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 ${className}`}
+      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#E6F0EB] text-[#006B3F] border border-[#006B3F]/20 ${className}`}
     >
-      <Calendar className="w-3 h-3 text-slate-500" />
+      <Calendar className="w-3 h-3 text-[#006B3F]" />
       <span>{compact ? info.label : info.label}</span>
     </span>
   );

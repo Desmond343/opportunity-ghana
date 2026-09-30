@@ -32,9 +32,9 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Verified against official institutional source."
-          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs ${className}`}
+          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E6F0EB] text-[#006B3F] border border-[#006B3F]/30 shadow-2xs ${className}`}
         >
-          {showIcon && <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />}
+          {showIcon && <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />}
           <span>Verified</span>
         </span>
       );
@@ -43,9 +43,9 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Community submitted or waiting for primary source check."
-          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 ${className}`}
+          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF9E7] text-[#8C6D00] border border-[#FCD116]/50 ${className}`}
         >
-          {showIcon && <Clock className="w-3.5 h-3.5 text-amber-600" />}
+          {showIcon && <Clock className="w-3.5 h-3.5 text-[#8C6D00]" />}
           <span>Needs Verification</span>
         </span>
       );
@@ -54,9 +54,9 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Caution: Unconfirmed details, reported discrepancies, or broken links."
-          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-300 ${className}`}
+          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FCE8EA] text-[#CE1126] border border-[#CE1126]/30 ${className}`}
         >
-          {showIcon && <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />}
+          {showIcon && <AlertTriangle className="w-3.5 h-3.5 text-[#CE1126]" />}
           <span>Warning</span>
         </span>
       );
@@ -66,9 +66,9 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Opportunity or resource listing is currently closed."
-          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 ${className}`}
+          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#F7F9F8] text-[#5F6368] border border-[#E5E7EB] ${className}`}
         >
-          {showIcon && <Archive className="w-3.5 h-3.5 text-slate-500" />}
+          {showIcon && <Archive className="w-3.5 h-3.5 text-[#737373]" />}
           <span>Closed</span>
         </span>
       );

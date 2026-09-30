@@ -49,18 +49,23 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       onClick={() => onNavigate(`/opportunities/${opportunity.slug}`)}
       className={`group relative bg-white rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden ${
         featured
-          ? 'border-emerald-600/30 shadow-md ring-1 ring-emerald-500/10 hover:shadow-lg'
-          : 'border-slate-200/90 shadow-2xs hover:border-emerald-500/40 hover:shadow-sm'
+          ? 'border-[#FCD116]/70 shadow-sm ring-1 ring-[#FCD116]/30 hover:shadow-md'
+          : 'border-[#E5E7EB] shadow-2xs hover:border-[#006B3F]/40 hover:shadow-sm'
       }`}
     >
+      {/* Featured Gold Top Accent Line */}
+      {featured && !opportunity.isDemo && (
+        <div className="bg-[#FCD116] h-1 w-full" />
+      )}
+
       {/* Top Banner for Demo Records */}
       {opportunity.isDemo && (
-        <div className="bg-amber-500/10 border-b border-amber-200/60 px-4 py-1 flex items-center justify-between text-[11px] text-amber-900 font-medium">
+        <div className="bg-[#FEF9E7] border-b border-[#FCD116]/40 px-4 py-1 flex items-center justify-between text-[11px] text-[#8C6D00] font-medium">
           <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
             DEV DEMO RECORD
           </span>
-          <span className="text-amber-800/80 text-[10px]">Sample Architecture Data</span>
+          <span className="text-[#8C6D00]/80 text-[10px]">Sample Architecture Data</span>
         </div>
       )}
 
@@ -75,16 +80,16 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 className="w-10 h-10 rounded-xl object-cover border border-slate-100 shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
-                <Building className="w-5 h-5 text-emerald-700" />
+              <div className="w-10 h-10 rounded-xl bg-[#E6F0EB] border border-[#006B3F]/20 text-[#006B3F] flex items-center justify-center font-bold text-xs shrink-0">
+                <Building className="w-5 h-5 text-[#006B3F]" />
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-700 truncate">
+              <p className="text-xs font-semibold text-[#111111] truncate">
                 {opportunity.organizationName || 'Ghana Partner'}
               </p>
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 text-[11px] text-[#5F6368]">
+                <MapPin className="w-3 h-3 text-[#737373] shrink-0" />
                 <span className="truncate">{opportunity.location}</span>
               </div>
             </div>
@@ -96,29 +101,34 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               title={isSaved ? 'Remove from saved' : 'Save opportunity'}
               className={`p-1.5 rounded-lg border transition-colors ${
                 isSaved
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  : 'bg-slate-50/70 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                  ? 'bg-[#E6F0EB] border-[#006B3F]/30 text-[#006B3F]'
+                  : 'bg-[#F7F9F8] border-[#E5E7EB] text-[#737373] hover:text-[#111111] hover:bg-slate-100'
               }`}
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-[#006B3F]' : ''}`} />
             </button>
           </div>
         </div>
 
         {/* Opportunity Title */}
-        <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug mb-2">
+        <h3 className="text-base font-bold text-[#111111] group-hover:text-[#006B3F] transition-colors line-clamp-2 leading-snug mb-2">
           {opportunity.title}
         </h3>
 
         {/* Short description */}
-        <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed flex-1">
+        <p className="text-xs text-[#5F6368] line-clamp-2 mb-4 leading-relaxed flex-1">
           {opportunity.description}
         </p>
 
         {/* Tags row */}
         <div className="flex flex-wrap items-center gap-1.5 mb-4">
-          <Badge variant="emerald">{opportunity.category}</Badge>
-          <Badge variant="blue">{opportunity.opportunityType}</Badge>
+          <Badge variant={opportunity.category === 'Scholarships' ? 'ghana-gold' : 'ghana-green'}>
+            {opportunity.category}
+          </Badge>
+          <Badge variant="slate">{opportunity.opportunityType}</Badge>
+          {featured && (
+            <Badge variant="ghana-gold" size="sm">Featured</Badge>
+          )}
           {opportunity.educationLevel && (
             <Badge variant="slate" className="truncate max-w-[170px]">
               <GraduationCap className="w-3 h-3" />
@@ -129,11 +139,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       </div>
 
       {/* Footer bar */}
-      <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
+      <div className="bg-[#F7F9F8] border-t border-[#E5E7EB] px-5 py-3 flex items-center justify-between gap-2">
         <DeadlineBadge deadline={opportunity.deadline} />
         <div className="flex items-center gap-2">
           <VerificationBadge status={opportunity.verificationStatus} isDemo={opportunity.isDemo} />
-          <span className="text-slate-400 group-hover:text-emerald-700 transition-colors">
+          <span className="text-[#737373] group-hover:text-[#006B3F] transition-colors">
             <ArrowUpRight className="w-4 h-4" />
           </span>
         </div>
