@@ -6,20 +6,31 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper to check user document role
-    function hasRole(role) {
+    // Check trusted Firebase Custom Claim for admin
+    function hasAdminClaim() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    // Check trusted Firebase Custom Claim for editor
+    function hasEditorClaim() {
+      return isAuthenticated() && request.auth.token.editor == true;
+    }
+
+    // Check Firestore user document role fallback
+    function hasDocRole(role) {
       return isAuthenticated() &&
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
 
+    // Admin authorization: Custom claim 'admin' or Firestore user doc role 'admin'
+    function isAdmin() {
+      return hasAdminClaim() || hasDocRole('admin');
+    }
+
+    // Editor or Admin authorization
     function isAdminOrEditor() {
-      return isAuthenticated() && (
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'editor'
-        )
-      );
+      return hasAdminClaim() || hasEditorClaim() || hasDocRole('admin') || hasDocRole('editor');
     }
 
     // Test connection endpoint
@@ -28,14 +39,19 @@ service cloud.firestore {
     }
 
     // 1. Users collection: users can read/write their own profile; admins can manage all
+    // CRITICAL: Normal users can NEVER modify their own 'role' field or grant themselves admin!
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdminOrEditor());
-      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() && request.auth.uid == userId && (
+        !request.resource.data.keys().hasAny(['role']) ||
+        request.resource.data.role == 'user' ||
+        isAdmin()
+      );
       allow update: if isAuthenticated() && (
         (request.auth.uid == userId && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))) ||
-        hasRole('admin')
+        isAdmin()
       );
-      allow delete: if hasRole('admin');
+      allow delete: if isAdmin();
     }
 
     // 2. Organizations collection

@@ -22,7 +22,7 @@ export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey !== 'your-api-key' &&
   !firebaseConfig.apiKey.includes('your-') &&
   !firebaseConfig.apiKey.includes('MY_') &&
-  firebaseConfig.projectId === 'opportunity-ghana'
+  firebaseConfig.projectId
 );
 
 let appInstance: FirebaseApp | null = null;

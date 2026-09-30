@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../services/authContext';
 import {
   LayoutDashboard,
@@ -12,8 +12,10 @@ import {
   Settings,
   ShieldCheck,
   ArrowLeft,
-  ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  RotateCw,
+  CheckCircle2,
+  Lock
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -23,7 +25,27 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigate, children }) => {
-  const { currentUser, isEditorOrAdmin } = useAuth();
+  const { currentUser, firebaseUser, claims, isAdmin, isEditorOrAdmin, refreshClaims } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setRefreshMessage(null);
+    try {
+      const granted = await refreshClaims();
+      if (granted) {
+        setRefreshMessage('Permissions updated: Administrator claims confirmed!');
+      } else {
+        setRefreshMessage('Claims refreshed: No administrator claim found on this account yet.');
+      }
+    } catch {
+      setRefreshMessage('Could not reach authentication server to refresh claims.');
+    } finally {
+      setIsRefreshing(false);
+      setTimeout(() => setRefreshMessage(null), 6000);
+    }
+  };
 
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -35,41 +57,91 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
     { label: 'Submissions', path: '/admin/submissions', icon: Inbox },
     { label: 'Reports', path: '/admin/reports', icon: AlertTriangle },
     { label: 'Users', path: '/admin/users', icon: Users },
-    { label: 'Settings', path: '/admin/settings', icon: Settings }
+    { label: 'Settings & Diagnostics', path: '/admin/settings', icon: Settings }
   ];
 
-  // Route protection
-  if (!isEditorOrAdmin) {
+  // Route protection: Must be authenticated and possess admin or editor claim
+  if (!currentUser || !isEditorOrAdmin) {
     return (
-      <div className="max-w-xl mx-auto my-16 p-8 bg-white rounded-3xl border border-rose-200 text-center space-y-4 shadow-sm">
-        <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto">
-          <ShieldAlert className="w-6 h-6" />
-        </div>
-        <h2 className="text-xl font-bold text-slate-900 font-space">
-          Administrator Access Required
-        </h2>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          The Opportunity Ghana CMS is restricted to verified administrators and editors. Your current account does not have editorial permissions.
-        </p>
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-          {!currentUser ? (
+      <div className="min-h-[80vh] flex items-center justify-center p-4 bg-slate-50">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-6 shadow-xl">
+          <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-3">
+            <h1 className="text-2xl font-black text-slate-900 font-space tracking-tight">
+              Access Restricted
+            </h1>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Your account does not have permission to access the Opportunity Ghana Administration Dashboard.
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              If you believe you should have administrator access, contact the site administrator.
+            </p>
+          </div>
+
+          {/* Diagnostic info for signed-in users trying to access */}
+          {currentUser && (
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-[11px] space-y-1.5 font-mono">
+              <div className="flex justify-between text-slate-600 border-b border-slate-200 pb-1 mb-1 font-bold text-slate-700">
+                <span>Account Check</span>
+                <span className="text-rose-600 font-bold">Unauthorized</span>
+              </div>
+              <div className="truncate text-slate-700">
+                <span className="text-slate-400">Email:</span> {currentUser.email || 'N/A'}
+              </div>
+              <div className="text-slate-700">
+                <span className="text-slate-400">Admin Claim:</span> <span className="text-rose-600 font-semibold">{claims?.admin ? 'true' : 'false'}</span>
+              </div>
+              <div className="text-slate-700">
+                <span className="text-slate-400">CMS Access:</span> <span className="text-rose-600 font-semibold">Denied</span>
+              </div>
+            </div>
+          )}
+
+          {refreshMessage && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{refreshMessage}</span>
+            </div>
+          )}
+
+          <div className="pt-2 flex flex-col gap-2.5">
+            {currentUser ? (
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>{isRefreshing ? 'Refreshing Token...' : 'Refresh Permissions'}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => onNavigate('/login')}
+                className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Sign In to Opportunity Ghana</span>
+              </button>
+            )}
+
             <button
-              onClick={() => onNavigate('/login')}
-              className="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+              onClick={() => onNavigate('/')}
+              className="w-full py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
             >
-              Sign In with Authorized Account
+              Return to Public Website
             </button>
-          ) : null}
-          <button
-            onClick={() => onNavigate('/')}
-            className="w-full sm:w-auto px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-          >
-            Return to Public Website
-          </button>
+          </div>
         </div>
       </div>
     );
   }
+
+  // Safe UID display (mask middle characters: e.g. "Abc1...xyz9")
+  const rawUid = firebaseUser?.uid || currentUser.id || '';
+  const maskedUid = rawUid.length > 8 ? `${rawUid.slice(0, 4)}••••${rawUid.slice(-4)}` : rawUid;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -85,17 +157,28 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
                 Opportunity Ghana <span className="text-emerald-400">CMS</span>
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-800 text-emerald-200 uppercase">
-                {currentUser?.role}
+                {isAdmin ? 'ADMIN' : 'EDITOR'}
               </span>
             </div>
-            <p className="text-[10px] text-slate-400">Content Operations & Verification Engine</p>
+            <p className="text-[10px] text-slate-400">Administrative Operations & CMS Console</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Refresh Permissions Trigger */}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            title="Refresh Firebase Token Claims"
+            className="text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
+            <span className="hidden sm:inline">Refresh Token</span>
+          </button>
+
           <button
             onClick={() => onNavigate('/')}
-            className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Public Site</span>
@@ -135,15 +218,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
             })}
           </div>
 
-          {/* Pipeline Note */}
-          <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl text-[11px] text-emerald-900 space-y-1">
-            <p className="font-bold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              Verification Principle
-            </p>
-            <p className="text-[10px] text-emerald-800 leading-relaxed">
-              Always verify application links, host institutions, and deadlines before toggling status to <strong>Published</strong>.
-            </p>
+          {/* Live Admin Authorization Badge */}
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] space-y-1.5">
+            <div className="flex items-center justify-between text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+              <span>Active Admin Session</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            </div>
+            <div className="text-slate-800 font-semibold truncate">
+              {currentUser.email}
+            </div>
+            <div className="text-[10px] text-slate-500 flex items-center justify-between">
+              <span>Firebase UID:</span>
+              <span className="font-mono text-slate-700">{maskedUid}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 flex items-center justify-between">
+              <span>Admin Claim:</span>
+              <span className="font-semibold text-emerald-700">true</span>
+            </div>
           </div>
         </aside>
 

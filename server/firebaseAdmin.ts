@@ -14,32 +14,48 @@ try {
   const possiblePaths = [
     path.resolve(process.cwd(), 'service-account.json'),
     path.resolve(process.cwd(), 'serviceAccountKey.json'),
-    path.resolve(process.cwd(), 'server', 'serviceAccountKey.json')
+    path.resolve(process.cwd(), 'server', 'serviceAccountKey.json'),
+    path.resolve(process.cwd(), 'config', 'serviceAccountKey.json')
   ];
-  
-  const serviceAccountPath = possiblePaths.find(p => fs.existsSync(p));
-  
-  if (serviceAccountPath) {
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-    
-    const app: App = getApps().length === 0 
-      ? initializeApp({
-          credential: cert(serviceAccount),
-          projectId: serviceAccount.project_id || 'opportunity-ghana',
-          storageBucket: `${serviceAccount.project_id || 'opportunity-ghana'}.appspot.com`
-        })
-      : getApps()[0];
 
-    adminDb = getFirestore(app);
-    adminAuth = getAuth(app);
-    adminStorage = getStorage(app);
-    isInitialized = true;
-    console.info('[Opportunity Ghana Backend] Firebase Admin SDK initialized for project:', serviceAccount.project_id);
-  } else {
-    console.warn('[Opportunity Ghana Backend] service-account.json or serviceAccountKey.json not found. Admin SDK not initialized.');
+  let serviceAccount: any = null;
+  const serviceAccountPath = possiblePaths.find(p => fs.existsSync(p));
+
+  if (serviceAccountPath) {
+    serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+    console.info('[Opportunity Ghana Backend] Loaded service account from:', path.basename(serviceAccountPath));
+  } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+    try {
+      const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY.trim();
+      serviceAccount = raw.startsWith('{') ? JSON.parse(raw) : JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
+      console.info('[Opportunity Ghana Backend] Loaded service account from FIREBASE_SERVICE_ACCOUNT_KEY environment variable');
+    } catch (e: any) {
+      console.warn('[Opportunity Ghana Backend] Could not parse FIREBASE_SERVICE_ACCOUNT_KEY:', e.message);
+    }
   }
+
+  const app: App = getApps().length === 0
+    ? (serviceAccount
+        ? initializeApp({
+            credential: cert(serviceAccount),
+            projectId: serviceAccount.project_id || 'opportunity-ghana',
+            storageBucket: `${serviceAccount.project_id || 'opportunity-ghana'}.firebasestorage.app`
+          })
+        : initializeApp({
+            projectId: 'opportunity-ghana',
+            storageBucket: 'opportunity-ghana.firebasestorage.app'
+          }))
+    : getApps()[0];
+
+  adminAuth = getAuth(app);
+  adminDb = getFirestore(app);
+  adminStorage = getStorage(app);
+  isInitialized = Boolean(serviceAccount);
+  
+  console.info(`[Opportunity Ghana Backend] Firebase Admin SDK active (serviceAccount: ${Boolean(serviceAccount)}, verifyReady: ${Boolean(adminAuth)})`);
 } catch (error) {
   console.error('[Opportunity Ghana Backend] Error initializing Firebase Admin SDK:', error);
 }
 
 export { adminDb, adminAuth, adminStorage, isInitialized };
+

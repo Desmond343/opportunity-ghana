@@ -2,14 +2,24 @@ import { ExtractedAIResponse } from '../types/aiAssistant';
 import { OpportunitiesService } from './opportunitiesService';
 import { detectDuplicates } from './duplicateDetection';
 import { DuplicateMatch, Opportunity } from '../types/database';
+import { FirebaseAuthService } from './firebase/authService';
 
 export const AIAssistantService = {
   async extractSource(sourceUrl: string, textContent: string): Promise<ExtractedAIResponse> {
+    const authInstance = FirebaseAuthService.getAuthInstance();
+    const currentUser = authInstance?.currentUser;
+    const token = currentUser ? await currentUser.getIdToken() : '';
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch('/api/ai/extract', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({ sourceUrl, textContent })
     });
 

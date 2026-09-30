@@ -11,6 +11,42 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(express.json());
 
+// Middleware: Verify Firebase ID Token for Admin / Editor Custom Claims
+async function verifyAdminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'Unauthorized: Missing or invalid Authorization header. A valid Firebase ID token is required.'
+    });
+  }
+
+  const token = authHeader.split('Bearer ')[1].trim();
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: Empty token provided.' });
+  }
+
+  if (adminAuth) {
+    try {
+      const decoded = await adminAuth.verifyIdToken(token);
+      if (decoded.admin !== true && decoded.editor !== true) {
+        return res.status(403).json({
+          error: 'Forbidden: Insufficient privileges. Account does not possess administrator custom claims.'
+        });
+      }
+      (req as any).user = decoded;
+      return next();
+    } catch (err: any) {
+      return res.status(401).json({
+        error: `Unauthorized: Token verification failed (${err.message || 'invalid token'}).`
+      });
+    }
+  }
+
+  return res.status(503).json({
+    error: 'Service unavailable: Authentication verification engine not ready.'
+  });
+}
+
 // API Health & Firebase Status
 app.get('/api/health', async (req, res) => {
   let authStatus = 'disconnected';
@@ -68,8 +104,8 @@ app.get('/api/opportunities', async (req, res) => {
   res.json([]);
 });
 
-// Save/Update opportunity
-app.post('/api/opportunities', async (req, res) => {
+// Save/Update opportunity (Admin only)
+app.post('/api/opportunities', verifyAdminAuth, async (req, res) => {
   const item = req.body;
   if (!item || !item.id) {
     return res.status(400).json({ error: 'Opportunity object with id is required' });
@@ -86,8 +122,8 @@ app.post('/api/opportunities', async (req, res) => {
   return res.json({ success: true, opportunity: item, note: 'persisted_locally' });
 });
 
-// Delete opportunity
-app.delete('/api/opportunities/:id', async (req, res) => {
+// Delete opportunity (Admin only)
+app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
   const { id } = req.params;
   if (adminDb && isInitialized) {
     try {
@@ -116,8 +152,8 @@ app.get('/api/resources', async (req, res) => {
   res.json([]);
 });
 
-// Save/Update resource
-app.post('/api/resources', async (req, res) => {
+// Save/Update resource (Admin only)
+app.post('/api/resources', verifyAdminAuth, async (req, res) => {
   const item = req.body;
   if (!item || !item.id) {
     return res.status(400).json({ error: 'Resource object with id is required' });
@@ -134,8 +170,8 @@ app.post('/api/resources', async (req, res) => {
   return res.json({ success: true, resource: item, note: 'persisted_locally' });
 });
 
-// Delete resource
-app.delete('/api/resources/:id', async (req, res) => {
+// Delete resource (Admin only)
+app.delete('/api/resources/:id', verifyAdminAuth, async (req, res) => {
   const { id } = req.params;
   if (adminDb && isInitialized) {
     try {
@@ -148,8 +184,8 @@ app.delete('/api/resources/:id', async (req, res) => {
   res.json({ success: true, id, note: 'deleted_locally' });
 });
 
-// AI Content Extraction Assistant Route
-app.post('/api/ai/extract', async (req, res) => {
+// AI Content Extraction Assistant Route (Admin only)
+app.post('/api/ai/extract', verifyAdminAuth, async (req, res) => {
   try {
     const { sourceUrl, textContent } = req.body;
     if (!textContent && !sourceUrl) {

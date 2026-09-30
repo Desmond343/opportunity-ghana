@@ -112,8 +112,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               </button>
             )}
 
-            {/* Admin CMS Direct Shortcut */}
-            {(currentUser?.role === 'admin' || currentUser?.role === 'editor') && (
+            {/* Admin CMS Direct Shortcut - Displayed only for verified custom claim admins/editors */}
+            {isEditorOrAdmin && (
               <button
                 onClick={() => handleNavClick('/admin')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${
@@ -123,7 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
-                CMS Admin
+                Admin Dashboard
               </button>
             )}
 
