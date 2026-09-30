@@ -1,18 +1,18 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import firebaseAppletConfig from '../../../firebase-applet-config.json';
 
 /**
  * Opportunity Ghana - Firebase Project Configuration
- * Project ID: opportunity-ghana
- * Hosting Site: opportunity-ghana
+ * Reads from firebase-applet-config.json with optional VITE_ environment overrides
  */
 export const firebaseConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyAkLcE44CGtDEdkNnoaKQve2XAuA-UyRjk').trim(),
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'opportunity-ghana.firebaseapp.com').trim(),
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || 'opportunity-ghana').trim(),
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'opportunity-ghana.firebasestorage.app').trim(),
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '819918980574').trim(),
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID || '1:819918980574:web:60476801ff66efd572094f').trim(),
-  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-MLL1K4KFKK').trim()
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || firebaseAppletConfig.apiKey || '').trim(),
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseAppletConfig.authDomain || '').trim(),
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || firebaseAppletConfig.projectId || '').trim(),
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseAppletConfig.storageBucket || '').trim(),
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseAppletConfig.messagingSenderId || '').trim(),
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID || firebaseAppletConfig.appId || '').trim(),
+  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || firebaseAppletConfig.measurementId || '').trim()
 };
 
 // Check if live API key is valid (not empty, not placeholder)
