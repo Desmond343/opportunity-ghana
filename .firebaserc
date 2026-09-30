@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "opportunity-ghana"
+  },
+  "targets": {
+    "opportunity-ghana": {
+      "hosting": {
+        "opportunity-ghana": [
+          "opportunity-ghana"
+        ]
+      }
+    }
+  }
+}

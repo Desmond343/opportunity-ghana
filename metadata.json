@@ -1,0 +1,6 @@
+{
+  "name": "Opportunity Ghana",
+  "description": "Find opportunities, build skills, and advance your career in Ghana. The database-driven opportunity and career platform for jobs, scholarships, internships, and courses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

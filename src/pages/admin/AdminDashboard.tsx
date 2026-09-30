@@ -1,0 +1,357 @@
+import React, { useEffect, useState } from 'react';
+import { PipelineMetrics } from '../../types/database';
+import { AdminService } from '../../services/adminService';
+import {
+  Compass,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
+  AlertTriangle,
+  Inbox,
+  ArrowRight,
+  Plus,
+  BookOpen,
+  Building,
+  Sparkles,
+  Database,
+  Bell,
+  Layers,
+  Users,
+  Archive,
+  Hourglass,
+  FileText
+} from 'lucide-react';
+
+export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
+  const [metrics, setMetrics] = useState<PipelineMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMetrics() {
+      try {
+        const data = await AdminService.getPipelineMetrics();
+        setMetrics(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMetrics();
+  }, []);
+
+  return (
+    <div className="space-y-8">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-space">
+            Opportunity Ghana CMS Dashboard
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Content management workflow: Create → Draft → Review → Verify → Publish → Update → Close/Archive
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onNavigate('/admin/ai-assistant')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            <Sparkles className="w-4 h-4 text-purple-200" />
+            <span>AI Content Assistant</span>
+          </button>
+          <button
+            onClick={() => onNavigate('/admin/opportunities')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Opportunity</span>
+          </button>
+          <button
+            onClick={() => onNavigate('/admin/resources')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-2xs cursor-pointer transition-colors"
+          >
+            <Plus className="w-4 h-4 text-emerald-700" />
+            <span>New Resource</span>
+          </button>
+        </div>
+      </div>
+
+      {/* DASHBOARD METRICS TILES (Specified in Section 1) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+        {/* 1. Total Opportunities */}
+        <div
+          onClick={() => onNavigate('/admin/opportunities')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Opportunities</p>
+            <Compass className="w-4 h-4 text-slate-400 group-hover:text-emerald-700" />
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900 mt-2 font-space">
+            {metrics?.totalOpportunities ?? 0}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">Across all statuses and categories</p>
+        </div>
+
+        {/* 2. Published Opportunities */}
+        <div
+          onClick={() => onNavigate('/admin/opportunities')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Published</p>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-3xl font-extrabold text-emerald-700 mt-2 font-space">
+            {metrics?.publishedCount ?? 0}
+          </p>
+          <p className="text-[11px] text-emerald-800 mt-1">Active & visible on public website</p>
+        </div>
+
+        {/* 3. Pending Review */}
+        <div
+          onClick={() => onNavigate('/admin/opportunities')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-amber-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Pending Review</p>
+            <Hourglass className="w-4 h-4 text-amber-500" />
+          </div>
+          <p className="text-3xl font-extrabold text-amber-600 mt-2 font-space">
+            {metrics?.pendingReviewCount ?? 0}
+          </p>
+          <p className="text-[11px] text-amber-800 mt-1">Waiting for source verification check</p>
+        </div>
+
+        {/* 4. Closing Soon */}
+        <div
+          onClick={() => onNavigate('/admin/opportunities')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-rose-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Closing Soon</p>
+            <Clock className="w-4 h-4 text-rose-500 animate-pulse" />
+          </div>
+          <p className="text-3xl font-extrabold text-rose-700 mt-2 font-space">
+            {metrics?.closingSoonCount ?? 0}
+          </p>
+          <p className="text-[11px] text-rose-800 mt-1">Closes in ≤ 7 days</p>
+        </div>
+
+        {/* 5. Closed Opportunities */}
+        <div
+          onClick={() => onNavigate('/admin/opportunities')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-slate-400 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Closed Opportunities</p>
+            <Archive className="w-4 h-4 text-slate-400" />
+          </div>
+          <p className="text-3xl font-extrabold text-slate-600 mt-2 font-space">
+            {metrics?.closedCount ?? 0}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">Deadline passed; alternatives offered</p>
+        </div>
+
+        {/* 6. Total Resources */}
+        <div
+          onClick={() => onNavigate('/admin/resources')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Resources</p>
+            <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-emerald-700" />
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900 mt-2 font-space">
+            {metrics?.totalResources ?? 0}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">Free & paid courses, certs & bootcamps</p>
+        </div>
+
+        {/* 7. Pending Resource Submissions */}
+        <div
+          onClick={() => onNavigate('/admin/submissions')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Pending Submissions</p>
+            <Inbox className="w-4 h-4 text-indigo-500" />
+          </div>
+          <p className="text-3xl font-extrabold text-indigo-700 mt-2 font-space">
+            {metrics?.pendingSubmissionsCount ?? 0}
+          </p>
+          <p className="text-[11px] text-indigo-800 mt-1">
+            {metrics?.pendingResourceSubmissions ?? 0} resource proposal awaiting review
+          </p>
+        </div>
+
+        {/* 8. Total Users */}
+        <div
+          onClick={() => onNavigate('/admin/users')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
+            <Users className="w-4 h-4 text-slate-400" />
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900 mt-2 font-space">
+            {metrics?.totalUsers ?? 0}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">Students, jobseekers & editors</p>
+        </div>
+
+        {/* 9. Reports Requiring Attention */}
+        <div
+          onClick={() => onNavigate('/admin/reports')}
+          className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-rose-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Reports Requiring Attention</p>
+            <AlertTriangle className="w-4 h-4 text-rose-600" />
+          </div>
+          <p className="text-3xl font-extrabold text-rose-700 mt-2 font-space">
+            {metrics?.openReportsCount ?? 0}
+          </p>
+          <p className="text-[11px] text-rose-800 mt-1">Dead links, expired items & feedback</p>
+        </div>
+      </div>
+
+      {/* CONTENT WORKFLOW FUNNEL VISUALIZATION */}
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Layers className="w-5 h-5 text-emerald-700" />
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-space">
+              Publishing Lifecycle: Create → Draft → Review → Verify → Publish → Update → Close
+            </h2>
+          </div>
+          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            Standard Operating Procedure
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center text-xs">
+          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">1. Draft</span>
+            <div className="font-bold text-slate-800 py-1">{metrics?.draftCount || 0} Drafts</div>
+            <span className="text-[10px] text-slate-500">Private to editors</span>
+          </div>
+
+          <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-amber-700 uppercase">2. Review</span>
+            <div className="font-bold text-amber-900 py-1">{metrics?.pendingReviewCount || 0} In Review</div>
+            <span className="text-[10px] text-amber-700">Editorial verification</span>
+          </div>
+
+          <div className="p-3 bg-sky-50 rounded-2xl border border-sky-200 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-sky-700 uppercase">3. Verify</span>
+            <div className="font-bold text-sky-900 py-1">{metrics?.needsVerificationCount || 0} Queued</div>
+            <span className="text-[10px] text-sky-700">Source checked</span>
+          </div>
+
+          <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-emerald-700 uppercase">4. Publish</span>
+            <div className="font-bold text-emerald-800 py-1">{metrics?.publishedCount || 0} Live</div>
+            <span className="text-[10px] text-emerald-700">Appears on website</span>
+          </div>
+
+          <div className="p-3 bg-rose-50 rounded-2xl border border-rose-200 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-rose-700 uppercase">5. Closing Soon</span>
+            <div className="font-bold text-rose-900 py-1">{metrics?.closingSoonCount || 0} Due ≤ 7d</div>
+            <span className="text-[10px] text-rose-700">Urgency badges</span>
+          </div>
+
+          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">6. Closed / Archive</span>
+            <div className="font-bold text-slate-700 py-1">{metrics?.closedCount || 0} Closed</div>
+            <span className="text-[10px] text-slate-500">Auto-closed on deadline</span>
+          </div>
+        </div>
+      </div>
+
+      {/* QUICK WORKSPACE LANES */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Verification Queue Preview */}
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-700" />
+              <span>Priority Editorial Tasks</span>
+            </h3>
+            <button
+              onClick={() => onNavigate('/admin/opportunities')}
+              className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
+            >
+              Open Opportunities →
+            </button>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-800">Review Partner Submission #sub-01</p>
+                <p className="text-[11px] text-slate-500">Graduate Environmental Analyst (Ghana EPA)</p>
+              </div>
+              <button
+                onClick={() => onNavigate('/admin/submissions')}
+                className="px-2.5 py-1 bg-white border border-slate-200 font-bold rounded-lg text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                Review
+              </button>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-800">Dead Link Report #rep-01</p>
+                <p className="text-[11px] text-slate-500">Digital Marketing Internship application link</p>
+              </div>
+              <button
+                onClick={() => onNavigate('/admin/reports')}
+                className="px-2.5 py-1 bg-white border border-slate-200 font-bold rounded-lg text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                Inspect
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Database & Deployment Status */}
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <Database className="w-4 h-4 text-slate-600" />
+            <span>Database & Storage Architecture</span>
+          </h3>
+
+          <div className="space-y-3 text-xs text-slate-600">
+            <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+              <span>Firebase Admin SDK</span>
+              <span className="font-bold text-emerald-700 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Authenticated (opportunity-ghana)
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+              <span>Client State Sync</span>
+              <span className="font-bold text-slate-800">Real-time Local + Cloud Fallback</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+              <span>Deadline Automation</span>
+              <span className="font-bold text-emerald-700">Active (Auto-closes on expiry)</span>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={() => onNavigate('/admin/settings')}
+              className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
+            >
+              View System Settings & Environment →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

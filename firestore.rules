@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper to check user document role
+    function hasRole(role) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isAdminOrEditor() {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'editor'
+        )
+      );
+    }
+
+    // Test connection endpoint
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // 1. Users collection: users can read/write their own profile; admins can manage all
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdminOrEditor());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))) ||
+        hasRole('admin')
+      );
+      allow delete: if hasRole('admin');
+    }
+
+    // 2. Organizations collection
+    match /organizations/{orgId} {
+      allow read: if true;
+      allow write: if isAdminOrEditor();
+    }
+
+    // 3. Opportunities collection: Users CANNOT modify or verify. Only admin/editor.
+    match /opportunities/{opportunityId} {
+      allow read: if resource.data.status == 'published' || isAdminOrEditor();
+      allow create, update, delete: if isAdminOrEditor();
+    }
+
+    // 4. Resources collection
+    match /resources/{resourceId} {
+      allow read: if resource.data.status == 'published' || isAdminOrEditor();
+      allow create, update, delete: if isAdminOrEditor();
+    }
+
+    // 5. Skills collection
+    match /skills/{skillId} {
+      allow read: if true;
+      allow write: if isAdminOrEditor();
+    }
+
+    // 6. Careers collection
+    match /careers/{careerId} {
+      allow read: if true;
+      allow write: if isAdminOrEditor();
+    }
+
+    // 7. Applications: Users manage only their own applications
+    match /applications/{applicationId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdminOrEditor());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid) ||
+        isAdminOrEditor()
+      );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdminOrEditor());
+    }
+
+    // 8. Saved Opportunities: Users manage only their own saved items
+    match /saved_opportunities/{saveId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // 9. Alert Preferences: Users manage only their own alerts
+    match /alerts/{alertId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdminOrEditor());
+      allow create: if true; // allow guest alert email signups or authenticated users
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdminOrEditor());
+    }
+
+    // 10. Notifications: Users read their own notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create, delete: if isAdminOrEditor();
+    }
+
+    // 11. Reports: Any user can submit a report; only admin/editor can review
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
+    // 12. Submissions: Users can submit; only admin/editor can review/approve
+    match /submissions/{submissionId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
+    // 13. Verification Records: Only admin/editor
+    match /verification_records/{recordId} {
+      allow read, write: if isAdminOrEditor();
+    }
+  }
+}

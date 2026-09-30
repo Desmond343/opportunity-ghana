@@ -1,0 +1,247 @@
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin';
+import { extractSourceContent } from './server/aiExtraction';
+import { DEMO_OPPORTUNITIES, DEMO_RESOURCES, DEMO_ORGANIZATIONS, DEMO_SKILLS } from './src/data/demoData';
+
+const app = express();
+const PORT = Number(process.env.PORT) || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+app.use(express.json());
+
+// API Health & Firebase Status
+app.get('/api/health', async (req, res) => {
+  let authStatus = 'disconnected';
+  let firestoreStatus = 'unknown';
+
+  if (isInitialized && adminAuth) {
+    try {
+      await adminAuth.listUsers(1);
+      authStatus = 'connected_and_verified';
+    } catch (e: any) {
+      authStatus = `error: ${e.message}`;
+    }
+  }
+
+  if (isInitialized && adminDb) {
+    try {
+      await adminDb.collection('opportunities').limit(1).get();
+      firestoreStatus = 'connected_and_active';
+    } catch (e: any) {
+      if (e.code === 5 || (e.message && e.message.includes('NOT_FOUND'))) {
+        firestoreStatus = 'database_not_created_in_console_yet';
+      } else {
+        firestoreStatus = `error: ${e.message}`;
+      }
+    }
+  }
+
+  res.json({
+    status: 'ok',
+    app: 'Opportunity Ghana',
+    firebaseAdmin: {
+      initialized: isInitialized,
+      projectId: 'opportunity-ghana',
+      hostingSite: 'opportunity-ghana',
+      auth: authStatus,
+      firestore: firestoreStatus
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Seed collections into Firestore if database is active
+app.post('/api/opportunities/seed', async (req, res) => {
+  if (!adminDb || !isInitialized) {
+    return res.status(503).json({ error: 'Firebase Admin not initialized' });
+  }
+
+  try {
+    const oppsCol = adminDb.collection('opportunities');
+    const existing = await oppsCol.limit(1).get();
+
+    if (!existing.empty && req.query.force !== 'true') {
+      return res.json({ message: 'Firestore already contains opportunities. Skipped.' });
+    }
+
+    const batch = adminDb.batch();
+
+    // Seed opportunities
+    for (const opp of DEMO_OPPORTUNITIES) {
+      const docRef = oppsCol.doc(opp.id);
+      batch.set(docRef, opp, { merge: true });
+    }
+
+    // Seed organizations
+    const orgsCol = adminDb.collection('organizations');
+    for (const org of DEMO_ORGANIZATIONS) {
+      const docRef = orgsCol.doc(org.id);
+      batch.set(docRef, org, { merge: true });
+    }
+
+    // Seed resources
+    const resCol = adminDb.collection('resources');
+    for (const resource of DEMO_RESOURCES) {
+      const docRef = resCol.doc(resource.id);
+      batch.set(docRef, resource, { merge: true });
+    }
+
+    // Seed skills
+    const skillsCol = adminDb.collection('skills');
+    for (const skill of DEMO_SKILLS) {
+      const docRef = skillsCol.doc(skill.id);
+      batch.set(docRef, skill, { merge: true });
+    }
+
+    await batch.commit();
+    return res.json({ success: true, message: 'Successfully seeded collections into opportunity-ghana Firestore!' });
+  } catch (err: any) {
+    if (err.code === 5 || (err.message && err.message.includes('NOT_FOUND'))) {
+      return res.status(404).json({
+        error: 'Firestore database (default) has not been created yet in the Firebase Console. Visit https://console.firebase.google.com/project/opportunity-ghana/firestore to create it.'
+      });
+    }
+    console.error('Error seeding Firestore collections:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Get opportunities (Admin SDK or in-memory fallback)
+app.get('/api/opportunities', async (req, res) => {
+  if (adminDb && isInitialized) {
+    try {
+      const snapshot = await adminDb.collection('opportunities').get();
+      if (!snapshot.empty) {
+        const items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        return res.json(items);
+      }
+    } catch (e) {
+      console.warn('Admin Firestore read error (using fallback):', e);
+    }
+  }
+  res.json(DEMO_OPPORTUNITIES);
+});
+
+// Save/Update opportunity
+app.post('/api/opportunities', async (req, res) => {
+  const item = req.body;
+  if (!item || !item.id) {
+    return res.status(400).json({ error: 'Opportunity object with id is required' });
+  }
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('opportunities').doc(item.id).set(item, { merge: true });
+      return res.json({ success: true, opportunity: item });
+    } catch (e: any) {
+      console.warn('Could not persist to Firestore Admin:', e.message);
+    }
+  }
+  return res.json({ success: true, opportunity: item, note: 'persisted_locally' });
+});
+
+// Delete opportunity
+app.delete('/api/opportunities/:id', async (req, res) => {
+  const { id } = req.params;
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('opportunities').doc(id).delete();
+      return res.json({ success: true, id });
+    } catch (e: any) {
+      console.warn('Firestore admin delete error:', e.message);
+    }
+  }
+  res.json({ success: true, id, note: 'deleted_locally' });
+});
+
+// Get resources
+app.get('/api/resources', async (req, res) => {
+  if (adminDb && isInitialized) {
+    try {
+      const snapshot = await adminDb.collection('resources').get();
+      if (!snapshot.empty) {
+        const items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        return res.json(items);
+      }
+    } catch (e) {
+      console.warn('Admin Firestore resources read error:', e);
+    }
+  }
+  res.json(DEMO_RESOURCES);
+});
+
+// Save/Update resource
+app.post('/api/resources', async (req, res) => {
+  const item = req.body;
+  if (!item || !item.id) {
+    return res.status(400).json({ error: 'Resource object with id is required' });
+  }
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('resources').doc(item.id).set(item, { merge: true });
+      return res.json({ success: true, resource: item });
+    } catch (e: any) {
+      console.warn('Could not persist resource to Firestore Admin:', e.message);
+    }
+  }
+  return res.json({ success: true, resource: item, note: 'persisted_locally' });
+});
+
+// Delete resource
+app.delete('/api/resources/:id', async (req, res) => {
+  const { id } = req.params;
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('resources').doc(id).delete();
+      return res.json({ success: true, id });
+    } catch (e: any) {
+      console.warn('Firestore admin delete resource error:', e.message);
+    }
+  }
+  res.json({ success: true, id, note: 'deleted_locally' });
+});
+
+// AI Content Extraction Assistant Route
+app.post('/api/ai/extract', async (req, res) => {
+  try {
+    const { sourceUrl, textContent } = req.body;
+    if (!textContent && !sourceUrl) {
+      return res.status(400).json({ error: 'Please provide either source text or a source URL.' });
+    }
+
+    const result = await extractSourceContent(sourceUrl || '', textContent || '');
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Error in /api/ai/extract:', error);
+    return res.status(500).json({ error: error.message || 'Failed to extract content' });
+  }
+});
+
+// Vite Middleware for Development / Static file server for Production
+async function setupVite() {
+  if (!isProduction) {
+    const { createServer } = await import('vite');
+    const vite = await createServer({
+      server: { middlewareMode: true },
+      appType: 'spa'
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.resolve(process.cwd(), 'dist');
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Opportunity Ghana] Server listening on port ${PORT}`);
+  });
+}
+
+setupVite();

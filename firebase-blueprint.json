@@ -1,0 +1,180 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "User profile with roles and career preferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin", "editor", "moderator", "organization"] },
+        "location": { "type": "string" },
+        "educationLevel": { "type": "string" },
+        "university": { "type": "string" },
+        "course": { "type": "string" },
+        "graduationYear": { "type": "number" },
+        "skills": { "type": "array" },
+        "careerInterests": { "type": "array" },
+        "preferredOpportunityTypes": { "type": "array" },
+        "preferredLocations": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "organizations": {
+      "title": "Organization",
+      "description": "Partner university, government agency, or employer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "logo": { "type": "string" },
+        "description": { "type": "string" },
+        "website": { "type": "string" },
+        "organizationType": { "type": "string" },
+        "location": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "slug", "verified"]
+    },
+    "opportunities": {
+      "title": "Opportunity",
+      "description": "Verified job, scholarship, grant, internship, or fellowship",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "organizationId": { "type": "string" },
+        "category": { "type": "string" },
+        "subcategory": { "type": "string" },
+        "opportunityType": { "type": "string" },
+        "location": { "type": "string" },
+        "country": { "type": "string" },
+        "region": { "type": "string" },
+        "educationLevel": { "type": "string" },
+        "fieldOfStudy": { "type": "string" },
+        "experienceLevel": { "type": "string" },
+        "ageRequirement": { "type": "string" },
+        "nationality": { "type": "string" },
+        "fundingType": { "type": "string" },
+        "benefits": { "type": "array" },
+        "requirements": { "type": "array" },
+        "documentsRequired": { "type": "array" },
+        "applicationUrl": { "type": "string" },
+        "applicationMethod": { "type": "string" },
+        "sourceUrl": { "type": "string" },
+        "publishedAt": { "type": "string" },
+        "deadline": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "pending_review", "published", "closed", "archived"] },
+        "verificationStatus": { "type": "string", "enum": ["verified", "needs_verification", "warning", "closed"] },
+        "lastVerifiedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "views": { "type": "number" },
+        "saves": { "type": "number" }
+      },
+      "required": ["id", "title", "slug", "status", "verificationStatus", "deadline"]
+    },
+    "resources": {
+      "title": "Resource",
+      "description": "Learning course, certification, or bootcamp",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "providerId": { "type": "string" },
+        "resourceType": { "type": "string" },
+        "category": { "type": "string" },
+        "level": { "type": "string" },
+        "format": { "type": "string" },
+        "duration": { "type": "string" },
+        "cost": { "type": "number" },
+        "currency": { "type": "string" },
+        "isFree": { "type": "boolean" },
+        "hasCertificate": { "type": "boolean" },
+        "enrollmentUrl": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "title", "slug", "resourceType", "isFree"]
+    },
+    "applications": {
+      "title": "Application",
+      "description": "User opportunity application submission or tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "opportunityId": { "type": "string" },
+        "status": { "type": "string" },
+        "appliedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "opportunityId"]
+    },
+    "saved_opportunities": {
+      "title": "SavedOpportunity",
+      "description": "User bookmarked opportunities",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "opportunityId": { "type": "string" },
+        "savedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "opportunityId"]
+    },
+    "alerts": {
+      "title": "AlertPreference",
+      "description": "User opportunity alert preferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "categories": { "type": "array" },
+        "frequency": { "type": "string" }
+      },
+      "required": ["id", "email"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "Private user profiles"
+    },
+    "/organizations/{orgId}": {
+      "schema": "organizations",
+      "description": "Public partner organizations"
+    },
+    "/opportunities/{opportunityId}": {
+      "schema": "opportunities",
+      "description": "Opportunity listings"
+    },
+    "/resources/{resourceId}": {
+      "schema": "resources",
+      "description": "Learning courses and bootcamps"
+    },
+    "/applications/{applicationId}": {
+      "schema": "applications",
+      "description": "User application records"
+    },
+    "/saved_opportunities/{saveId}": {
+      "schema": "saved_opportunities",
+      "description": "User bookmarks"
+    },
+    "/alerts/{alertId}": {
+      "schema": "alerts",
+      "description": "Alert notification subscriptions"
+    }
+  }
+}
