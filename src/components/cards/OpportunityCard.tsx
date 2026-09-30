@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Opportunity } from '../../types/database';
 import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
 import { Badge } from '../common/Badge';
 import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap } from 'lucide-react';
+import { SavedService } from '../../services/savedService';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -16,11 +17,31 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   onNavigate,
   featured = false
 }) => {
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(() => SavedService.isSaved(opportunity.id));
+
+  useEffect(() => {
+    setIsSaved(SavedService.isSaved(opportunity.id));
+    const handleUpdate = (e: any) => {
+      if (e.detail?.id === opportunity.id) {
+        setIsSaved(e.detail.isSaved);
+      }
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, [opportunity.id]);
 
   const toggleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
+    const updated = SavedService.toggleSave({
+      id: opportunity.id,
+      slug: opportunity.slug,
+      title: opportunity.title,
+      category: opportunity.category,
+      type: opportunity.opportunityType,
+      organizationName: opportunity.organizationName,
+      deadline: opportunity.deadline
+    });
+    setIsSaved(updated);
   };
 
   return (

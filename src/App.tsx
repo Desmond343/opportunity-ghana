@@ -11,6 +11,8 @@ import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { CareersPage } from './pages/CareersPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';
+import { SavedPage } from './pages/SavedPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { AuthPage } from './pages/AuthPage';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -25,6 +27,9 @@ import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
 import { Search, X, Compass, ExternalLink } from 'lucide-react';
 import { OPPORTUNITY_CATEGORIES } from './data/categories';
+import { InstallAppPrompt } from './components/pwa/InstallAppPrompt';
+import { OfflineIndicator } from './components/pwa/OfflineIndicator';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 export function AppContent() {
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname || '/');
@@ -113,7 +118,17 @@ export function AppContent() {
       return <AlertsPage onNavigate={navigate} />;
     }
 
-    // 8. Auth: /login and /signup
+    // 8. Saved: /saved
+    if (currentPath === '/saved') {
+      return <SavedPage onNavigate={navigate} />;
+    }
+
+    // 9. Profile: /profile
+    if (currentPath === '/profile') {
+      return <ProfilePage onNavigate={navigate} />;
+    }
+
+    // 10. Auth: /login and /signup
     if (currentPath === '/login') {
       return <AuthPage mode="login" onNavigate={navigate} />;
     }
@@ -121,7 +136,7 @@ export function AppContent() {
       return <AuthPage mode="signup" onNavigate={navigate} />;
     }
 
-    // 9. Admin routes: /admin/*
+    // 11. Admin routes: /admin/*
     if (currentPath.startsWith('/admin')) {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
@@ -147,6 +162,9 @@ export function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans">
+      {/* Offline Status Warning */}
+      <OfflineIndicator />
+
       {/* Notice Banner */}
       {!isAdminRoute && <DemoNoticeBanner onNavigate={navigate} />}
 
@@ -159,8 +177,20 @@ export function AppContent() {
         />
       )}
 
-      {/* Main View */}
-      <main className="flex-1">{renderRoute()}</main>
+      {/* Main View with mobile safe bottom spacing */}
+      <main className="flex-1 pb-20 md:pb-0">{renderRoute()}</main>
+
+      {/* PWA Floating Install Prompt (suppresses automatically if installed or dismissed) */}
+      {!isAdminRoute && <InstallAppPrompt variant="banner" />}
+
+      {/* Mobile Friendly Bottom Navigation Bar */}
+      {!isAdminRoute && (
+        <MobileBottomNav
+          currentPath={currentPath}
+          onNavigate={navigate}
+          onOpenSearch={() => setSearchModalOpen(true)}
+        />
+      )}
 
       {/* Global Footer */}
       {!isAdminRoute && <Footer onNavigate={navigate} />}

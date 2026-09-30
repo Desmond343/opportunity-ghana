@@ -14,15 +14,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Brand & Purpose */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md">
-                <Compass className="w-5 h-5 text-emerald-200" />
+              <div className="w-10 h-10 rounded-2xl bg-white p-0.5 flex items-center justify-center text-white shadow-md">
+                <img
+                  src="/icon-192.png"
+                  alt="Opportunity Ghana"
+                  className="w-full h-full object-contain rounded-xl"
+                />
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight font-space">
                 Opportunity <span className="text-emerald-400">Ghana</span>
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Opportunity Ghana is a continuously updated, database-driven opportunity and career platform. We connect Ghanaian youth, students, and professionals with verified jobs, scholarships, grants, and upskilling pathways.
+              Opportunity Ghana is an installable, database-driven opportunity and career platform. We connect Ghanaian youth, students, and professionals with verified jobs, scholarships, grants, and upskilling pathways.
             </p>
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300">

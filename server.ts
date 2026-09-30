@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin';
@@ -220,12 +221,29 @@ app.post('/api/ai/extract', async (req, res) => {
   }
 });
 
+// PWA Service Worker specific headers and direct serving
+app.get('/sw.js', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Content-Type', 'application/javascript');
+  const swDist = path.resolve(process.cwd(), 'dist', 'sw.js');
+  if (fs.existsSync(swDist)) {
+    return res.sendFile(swDist);
+  }
+  next();
+});
+
 // Vite Middleware for Development / Static file server for Production
 async function setupVite() {
+  const httpServer = http.createServer(app);
+
   if (!isProduction) {
     const { createServer } = await import('vite');
     const vite = await createServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false
+      },
       appType: 'spa'
     });
     app.use(vite.middlewares);
@@ -239,7 +257,7 @@ async function setupVite() {
     }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[Opportunity Ghana] Server listening on port ${PORT}`);
   });
 }
