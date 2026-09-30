@@ -22,41 +22,51 @@ export const AdminReports: React.FC<{ onNavigate: (path: string) => void }> = ()
         </p>
       </div>
 
-      <div className="space-y-4">
-        {reports.map((rep) => (
-          <div key={rep.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full uppercase">
-                {rep.reason.replace('_', ' ')}
-              </span>
-              <span className="text-[11px] font-semibold text-slate-400 capitalize">Status: {rep.status}</span>
-            </div>
+      {reports.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-slate-200 space-y-3">
+          <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-800">You&apos;re all caught up</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            No active content reports or broken-link flags. All published opportunities and resources are in good standing.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reports.map((rep) => (
+            <div key={rep.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full uppercase">
+                  {rep.reason.replace('_', ' ')}
+                </span>
+                <span className="text-[11px] font-semibold text-slate-400 capitalize">Status: {rep.status}</span>
+              </div>
 
-            <h3 className="text-sm font-bold text-slate-900">{rep.targetTitle}</h3>
-            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl">
-              "{rep.details}"
-            </p>
+              <h3 className="text-sm font-bold text-slate-900">{rep.targetTitle}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl">
+                &ldquo;{rep.details}&rdquo;
+              </p>
 
-            <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-100">
-              <span>Reported: {new Date(rep.createdAt).toLocaleDateString('en-GB')}</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleUpdate(rep.id, 'dismissed')}
-                  className="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-lg font-semibold"
-                >
-                  Dismiss
-                </button>
-                <button
-                  onClick={() => handleUpdate(rep.id, 'resolved')}
-                  className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-bold"
-                >
-                  Mark Resolved
-                </button>
+              <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-100">
+                <span>Reported: {new Date(rep.createdAt).toLocaleDateString('en-GB')}</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleUpdate(rep.id, 'dismissed')}
+                    className="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-lg font-semibold"
+                  >
+                    Dismiss
+                  </button>
+                  <button
+                    onClick={() => handleUpdate(rep.id, 'resolved')}
+                    className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-bold"
+                  >
+                    Mark Resolved
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

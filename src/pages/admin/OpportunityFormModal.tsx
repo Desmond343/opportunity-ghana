@@ -236,8 +236,7 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       createdAt: opportunityToEdit?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       views: opportunityToEdit?.views || 0,
-      saves: opportunityToEdit?.saves || 0,
-      isDemo: false
+      saves: opportunityToEdit?.saves || 0
     };
   };
 

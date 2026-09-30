@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ExtractedAIResponse, QualityControlFlag, VerificationChecklist } from '../../types/aiAssistant';
-import { AIAssistantService, DEMO_SOURCE_TEMPLATES } from '../../services/aiAssistantService';
+import { AIAssistantService } from '../../services/aiAssistantService';
 import { OpportunitiesService } from '../../services/opportunitiesService';
 import { ResourcesService } from '../../services/resourcesService';
 import { DuplicateMatch, Opportunity, Resource, ResourceType } from '../../types/database';
@@ -95,12 +95,6 @@ export const AdminAIAssistant: React.FC<{ onNavigate: (path: string) => void }> 
   const author = {
     email: currentUser?.email || 'admin@opportunityghana.com',
     name: currentUser?.name || 'Administrator'
-  };
-
-  const handleSelectTemplate = (template: typeof DEMO_SOURCE_TEMPLATES[0]) => {
-    setSourceUrl(template.url);
-    setPastedText(template.text);
-    setErrorMsg(null);
   };
 
   const handleAnalyze = async () => {
@@ -239,8 +233,7 @@ export const AdminAIAssistant: React.FC<{ onNavigate: (path: string) => void }> 
           createdAt: now,
           updatedAt: now,
           views: 0,
-          saves: 0,
-          isDemo: false
+          saves: 0
         };
 
         await OpportunitiesService.saveOpportunity(newOpp, author);
@@ -280,8 +273,7 @@ export const AdminAIAssistant: React.FC<{ onNavigate: (path: string) => void }> 
           createdAt: now,
           updatedAt: now,
           views: 0,
-          saves: 0,
-          isDemo: false
+          saves: 0
         };
 
         await ResourcesService.saveResource(newRes, author);
@@ -342,30 +334,6 @@ export const AdminAIAssistant: React.FC<{ onNavigate: (path: string) => void }> 
             <span>1. Ingest Source Information</span>
           </h2>
           <span className="text-[11px] text-slate-400">PDF, webpage, letterhead circular or raw text</span>
-        </div>
-
-        {/* Preset Sample Templates for instant testing */}
-        <div className="space-y-2">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Quick-Load Sample Announcements:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-            {DEMO_SOURCE_TEMPLATES.map((tmpl, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => handleSelectTemplate(tmpl)}
-                className="p-3 text-left rounded-2xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/30 transition-all cursor-pointer group"
-              >
-                <div className="font-bold text-slate-800 group-hover:text-purple-900 truncate">
-                  {tmpl.title}
-                </div>
-                <div className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
-                  {tmpl.url}
-                </div>
-              </button>
-            ))}
-          </div>
         </div>
 
         <div className="space-y-4 pt-2">

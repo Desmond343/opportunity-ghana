@@ -95,7 +95,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                   {resource.currency} {resource.cost.toLocaleString()}
                 </Badge>
               )}
-              <VerificationBadge status={resource.verificationStatus || 'verified'} isDemo={resource.isDemo} />
+              <VerificationBadge status={resource.verificationStatus || 'verified'} />
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
               {resource.title}
@@ -230,7 +230,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-700" />
                   Provider Verification
                 </span>
-                <VerificationBadge status={resource.verificationStatus || 'verified'} isDemo={resource.isDemo} />
+                <VerificationBadge status={resource.verificationStatus || 'verified'} />
               </div>
 
               {resource.sourceUrl && (

@@ -52,45 +52,55 @@ export const AdminOrganizations: React.FC<{ onNavigate: (path: string) => void }
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {orgs.map((org) => (
-          <div key={org.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                {org.logo ? (
-                  <img src={org.logo} alt={org.name} className="w-10 h-10 rounded-xl object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-600">
-                    <Building className="w-5 h-5" />
+      {orgs.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-slate-200 space-y-3">
+          <Building className="w-10 h-10 text-slate-300 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-800">No registered organizations yet</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            Click &apos;Add Organization&apos; to register accredited Ghanaian universities, government agencies, and partner employers.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {orgs.map((org) => (
+            <div key={org.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  {org.logo ? (
+                    <img src={org.logo} alt={org.name} className="w-10 h-10 rounded-xl object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-600">
+                      <Building className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">{org.name}</h3>
+                    <span className="text-[10px] text-slate-400 capitalize">{org.organizationType}</span>
                   </div>
-                )}
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">{org.name}</h3>
-                  <span className="text-[10px] text-slate-400 capitalize">{org.organizationType}</span>
                 </div>
+                {org.verified && (
+                  <span title="Verified Partner">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  </span>
+                )}
               </div>
-              {org.verified && (
-                <span title="Verified Partner">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <p className="text-xs text-slate-600 line-clamp-2">{org.description}</p>
+              <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100 text-slate-500">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-400" />
+                  {org.location}
                 </span>
-              )}
+                {org.website && (
+                  <a href={org.website} target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline flex items-center gap-1">
+                    <span>Site</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-slate-600 line-clamp-2">{org.description}</p>
-            <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100 text-slate-500">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-slate-400" />
-                {org.location}
-              </span>
-              {org.website && (
-                <a href={org.website} target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline flex items-center gap-1">
-                  <span>Site</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {showAdd && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">

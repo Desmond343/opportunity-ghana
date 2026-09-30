@@ -16,16 +16,6 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
       onClick={() => onNavigate(`/resources/${resource.slug}`)}
       className="group bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-500/40 hover:shadow-sm transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden"
     >
-      {resource.isDemo && (
-        <div className="bg-amber-500/10 border-b border-amber-200/60 px-4 py-1 flex items-center justify-between text-[11px] text-amber-900 font-medium">
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            DEV DEMO RECORD
-          </span>
-          <span className="text-amber-800/80 text-[10px]">Resource Catalog</span>
-        </div>
-      )}
-
       <div className="p-5 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">

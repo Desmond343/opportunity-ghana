@@ -54,19 +54,8 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       }`}
     >
       {/* Featured Gold Top Accent Line */}
-      {featured && !opportunity.isDemo && (
+      {featured && (
         <div className="bg-[#FCD116] h-1 w-full" />
-      )}
-
-      {/* Top Banner for Demo Records */}
-      {opportunity.isDemo && (
-        <div className="bg-[#FEF9E7] border-b border-[#FCD116]/40 px-4 py-1 flex items-center justify-between text-[11px] text-[#8C6D00] font-medium">
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
-            DEV DEMO RECORD
-          </span>
-          <span className="text-[#8C6D00]/80 text-[10px]">Sample Architecture Data</span>
-        </div>
       )}
 
       <div className="p-5 flex-1 flex flex-col">
@@ -142,7 +131,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       <div className="bg-[#F7F9F8] border-t border-[#E5E7EB] px-5 py-3 flex items-center justify-between gap-2">
         <DeadlineBadge deadline={opportunity.deadline} />
         <div className="flex items-center gap-2">
-          <VerificationBadge status={opportunity.verificationStatus} isDemo={opportunity.isDemo} />
+          <VerificationBadge status={opportunity.verificationStatus} />
           <span className="text-[#737373] group-hover:text-[#006B3F] transition-colors">
             <ArrowUpRight className="w-4 h-4" />
           </span>

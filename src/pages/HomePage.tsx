@@ -180,7 +180,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500">No closing soon records at this moment.</p>
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 text-center space-y-2">
+              <Clock className="w-8 h-8 text-slate-400 mx-auto" />
+              <p className="text-sm font-bold text-slate-700">No Imminent Deadlines in the Next 7 Days</p>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                All currently active scholarships, jobs, and programmes have extended application periods.
+              </p>
+              <button
+                onClick={() => onNavigate('/opportunities')}
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer"
+              >
+                Browse All Open Opportunities
+              </button>
+            </div>
           )}
         </section>
 
@@ -200,7 +212,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
             <button
               onClick={() => onNavigate('/opportunities')}
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 self-start sm:self-auto"
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 self-start sm:self-auto cursor-pointer"
             >
               <span>Explore all opportunities</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -209,7 +221,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
           {loading ? (
             <LoadingState />
-          ) : (
+          ) : newlyAdded.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {newlyAdded.map((opp) => (
                 <OpportunityCard
@@ -218,6 +230,28 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   onNavigate={onNavigate}
                 />
               ))}
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 text-center space-y-3">
+              <Compass className="w-10 h-10 text-emerald-600 mx-auto" />
+              <h3 className="text-base font-bold text-slate-800">Fresh Opportunities Being Curated</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                Our editorial team verifies notices directly from Ghanaian universities, ministries, and accredited employers before publishing.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2 pt-2">
+                <button
+                  onClick={() => onNavigate('/alerts')}
+                  className="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs hover:bg-emerald-800 transition-colors cursor-pointer"
+                >
+                  Set Opportunity Alerts
+                </button>
+                <button
+                  onClick={() => onNavigate('/careers')}
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold shadow-2xs hover:bg-slate-50 cursor-pointer"
+                >
+                  Explore Career Tracks
+                </button>
+              </div>
             </div>
           )}
         </section>
@@ -283,15 +317,31 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {freeCourses.map((resource) => (
-              <ResourceCard
-                key={resource.id}
-                resource={resource}
-                onNavigate={onNavigate}
-              />
-            ))}
-          </div>
+          {freeCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {freeCourses.map((resource) => (
+                <ResourceCard
+                  key={resource.id}
+                  resource={resource}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-8 text-center space-y-2">
+              <BookOpen className="w-8 h-8 text-indigo-600 mx-auto" />
+              <p className="text-sm font-bold text-slate-800">Upskilling & Certification Programs</p>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                Explore accredited online cohorts, bootcamps, and professional certificates curated for youth and professionals in Ghana.
+              </p>
+              <button
+                onClick={() => onNavigate('/resources')}
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors shadow-xs cursor-pointer"
+              >
+                Browse All Learning Tracks
+              </button>
+            </div>
+          )}
         </section>
 
         {/* SECTION 5: FREE COURSES HIGHLIGHT */}

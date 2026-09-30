@@ -23,7 +23,7 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigate, children }) => {
-  const { currentUser, isEditorOrAdmin, switchRole } = useAuth();
+  const { currentUser, isEditorOrAdmin } = useAuth();
 
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -49,16 +49,17 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
           Administrator Access Required
         </h2>
         <p className="text-xs text-slate-600 leading-relaxed">
-          The Opportunity Ghana CMS is restricted to verified administrators and editors. Your current profile is set to{' '}
-          <strong className="text-slate-800 uppercase font-bold">{currentUser?.role || 'Guest'}</strong>.
+          The Opportunity Ghana CMS is restricted to verified administrators and editors. Your current account does not have editorial permissions.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-          <button
-            onClick={() => switchRole('admin')}
-            className="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
-          >
-            Switch to Admin Profile (Dev Mode)
-          </button>
+          {!currentUser ? (
+            <button
+              onClick={() => onNavigate('/login')}
+              className="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              Sign In with Authorized Account
+            </button>
+          ) : null}
           <button
             onClick={() => onNavigate('/')}
             className="w-full sm:w-auto px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"

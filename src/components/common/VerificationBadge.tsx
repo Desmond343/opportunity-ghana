@@ -11,22 +11,9 @@ interface VerificationBadgeProps {
 
 export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
   status,
-  isDemo = false,
   className = '',
   showIcon = true
 }) => {
-  if (isDemo) {
-    return (
-      <span
-        title="Sample development record. Clearly marked per Opportunity Ghana verification policy."
-        className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 border border-amber-300 ${className}`}
-      >
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-        DEMO
-      </span>
-    );
-  }
-
   switch (status) {
     case 'verified':
       return (

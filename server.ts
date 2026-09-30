@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin';
 import { extractSourceContent } from './server/aiExtraction';
-import { DEMO_OPPORTUNITIES, DEMO_RESOURCES, DEMO_ORGANIZATIONS, DEMO_SKILLS } from './src/data/demoData';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -53,63 +52,7 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// Seed collections into Firestore if database is active
-app.post('/api/opportunities/seed', async (req, res) => {
-  if (!adminDb || !isInitialized) {
-    return res.status(503).json({ error: 'Firebase Admin not initialized' });
-  }
-
-  try {
-    const oppsCol = adminDb.collection('opportunities');
-    const existing = await oppsCol.limit(1).get();
-
-    if (!existing.empty && req.query.force !== 'true') {
-      return res.json({ message: 'Firestore already contains opportunities. Skipped.' });
-    }
-
-    const batch = adminDb.batch();
-
-    // Seed opportunities
-    for (const opp of DEMO_OPPORTUNITIES) {
-      const docRef = oppsCol.doc(opp.id);
-      batch.set(docRef, opp, { merge: true });
-    }
-
-    // Seed organizations
-    const orgsCol = adminDb.collection('organizations');
-    for (const org of DEMO_ORGANIZATIONS) {
-      const docRef = orgsCol.doc(org.id);
-      batch.set(docRef, org, { merge: true });
-    }
-
-    // Seed resources
-    const resCol = adminDb.collection('resources');
-    for (const resource of DEMO_RESOURCES) {
-      const docRef = resCol.doc(resource.id);
-      batch.set(docRef, resource, { merge: true });
-    }
-
-    // Seed skills
-    const skillsCol = adminDb.collection('skills');
-    for (const skill of DEMO_SKILLS) {
-      const docRef = skillsCol.doc(skill.id);
-      batch.set(docRef, skill, { merge: true });
-    }
-
-    await batch.commit();
-    return res.json({ success: true, message: 'Successfully seeded collections into opportunity-ghana Firestore!' });
-  } catch (err: any) {
-    if (err.code === 5 || (err.message && err.message.includes('NOT_FOUND'))) {
-      return res.status(404).json({
-        error: 'Firestore database (default) has not been created yet in the Firebase Console. Visit https://console.firebase.google.com/project/opportunity-ghana/firestore to create it.'
-      });
-    }
-    console.error('Error seeding Firestore collections:', err);
-    return res.status(500).json({ error: err.message });
-  }
-});
-
-// Get opportunities (Admin SDK or in-memory fallback)
+// Get opportunities
 app.get('/api/opportunities', async (req, res) => {
   if (adminDb && isInitialized) {
     try {
@@ -119,10 +62,10 @@ app.get('/api/opportunities', async (req, res) => {
         return res.json(items);
       }
     } catch (e) {
-      console.warn('Admin Firestore read error (using fallback):', e);
+      console.warn('Admin Firestore read error:', e);
     }
   }
-  res.json(DEMO_OPPORTUNITIES);
+  res.json([]);
 });
 
 // Save/Update opportunity
@@ -170,7 +113,7 @@ app.get('/api/resources', async (req, res) => {
       console.warn('Admin Firestore resources read error:', e);
     }
   }
-  res.json(DEMO_RESOURCES);
+  res.json([]);
 });
 
 // Save/Update resource

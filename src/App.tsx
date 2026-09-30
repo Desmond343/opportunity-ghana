@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './services/authContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { DemoNoticeBanner } from './components/layout/DemoNoticeBanner';
 import { HomePage } from './pages/HomePage';
 import { OpportunitiesPage } from './pages/OpportunitiesPage';
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
@@ -165,9 +164,6 @@ export function AppContent() {
       {/* Offline Status Warning */}
       <OfflineIndicator />
 
-      {/* Notice Banner */}
-      {!isAdminRoute && <DemoNoticeBanner onNavigate={navigate} />}
-
       {/* Global Navbar */}
       {!isAdminRoute && (
         <Navbar
@@ -216,7 +212,7 @@ export function AppContent() {
               <input
                 type="text"
                 autoFocus
-                placeholder="Type keywords (e.g. Ashesi, MEST, Scholarship, React, Intern)..."
+                placeholder="Type keywords (e.g. Scholarship, Engineering, Internship, Finance)..."
                 value={modalSearchTerm}
                 onChange={(e) => setModalSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"

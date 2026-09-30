@@ -1,8 +1,7 @@
 import { Resource, OpportunityStatus, VerificationStatus } from '../types/database';
-import { DEMO_RESOURCES } from '../data/demoData';
 import { db, isFirebaseConfigured } from './firebase';
 import { AuditService } from './auditService';
-import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
 
@@ -11,20 +10,35 @@ function getStoredResources(): Resource[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter(r => 
+          r && 
+          r.id && 
+          !r.id.startsWith('res-demo-') && 
+          !r.title?.includes('[DEMO RECORD]') &&
+          !r.enrollmentUrl?.includes('example.com')
+        );
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
       }
     }
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEMO_RESOURCES));
-  return DEMO_RESOURCES;
+  return [];
 }
 
 function saveStoredResources(items: Resource[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    const cleaned = items.filter(r => 
+      r && 
+      r.id && 
+      !r.id.startsWith('res-demo-') && 
+      !r.title?.includes('[DEMO RECORD]')
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
   } catch (e) {
     console.error('Failed to save resources', e);
   }
@@ -48,11 +62,14 @@ export const ResourcesService = {
       try {
         const resRef = collection(db, 'resources');
         const timeout = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 2000)
+          setTimeout(() => reject(new Error('timeout')), 3000)
         );
         const snapshot: any = await Promise.race([getDocs(resRef), timeout]);
-        const results = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() } as Resource));
-        if (results.length > 0) items = results;
+        const results = snapshot.docs
+          .map((d: any) => ({ id: d.id, ...d.data() } as Resource))
+          .filter((r: Resource) => !r.id.startsWith('res-demo-') && !r.title?.includes('[DEMO RECORD]'));
+        items = results;
+        saveStoredResources(items);
       } catch (e: any) {
         if (e?.code !== 'unavailable' && e?.message !== 'timeout') {
           console.warn('Firestore resources read error:', e?.message || e);
@@ -96,83 +113,94 @@ export const ResourcesService = {
   },
 
   async getById(id: string): Promise<Resource | null> {
+    if (isFirebaseConfigured && db) {
+      try {
+        const docSnap = await getDoc(doc(db, 'resources', id));
+        if (docSnap.exists()) {
+          const item = { id: docSnap.id, ...docSnap.data() } as Resource;
+          if (!item.id.startsWith('res-demo-') && !item.title.includes('[DEMO RECORD]')) {
+            return item;
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getById resource error:', err);
+      }
+    }
     const items = getStoredResources();
     return items.find(r => r.id === id) || null;
   },
 
   async getBySlug(slug: string): Promise<Resource | null> {
-    const items = getStoredResources();
-    return items.find(r => r.slug === slug || r.id === slug) || null;
-  },
-
-  async getFreeCourses(limit: number = 4): Promise<Resource[]> {
-    const items = await this.getAll({ isFree: true });
-    return items.slice(0, limit);
+    const items = await this.getAll({ includeUnpublished: true });
+    return items.find(r => r.slug === slug) || null;
   },
 
   async saveResource(
-    res: Resource,
+    resource: Resource,
     author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
   ): Promise<Resource> {
-    const isNew = !res.id || !getStoredResources().some(r => r.id === res.id);
+    const items = getStoredResources();
+    const index = items.findIndex(r => r.id === resource.id);
     const now = new Date().toISOString();
 
-    const finalItem: Resource = {
-      ...res,
-      id: res.id || 'res_' + Math.random().toString(36).substring(2, 9),
-      slug: res.slug || res.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-      createdAt: res.createdAt || now,
+    const isNew = index < 0;
+    const previousStatus = isNew ? undefined : items[index].status;
+
+    const toSave: Resource = {
+      ...resource,
       updatedAt: now,
-      views: res.views || 0,
-      saves: res.saves || 0,
       lastEditedByEmail: author.email,
-      lastEditedByName: author.name,
-      createdByEmail: res.createdByEmail || author.email,
-      createdByName: res.createdByName || author.name,
-      verificationStatus: res.verificationStatus || 'verified'
+      lastEditedByName: author.name
     };
 
-    if (finalItem.status === 'published' && !finalItem.publishedAt) {
-      finalItem.publishedAt = now;
-      finalItem.publishedByEmail = author.email;
+    if (isNew) {
+      toSave.createdAt = now;
+      toSave.createdByEmail = author.email;
+      toSave.createdByName = author.name;
+      toSave.views = 0;
+      toSave.saves = 0;
     }
+
+    if (toSave.status === 'published' && (!toSave.publishedAt || previousStatus !== 'published')) {
+      toSave.publishedAt = now;
+      toSave.publishedByEmail = author.email;
+    }
+
+    if (index >= 0) {
+      items[index] = toSave;
+    } else {
+      items.unshift(toSave);
+    }
+
+    saveStoredResources(items);
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'resources', finalItem.id), finalItem, { merge: true });
-      } catch (e) {
-        console.warn('Firestore save resource error:', e);
+        await setDoc(doc(db, 'resources', toSave.id), toSave, { merge: true });
+      } catch (err) {
+        console.warn('Firestore saveResource error:', err);
       }
     }
 
-    const items = getStoredResources();
-    const index = items.findIndex(r => r.id === finalItem.id);
-    if (index >= 0) {
-      items[index] = finalItem;
-    } else {
-      items.unshift(finalItem);
-    }
-    saveStoredResources(items);
-
     AuditService.log({
       entityType: 'resource',
-      entityId: finalItem.id,
-      entityTitle: finalItem.title,
-      action: isNew ? 'created' : 'updated',
+      entityId: toSave.id,
+      entityTitle: toSave.title,
+      action: isNew ? 'created' : toSave.status === 'published' ? 'published' : 'updated',
       performedByEmail: author.email,
       performedByName: author.name,
-      details: isNew ? `Created new course/resource in status: ${finalItem.status}` : 'Updated resource curriculum and metadata.',
-      newStatus: finalItem.status
+      details: isNew ? `Created resource course/credential.` : `Updated resource.`,
+      previousStatus,
+      newStatus: toSave.status
     });
 
-    return finalItem;
+    return toSave;
   },
 
   async updateStatus(
     id: string,
     status: OpportunityStatus,
-    author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' },
-    notes?: string
+    author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
   ): Promise<void> {
     const items = getStoredResources();
     const index = items.findIndex(r => r.id === id);
@@ -186,13 +214,9 @@ export const ResourcesService = {
       status,
       updatedAt: now,
       lastEditedByEmail: author.email,
-      lastEditedByName: author.name
+      lastEditedByName: author.name,
+      ...(status === 'published' && !items[index].publishedAt ? { publishedAt: now, publishedByEmail: author.email } : {})
     };
-
-    if (status === 'published' && !updated.publishedAt) {
-      updated.publishedAt = now;
-      updated.publishedByEmail = author.email;
-    }
 
     items[index] = updated;
     saveStoredResources(items);
@@ -202,10 +226,12 @@ export const ResourcesService = {
         await updateDoc(doc(db, 'resources', id), {
           status,
           updatedAt: now,
+          lastEditedByEmail: author.email,
+          lastEditedByName: author.name,
           ...(status === 'published' ? { publishedAt: now, publishedByEmail: author.email } : {})
         });
-      } catch (e) {
-        console.warn('Firestore updateStatus error:', e);
+      } catch (err) {
+        console.warn('Firestore updateStatus error:', err);
       }
     }
 
@@ -216,10 +242,40 @@ export const ResourcesService = {
       action: status === 'published' ? 'published' : 'updated',
       performedByEmail: author.email,
       performedByName: author.name,
-      details: notes || `Resource status changed from ${previousStatus} to ${status}.`,
+      details: `Status set to ${status}.`,
       previousStatus,
       newStatus: status
     });
+  },
+
+  async delete(
+    id: string,
+    author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
+  ): Promise<void> {
+    const items = getStoredResources();
+    const item = items.find(r => r.id === id);
+    const updated = items.filter(r => r.id !== id);
+    saveStoredResources(updated);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await deleteDoc(doc(db, 'resources', id));
+      } catch (err) {
+        console.warn('Firestore delete resource error:', err);
+      }
+    }
+
+    if (item) {
+      AuditService.log({
+        entityType: 'resource',
+        entityId: id,
+        entityTitle: item.title,
+        action: 'deleted',
+        performedByEmail: author.email,
+        performedByName: author.name,
+        details: `Deleted resource from database.`
+      });
+    }
   },
 
   async updateVerification(
@@ -232,13 +288,14 @@ export const ResourcesService = {
     const index = items.findIndex(r => r.id === id);
     if (index < 0) return;
 
+    const previousVerification = items[index].verificationStatus;
     const now = new Date().toISOString();
+
     const updated: Resource = {
       ...items[index],
       verificationStatus,
       lastVerifiedAt: now,
       verificationNotes: notes || items[index].verificationNotes,
-      verifiedByEmail: author.email,
       updatedAt: now
     };
 
@@ -251,11 +308,10 @@ export const ResourcesService = {
           verificationStatus,
           lastVerifiedAt: now,
           verificationNotes: notes || '',
-          verifiedByEmail: author.email,
           updatedAt: now
         });
-      } catch (e) {
-        console.warn('Firestore updateVerification error:', e);
+      } catch (err) {
+        console.warn('Firestore updateVerification error:', err);
       }
     }
 
@@ -266,7 +322,8 @@ export const ResourcesService = {
       action: 'verified',
       performedByEmail: author.email,
       performedByName: author.name,
-      details: notes || `Resource verification status updated to ${verificationStatus}.`
+      details: notes || `Verification set to ${verificationStatus}. Checked against official provider sources.`,
+      changesSummary: `Verification: ${previousVerification} → ${verificationStatus}`
     });
   },
 
@@ -318,44 +375,13 @@ export const ResourcesService = {
     return duplicatedItem;
   },
 
-  async delete(
-    id: string,
-    author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
-  ): Promise<void> {
-    const items = getStoredResources();
-    const item = items.find(r => r.id === id);
-    const updatedList = items.filter(r => r.id !== id);
-    saveStoredResources(updatedList);
-
-    if (isFirebaseConfigured && db) {
-      try {
-        await deleteDoc(doc(db, 'resources', id));
-      } catch (e) {
-        console.warn('Firestore delete error:', e);
-      }
-    }
-
-    if (item) {
-      AuditService.log({
-        entityType: 'resource',
-        entityId: id,
-        entityTitle: item.title,
-        action: 'deleted',
-        performedByEmail: author.email,
-        performedByName: author.name,
-        details: `Deleted resource from database.`
-      });
-    }
-  },
-
-  // Bulk Management Actions
   async bulkUpdateStatus(
     ids: string[],
     newStatus: OpportunityStatus,
     author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
   ): Promise<void> {
     for (const id of ids) {
-      await this.updateStatus(id, newStatus, author, `Bulk action: set to ${newStatus}`);
+      await this.updateStatus(id, newStatus, author);
     }
   },
 
@@ -383,5 +409,10 @@ export const ResourcesService = {
     for (const id of ids) {
       await this.delete(id, author);
     }
+  },
+
+  async getFreeCourses(limit: number = 3): Promise<Resource[]> {
+    const items = await this.getAll({ isFree: true });
+    return items.slice(0, limit);
   }
 };

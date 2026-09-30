@@ -164,27 +164,6 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         </div>
       )}
 
-      {/* Demo Notice Banner if demo record */}
-      {opportunity.isDemo && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-            <div>
-              <strong>[DEMO RECORD - DEVELOPMENT PREVIEW]</strong>
-              <p className="text-[11px] text-amber-800">
-                This record demonstrates schema fields for {opportunity.category}. Verified live records are published exclusively via the CMS verification workflow.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => onNavigate('/admin/opportunities')}
-            className="px-3 py-1.5 rounded-lg bg-amber-800 text-white font-bold text-[11px] shrink-0 cursor-pointer"
-          >
-            Manage in CMS
-          </button>
-        </div>
-      )}
-
       {/* Hero Header */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
@@ -204,7 +183,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge variant="emerald">{opportunity.category}</Badge>
                 <Badge variant="blue">{opportunity.opportunityType}</Badge>
-                <VerificationBadge status={opportunity.verificationStatus} isDemo={opportunity.isDemo} />
+                <VerificationBadge status={opportunity.verificationStatus} />
               </div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug font-space">
                 {opportunity.title}
@@ -471,7 +450,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
                   Source Verification
                 </span>
-                <VerificationBadge status={opportunity.verificationStatus} isDemo={opportunity.isDemo} />
+                <VerificationBadge status={opportunity.verificationStatus} />
               </div>
 
               {opportunity.sourceUrl && (

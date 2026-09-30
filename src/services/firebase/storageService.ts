@@ -5,7 +5,7 @@ import {
   getDownloadURL,
   FirebaseStorage
 } from 'firebase/storage';
-import { app, isFirebaseConfigured, firebaseConfig } from './config';
+import { app, isFirebaseConfigured } from './config';
 
 export const storage: FirebaseStorage | null = (app && isFirebaseConfigured) ? getStorage(app) : null;
 
@@ -23,8 +23,7 @@ export const FirebaseStorageService = {
     filename: string
   ): Promise<string> {
     if (!storage || !isFirebaseConfigured) {
-      console.info('[Opportunity Ghana] In local demo mode: simulating document upload for', filename);
-      return `https://example.com/demo-storage/users/${userId}/${encodeURIComponent(filename)}`;
+      throw new Error('Firebase Storage is currently unavailable. Please verify storage configuration.');
     }
 
     const storageRef = ref(storage, `users/${userId}/documents/${Date.now()}_${filename}`);
@@ -41,7 +40,7 @@ export const FirebaseStorageService = {
     folder: 'logos' | 'banners' = 'logos'
   ): Promise<string> {
     if (!storage || !isFirebaseConfigured) {
-      return `https://example.com/demo-storage/public/${folder}/${encodeURIComponent(filename)}`;
+      throw new Error('Firebase Storage is currently unavailable.');
     }
 
     const assetRef = ref(storage, `public/${folder}/${Date.now()}_${filename}`);

@@ -179,8 +179,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         createdAt: resourceToEdit?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         views: resourceToEdit?.views || 0,
-        saves: resourceToEdit?.saves || 0,
-        isDemo: false
+        saves: resourceToEdit?.saves || 0
       };
 
       await onSave(finalResource, targetStatus);

@@ -115,7 +115,6 @@ export interface Opportunity {
   updatedAt: string;
   views: number;
   saves: number;
-  isDemo?: boolean;
 }
 
 export type ResourceType =
@@ -187,7 +186,6 @@ export interface Resource {
   updatedAt: string;
   views: number;
   saves: number;
-  isDemo?: boolean;
 }
 
 export interface Skill {

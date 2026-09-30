@@ -1,9 +1,15 @@
-import React from 'react';
-import { DEMO_SKILLS } from '../data/demoData';
+import React, { useState, useEffect } from 'react';
+import { AdminService } from '../services/adminService';
+import { Skill } from '../types/database';
 import { Badge } from '../components/common/Badge';
 import { TrendingUp, Compass, ArrowRight, Briefcase, Sparkles, BookOpen } from 'lucide-react';
 
 export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
+  const [skills, setSkills] = useState<Skill[]>(() => AdminService.getSkills());
+
+  useEffect(() => {
+    setSkills(AdminService.getSkills());
+  }, []);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="border-b border-slate-200 pb-5">
@@ -22,7 +28,7 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {DEMO_SKILLS.map((skill) => (
+        {skills.map((skill) => (
           <div
             key={skill.id}
             className="bg-white rounded-3xl border border-slate-200/90 p-6 flex flex-col justify-between shadow-2xs hover:border-emerald-500/40 hover:shadow-sm transition-all"

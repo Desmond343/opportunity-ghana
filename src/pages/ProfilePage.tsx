@@ -21,15 +21,8 @@ interface ProfilePageProps {
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
-  const { currentUser, logout, switchRole, isFirebaseActive } = useAuth();
+  const { currentUser, logout, isFirebaseActive, isAdmin, isEditorOrAdmin } = useAuth();
   const { isInstalled, isInstallable, isIOS, install } = usePWAInstall();
-
-  const roles: { role: UserRole; label: string; desc: string }[] = [
-    { role: 'user', label: 'Student / Seeker', desc: 'Browse, save, and apply' },
-    { role: 'admin', label: 'Admin (Full CMS)', desc: 'Publish, verify, configure' },
-    { role: 'editor', label: 'Editor', desc: 'Draft & verify records' },
-    { role: 'organization', label: 'Partner Organization', desc: 'Submit opportunities' }
-  ];
 
   if (!currentUser) {
     return (
@@ -171,54 +164,32 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Role Switcher (for preview & testing) */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center">
-              <Shield className="w-5 h-5" />
+      {/* Authorized Staff Access (only for authenticated admin / editor accounts) */}
+      {isEditorOrAdmin && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Opportunity Ghana Staff & Editorial Access
+                </h3>
+                <p className="text-xs text-slate-500">
+                  You are signed in with an authorized <span className="font-semibold text-emerald-700 capitalize">{currentUser.role}</span> account.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Role &amp; Permissions Switcher
-              </h3>
-              <p className="text-xs text-slate-500">
-                Toggle roles to test different user journeys and admin permissions
-              </p>
-            </div>
-          </div>
-          {currentUser.role === 'admin' && (
             <button
               onClick={() => onNavigate('/admin')}
-              className="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors self-start sm:self-auto cursor-pointer"
             >
               Open Admin CMS
             </button>
-          )}
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          {roles.map((r) => (
-            <button
-              key={r.role}
-              onClick={() => switchRole(r.role)}
-              className={`p-3.5 rounded-2xl border text-left transition-all ${
-                currentUser.role === r.role
-                  ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-500/20 shadow-2xs'
-                  : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-slate-900">{r.label}</span>
-                {currentUser.role === r.role && (
-                  <CheckCircle className="w-4 h-4 text-emerald-700" />
-                )}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-1">{r.desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

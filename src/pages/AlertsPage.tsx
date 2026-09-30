@@ -58,7 +58,7 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
             <input
               type="email"
               required
-              placeholder="e.g. kwame@example.com"
+              placeholder="e.g. kwame.mensah@ug.edu.gh"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"

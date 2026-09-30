@@ -1,5 +1,4 @@
 import { Opportunity, OpportunityStatus, VerificationStatus } from '../types/database';
-import { DEMO_OPPORTUNITIES } from '../data/demoData';
 import { db, isFirebaseConfigured } from './firebase';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed } from './deadlineService';
@@ -37,22 +36,37 @@ function getStoredOpportunities(): Opportunity[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Run deadline automation pass on read
-        return parsed.map(syncWithDeadlineAutomation);
+      if (Array.isArray(parsed)) {
+        // Purge any old demo/mock records from storage
+        const cleaned = parsed.filter(o => 
+          o && 
+          o.id && 
+          !o.id.startsWith('opp-demo-') && 
+          !o.title?.includes('[DEMO RECORD]') &&
+          !o.applicationUrl?.includes('example.com')
+        );
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned.map(syncWithDeadlineAutomation);
       }
     }
   } catch (e) {
     console.error('Failed to load local opportunities storage', e);
   }
-  const initialized = DEMO_OPPORTUNITIES.map(syncWithDeadlineAutomation);
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialized));
-  return initialized;
+  // Production returns empty array when no real records exist
+  return [];
 }
 
 function saveStoredOpportunities(items: Opportunity[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    const cleaned = items.filter(o => 
+      o && 
+      o.id && 
+      !o.id.startsWith('opp-demo-') && 
+      !o.title?.includes('[DEMO RECORD]')
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
   } catch (e) {
     console.error('Failed to save opportunities', e);
   }
@@ -83,16 +97,18 @@ export const OpportunitiesService = {
           q = query(oppsRef, where('category', '==', filters.category));
         }
         const timeout = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 2000)
+          setTimeout(() => reject(new Error('timeout')), 3000)
         );
         const snapshot: any = await Promise.race([getDocs(q), timeout]);
-        const results = snapshot.docs.map((d: any) => syncWithDeadlineAutomation({ id: d.id, ...d.data() } as Opportunity));
-        if (results.length > 0) {
-          items = results;
-        }
+        const results = snapshot.docs
+          .map((d: any) => syncWithDeadlineAutomation({ id: d.id, ...d.data() } as Opportunity))
+          .filter((o: Opportunity) => !o.id.startsWith('opp-demo-') && !o.title?.includes('[DEMO RECORD]'));
+        
+        items = results;
+        saveStoredOpportunities(items);
       } catch (err: any) {
         if (err?.code !== 'unavailable' && err?.message !== 'timeout') {
-          console.warn('Firestore read fallback to local repository:', err?.message || err);
+          console.warn('Firestore opportunities read error:', err?.message || err);
         }
       }
     }
@@ -112,13 +128,13 @@ export const OpportunitiesService = {
       if (filters.category && filters.category !== 'All') {
         items = items.filter(o => o.category.toLowerCase() === filters.category!.toLowerCase());
       }
-      if (filters.region && filters.region !== 'All Regions') {
-        items = items.filter(o => o.region.toLowerCase() === filters.region!.toLowerCase());
+      if (filters.region && filters.region !== 'All Regions' && filters.region !== 'All Ghana') {
+        items = items.filter(o => o.region?.toLowerCase() === filters.region!.toLowerCase());
       }
       if (filters.opportunityType && filters.opportunityType !== 'All') {
-        items = items.filter(o => o.opportunityType.toLowerCase().includes(filters.opportunityType!.toLowerCase()));
+        items = items.filter(o => o.opportunityType?.toLowerCase().includes(filters.opportunityType!.toLowerCase()));
       }
-      if (filters.educationLevel && filters.educationLevel !== 'All Levels') {
+      if (filters.educationLevel && filters.educationLevel !== 'All Levels' && filters.educationLevel !== 'All Education Levels') {
         items = items.filter(o =>
           !o.educationLevel ||
           o.educationLevel.toLowerCase().includes(filters.educationLevel!.toLowerCase()) ||
@@ -135,7 +151,7 @@ export const OpportunitiesService = {
           o.description.toLowerCase().includes(q) ||
           (o.organizationName && o.organizationName.toLowerCase().includes(q)) ||
           o.category.toLowerCase().includes(q) ||
-          o.location.toLowerCase().includes(q)
+          (o.location && o.location.toLowerCase().includes(q))
         );
       }
     }
@@ -144,90 +160,109 @@ export const OpportunitiesService = {
   },
 
   async getById(id: string): Promise<Opportunity | null> {
-    const items = getStoredOpportunities();
-    const found = items.find(o => o.id === id);
-    if (found) return syncWithDeadlineAutomation(found);
-
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await getDoc(doc(db, 'opportunities', id));
-        if (snap.exists()) {
-          return syncWithDeadlineAutomation({ id: snap.id, ...snap.data() } as Opportunity);
+        const docSnap = await getDoc(doc(db, 'opportunities', id));
+        if (docSnap.exists()) {
+          const item = syncWithDeadlineAutomation({ id: docSnap.id, ...docSnap.data() } as Opportunity);
+          if (!item.id.startsWith('opp-demo-') && !item.title.includes('[DEMO RECORD]')) {
+            return item;
+          }
         }
       } catch (err) {
         console.warn('Firestore getById error:', err);
       }
     }
-    return null;
+    const items = getStoredOpportunities();
+    return items.find(o => o.id === id) || null;
   },
 
   async getBySlug(slug: string): Promise<Opportunity | null> {
+    if (isFirebaseConfigured && db) {
+      try {
+        const q = query(collection(db, 'opportunities'), where('slug', '==', slug));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          const item = syncWithDeadlineAutomation({ id: doc.id, ...doc.data() } as Opportunity);
+          if (!item.id.startsWith('opp-demo-') && !item.title.includes('[DEMO RECORD]')) {
+            return item;
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getBySlug error:', err);
+      }
+    }
     const items = getStoredOpportunities();
-    const found = items.find(o => o.slug === slug || o.id === slug);
-    if (found) return syncWithDeadlineAutomation(found);
-    return null;
+    return items.find(o => o.slug === slug) || null;
   },
 
   async saveOpportunity(
-    item: Opportunity,
+    opp: Opportunity,
     author: { email: string; name: string } = { email: 'admin@opportunityghana.com', name: 'Administrator' }
   ): Promise<Opportunity> {
-    const isNew = !item.id || !getStoredOpportunities().some(o => o.id === item.id);
+    const items = getStoredOpportunities();
+    const index = items.findIndex(o => o.id === opp.id);
     const now = new Date().toISOString();
-    
-    const finalItem: Opportunity = {
-      ...item,
-      id: item.id || 'opp_' + Math.random().toString(36).substring(2, 9),
-      slug: item.slug || item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-      createdAt: item.createdAt || now,
+
+    const isNew = index < 0;
+    const previousStatus = isNew ? undefined : items[index].status;
+
+    const toSave: Opportunity = {
+      ...opp,
       updatedAt: now,
-      views: item.views || 0,
-      saves: item.saves || 0,
       lastEditedByEmail: author.email,
-      lastEditedByName: author.name,
-      createdByEmail: item.createdByEmail || author.email,
-      createdByName: item.createdByName || author.name
+      lastEditedByName: author.name
     };
 
-    if (finalItem.status === 'published' && !finalItem.publishedAt) {
-      finalItem.publishedAt = now;
-      finalItem.publishedByEmail = author.email;
+    if (isNew) {
+      toSave.createdAt = now;
+      toSave.createdByEmail = author.email;
+      toSave.createdByName = author.name;
+      toSave.views = 0;
+      toSave.saves = 0;
     }
 
-    // Save to Firestore if available
+    if (toSave.status === 'published' && (!toSave.publishedAt || previousStatus !== 'published')) {
+      toSave.publishedAt = now;
+      toSave.publishedByEmail = author.email;
+    }
+
+    if (toSave.status === 'closed' && !toSave.closedAt) {
+      toSave.closedAt = now;
+    }
+
+    if (index >= 0) {
+      items[index] = toSave;
+    } else {
+      items.unshift(toSave);
+    }
+
+    saveStoredOpportunities(items);
+
     if (isFirebaseConfigured && db) {
       try {
-        const oppDoc = doc(db, 'opportunities', finalItem.id);
-        await setDoc(oppDoc, finalItem, { merge: true });
+        await setDoc(doc(db, 'opportunities', toSave.id), toSave, { merge: true });
       } catch (err) {
-        console.warn('Firestore save error:', err);
+        console.warn('Firestore saveOpportunity error:', err);
       }
     }
 
-    // Save to local cache
-    const items = getStoredOpportunities();
-    const index = items.findIndex(o => o.id === finalItem.id);
-    if (index >= 0) {
-      items[index] = finalItem;
-    } else {
-      items.unshift(finalItem);
-    }
-    saveStoredOpportunities(items);
-
-    // Audit log
     AuditService.log({
       entityType: 'opportunity',
-      entityId: finalItem.id,
-      entityTitle: finalItem.title,
-      action: isNew ? 'created' : 'updated',
+      entityId: toSave.id,
+      entityTitle: toSave.title,
+      action: isNew ? 'created' : toSave.status === 'published' ? 'published' : 'updated',
       performedByEmail: author.email,
       performedByName: author.name,
-      details: isNew ? `Created opportunity in status: ${finalItem.status}` : `Updated details and specifications.`,
-      changesSummary: isNew ? `New listing created as ${finalItem.status}` : `Fields updated; status is ${finalItem.status}`,
-      newStatus: finalItem.status
+      details: isNew 
+        ? `Created opportunity with status "${toSave.status}".` 
+        : `Updated opportunity fields. Status is "${toSave.status}".`,
+      previousStatus,
+      newStatus: toSave.status
     });
 
-    return finalItem;
+    return toSave;
   },
 
   async updateStatus(
@@ -255,9 +290,11 @@ export const OpportunitiesService = {
       updated.publishedAt = now;
       updated.publishedByEmail = author.email;
     }
+
     if (status === 'closed' && !updated.closedAt) {
       updated.closedAt = now;
     }
+
     if (status === 'archived' && !updated.archivedAt) {
       updated.archivedAt = now;
     }
@@ -270,7 +307,11 @@ export const OpportunitiesService = {
         await updateDoc(doc(db, 'opportunities', id), {
           status,
           updatedAt: now,
-          ...(status === 'published' ? { publishedAt: now, publishedByEmail: author.email } : {})
+          lastEditedByEmail: author.email,
+          lastEditedByName: author.name,
+          ...(status === 'published' ? { publishedAt: now, publishedByEmail: author.email } : {}),
+          ...(status === 'closed' ? { closedAt: now } : {}),
+          ...(status === 'archived' ? { archivedAt: now } : {})
         });
       } catch (err) {
         console.warn('Firestore updateStatus error:', err);
@@ -285,7 +326,6 @@ export const OpportunitiesService = {
       performedByEmail: author.email,
       performedByName: author.name,
       details: notes || `Status changed from ${previousStatus} to ${status}.`,
-      changesSummary: `Status: ${previousStatus} → ${status}`,
       previousStatus,
       newStatus: status
     });
@@ -420,7 +460,6 @@ export const OpportunitiesService = {
     }
   },
 
-  // Bulk Management Actions
   async bulkUpdateStatus(
     ids: string[],
     newStatus: OpportunityStatus,
@@ -468,7 +507,6 @@ export const OpportunitiesService = {
 
   async getClosingSoon(limit: number = 4): Promise<Opportunity[]> {
     const items = await this.getAll({ onlyActive: true });
-    // Sort by soonest deadline
     return items
       .filter(o => o.deadline)
       .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())

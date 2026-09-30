@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth, DEMO_PROFILES } from '../services/authContext';
-import { UserRole } from '../types/database';
+import { useAuth } from '../services/authContext';
 import { EDUCATION_LEVELS } from '../data/categories';
-import { Compass, ShieldCheck, Mail, Lock, User, ArrowRight, Check } from 'lucide-react';
+import { Compass, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 interface AuthPageProps {
   mode: 'login' | 'signup';
@@ -10,14 +9,14 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
-  const { loginWithPassword, loginWithGoogle, signup, switchRole, currentUser, isFirebaseActive } = useAuth();
+  const { loginWithPassword, loginWithGoogle, signup, isFirebaseActive } = useAuth();
   const [isLogin, setIsLogin] = useState(mode === 'login');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [educationLevel, setEducationLevel] = useState('Undergraduate (Bachelor)');
-  const [university, setUniversity] = useState('University of Ghana, Legon');
-  const [course, setCourse] = useState('Computer Science');
+  const [university, setUniversity] = useState('');
+  const [course, setCourse] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -27,15 +26,30 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
     setErrorMsg(null);
     try {
       if (isLogin) {
-        await loginWithPassword(email || 'user@opportunityghana.com', password || 'Password123!');
+        if (!email.trim() || !password.trim()) {
+          setErrorMsg('Please enter your email address and password.');
+          setLoading(false);
+          return;
+        }
+        await loginWithPassword(email.trim(), password);
       } else {
+        if (!email.trim() || !password || !name.trim()) {
+          setErrorMsg('Please complete all required fields.');
+          setLoading(false);
+          return;
+        }
+        if (password.length < 6) {
+          setErrorMsg('Password must be at least 6 characters long.');
+          setLoading(false);
+          return;
+        }
         await signup(
           {
-            email,
-            name,
+            email: email.trim(),
+            name: name.trim(),
             educationLevel,
-            university,
-            course,
+            university: university.trim(),
+            course: course.trim(),
             role: 'user'
           },
           password
@@ -44,7 +58,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       onNavigate('/');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Authentication error. Please try again.');
+      let msg = err.message || 'Authentication error. Please try again.';
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        msg = 'Invalid email address or password. Please verify your credentials.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        msg = 'An account with this email address already exists. Please sign in instead.';
+      } else if (err.code === 'auth/weak-password') {
+        msg = 'Password is too weak. Please use at least 6 characters with a combination of letters and numbers.';
+      }
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -58,18 +80,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       onNavigate('/');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Google sign-in error.');
+      setErrorMsg(err.message || 'Google sign-in could not be completed. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleQuickDemoLogin = (role: UserRole) => {
-    switchRole(role);
-    if (role === 'admin' || role === 'editor') {
-      onNavigate('/admin');
-    } else {
-      onNavigate('/opportunities');
     }
   };
 
@@ -81,17 +94,17 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
           <Compass className="w-6 h-6 text-emerald-200" />
         </div>
         <h1 className="text-2xl font-extrabold text-slate-900 font-space">
-          {isLogin ? 'Welcome Back' : 'Create Your Seeker Account'}
+          {isLogin ? 'Welcome Back' : 'Create Your Account'}
         </h1>
         <p className="text-xs text-slate-500">
-          Connected to Firebase Project: <strong className="text-emerald-800">opportunity-ghana</strong>
+          Sign in to save opportunities, configure alerts, and track deadlines.
         </p>
       </div>
 
       {/* Main Card */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-5">
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold leading-relaxed">
             {errorMsg}
           </div>
         )}
@@ -137,7 +150,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
               <input
                 type="text"
                 required
-                placeholder="e.g. Kwame Mensah"
+                placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -150,7 +163,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
             <input
               type="email"
               required
-              placeholder="e.g. you@student.edu.gh"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -162,7 +175,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
             <input
               type="password"
               required
-              placeholder="••••••••"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -190,7 +203,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
                 <label className="block text-xs font-bold text-slate-700 mb-1">University / Institution</label>
                 <input
                   type="text"
-                  placeholder="e.g. University of Ghana, KNUST, UCC, Ashesi"
+                  placeholder="e.g. University of Ghana, KNUST, UCC, TVET"
                   value={university}
                   onChange={(e) => setUniversity(e.target.value)}
                   className="w-full text-xs p-2.5 rounded-xl border border-slate-200"
@@ -201,7 +214,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Programme / Course of Study</label>
                 <input
                   type="text"
-                  placeholder="e.g. BSc Computer Science, Business Administration"
+                  placeholder="e.g. Computer Science, Business Administration, Accounting"
                   value={course}
                   onChange={(e) => setCourse(e.target.value)}
                   className="w-full text-xs p-2.5 rounded-xl border border-slate-200"
@@ -221,43 +234,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
 
         <div className="pt-2 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-xs font-semibold text-emerald-700 hover:underline"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setErrorMsg(null);
+            }}
+            className="text-xs font-semibold text-emerald-700 hover:underline cursor-pointer"
           >
             {isLogin
               ? "Don't have an account? Sign up here"
               : 'Already have an account? Sign in'}
           </button>
-        </div>
-
-        {/* Quick Test Profiles for Reviewers */}
-        <div className="pt-5 border-t border-slate-100 space-y-2">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
-            One-Click Developer / Demo Roles
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleQuickDemoLogin('admin')}
-              className="p-2 text-left bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-900 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <span>Admin CMS</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              </div>
-              <span className="text-[10px] text-emerald-700 font-normal">Full editorial controls</span>
-            </button>
-
-            <button
-              onClick={() => handleQuickDemoLogin('user')}
-              className="p-2 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <span>Standard User</span>
-                <User className="w-3.5 h-3.5 text-slate-500" />
-              </div>
-              <span className="text-[10px] text-slate-500 font-normal">Student seeker</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>

@@ -27,8 +27,7 @@ export const FirebaseAuthService = {
 
   async signInWithEmail(email: string, password: string): Promise<FirebaseUser | null> {
     if (!auth) {
-      console.warn('[Opportunity Ghana] Firebase Auth not active. Using mock authentication.');
-      return null;
+      throw new Error('Authentication service is not initialized.');
     }
     const cred = await signInWithEmailAndPassword(auth, email, password);
     return cred.user;
@@ -40,8 +39,7 @@ export const FirebaseAuthService = {
     userData: Partial<User>
   ): Promise<FirebaseUser | null> {
     if (!auth) {
-      console.warn('[Opportunity Ghana] Firebase Auth not active. Profile saved locally.');
-      return null;
+      throw new Error('Authentication service is not initialized.');
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const fbUser = cred.user;
@@ -55,8 +53,8 @@ export const FirebaseAuthService = {
           name: userData.name || fbUser.displayName || email.split('@')[0],
           email: fbUser.email || email,
           photoURL: fbUser.photoURL || undefined,
-          role: (userData.role as UserRole) || 'user',
-          location: userData.location || 'Accra, Ghana',
+          role: 'user',
+          location: userData.location || 'Ghana',
           educationLevel: userData.educationLevel,
           university: userData.university,
           course: userData.course,
@@ -75,22 +73,9 @@ export const FirebaseAuthService = {
     return fbUser;
   },
 
-  async signInWithGoogle(): Promise<{ fbUser: FirebaseUser | null; profile: User }> {
+  async signInWithGoogle(): Promise<{ fbUser: FirebaseUser; profile: User }> {
     if (!auth) {
-      console.warn('[Opportunity Ghana] Firebase Auth not active. Providing demo profile for testing.');
-      return {
-        fbUser: null,
-        profile: {
-          id: 'user-google-demo',
-          name: 'Ghanaian Innovator',
-          email: 'innovator@opportunityghana.com',
-          role: 'user',
-          location: 'Accra, Ghana',
-          educationLevel: 'Undergraduate (Bachelor)',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      };
+      throw new Error('Authentication service is not initialized.');
     }
 
     const result = await signInWithPopup(auth, googleProvider);
@@ -110,7 +95,7 @@ export const FirebaseAuthService = {
             email: fbUser.email || '',
             photoURL: fbUser.photoURL || undefined,
             role: 'user',
-            location: 'Accra, Ghana',
+            location: 'Ghana',
             educationLevel: 'Undergraduate (Bachelor)',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
@@ -151,7 +136,6 @@ export const FirebaseAuthService = {
 
   onAuthChanged(callback: (user: FirebaseUser | null) => void): () => void {
     if (!auth) {
-      // Safe no-op when Firebase Auth is not initialized
       return () => {};
     }
     return onAuthStateChanged(auth, callback);

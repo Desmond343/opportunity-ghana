@@ -411,7 +411,7 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
 
                       {/* Verification */}
                       <td className="py-3 px-3">
-                        <VerificationBadge status={opp.verificationStatus} isDemo={opp.isDemo} />
+                        <VerificationBadge status={opp.verificationStatus} />
                       </td>
 
                       {/* Deadline */}
