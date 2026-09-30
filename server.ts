@@ -181,6 +181,8 @@ async function setupVite() {
   const httpServer = http.createServer(app);
 
   if (!isProduction) {
+    delete (globalThis as any).__dirname;
+    delete (global as any).__dirname;
     const { createServer } = await import('vite');
     const vite = await createServer({
       server: {

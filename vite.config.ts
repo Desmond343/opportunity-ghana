@@ -5,8 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig(() => {
   return {
@@ -123,8 +122,9 @@ export default defineConfig(() => {
     ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.')
-      }
+        '@': path.resolve(projectRoot, '.')
+      },
+      dedupe: ['react', 'react-dom']
     },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',
