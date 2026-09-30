@@ -3,6 +3,8 @@ import { Opportunity, OpportunityStatus, VerificationStatus, DuplicateMatch } fr
 import { OPPORTUNITY_CATEGORIES, GHANA_REGIONS, EDUCATION_LEVELS } from '../../data/categories';
 import { detectDuplicates } from '../../services/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
+import { ImageUploadField } from '../../components/common/ImageUploadField';
+import { FirebaseStorageService } from '../../services/firebase/storageService';
 import {
   X,
   Check,
@@ -85,6 +87,14 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
   const [pendingSaveStatus, setPendingSaveStatus] = useState<OpportunityStatus | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Photo State
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | undefined>(undefined);
+  const [currentImagePath, setCurrentImagePath] = useState<string | undefined>(undefined);
+  const [isImageRemoved, setIsImageRemoved] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   // Initialize or populate form
   useEffect(() => {
     if (opportunityToEdit) {
@@ -95,6 +105,13 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       setSubcategory(opportunityToEdit.subcategory || '');
       setOpportunityType(opportunityToEdit.opportunityType || 'Full-time');
       setDescription(opportunityToEdit.description || '');
+
+      setCurrentImageUrl(opportunityToEdit.imageUrl);
+      setCurrentImagePath(opportunityToEdit.imagePath);
+      setSelectedImageFile(null);
+      setIsImageRemoved(false);
+      setUploadProgress(null);
+      setUploadError(null);
 
       setEducationLevel(opportunityToEdit.educationLevel || 'Undergraduate (Bachelor)');
       setFieldOfStudy(opportunityToEdit.fieldOfStudy || '');
@@ -130,6 +147,14 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       setSubcategory('');
       setOpportunityType('Full-time');
       setDescription('');
+
+      setCurrentImageUrl(undefined);
+      setCurrentImagePath(undefined);
+      setSelectedImageFile(null);
+      setIsImageRemoved(false);
+      setUploadProgress(null);
+      setUploadError(null);
+
       setEducationLevel('Undergraduate (Bachelor)');
       setFieldOfStudy('');
       setExperienceLevel('Entry Level');
@@ -229,6 +254,8 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       applicationMethod,
       deadline: formattedDeadline,
       sourceUrl: sourceUrl.trim() || undefined,
+      imageUrl: isImageRemoved ? undefined : currentImageUrl,
+      imagePath: isImageRemoved ? undefined : currentImagePath,
       status: targetStatus,
       verificationStatus,
       lastVerifiedAt: new Date().toISOString(),
@@ -259,12 +286,47 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
 
   const executeSave = async (targetStatus: OpportunityStatus) => {
     setSaving(true);
+    setUploadError(null);
+    let newUploadedPath: string | null = null;
     try {
       const finalOpp = buildFinalObject(targetStatus);
+
+      // Handle image upload if a new file was chosen
+      if (selectedImageFile) {
+        setUploadProgress(10);
+        const uploadRes = await FirebaseStorageService.uploadOpportunityPhoto(
+          finalOpp.id,
+          selectedImageFile,
+          (pct) => setUploadProgress(pct)
+        );
+        newUploadedPath = uploadRes.imagePath;
+        finalOpp.imageUrl = uploadRes.imageUrl;
+        finalOpp.imagePath = uploadRes.imagePath;
+      } else if (isImageRemoved) {
+        finalOpp.imageUrl = undefined;
+        finalOpp.imagePath = undefined;
+      }
+
       await onSave(finalOpp, targetStatus);
+
+      // If replacement succeeded, clean up previous image
+      if (selectedImageFile && currentImagePath && currentImagePath !== newUploadedPath) {
+        await FirebaseStorageService.deleteFile(currentImagePath);
+      } else if (isImageRemoved && currentImagePath) {
+        await FirebaseStorageService.deleteFile(currentImagePath);
+      }
+
       onClose();
+    } catch (err: any) {
+      console.error('[Opportunity Save Error]', err);
+      // Clean up orphaned upload if saving failed
+      if (newUploadedPath) {
+        await FirebaseStorageService.deleteFile(newUploadedPath);
+      }
+      setUploadError(err.message || 'The item could not be saved. Your existing photo has not been deleted.');
     } finally {
       setSaving(false);
+      setUploadProgress(null);
       setShowDuplicateModal(false);
     }
   };
@@ -296,6 +358,23 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Upload or Save Error Banner */}
+          {uploadError && (
+            <div className="bg-rose-50 border-b border-rose-200 px-5 py-2.5 flex items-center justify-between text-xs text-rose-800">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUploadError(null)}
+                className="text-xs font-bold text-rose-700 hover:text-rose-900 cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Duplicate Detected Real-time Banner */}
           {duplicateMatches.length > 0 && (
@@ -472,6 +551,25 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Provide full description of the opportunity, rotational plan, eligibility details, and application instructions..."
                       className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Resource/Opportunity Photo Upload Section */}
+                  <div className="space-y-1 md:col-span-2 pt-2 border-t border-slate-200">
+                    <ImageUploadField
+                      label="Opportunity Photo"
+                      currentImageUrl={currentImageUrl}
+                      onFileSelect={(file) => {
+                        setSelectedImageFile(file);
+                        setIsImageRemoved(false);
+                      }}
+                      onRemoveCurrent={() => {
+                        setSelectedImageFile(null);
+                        setIsImageRemoved(true);
+                      }}
+                      uploadProgress={uploadProgress}
+                      isRemoved={isImageRemoved}
+                      disabled={saving}
                     />
                   </div>
                 </div>

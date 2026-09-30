@@ -1,5 +1,6 @@
 import { Opportunity, OpportunityStatus, VerificationStatus } from '../types/database';
 import { db, isFirebaseConfigured } from './firebase';
+import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed } from './deadlineService';
 import { 
@@ -444,6 +445,14 @@ export const OpportunitiesService = {
         await deleteDoc(doc(db, 'opportunities', id));
       } catch (err) {
         console.warn('Firestore delete error:', err);
+      }
+    }
+
+    if (item?.imagePath) {
+      try {
+        await FirebaseStorageService.deleteFile(item.imagePath);
+      } catch (err) {
+        console.warn('Storage delete image error:', err);
       }
     }
 

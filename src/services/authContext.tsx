@@ -11,6 +11,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   signup: (userData: Partial<User>, password?: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshClaims: () => Promise<void>;
   isAdmin: boolean;
   isEditorOrAdmin: boolean;
 }
@@ -59,8 +60,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (isFirebaseConfigured) {
       const unsubscribe = FirebaseAuthService.onAuthChanged(async (fbUser) => {
         if (fbUser) {
+          let isAdminFromClaim = false;
+          let isEditorFromClaim = false;
+          try {
+            const tokenResult = await fbUser.getIdTokenResult();
+            isAdminFromClaim = Boolean(tokenResult.claims?.admin);
+            isEditorFromClaim = Boolean(tokenResult.claims?.editor);
+          } catch {
+            // Ignore claim read failure on transient network issues
+          }
+
           const profile = await FirebaseAuthService.getUserProfile(fbUser.uid);
           if (profile) {
+            if (isAdminFromClaim) {
+              profile.role = 'admin';
+            } else if (isEditorFromClaim && profile.role !== 'admin') {
+              profile.role = 'editor';
+            }
             setCurrentUser(profile);
           } else {
             setCurrentUser({
@@ -68,7 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               name: fbUser.displayName || 'Opportunity Seeker',
               email: fbUser.email || '',
               photoURL: fbUser.photoURL || undefined,
-              role: 'user',
+              role: isAdminFromClaim ? 'admin' : isEditorFromClaim ? 'editor' : 'user',
               location: 'Accra, Ghana',
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
@@ -164,6 +180,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const refreshClaims = async () => {
+    const authInstance = FirebaseAuthService.getAuthInstance();
+    const fbUser = authInstance?.currentUser;
+    if (fbUser) {
+      try {
+        const tokenResult = await fbUser.getIdTokenResult(true);
+        const isAdminClaim = Boolean(tokenResult.claims?.admin);
+        const isEditorClaim = Boolean(tokenResult.claims?.editor);
+        if (isAdminClaim) {
+          setCurrentUser(prev => prev ? { ...prev, role: 'admin' } : prev);
+        } else if (isEditorClaim) {
+          setCurrentUser(prev => prev ? { ...prev, role: 'editor' } : prev);
+        }
+      } catch (err) {
+        console.warn('[Opportunity Ghana] Could not refresh token claims:', err);
+      }
+    }
+  };
+
   const isAdmin = currentUser?.role === 'admin';
   const isEditorOrAdmin = currentUser?.role === 'admin' || currentUser?.role === 'editor';
 
@@ -177,6 +212,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loginWithGoogle,
         signup,
         logout,
+        refreshClaims,
         isAdmin,
         isEditorOrAdmin
       }}

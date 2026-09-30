@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../services/authContext';
 import { EDUCATION_LEVELS } from '../data/categories';
-import { Compass, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import {
+  Compass,
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  ExternalLink,
+  Copy,
+  Check,
+  AlertCircle
+} from 'lucide-react';
 
 interface AuthPageProps {
   mode: 'login' | 'signup';
@@ -19,11 +29,26 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const [course, setCourse] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [unauthorizedDomain, setUnauthorizedDomain] = useState<string | null>(null);
+  const [copiedDomain, setCopiedDomain] = useState(false);
+
+  const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
+
+  const handleCopyDomain = async (domainToCopy: string) => {
+    try {
+      await navigator.clipboard.writeText(domainToCopy);
+      setCopiedDomain(true);
+      setTimeout(() => setCopiedDomain(false), 2500);
+    } catch {
+      // Fallback
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
+    setUnauthorizedDomain(null);
     try {
       if (isLogin) {
         if (!email.trim() || !password.trim()) {
@@ -75,12 +100,17 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setErrorMsg(null);
+    setUnauthorizedDomain(null);
     try {
       await loginWithGoogle();
       onNavigate('/');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Google sign-in could not be completed. Please try again.');
+      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
+        setUnauthorizedDomain(currentHost || 'this-app-domain');
+      } else {
+        setErrorMsg(err.message || 'Google sign-in could not be completed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -103,6 +133,67 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
 
       {/* Main Card */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-5">
+        {/* Unauthorized Domain Guide Card */}
+        {unauthorizedDomain && (
+          <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-amber-900 space-y-3">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h3 className="text-xs font-bold text-amber-950">
+                  Firebase Domain Authorization Required
+                </h3>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  Google OAuth requires the current application domain to be authorized in your Firebase Project (<strong>opportunity-ghana</strong>).
+                </p>
+              </div>
+            </div>
+
+            <div className="p-2.5 bg-white/90 rounded-xl border border-amber-200 flex items-center justify-between gap-2">
+              <span className="text-[11px] font-mono font-medium text-slate-700 truncate select-all">
+                {unauthorizedDomain}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleCopyDomain(unauthorizedDomain)}
+                className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 flex items-center gap-1 transition-colors shrink-0 cursor-pointer"
+              >
+                {copiedDomain ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Copy Domain</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="text-[11px] text-amber-800 space-y-1 bg-amber-100/50 p-2.5 rounded-xl">
+              <p className="font-semibold text-amber-950">To authorize Google Sign-In:</p>
+              <ol className="list-decimal list-inside space-y-0.5 text-[10px] pl-1 text-amber-900">
+                <li>Open Firebase Console &gt; Authentication &gt; Settings</li>
+                <li>Under <strong>Authorized domains</strong>, click <strong>Add domain</strong></li>
+                <li>Paste the copied domain above and save</li>
+              </ol>
+              <a
+                href="https://console.firebase.google.com/project/opportunity-ghana/authentication/settings"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 mt-1 text-[11px] font-bold text-emerald-800 hover:underline"
+              >
+                Open Firebase Console Settings <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <div className="pt-1 border-t border-amber-200/60 text-[11px] text-amber-900">
+              <strong>Tip:</strong> Email &amp; Password sign-in below works immediately without domain authorization!
+            </div>
+          </div>
+        )}
+
         {errorMsg && (
           <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold leading-relaxed">
             {errorMsg}
@@ -237,6 +328,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
             onClick={() => {
               setIsLogin(!isLogin);
               setErrorMsg(null);
+              setUnauthorizedDomain(null);
             }}
             className="text-xs font-semibold text-emerald-700 hover:underline cursor-pointer"
           >

@@ -4,6 +4,18 @@ service firebase.storage {
     function isAuthenticated() {
       return request.auth != null;
     }
+
+    function isAdminOrEditor() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.editor == true
+      );
+    }
+
+    function isValidImage() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp)') &&
+             request.resource.size <= 5 * 1024 * 1024;
+    }
     
     // User personal storage (CVs, profile photos)
     match /users/{userId}/{allPaths=**} {
@@ -15,10 +27,25 @@ service firebase.storage {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Opportunity photos: Publicly viewable, admin/editor upload and deletion
+    match /opportunities/{opportunityId}/{filename} {
+      allow read: if true;
+      allow write: if isAdminOrEditor() && isValidImage();
+      allow delete: if isAdminOrEditor();
+    }
+
+    // Resource photos: Publicly viewable, admin/editor upload and deletion
+    match /resources/{resourceId}/{filename} {
+      allow read: if true;
+      allow write: if isAdminOrEditor() && isValidImage();
+      allow delete: if isAdminOrEditor();
+    }
+
     // Public assets (organization logos, verified attachments)
     match /public/{allPaths=**} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdminOrEditor() && isValidImage();
+      allow delete: if isAdminOrEditor();
     }
   }
 }

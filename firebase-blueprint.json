@@ -71,6 +71,8 @@
         "applicationUrl": { "type": "string" },
         "applicationMethod": { "type": "string" },
         "sourceUrl": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imagePath": { "type": "string" },
         "publishedAt": { "type": "string" },
         "deadline": { "type": "string" },
         "status": { "type": "string", "enum": ["draft", "pending_review", "published", "closed", "archived"] },
@@ -103,6 +105,8 @@
         "isFree": { "type": "boolean" },
         "hasCertificate": { "type": "boolean" },
         "enrollmentUrl": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imagePath": { "type": "string" },
         "status": { "type": "string" }
       },
       "required": ["id", "title", "slug", "resourceType", "isFree"]

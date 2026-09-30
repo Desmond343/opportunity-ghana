@@ -16,6 +16,18 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
       onClick={() => onNavigate(`/resources/${resource.slug}`)}
       className="group bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-500/40 hover:shadow-sm transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden"
     >
+      {/* Optional Resource Photo Banner */}
+      {resource.imageUrl && (
+        <div className="relative w-full h-36 sm:h-40 overflow-hidden bg-slate-100">
+          <img
+            src={resource.imageUrl}
+            alt={resource.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        </div>
+      )}
+
       <div className="p-5 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">

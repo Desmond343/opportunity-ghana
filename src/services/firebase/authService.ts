@@ -78,54 +78,73 @@ export const FirebaseAuthService = {
       throw new Error('Authentication service is not initialized.');
     }
 
-    const result = await signInWithPopup(auth, googleProvider);
-    const fbUser = result.user;
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
+      const tokenResult = await fbUser.getIdTokenResult();
+      const isAdminFromClaim = Boolean(tokenResult.claims?.admin);
 
-    let profile: User;
-    if (db) {
-      try {
-        const userDocRef = doc(db, 'users', fbUser.uid);
-        const existing = await getDoc(userDocRef);
-        if (existing.exists()) {
-          profile = { id: existing.id, ...existing.data() } as User;
-        } else {
+      let profile: User;
+      if (db) {
+        try {
+          const userDocRef = doc(db, 'users', fbUser.uid);
+          const existing = await getDoc(userDocRef);
+          if (existing.exists()) {
+            profile = { id: existing.id, ...existing.data() } as User;
+            if (isAdminFromClaim) {
+              profile.role = 'admin';
+            }
+          } else {
+            profile = {
+              id: fbUser.uid,
+              name: fbUser.displayName || 'Opportunity Seeker',
+              email: fbUser.email || '',
+              photoURL: fbUser.photoURL || undefined,
+              role: isAdminFromClaim ? 'admin' : 'user',
+              location: 'Ghana',
+              educationLevel: 'Undergraduate (Bachelor)',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(userDocRef, profile);
+          }
+        } catch {
           profile = {
             id: fbUser.uid,
             name: fbUser.displayName || 'Opportunity Seeker',
             email: fbUser.email || '',
             photoURL: fbUser.photoURL || undefined,
-            role: 'user',
-            location: 'Ghana',
-            educationLevel: 'Undergraduate (Bachelor)',
+            role: isAdminFromClaim ? 'admin' : 'user',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
-          await setDoc(userDocRef, profile);
         }
-      } catch {
+      } else {
         profile = {
           id: fbUser.uid,
           name: fbUser.displayName || 'Opportunity Seeker',
           email: fbUser.email || '',
           photoURL: fbUser.photoURL || undefined,
-          role: 'user',
+          role: isAdminFromClaim ? 'admin' : 'user',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
       }
-    } else {
-      profile = {
-        id: fbUser.uid,
-        name: fbUser.displayName || 'Opportunity Seeker',
-        email: fbUser.email || '',
-        photoURL: fbUser.photoURL || undefined,
-        role: 'user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-    }
 
-    return { fbUser, profile };
+      return { fbUser, profile };
+    } catch (err: any) {
+      if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('auth/unauthorized-domain')) {
+        const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown-domain';
+        const enhancedError = new Error(
+          `Firebase: Error (auth/unauthorized-domain). The domain "${hostname}" is not authorized for OAuth operations in your Firebase project "opportunity-ghana".`
+        );
+        (enhancedError as any).code = 'auth/unauthorized-domain';
+        (enhancedError as any).hostname = hostname;
+        (enhancedError as any).projectId = 'opportunity-ghana';
+        throw enhancedError;
+      }
+      throw err;
+    }
   },
 
   async signOut(): Promise<void> {

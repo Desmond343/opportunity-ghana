@@ -1,5 +1,6 @@
 import { Resource, OpportunityStatus, VerificationStatus } from '../types/database';
 import { db, isFirebaseConfigured } from './firebase';
+import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
@@ -262,6 +263,14 @@ export const ResourcesService = {
         await deleteDoc(doc(db, 'resources', id));
       } catch (err) {
         console.warn('Firestore delete resource error:', err);
+      }
+    }
+
+    if (item?.imagePath) {
+      try {
+        await FirebaseStorageService.deleteFile(item.imagePath);
+      } catch (err) {
+        console.warn('Storage delete image error:', err);
       }
     }
 

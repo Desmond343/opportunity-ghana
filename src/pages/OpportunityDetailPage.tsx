@@ -164,6 +164,17 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         </div>
       )}
 
+      {/* Featured Opportunity Photo */}
+      {opportunity.imageUrl && (
+        <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs bg-slate-100">
+          <img
+            src={opportunity.imageUrl}
+            alt={opportunity.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       {/* Hero Header */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">

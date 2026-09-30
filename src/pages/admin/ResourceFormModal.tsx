@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Resource, OpportunityStatus, VerificationStatus, ResourceType, ResourceCategory } from '../../types/database';
 import { RESOURCE_CATEGORIES, RESOURCE_TYPES } from '../../data/categories';
+import { ImageUploadField } from '../../components/common/ImageUploadField';
+import { FirebaseStorageService } from '../../services/firebase/storageService';
 import {
   X,
   Check,
@@ -13,7 +15,8 @@ import {
   ShieldCheck,
   Clock,
   Layers,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 
 interface ResourceFormModalProps {
@@ -66,6 +69,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
   const [status, setStatus] = useState<OpportunityStatus>('published');
   const [saving, setSaving] = useState(false);
 
+  // Photo State
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | undefined>(undefined);
+  const [currentImagePath, setCurrentImagePath] = useState<string | undefined>(undefined);
+  const [isImageRemoved, setIsImageRemoved] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   useEffect(() => {
     if (resourceToEdit) {
       setTitle(resourceToEdit.title || '');
@@ -79,6 +90,13 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       setFormat(resourceToEdit.format || 'Self-paced Online');
       setLocation(resourceToEdit.location || 'Online');
       setDuration(resourceToEdit.duration || '');
+
+      setCurrentImageUrl(resourceToEdit.imageUrl);
+      setCurrentImagePath(resourceToEdit.imagePath);
+      setSelectedImageFile(null);
+      setIsImageRemoved(false);
+      setUploadProgress(null);
+      setUploadError(null);
 
       setCost(resourceToEdit.cost || 0);
       setCurrency(resourceToEdit.currency || 'GHS');
@@ -106,6 +124,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       setFormat('Self-paced Online');
       setLocation('Online');
       setDuration('4 Weeks');
+
+      setCurrentImageUrl(undefined);
+      setCurrentImagePath(undefined);
+      setSelectedImageFile(null);
+      setIsImageRemoved(false);
+      setUploadProgress(null);
+      setUploadError(null);
+
       setCost(0);
       setCurrency('GHS');
       setIsFree(true);
@@ -131,6 +157,8 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
     }
 
     setSaving(true);
+    setUploadError(null);
+    let newUploadedPath: string | null = null;
     try {
       const skills = skillsString
         .split(',')
@@ -172,6 +200,8 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
         enrollmentUrl: enrollmentUrl.trim(),
         sourceUrl: sourceUrl.trim() || undefined,
+        imageUrl: isImageRemoved ? undefined : currentImageUrl,
+        imagePath: isImageRemoved ? undefined : currentImagePath,
         status: targetStatus,
         verificationStatus,
         lastVerifiedAt: new Date().toISOString(),
@@ -182,10 +212,41 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         saves: resourceToEdit?.saves || 0
       };
 
+      // Upload new image if selected
+      if (selectedImageFile) {
+        setUploadProgress(10);
+        const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
+          finalResource.id,
+          selectedImageFile,
+          (pct) => setUploadProgress(pct)
+        );
+        newUploadedPath = uploadRes.imagePath;
+        finalResource.imageUrl = uploadRes.imageUrl;
+        finalResource.imagePath = uploadRes.imagePath;
+      } else if (isImageRemoved) {
+        finalResource.imageUrl = undefined;
+        finalResource.imagePath = undefined;
+      }
+
       await onSave(finalResource, targetStatus);
+
+      // Clean up previous image if replaced or removed
+      if (selectedImageFile && currentImagePath && currentImagePath !== newUploadedPath) {
+        await FirebaseStorageService.deleteFile(currentImagePath);
+      } else if (isImageRemoved && currentImagePath) {
+        await FirebaseStorageService.deleteFile(currentImagePath);
+      }
+
       onClose();
+    } catch (err: any) {
+      console.error('[Resource Save Error]', err);
+      if (newUploadedPath) {
+        await FirebaseStorageService.deleteFile(newUploadedPath);
+      }
+      setUploadError(err.message || 'The item could not be saved. Your existing photo has not been deleted.');
     } finally {
       setSaving(false);
+      setUploadProgress(null);
     }
   };
 
@@ -215,6 +276,23 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Upload or Save Error Banner */}
+        {uploadError && (
+          <div className="bg-rose-50 border-b border-rose-200 px-5 py-2.5 flex items-center justify-between text-xs text-rose-800">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setUploadError(null)}
+              className="text-xs font-bold text-rose-700 hover:text-rose-900 cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 bg-white px-5 gap-2 overflow-x-auto text-xs font-bold shrink-0">
@@ -352,6 +430,25 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Detail the curriculum modules, learning outcomes, hands-on capstone project, and career benefits..."
                   className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden leading-relaxed"
+                />
+              </div>
+
+              {/* Resource Photo Upload Section */}
+              <div className="pt-2 border-t border-slate-200">
+                <ImageUploadField
+                  label="Resource Photo"
+                  currentImageUrl={currentImageUrl}
+                  onFileSelect={(file) => {
+                    setSelectedImageFile(file);
+                    setIsImageRemoved(false);
+                  }}
+                  onRemoveCurrent={() => {
+                    setSelectedImageFile(null);
+                    setIsImageRemoved(true);
+                  }}
+                  uploadProgress={uploadProgress}
+                  isRemoved={isImageRemoved}
+                  disabled={saving}
                 />
               </div>
             </div>

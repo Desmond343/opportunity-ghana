@@ -86,6 +86,10 @@ export interface Opportunity {
   otherBenefits?: string;
   benefits: string[];
   
+  // Media & Attachments
+  imageUrl?: string;
+  imagePath?: string;
+
   // Application
   requirements: string[];
   documentsRequired?: string[];
@@ -165,6 +169,8 @@ export interface Resource {
   skills: string[];
   prerequisites?: string[];
   enrollmentUrl: string;
+  imageUrl?: string;
+  imagePath?: string;
   
   // Verification & Editorial
   sourceUrl?: string;
