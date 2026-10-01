@@ -164,6 +164,8 @@ export type ResourceCategory =
   | 'Entrepreneurship'
   | 'Professional Development';
 
+export type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested';
+
 export interface Resource {
   id: string;
   title: string;
@@ -192,11 +194,22 @@ export interface Resource {
   
   // Verification & Editorial
   sourceUrl?: string;
-  status: OpportunityStatus;
+  status: OpportunityStatus | SubmissionStatus;
   verificationStatus?: VerificationStatus;
   lastVerifiedAt?: string;
   verificationNotes?: string;
   
+  // User Submission & Moderation Fields
+  submittedBy?: string; // Authenticated user UID
+  submittedByName?: string;
+  submittedByEmail?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  rejectionReason?: string;
+  adminNotes?: string;
+
   // Audit & Authorship
   createdByEmail?: string;
   createdByName?: string;

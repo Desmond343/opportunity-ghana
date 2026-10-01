@@ -23,6 +23,7 @@ import { AdminResources } from './pages/admin/AdminResources';
 import { AdminOrganizations } from './pages/admin/AdminOrganizations';
 import { AdminSkills } from './pages/admin/AdminSkills';
 import { AdminSubmissions } from './pages/admin/AdminSubmissions';
+import { AdminResourceSubmissions } from './pages/admin/AdminResourceSubmissions';
 import { AdminReports } from './pages/admin/AdminReports';
 import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
@@ -100,11 +101,13 @@ export function AppContent() {
       const searchParams = new URLSearchParams(window.location.search);
       const isFree = searchParams.get('free') === 'true';
       const type = searchParams.get('type') || 'All';
+      const openSubmit = searchParams.get('action') === 'submit';
       return (
         <ResourcesPage
           onNavigate={navigate}
           initialFree={isFree}
           initialType={type}
+          initialOpenSubmit={openSubmit}
         />
       );
     }
@@ -154,6 +157,7 @@ export function AppContent() {
           {currentPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
           {currentPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
           {currentPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}
+          {currentPath === '/admin/resource-submissions' && <AdminResourceSubmissions onNavigate={navigate} />}
           {currentPath === '/admin/reports' && <AdminReports onNavigate={navigate} />}
           {currentPath === '/admin/users' && <AdminUsers onNavigate={navigate} />}
           {currentPath === '/admin/settings' && <AdminSettings onNavigate={navigate} />}

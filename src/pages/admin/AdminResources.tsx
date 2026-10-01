@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Resource, OpportunityStatus, VerificationStatus } from '../../types/database';
+import { Resource, OpportunityStatus, SubmissionStatus, VerificationStatus } from '../../types/database';
 import { ResourcesService } from '../../services/resourcesService';
 import { RESOURCE_CATEGORIES, RESOURCE_TYPES } from '../../data/categories';
 import { VerificationBadge } from '../../components/common/VerificationBadge';
@@ -80,7 +80,7 @@ export const AdminResources: React.FC<{ onNavigate: (path: string) => void }> = 
     setIsFormOpen(true);
   };
 
-  const handleSaveResource = async (res: Resource, targetStatus: OpportunityStatus) => {
+  const handleSaveResource = async (res: Resource, targetStatus: OpportunityStatus | SubmissionStatus) => {
     await ResourcesService.saveResource(res, author);
     await loadData();
   };

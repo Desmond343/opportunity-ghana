@@ -2,7 +2,19 @@ import { Resource, OpportunityStatus, VerificationStatus } from '../types/databa
 import { db, isFirebaseConfigured } from './firebase';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
-import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  limit as firestoreLimit,
+  orderBy
+} from 'firebase/firestore';
 
 const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
 
@@ -78,9 +90,9 @@ export const ResourcesService = {
       }
     }
 
-    // Default to published only for public views
+    // Default to published or approved only for public views
     if (!filters?.includeUnpublished) {
-      items = items.filter(r => r.status === 'published');
+      items = items.filter(r => r.status === 'published' || (r.status as string) === 'approved');
     }
 
     if (filters) {
@@ -612,5 +624,250 @@ export const ResourcesService = {
   async getFreeCourses(limit: number = 3): Promise<Resource[]> {
     const items = await this.getAll({ isFree: true });
     return items.slice(0, limit);
+  },
+
+  /**
+   * Allows normal authenticated users to submit a resource for review.
+   * Enforces status: 'pending' and submittedBy: user.uid
+   */
+  async submitResource(
+    data: Omit<Resource, 'id' | 'createdAt' | 'updatedAt' | 'views' | 'saves' | 'status'>,
+    user: { uid: string; email: string; name: string }
+  ): Promise<Resource> {
+    if (!user || !user.uid) {
+      throw new Error('You must be signed in to submit a resource.');
+    }
+
+    const id = 'res_sub_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+    const now = new Date().toISOString();
+    const slug = (data.title || 'resource')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') + '-' + id.substring(0, 6);
+
+    const submission: Resource = {
+      ...data,
+      id,
+      slug: data.slug || slug,
+      status: 'pending',
+      submittedBy: user.uid,
+      submittedByName: user.name || 'Community Member',
+      submittedByEmail: user.email,
+      providerId: data.providerId || user.uid,
+      providerName: data.providerName || user.name || 'Community Contribution',
+      createdAt: now,
+      updatedAt: now,
+      views: 0,
+      saves: 0
+    };
+
+    const items = getStoredResources();
+    items.unshift(submission);
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'resources', id), submission);
+      } catch (err: any) {
+        console.warn('Firestore submitResource error:', err?.message || err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'resource',
+      entityId: id,
+      entityTitle: submission.title,
+      action: 'created',
+      performedByEmail: user.email,
+      performedByName: user.name || 'User',
+      details: `User submitted resource for administrative review and verification.`,
+      newStatus: 'pending'
+    });
+
+    return submission;
+  },
+
+  /**
+   * Retrieves all submissions created by a specific user.
+   */
+  async getUserSubmissions(userId: string): Promise<Resource[]> {
+    if (!userId) return [];
+
+    let items = getStoredResources().filter(r => r.submittedBy === userId);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        const q = query(collection(db, 'resources'), where('submittedBy', '==', userId));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const remoteItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as Resource));
+          const otherItems = getStoredResources().filter(r => r.submittedBy !== userId);
+          items = remoteItems;
+          saveStoredResources([...remoteItems, ...otherItems]);
+        }
+      } catch (err) {
+        console.warn('Firestore getUserSubmissions error:', err);
+      }
+    }
+
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  /**
+   * Retrieves the pending queue for administrators.
+   */
+  async getPendingSubmissions(): Promise<Resource[]> {
+    const all = await this.getAll({ includeUnpublished: true });
+    return all.filter(r =>
+      r.status === 'pending' ||
+      (r.status as string) === 'pending_review' ||
+      (r.status as string) === 'changes_requested'
+    ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  /**
+   * Administrator approval/rejection review workflow.
+   */
+  async reviewSubmission(
+    id: string,
+    decision: 'approved' | 'rejected' | 'changes_requested',
+    admin: { uid: string; email: string; name: string },
+    rejectionReason?: string,
+    adminNotes?: string
+  ): Promise<Resource | null> {
+    const items = getStoredResources();
+    const index = items.findIndex(r => r.id === id);
+    const now = new Date().toISOString();
+
+    const targetStatus = decision === 'approved' ? 'published' : decision;
+
+    const previousItem = index >= 0 ? items[index] : await this.getById(id);
+    if (!previousItem) return null;
+
+    const updated: Resource = {
+      ...previousItem,
+      status: targetStatus as OpportunityStatus,
+      verificationStatus: decision === 'approved' ? 'verified' : previousItem.verificationStatus,
+      reviewedAt: now,
+      reviewedBy: admin.uid,
+      rejectionReason: rejectionReason?.trim() || undefined,
+      adminNotes: adminNotes?.trim() || undefined,
+      updatedAt: now,
+      lastEditedByEmail: admin.email,
+      lastEditedByName: admin.name,
+      ...(decision === 'approved' ? { publishedAt: now, publishedByEmail: admin.email } : {})
+    };
+
+    if (index >= 0) {
+      items[index] = updated;
+    } else {
+      items.unshift(updated);
+    }
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'resources', id), {
+          status: targetStatus,
+          verificationStatus: updated.verificationStatus || 'verified',
+          reviewedAt: now,
+          reviewedBy: admin.uid,
+          rejectionReason: rejectionReason?.trim() || null,
+          adminNotes: adminNotes?.trim() || null,
+          updatedAt: now,
+          lastEditedByEmail: admin.email,
+          lastEditedByName: admin.name,
+          ...(decision === 'approved' ? { publishedAt: now, publishedByEmail: admin.email } : {})
+        });
+      } catch (err) {
+        console.warn('Firestore reviewSubmission error:', err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'resource',
+      entityId: id,
+      entityTitle: updated.title,
+      action: decision === 'approved' ? 'published' : 'updated',
+      performedByEmail: admin.email,
+      performedByName: admin.name,
+      details: `Resource submission reviewed: ${decision.toUpperCase()}.${rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      previousStatus: previousItem.status,
+      newStatus: targetStatus
+    });
+
+    return updated;
+  },
+
+  /**
+   * Normal user editing their own pending submission.
+   */
+  async updateUserSubmission(
+    id: string,
+    updates: Partial<Resource>,
+    user: { uid: string; email: string; name: string }
+  ): Promise<Resource | null> {
+    const item = await this.getById(id);
+    if (!item) throw new Error('Resource not found.');
+    if (item.submittedBy !== user.uid) {
+      throw new Error('Unauthorized: You can only edit your own submissions.');
+    }
+    if (item.status !== 'pending' && (item.status as string) !== 'changes_requested') {
+      throw new Error('Only pending submissions or submissions requiring changes can be edited.');
+    }
+
+    const now = new Date().toISOString();
+    const updated: Resource = {
+      ...item,
+      ...updates,
+      id: item.id,
+      status: 'pending', // Resubmits to pending review
+      submittedBy: item.submittedBy,
+      updatedAt: now
+    };
+
+    const items = getStoredResources();
+    const idx = items.findIndex(r => r.id === id);
+    if (idx >= 0) items[idx] = updated;
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'resources', id), {
+          ...updates,
+          status: 'pending',
+          updatedAt: now
+        });
+      } catch (e) {
+        console.warn('Firestore updateUserSubmission error:', e);
+      }
+    }
+
+    return updated;
+  },
+
+  /**
+   * Normal user deleting their own pending or rejected submission.
+   */
+  async deleteUserSubmission(id: string, userId: string): Promise<void> {
+    const item = await this.getById(id);
+    if (!item) return;
+    if (item.submittedBy !== userId) {
+      throw new Error('Unauthorized: You can only delete your own submissions.');
+    }
+    if (item.status !== 'pending' && (item.status as string) !== 'changes_requested' && (item.status as string) !== 'rejected') {
+      throw new Error('Only pending, changes requested, or rejected submissions can be deleted.');
+    }
+
+    const items = getStoredResources().filter(r => r.id !== id);
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await deleteDoc(doc(db, 'resources', id));
+      } catch (err) {
+        console.warn('Firestore deleteUserSubmission error:', err);
+      }
+    }
   }
 };

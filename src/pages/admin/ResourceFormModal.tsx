@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Resource, OpportunityStatus, VerificationStatus, ResourceType, ResourceCategory } from '../../types/database';
+import { Resource, OpportunityStatus, SubmissionStatus, VerificationStatus, ResourceType, ResourceCategory } from '../../types/database';
 import { RESOURCE_CATEGORIES, RESOURCE_TYPES } from '../../data/categories';
 import { ImageUploadField } from '../../components/common/ImageUploadField';
 import { FirebaseStorageService } from '../../services/firebase/storageService';
@@ -23,7 +23,7 @@ interface ResourceFormModalProps {
   isOpen: boolean;
   resourceToEdit?: Resource | null;
   onClose: () => void;
-  onSave: (resource: Resource, targetStatus: OpportunityStatus) => Promise<void>;
+  onSave: (resource: Resource, targetStatus: OpportunityStatus | SubmissionStatus) => Promise<void>;
 }
 
 export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
@@ -66,7 +66,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
   // Verification & Status
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('verified');
   const [verificationNotes, setVerificationNotes] = useState('');
-  const [status, setStatus] = useState<OpportunityStatus>('published');
+  const [status, setStatus] = useState<OpportunityStatus | SubmissionStatus>('published');
   const [saving, setSaving] = useState(false);
 
   // Photo State
@@ -149,7 +149,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSave = async (targetStatus: OpportunityStatus) => {
+  const handleSave = async (targetStatus: OpportunityStatus | SubmissionStatus) => {
     if (!title.trim()) {
       alert('Please provide a course or resource title.');
       setActiveTab('details');
