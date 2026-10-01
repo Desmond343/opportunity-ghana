@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { adminAuth, adminDb } from './firebaseAdmin';
+import { adminAuth, adminDb } from './firebaseAdmin.ts';
 import fs from 'fs';
 import path from 'path';
 

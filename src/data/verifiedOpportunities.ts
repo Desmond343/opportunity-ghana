@@ -1,4 +1,4 @@
-import { Opportunity } from '../types/database';
+import type { Opportunity } from '../types/database';
 
 export const VERIFIED_REAL_SCHOLARSHIPS: Opportunity[] = [
   {

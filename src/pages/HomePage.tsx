@@ -123,54 +123,72 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       label: 'Scholarships & Grants',
       subtitle: 'Tuition waivers, living stipends, study abroad',
       tag: 'Academic Funding',
-      tagColor: 'bg-[#E8F5EF] text-[#006B3F]',
+      tagColor: 'bg-[#E8F5EF] text-[#006B3F] border border-[#006B3F]/25',
       icon: GraduationCap,
-      href: '/opportunities?category=Scholarships'
+      href: '/opportunities?category=Scholarships',
+      backgroundImage: '/images/categories/scholarships.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-[#006B3F]/12'
     },
     {
       category: 'Jobs',
       label: 'Graduate & Career Jobs',
       subtitle: 'Corporate recruitments, tech startups & public service',
       tag: 'Employment',
-      tagColor: 'bg-blue-50 text-blue-800',
+      tagColor: 'bg-blue-50 text-blue-800 border border-blue-200/60',
       icon: Briefcase,
-      href: '/opportunities?category=Jobs'
+      href: '/opportunities?category=Jobs',
+      backgroundImage: '/images/categories/jobs.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-blue-600/12'
     },
     {
       category: 'Internships',
       label: 'Internships & Attachments',
       subtitle: 'Student vacation attachments & NSS postings',
       tag: 'Entry Level',
-      tagColor: 'bg-emerald-50 text-emerald-800',
+      tagColor: 'bg-emerald-50 text-emerald-800 border border-emerald-200/60',
       icon: Compass,
-      href: '/opportunities?category=Internships'
+      href: '/opportunities?category=Internships',
+      backgroundImage: '/images/categories/internships.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-emerald-600/12'
     },
     {
       category: 'Fellowships',
       label: 'Fellowships & Leadership',
       subtitle: 'African leadership institutes & policy academies',
       tag: 'Leadership',
-      tagColor: 'bg-amber-50 text-amber-800',
+      tagColor: 'bg-amber-50 text-amber-900 border border-amber-200/60',
       icon: Award,
-      href: '/opportunities?category=Fellowships'
+      href: '/opportunities?category=Fellowships',
+      backgroundImage: '/images/categories/fellowships.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-amber-600/12'
     },
     {
       category: 'Grants',
       label: 'Startup & Innovation Grants',
       subtitle: 'Seed funding, SME acceleration & incubation',
       tag: 'Capital',
-      tagColor: 'bg-purple-50 text-purple-800',
+      tagColor: 'bg-purple-50 text-purple-900 border border-purple-200/60',
       icon: Coins,
-      href: '/opportunities?category=Grants'
+      href: '/opportunities?category=Grants',
+      backgroundImage: '/images/categories/grants.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-purple-600/12'
     },
     {
       category: 'Training',
       label: 'Free Certified Courses',
       subtitle: 'Tech, data analytics, business certifications',
       tag: 'Upskilling',
-      tagColor: 'bg-[#FFF8D6] text-amber-900',
+      tagColor: 'bg-[#FFF8D6] text-amber-900 border border-amber-300/60',
       icon: Sparkles,
-      href: '/resources?free=true'
+      href: '/resources?free=true',
+      backgroundImage: '/images/categories/courses.jpg',
+      overlayClass: 'from-white/94 via-white/86 to-white/76 group-hover:from-white/90 group-hover:via-white/80 group-hover:to-white/70',
+      accentGlow: 'from-[#FCD116]/18'
     }
   ];
 
@@ -442,31 +460,57 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <div
                 key={track.category}
                 onClick={() => onNavigate(track.href)}
-                className="group w-72 sm:w-80 shrink-0 snap-start bg-[#F7F8FA] hover:bg-white rounded-2xl p-5 border border-slate-200 hover:border-[#006B3F]/60 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onNavigate(track.href);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`Explore ${track.label}`}
+                className="group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl p-5 border border-slate-200/90 hover:border-[#006B3F] hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2"
               >
-                <div className="space-y-3">
+                {/* Visual Image Background with Zoom on Hover & High-Legibility Overlays */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                  <img
+                    src={track.backgroundImage}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-cover object-center transform group-hover:scale-108 transition-transform duration-500 ease-out"
+                  />
+                  {/* Subtle backdrop-blur for glassmorphism readability */}
+                  <div className="absolute inset-0 backdrop-blur-[1.5px]" />
+                  {/* Adaptive multi-stop gradient for clear text contrast */}
+                  <div className={`absolute inset-0 bg-gradient-to-b ${track.overlayClass} transition-all duration-300`} />
+                  {/* Subtle theme ambient radial glow */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${track.accentGlow} to-transparent pointer-events-none`} />
+                </div>
+
+                {/* Foreground Card Content */}
+                <div className="relative z-10 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#006B3F] flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
+                    <div className="w-10 h-10 rounded-xl bg-white/95 border border-slate-200/90 text-[#006B3F] flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs backdrop-blur-md">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${track.tagColor}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shadow-2xs backdrop-blur-md ${track.tagColor}`}>
                       {track.tag}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#006B3F] transition-colors font-space">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#006B3F] transition-colors font-space tracking-tight">
                       {track.label}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 font-medium mt-1 line-clamp-2 leading-relaxed">
                       {track.subtitle}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-200/80 flex items-center justify-between text-xs font-bold text-[#006B3F]">
+                <div className="relative z-10 pt-4 mt-4 border-t border-slate-300/60 flex items-center justify-between text-xs font-bold text-[#006B3F]">
                   <span>Explore opportunities</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </div>
               </div>
             );

@@ -2,9 +2,9 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
-import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin';
-import { extractSourceContent } from './server/aiExtraction';
-import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities';
+import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
+import { extractSourceContent } from './server/aiExtraction.ts';
+import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
