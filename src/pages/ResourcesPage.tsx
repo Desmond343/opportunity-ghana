@@ -61,13 +61,23 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="border-b border-slate-200 pb-5">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
-          Courses, Bootcamps & Learning Resources
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-          Acquire verified technical and professional skills aligned with top Ghanaian employers. Catalog of vetted free courses, university certificates, and practical cohorts.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
+            Courses, Bootcamps & Learning Resources
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            Acquire verified technical and professional skills aligned with top Ghanaian employers. Catalog of vetted free courses, university certificates, and practical cohorts.
+          </p>
+        </div>
+
+        <button
+          onClick={() => onNavigate('/resources/submit')}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors shrink-0 self-start sm:self-auto"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-200" />
+          <span>Submit a Resource</span>
+        </button>
       </div>
 
       {/* Filter Chips Bar */}

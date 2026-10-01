@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Image, Upload, Trash2, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { Image, Upload, Trash2, AlertCircle, Check, Loader2, Sparkles } from 'lucide-react';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_BYTES } from '../../services/firebase/storageService';
+import { optimizeImageFile, formatBytes, OptimizationResult } from '../../utils/imageOptimizer';
 
 interface ImageUploadFieldProps {
   label: string;
@@ -10,6 +11,7 @@ interface ImageUploadFieldProps {
   uploadProgress?: number | null;
   isRemoved?: boolean;
   disabled?: boolean;
+  helpText?: string;
 }
 
 export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
@@ -19,12 +21,15 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   onRemoveCurrent,
   uploadProgress,
   isRemoved = false,
-  disabled = false
+  disabled = false,
+  helpText
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [optimizing, setOptimizing] = useState(false);
+  const [optStats, setOptStats] = useState<{ original: number; optimized: number; savings: number } | null>(null);
 
   // Revoke object URL on unmount or when preview changes to avoid memory leaks
   useEffect(() => {
@@ -35,36 +40,64 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     };
   }, [previewUrl]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setValidationError(null);
+    setOptStats(null);
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const file = files[0];
+    const rawFile = files[0];
 
     // Validate MIME type
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    if (!ALLOWED_IMAGE_TYPES.includes(rawFile.type)) {
       setValidationError('Please choose a valid JPG, PNG, or WebP image under 5 MB.');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     // Validate size (5 MB max)
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+    if (rawFile.size > MAX_IMAGE_SIZE_BYTES) {
       setValidationError('Image must be 5 MB or smaller.');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    // Clean up previous blob preview if any
-    if (previewUrl && previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    try {
+      setOptimizing(true);
+      // Client-side high performance compression: downscale & convert to WebP
+      const optResult: OptimizationResult = await optimizeImageFile(rawFile, {
+        maxWidth: 1600,
+        maxHeight: 1200,
+        quality: 0.82,
+        convertToWebP: true
+      });
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-    setSelectedFileName(file.name);
-    onFileSelect(file);
+      // Clean up previous blob preview if any
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      setPreviewUrl(optResult.previewUrl);
+      setSelectedFileName(optResult.file.name);
+      if (optResult.savingsPercent > 5) {
+        setOptStats({
+          original: optResult.originalSizeBytes,
+          optimized: optResult.optimizedSizeBytes,
+          savings: optResult.savingsPercent
+        });
+      }
+
+      onFileSelect(optResult.file);
+    } catch (err: any) {
+      console.warn('Image client optimization fallback:', err);
+      // Fallback: pass raw file if canvas fails
+      const fallbackUrl = URL.createObjectURL(rawFile);
+      setPreviewUrl(fallbackUrl);
+      setSelectedFileName(rawFile.name);
+      onFileSelect(rawFile);
+    } finally {
+      setOptimizing(false);
+    }
   };
 
   const handleRemove = () => {
@@ -74,6 +107,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     setPreviewUrl(null);
     setSelectedFileName(null);
     setValidationError(null);
+    setOptStats(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -109,14 +143,19 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         type="file"
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
-        disabled={disabled || (uploadProgress !== null && uploadProgress !== undefined && uploadProgress > 0)}
+        disabled={disabled || optimizing || (uploadProgress !== null && uploadProgress !== undefined && uploadProgress > 0)}
         className="sr-only"
         aria-label={`Upload ${label}`}
       />
 
       {/* Image Preview Box */}
       <div className="relative w-full rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 overflow-hidden flex flex-col items-center justify-center min-h-[160px] p-4 transition-colors">
-        {activeDisplayUrl ? (
+        {optimizing ? (
+          <div className="flex flex-col items-center justify-center py-8 space-y-2 text-slate-600">
+            <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+            <p className="text-xs font-semibold">Optimizing and compressing image for fast loading...</p>
+          </div>
+        ) : activeDisplayUrl ? (
           <div className="w-full space-y-3">
             <div className="relative w-full h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900/5 border border-slate-200 flex items-center justify-center">
               <img
@@ -128,6 +167,16 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 {selectedFileName ? `New: ${selectedFileName}` : 'Currently Saved Photo'}
               </div>
             </div>
+
+            {/* Optimization Savings Badge */}
+            {optStats && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-800 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>
+                  Compressed by {optStats.savings}% ({formatBytes(optStats.original)} → {formatBytes(optStats.optimized)}) for faster mobile browsing.
+                </span>
+              </div>
+            )}
 
             {/* Action buttons when image exists */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -160,7 +209,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
             <div>
               <p className="text-xs font-bold text-slate-700">Add an optional banner or photo</p>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Displays on public listing cards and detailed view pages
+                {helpText || 'Displays on public listing cards and detailed view pages'}
               </p>
             </div>
             <button
@@ -205,7 +254,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
       {/* Format and Size Hint */}
       <p className="text-[10px] text-slate-400">
-        Supported: JPG, JPEG, PNG, WebP • Maximum size: 5 MB
+        Supported: JPG, JPEG, PNG, WebP • Maximum size: 5 MB • Automatically optimized for high-speed delivery
       </p>
     </div>
   );

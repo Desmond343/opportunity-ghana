@@ -11,6 +11,7 @@ export interface User {
   photoURL?: string;
   role: UserRole;
   location?: string;
+  region?: string;
   educationLevel?: string;
   university?: string;
   course?: string;
@@ -185,6 +186,12 @@ export interface Resource {
   // Audit & Authorship
   createdByEmail?: string;
   createdByName?: string;
+  createdByUserId?: string;
+  isUserSubmitted?: boolean;
+  submissionStatus?: 'pending' | 'approved' | 'rejected' | 'changes_requested';
+  rejectionReason?: string;
+  submittedAt?: string;
+  contactInfo?: string;
   lastEditedByEmail?: string;
   lastEditedByName?: string;
   verifiedByEmail?: string;

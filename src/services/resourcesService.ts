@@ -198,6 +198,195 @@ export const ResourcesService = {
     return toSave;
   },
 
+  /**
+   * Normal Authenticated User Resource Submission
+   * Submits a resource in 'pending_review' status with moderation status 'pending'
+   */
+  async submitUserResource(
+    submissionData: {
+      title: string;
+      description: string;
+      category: string;
+      resourceType: Resource['resourceType'];
+      format?: Resource['format'];
+      level?: Resource['level'];
+      providerName?: string;
+      location?: string;
+      enrollmentUrl: string;
+      isFree: boolean;
+      cost?: number;
+      currency?: string;
+      hasCertificate: boolean;
+      skills?: string[];
+      contactInfo?: string;
+      imageUrl?: string;
+      imagePath?: string;
+    },
+    user: {
+      uid: string;
+      email: string;
+      name: string;
+    }
+  ): Promise<Resource> {
+    const now = new Date().toISOString();
+    const id = 'res_sub_' + Math.random().toString(36).substring(2, 10);
+    const cleanSlug = submissionData.title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'resource';
+    const slug = `${cleanSlug}-${Math.random().toString(36).substring(2, 6)}`;
+
+    const newResource: Resource = {
+      id,
+      title: submissionData.title.trim(),
+      slug,
+      description: submissionData.description.trim(),
+      providerId: 'external_submission',
+      providerName: submissionData.providerName?.trim() || 'Community Contributor',
+      resourceType: submissionData.resourceType || 'course',
+      category: submissionData.category || 'Technology',
+      level: submissionData.level || 'All Levels',
+      format: submissionData.format || 'Self-paced Online',
+      location: submissionData.location || 'Online / Ghana',
+      duration: 'Flexible',
+      cost: submissionData.isFree ? 0 : Number(submissionData.cost || 0),
+      currency: submissionData.currency || 'GHS',
+      isFree: Boolean(submissionData.isFree),
+      hasCertificate: Boolean(submissionData.hasCertificate),
+      skills: submissionData.skills || [],
+      enrollmentUrl: submissionData.enrollmentUrl.trim(),
+      imageUrl: submissionData.imageUrl,
+      imagePath: submissionData.imagePath,
+      sourceUrl: submissionData.enrollmentUrl.trim(),
+      
+      // Strict moderation isolation: NOT published until administrator reviews
+      status: 'pending_review',
+      verificationStatus: 'needs_verification',
+      verificationNotes: `Submitted by user ${user.name} (${user.email}) on ${new Date().toLocaleDateString('en-GB')}. Awaiting verification.`,
+
+      // Authorship & Moderation metadata
+      createdByEmail: user.email,
+      createdByName: user.name,
+      createdByUserId: user.uid,
+      isUserSubmitted: true,
+      submissionStatus: 'pending',
+      submittedAt: now,
+      contactInfo: submissionData.contactInfo,
+
+      createdAt: now,
+      updatedAt: now,
+      views: 0,
+      saves: 0
+    };
+
+    const items = getStoredResources();
+    items.unshift(newResource);
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'resources', newResource.id), newResource);
+      } catch (err) {
+        console.warn('Firestore submitUserResource error:', err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'resource',
+      entityId: newResource.id,
+      entityTitle: newResource.title,
+      action: 'created',
+      performedByEmail: user.email,
+      performedByName: user.name,
+      details: `User submitted new resource for administrative verification: "${newResource.title}". Status: pending review.`
+    });
+
+    return newResource;
+  },
+
+  /**
+   * Retrieves submissions submitted by a specific user
+   */
+  async getUserSubmissions(userId: string, userEmail?: string): Promise<Resource[]> {
+    const all = await this.getAll({ includeUnpublished: true });
+    return all.filter(r => 
+      r.isUserSubmitted && (
+        r.createdByUserId === userId || 
+        (userEmail && r.createdByEmail?.toLowerCase() === userEmail.toLowerCase())
+      )
+    );
+  },
+
+  /**
+   * Administrator moderation of user-submitted resource
+   */
+  async reviewResourceSubmission(
+    id: string,
+    decision: 'approved' | 'rejected' | 'changes_requested',
+    admin: { email: string; name: string },
+    notes?: string
+  ): Promise<void> {
+    const items = getStoredResources();
+    const index = items.findIndex(r => r.id === id);
+    if (index < 0) return;
+
+    const current = items[index];
+    const now = new Date().toISOString();
+
+    const isApproval = decision === 'approved';
+    const updated: Resource = {
+      ...current,
+      submissionStatus: decision,
+      status: isApproval ? 'published' : current.status === 'published' ? 'draft' : current.status,
+      verificationStatus: isApproval ? 'verified' : current.verificationStatus,
+      lastVerifiedAt: isApproval ? now : current.lastVerifiedAt,
+      verifiedByEmail: isApproval ? admin.email : current.verifiedByEmail,
+      publishedAt: isApproval ? now : current.publishedAt,
+      publishedByEmail: isApproval ? admin.email : current.publishedByEmail,
+      rejectionReason: decision === 'rejected' ? notes : undefined,
+      verificationNotes: notes || current.verificationNotes,
+      updatedAt: now,
+      lastEditedByEmail: admin.email,
+      lastEditedByName: admin.name
+    };
+
+    items[index] = updated;
+    saveStoredResources(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'resources', id), {
+          submissionStatus: decision,
+          status: updated.status,
+          verificationStatus: updated.verificationStatus,
+          lastVerifiedAt: updated.lastVerifiedAt || '',
+          verifiedByEmail: updated.verifiedByEmail || '',
+          publishedAt: updated.publishedAt || '',
+          publishedByEmail: updated.publishedByEmail || '',
+          rejectionReason: updated.rejectionReason || '',
+          verificationNotes: updated.verificationNotes || '',
+          updatedAt: now,
+          lastEditedByEmail: admin.email,
+          lastEditedByName: admin.name
+        });
+      } catch (err) {
+        console.warn('Firestore reviewResourceSubmission error:', err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'resource',
+      entityId: id,
+      entityTitle: updated.title,
+      action: isApproval ? 'published' : 'verified',
+      performedByEmail: admin.email,
+      performedByName: admin.name,
+      details: `Resource submission reviewed: ${decision.toUpperCase()}. ${notes || ''}`,
+      newStatus: updated.status
+    });
+  },
+
   async updateStatus(
     id: string,
     status: OpportunityStatus,

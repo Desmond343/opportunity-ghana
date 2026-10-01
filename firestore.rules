@@ -66,10 +66,23 @@ service cloud.firestore {
       allow create, update, delete: if isAdminOrEditor();
     }
 
-    // 4. Resources collection
+    // 4. Resources collection:
+    // Public can read published resources.
+    // Authenticated users can submit new resources with status == 'pending_review'.
+    // Users can read their own submitted resources.
+    // Admin/editor have full permissions to review, approve, publish, edit, or delete.
     match /resources/{resourceId} {
-      allow read: if resource.data.status == 'published' || isAdminOrEditor();
-      allow create, update, delete: if isAdminOrEditor();
+      allow read: if resource.data.status == 'published' ||
+                     isAdminOrEditor() ||
+                     (isAuthenticated() && resource.data.createdByUserId == request.auth.uid);
+      allow create: if isAdminOrEditor() || (
+        isAuthenticated() &&
+        request.resource.data.status == 'pending_review' &&
+        request.resource.data.submissionStatus == 'pending' &&
+        request.resource.data.isUserSubmitted == true &&
+        request.resource.data.createdByUserId == request.auth.uid
+      );
+      allow update, delete: if isAdminOrEditor();
     }
 
     // 5. Skills collection

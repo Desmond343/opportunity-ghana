@@ -7,6 +7,7 @@ import { OpportunitiesPage } from './pages/OpportunitiesPage';
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
+import { SubmitResourcePage } from './pages/SubmitResourcePage';
 import { CareersPage } from './pages/CareersPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';
@@ -82,13 +83,18 @@ export function AppContent() {
       );
     }
 
-    // 3. Resources Detail: /resources/:slug
+    // 3. User Resource Submission: /resources/submit
+    if (currentPath === '/resources/submit') {
+      return <SubmitResourcePage onNavigate={navigate} />;
+    }
+
+    // 4. Resources Detail: /resources/:slug
     if (currentPath.startsWith('/resources/') && currentPath !== '/resources') {
       const slug = currentPath.replace('/resources/', '').replace(/\/$/, '');
       return <ResourceDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    // 4. Resources Directory: /resources
+    // 5. Resources Directory: /resources
     if (currentPath === '/resources') {
       const searchParams = new URLSearchParams(window.location.search);
       const isFree = searchParams.get('free') === 'true';
