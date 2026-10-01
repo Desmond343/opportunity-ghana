@@ -177,67 +177,81 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-16 sm:space-y-20 pb-20 bg-white">
       {/* ==================================================
-          1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR
+          1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F7F8FA] via-white to-white pt-10 sm:pt-16 pb-12 sm:pb-16 border-b border-slate-200/70">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F2F7F4] via-[#F8FAF9] to-white pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 lg:pb-20 border-b border-slate-200/80">
+        {/* Subtle decorative Ghanaian ambient glow */}
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#006B3F] to-[#FCD116]" />
+        <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#006B3F]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 right-10 w-96 h-96 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* HERO LEFT: Brand Messaging & CTAs */}
             <div className="lg:col-span-7 space-y-6 text-left">
               {/* Ghanaian Platform Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F5EF] border border-[#006B3F]/20 text-xs font-bold text-[#006B3F]">
-                <span className="w-2 h-2 rounded-full bg-[#006B3F]" />
-                <span>The Modern Ghanaian Opportunity Portal</span>
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-[#006B3F]/25 shadow-xs text-xs font-bold text-[#006B3F] backdrop-blur-md">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B3F] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B3F]" />
+                </span>
+                <span className="tracking-wide">The Modern Ghanaian Opportunity Portal</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
               </div>
 
               {/* Large Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] tracking-tight leading-[1.1] font-space">
-                Discover Opportunities.{' '}
-                <span className="text-[#006B3F] block sm:inline">Build Your Future.</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] tracking-tight leading-[1.08] font-space">
+                Discover Opportunities.
+                <span className="text-[#006B3F] block mt-1.5 sm:mt-2">Build Your Future.</span>
               </h1>
 
               {/* Supporting Text */}
-              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Find scholarships, jobs, internships, fellowships, grants, training programs and more — all in one verified place.
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed font-normal">
+                Find <span className="font-semibold text-slate-900">scholarships</span>, <span className="font-semibold text-slate-900">jobs</span>, <span className="font-semibold text-slate-900">internships</span>, <span className="font-semibold text-slate-900">fellowships</span>, <span className="font-semibold text-slate-900">grants</span>, training programs and more — all in one verified place.
               </p>
 
               {/* Hero Action Buttons */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center gap-3.5">
                 <button
                   onClick={() => onNavigate('/opportunities')}
-                  className="px-6 py-3.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-98 flex items-center gap-2"
+                  className="group px-7 py-4 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-md hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-98 flex items-center gap-2.5"
                 >
                   <span>Explore Opportunities</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
                   onClick={() => onNavigate('/resources')}
-                  className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
+                  className="px-6 py-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-800 text-xs sm:text-sm font-bold transition-all duration-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
                 >
                   Browse Resources
                 </button>
               </div>
 
               {/* Micro Trust Indicators */}
-              <div className="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-500 border-t border-slate-200/80">
+              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-600 border-t border-slate-200/80">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
-                  <span className="font-semibold text-slate-700">100% Verified Sources</span>
+                  <div className="w-5 h-5 rounded-full bg-[#E8F5EF] flex items-center justify-center">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
+                  </div>
+                  <span className="font-bold text-slate-800">100% Verified Sources</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#FCD116]" />
-                  <span className="font-semibold text-slate-700">All 16 Regions of Ghana</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FCD116] ring-4 ring-[#FFF8D6]" />
+                  <span className="font-bold text-slate-800">All 16 Regions of Ghana</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#006B3F]" />
-                  <span className="font-semibold text-slate-700">Zero Application Fees Policy</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] ring-4 ring-[#E8F5EF]" />
+                  <span className="font-bold text-slate-800">Zero Application Fees Policy</span>
                 </div>
               </div>
             </div>
 
             {/* HERO RIGHT: Large Ghanaian Lifestyle Photograph */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-100 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3">
+              {/* Subtle ambient decorative glow behind image */}
+              <div className="absolute -inset-2 bg-gradient-to-tr from-[#006B3F]/20 via-[#FCD116]/15 to-transparent rounded-3xl blur-xl opacity-75 pointer-events-none" />
+
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 bg-slate-100 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
                 <img
                   src="/images/ghana_hero_professionals.jpg"
                   alt="Young Ghanaian professionals and university students collaborating"
@@ -248,26 +262,30 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 {/* Subtle protective gradient over image bottom */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
 
-                {/* Floating Highlights Card on Image */}
-                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-white/20 shadow-xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#E8F5EF] text-[#006B3F] flex items-center justify-center font-bold">
-                      <GraduationCap className="w-5 h-5" />
+                {/* Floating Information Card on Image */}
+                <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-white/50 shadow-2xl flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#E8F5EF] border border-[#006B3F]/20 text-[#006B3F] flex items-center justify-center font-bold shrink-0 shadow-xs">
+                      <GraduationCap className="w-6 h-6" />
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900 font-space">
-                        Verified Opportunities Active
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {totalCount > 0 ? `${totalCount} Openings Cataloged` : 'Nationwide Listings'}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#006B3F] animate-pulse" />
+                        <p className="text-xs font-bold text-slate-900 font-space truncate">
+                          Verified Opportunities Active
+                        </p>
+                      </div>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5 truncate">
+                        {totalCount > 0 ? `${totalCount} Nationwide Listings` : 'Nationwide Listings'}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => onNavigate('/opportunities')}
-                    className="p-2 rounded-xl bg-[#006B3F] text-white hover:bg-[#005530] transition-colors cursor-pointer"
+                    className="p-2.5 rounded-xl bg-[#006B3F] text-white hover:bg-[#005530] transition-colors cursor-pointer shrink-0 shadow-xs"
+                    title="Explore Opportunities"
                   >
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 text-[#FCD116]" />
                   </button>
                 </div>
               </div>
@@ -277,10 +295,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* ==================================================
               HERO SEARCH BAR (Jobberman-Style Horizontal Bar)
              ================================================== */}
-          <div className="mt-10 sm:mt-12 max-w-5xl mx-auto">
+          <div className="mt-10 sm:mt-14 max-w-5xl mx-auto">
             <form
               onSubmit={handleSearchSubmit}
-              className="bg-white rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200 flex flex-col md:flex-row items-center gap-2"
+              className="bg-white rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200/90 flex flex-col md:flex-row items-center gap-2"
             >
               {/* Keyword Search Field */}
               <div className="relative flex-1 w-full flex items-center pl-3">
