@@ -344,22 +344,57 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           )}
 
           {/* Eligibility & Requirements */}
-          {opportunity.requirements && opportunity.requirements.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+          <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold text-slate-900 font-space">
-                  Eligibility & Requirements
+                <GraduationCap className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-[#111111] font-space">
+                  Who Can Apply (Eligibility)
                 </h2>
               </div>
-              <ul className="space-y-2.5">
+              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#E6F0EB] text-[#006B3F] border border-[#006B3F]/20">
+                ✓ Ghana Eligible
+              </span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#F7F9F8] border border-[#E5E7EB] space-y-1.5 text-xs text-slate-700">
+              <p className="font-bold text-[#111111]">
+                Target Nationality & Citizenship:
+              </p>
+              <p className="text-slate-600">
+                {opportunity.nationality || 'Ghanaian citizens and permanent residents in Ghana.'}
+              </p>
+              {opportunity.academicYear && (
+                <p className="pt-1 text-[11px] text-slate-500 font-mono">
+                  Official Academic Cycle: <strong>{opportunity.academicYear}</strong>
+                </p>
+              )}
+            </div>
+
+            {opportunity.requirements && opportunity.requirements.length > 0 && (
+              <ul className="space-y-2.5 pt-2">
                 {opportunity.requirements.map((req, i) => (
                   <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-2" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] shrink-0 mt-2" />
                     <span>{req}</span>
                   </li>
                 ))}
               </ul>
+            )}
+          </section>
+
+          {/* How to Apply */}
+          {opportunity.applicationInstructions && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-[#111111] font-space">
+                  How to Apply (Official Guidelines)
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-[#F7F9F8] p-4 rounded-2xl border border-slate-200/70">
+                {opportunity.applicationInstructions}
+              </p>
             </section>
           )}
 
@@ -462,47 +497,69 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             </div>
 
             {!isClosed ? (
-              <a
-                href={opportunity.applicationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-all shadow-xs cursor-pointer"
-              >
-                <span>Apply on Official Website</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
+              <div className="space-y-2">
+                <a
+                  href={opportunity.officialApplicationUrl || opportunity.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 text-xs font-bold text-white bg-[#006B3F] hover:bg-[#005632] rounded-xl transition-all shadow-xs cursor-pointer"
+                >
+                  <span>Apply on Official Portal</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <p className="text-[10px] text-center text-slate-500">
+                  Applications are completed directly through the official provider portal.
+                </p>
+              </div>
             ) : (
               <div className="p-3 bg-slate-100 rounded-xl text-center text-xs font-bold text-slate-500">
                 Application Period Ended
               </div>
             )}
 
-            {/* Verification System Box - Section 8 requirement */}
-            <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200 text-[11px] text-emerald-950 space-y-2">
+            {/* Official Source Reference - Sections 10 & 28 */}
+            <div className="p-3.5 rounded-2xl bg-[#E6F0EB] border border-[#006B3F]/25 text-[11px] text-[#006B3F] space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-1 text-emerald-900">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                  Source Verification
+                <span className="font-bold flex items-center gap-1.5 text-[#006B3F]">
+                  <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
+                  Official Source Reference
                 </span>
                 <VerificationBadge status={opportunity.verificationStatus} />
               </div>
 
+              <div>
+                <span className="text-slate-600 block text-[10px] font-medium">Provider / Host Authority:</span>
+                <span className="font-bold text-[#111111]">{opportunity.sourceName || opportunity.organizationName || 'Official Institutional Source'}</span>
+              </div>
+
               {opportunity.sourceUrl && (
-                <div className="pt-1 border-t border-emerald-200/60">
-                  <span className="text-emerald-700 font-medium block">Original Notice:</span>
+                <div className="pt-1.5 border-t border-[#006B3F]/20">
+                  <span className="text-slate-600 block text-[10px] font-medium">Official Notice:</span>
                   <a
                     href={opportunity.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-800 hover:underline truncate block font-mono font-bold"
+                    className="text-[#006B3F] hover:underline truncate block font-mono font-bold text-[10px]"
                   >
                     {opportunity.sourceUrl}
                   </a>
                 </div>
               )}
 
+              {opportunity.lastVerifiedAt && (
+                <div className="text-[10px] text-slate-500 font-medium">
+                  Last verified: <strong className="text-slate-800">{new Date(opportunity.lastVerifiedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                </div>
+              )}
+
+              {opportunity.imageSourceName && (
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-[#006B3F]/15">
+                  Media Source: <span className="text-slate-600">{opportunity.imageSourceName}</span> {opportunity.imageLicense && `(${opportunity.imageLicense})`}
+                </div>
+              )}
+
               {opportunity.verificationNotes && (
-                <p className="text-emerald-800 text-[10px] leading-relaxed italic">
+                <p className="text-[#006B3F] text-[10px] leading-relaxed italic pt-1 border-t border-[#006B3F]/15">
                   &ldquo;{opportunity.verificationNotes}&rdquo;
                 </p>
               )}

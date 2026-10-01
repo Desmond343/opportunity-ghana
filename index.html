@@ -1,24 +1,77 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Ignore Vite HMR WebSocket connection errors in AI Studio iframe environment (HMR: Disabled) -->
+    <script>
+      (function() {
+        var isViteError = function(val) {
+          if (!val) return false;
+          var str = typeof val === 'string' ? val : (val.message || val.stack || (val.reason && (val.reason.message || val.reason)) || '');
+          str = String(str);
+          return str.indexOf('[vite]') !== -1 || str.indexOf('WebSocket') !== -1 || str.indexOf('websocket') !== -1 || str.indexOf('ws://') !== -1 || str.indexOf('wss://') !== -1;
+        };
+
+        var origError = console.error;
+        console.error = function() {
+          var args = Array.prototype.slice.call(arguments);
+          for (var i = 0; i < args.length; i++) {
+            if (isViteError(args[i])) {
+              return;
+            }
+          }
+          return origError.apply(console, arguments);
+        };
+
+        window.addEventListener('error', function(event) {
+          if (isViteError(event.message) || isViteError(event.error)) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (isViteError(event.reason)) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+        }, true);
+
+        try {
+          if (typeof window.WebSocket !== 'undefined') {
+            var OrigWS = window.WebSocket;
+            window.WebSocket = function(url, protocols) {
+              if (protocols === 'vite-hmr' || (typeof url === 'string' && (url.indexOf(':24678') !== -1 || url.indexOf('token=') !== -1))) {
+                var dummyTarget = document.createElement('div');
+                dummyTarget.close = function() {};
+                dummyTarget.send = function() {};
+                dummyTarget.readyState = 1; // OPEN
+                dummyTarget.binaryType = 'blob';
+                dummyTarget.bufferedAmount = 0;
+                dummyTarget.extensions = '';
+                dummyTarget.protocol = 'vite-hmr';
+                dummyTarget.url = url;
+                setTimeout(function() {
+                  if (typeof dummyTarget.onopen === 'function') dummyTarget.onopen(new Event('open'));
+                }, 0);
+                return dummyTarget;
+              }
+              return new OrigWS(url, protocols);
+            };
+            window.WebSocket.prototype = OrigWS.prototype;
+            window.WebSocket.CONNECTING = 0;
+            window.WebSocket.OPEN = 1;
+            window.WebSocket.CLOSING = 2;
+            window.WebSocket.CLOSED = 3;
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <title>Opportunity Ghana - Find Opportunities, Build Skills, Advance Your Career</title>
     <meta name="description" content="Discover verified jobs, scholarships, internships, grants, courses, and certifications across Ghana. Database-driven opportunity and career platform." />
-
-    <!-- Ignore Vite HMR WebSocket connection errors in AI Studio iframe environment -->
-    <script>
-      (function() {
-        const origError = console.error;
-        console.error = function(...args) {
-          if (args.length > 0 && typeof args[0] === 'string' && (args[0].includes('[vite]') || args[0].includes('WebSocket') || args[0].includes('ws:'))) {
-            console.debug(...args);
-            return;
-          }
-          origError.apply(console, args);
-        };
-      })();
-    </script>
 
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#006B3F" />

@@ -92,20 +92,32 @@ export interface Opportunity {
   imagePath?: string;
   imageSourceUrl?: string;
   imageSourceName?: string;
+  imageLicense?: string;
 
   // Application
   requirements: string[];
   documentsRequired?: string[];
   applicationUrl: string;
+  officialApplicationUrl?: string;
   applicationMethod: 'online_form' | 'email' | 'external_portal' | 'in_person';
+  applicationInstructions?: string;
   deadline: string; // ISO date string or formatted date
+  openingDate?: string;
+  academicYear?: string;
+  studyLevel?: string;
+  fundingDetails?: string;
   
   // Verification & Editorial
+  sourceName?: string;
   sourceUrl?: string;
+  sourceLastChecked?: string;
   status: OpportunityStatus;
   verificationStatus: VerificationStatus;
   lastVerifiedAt?: string;
   verificationNotes?: string;
+  verifiedBy?: string;
+  isResearchDiscovered?: boolean;
+  researchRunId?: string;
   
   // Audit & Authorship
   createdByEmail?: string;

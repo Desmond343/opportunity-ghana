@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { ExtractedAIResponse, QualityControlFlag } from '../src/types/aiAssistant';
+import type { ExtractedAIResponse, QualityControlFlag } from '../src/types/aiAssistant';
 
 const SYSTEM_INSTRUCTION = `
 You are the AI Content Assistant for "Opportunity Ghana", an official platform connecting Ghanaian youth to verified jobs, scholarships, internships, fellowships, and training.

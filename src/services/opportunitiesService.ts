@@ -103,6 +103,8 @@ export interface OpportunityFilters {
   region?: string;
   opportunityType?: string;
   educationLevel?: string;
+  studyLevel?: string;
+  fundingType?: string;
   status?: OpportunityStatus;
   verificationStatus?: VerificationStatus;
   onlyActive?: boolean;
@@ -178,6 +180,17 @@ export const OpportunitiesService = {
           !o.educationLevel ||
           o.educationLevel.toLowerCase().includes(filters.educationLevel!.toLowerCase()) ||
           o.educationLevel === 'Any'
+        );
+      }
+      if (filters.studyLevel && filters.studyLevel !== 'All') {
+        items = items.filter(o =>
+          (o.studyLevel && o.studyLevel.toLowerCase().includes(filters.studyLevel!.toLowerCase())) ||
+          (o.educationLevel && o.educationLevel.toLowerCase().includes(filters.studyLevel!.toLowerCase()))
+        );
+      }
+      if (filters.fundingType && filters.fundingType !== 'All') {
+        items = items.filter(o =>
+          (o.fundingType && o.fundingType.toLowerCase().includes(filters.fundingType!.toLowerCase()))
         );
       }
       if (filters.onlyActive) {

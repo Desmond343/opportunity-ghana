@@ -189,6 +189,7 @@ export const SubmitResourcePage: React.FC<SubmitResourcePageProps> = ({ onNaviga
 
       // Image upload if selected
       if (selectedFile) {
+        setUploadProgress(0);
         const uploadResult = await FirebaseStorageService.uploadResourcePhoto(
           tempId,
           selectedFile,

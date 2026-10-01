@@ -1,7 +1,7 @@
-import { initializeApp, cert, getApps, App } from 'firebase-admin/app';
-import { getFirestore, Firestore } from 'firebase-admin/firestore';
-import { getAuth, Auth } from 'firebase-admin/auth';
-import { getStorage, Storage } from 'firebase-admin/storage';
+import { initializeApp, cert, getApps, type App } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getStorage, type Storage } from 'firebase-admin/storage';
 import fs from 'fs';
 import path from 'path';
 

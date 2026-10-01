@@ -214,7 +214,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
 
       // Upload new image if selected
       if (selectedImageFile) {
-        setUploadProgress(10);
+        setUploadProgress(0);
         const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
           finalResource.id,
           selectedImageFile,

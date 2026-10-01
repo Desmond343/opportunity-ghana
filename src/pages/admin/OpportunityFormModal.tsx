@@ -282,7 +282,7 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
 
   const handleTriggerSave = async (targetStatus: OpportunityStatus) => {
     if (!title.trim()) {
-      alert('Please enter a title for the opportunity.');
+      setUploadError('Please enter a title for the opportunity.');
       setActiveTab('basic');
       return;
     }
@@ -306,7 +306,7 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
 
       // Handle image upload if a new file was chosen
       if (selectedImageFile) {
-        setUploadProgress(10);
+        setUploadProgress(0);
         const uploadRes = await FirebaseStorageService.uploadOpportunityPhoto(
           finalOpp.id,
           selectedImageFile,

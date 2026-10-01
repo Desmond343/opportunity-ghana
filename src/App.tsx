@@ -16,6 +16,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AuthPage } from './pages/AuthPage';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminScholarshipResearch } from './pages/admin/AdminScholarshipResearch';
 import { AdminAIAssistant } from './pages/admin/AdminAIAssistant';
 import { AdminOpportunities } from './pages/admin/AdminOpportunities';
 import { AdminResources } from './pages/admin/AdminResources';
@@ -146,6 +147,7 @@ export function AppContent() {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
           {currentPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
+          {currentPath === '/admin/scholarship-research' && <AdminScholarshipResearch onNavigate={navigate} />}
           {currentPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
           {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
           {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
