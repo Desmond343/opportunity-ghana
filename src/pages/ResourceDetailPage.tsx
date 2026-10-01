@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Resource } from '../types/database';
 import { ResourcesService } from '../services/resourcesService';
+import { useAuth } from '../services/authContext';
 import { Badge } from '../components/common/Badge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
@@ -26,6 +27,7 @@ interface ResourceDetailPageProps {
 }
 
 export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, onNavigate }) => {
+  const { currentUser, isEditorOrAdmin } = useAuth();
   const [resource, setResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
@@ -53,6 +55,22 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         actionText="Browse All Resources"
         onAction={() => onNavigate('/resources')}
       />
+    );
+  }
+
+  const isPendingOrUnpublished = resource.status !== 'published' && (resource.status as string) !== 'approved';
+  const isSubmitterOrAdmin = isEditorOrAdmin || (currentUser && (currentUser.id === resource.submittedBy || currentUser.email === resource.submittedByEmail || currentUser.id === resource.createdByUserId || currentUser.email === resource.createdByEmail));
+
+  if (isPendingOrUnpublished && !isSubmitterOrAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16">
+        <EmptyState
+          title="Submission Awaiting Review"
+          description="This resource submission is currently awaiting editorial verification before it is published on Opportunity Ghana."
+          actionText="Browse Active Resources"
+          onAction={() => onNavigate('/resources')}
+        />
+      </div>
     );
   }
 

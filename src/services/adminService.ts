@@ -262,19 +262,33 @@ export const AdminService = {
 
     const closedOpps = opps.filter(o => o.status === 'closed' || calculateDeadlineInfo(o.deadline).isClosed);
 
+    const pendingOppSubmissions = opps.filter(o => 
+      o.status === 'pending' || 
+      (o.status as string) === 'pending_review' || 
+      o.submissionStatus === 'pending'
+    ).length;
+
+    const pendingResSubmissions = resources.filter(r => 
+      r.status === 'pending' || 
+      (r.status as string) === 'pending_review' || 
+      r.submissionStatus === 'pending'
+    ).length;
+
+    const pendingPartnerSubs = subs.filter(s => s.status === 'pending').length;
+
     return {
       totalOpportunities: opps.length,
       publishedCount: opps.filter(o => o.status === 'published' && !calculateDeadlineInfo(o.deadline).isClosed).length,
       draftCount: opps.filter(o => o.status === 'draft').length,
-      pendingReviewCount: opps.filter(o => o.status === 'pending_review').length,
+      pendingReviewCount: pendingOppSubmissions,
       needsVerificationCount: opps.filter(o => o.verificationStatus === 'needs_verification').length,
       closingSoonCount: closingSoon.length,
       closedCount: closedOpps.length,
       totalResources: resources.length,
-      pendingResourceSubmissions: subs.filter(s => s.type === 'resource' && s.status === 'pending').length,
+      pendingResourceSubmissions: pendingResSubmissions,
       totalUsers: users.length,
       totalOrganizations: orgs.length,
-      pendingSubmissionsCount: subs.filter(s => s.status === 'pending').length,
+      pendingSubmissionsCount: pendingOppSubmissions + pendingResSubmissions + pendingPartnerSubs,
       openReportsCount: reps.filter(r => r.status === 'open' || r.status === 'investigating').length
     };
   }

@@ -5,6 +5,7 @@ import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { OpportunitiesPage } from './pages/OpportunitiesPage';
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
+import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { SubmitResourcePage } from './pages/SubmitResourcePage';
@@ -65,7 +66,12 @@ export function AppContent() {
 
   // Route Resolver
   const renderRoute = () => {
-    // 1. Opportunities Detail: /opportunities/:slug
+    // 1. User Opportunity Submission: /opportunities/submit
+    if (currentPath === '/opportunities/submit') {
+      return <SubmitOpportunityPage onNavigate={navigate} />;
+    }
+
+    // 2. Opportunities Detail: /opportunities/:slug
     if (currentPath.startsWith('/opportunities/') && currentPath !== '/opportunities') {
       const slug = currentPath.replace('/opportunities/', '').replace(/\/$/, '');
       return <OpportunityDetailPage slug={slug} onNavigate={navigate} />;

@@ -725,7 +725,8 @@ export const ResourcesService = {
     decision: 'approved' | 'rejected' | 'changes_requested',
     admin: { uid: string; email: string; name: string },
     rejectionReason?: string,
-    adminNotes?: string
+    adminNotes?: string,
+    editedData?: Partial<Resource>
   ): Promise<Resource | null> {
     const items = getStoredResources();
     const index = items.findIndex(r => r.id === id);
@@ -736,18 +737,25 @@ export const ResourcesService = {
     const previousItem = index >= 0 ? items[index] : await this.getById(id);
     if (!previousItem) return null;
 
+    const isApproval = decision === 'approved';
+    const isRejection = decision === 'rejected';
+
     const updated: Resource = {
       ...previousItem,
-      status: targetStatus as OpportunityStatus,
-      verificationStatus: decision === 'approved' ? 'verified' : previousItem.verificationStatus,
+      ...(editedData || {}),
+      status: isApproval ? 'published' : isRejection ? 'rejected' : 'pending',
+      submissionStatus: decision,
+      verificationStatus: isApproval ? 'verified' : previousItem.verificationStatus,
+      lastVerifiedAt: isApproval ? now : previousItem.lastVerifiedAt,
+      verifiedByEmail: isApproval ? admin.email : previousItem.verifiedByEmail,
       reviewedAt: now,
-      reviewedBy: admin.uid,
-      rejectionReason: rejectionReason?.trim() || undefined,
-      adminNotes: adminNotes?.trim() || undefined,
+      reviewedBy: admin.name,
+      rejectionReason: isRejection ? rejectionReason?.trim() : (decision === 'changes_requested' ? rejectionReason?.trim() : undefined),
+      adminNotes: adminNotes?.trim() || previousItem.adminNotes,
       updatedAt: now,
       lastEditedByEmail: admin.email,
       lastEditedByName: admin.name,
-      ...(decision === 'approved' ? { publishedAt: now, publishedByEmail: admin.email } : {})
+      ...(isApproval ? { publishedAt: now, publishedByEmail: admin.email } : {})
     };
 
     if (index >= 0) {
@@ -760,16 +768,8 @@ export const ResourcesService = {
     if (isFirebaseConfigured && db) {
       try {
         await updateDoc(doc(db, 'resources', id), {
-          status: targetStatus,
-          verificationStatus: updated.verificationStatus || 'verified',
-          reviewedAt: now,
-          reviewedBy: admin.uid,
-          rejectionReason: rejectionReason?.trim() || null,
-          adminNotes: adminNotes?.trim() || null,
-          updatedAt: now,
-          lastEditedByEmail: admin.email,
-          lastEditedByName: admin.name,
-          ...(decision === 'approved' ? { publishedAt: now, publishedByEmail: admin.email } : {})
+          ...updated,
+          updatedAt: now
         });
       } catch (err) {
         console.warn('Firestore reviewSubmission error:', err);
@@ -780,10 +780,12 @@ export const ResourcesService = {
       entityType: 'resource',
       entityId: id,
       entityTitle: updated.title,
-      action: decision === 'approved' ? 'published' : 'updated',
+      action: isApproval ? 'published' : 'updated',
       performedByEmail: admin.email,
       performedByName: admin.name,
-      details: `Resource submission reviewed: ${decision.toUpperCase()}.${rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      details: isApproval
+        ? `Resource submission approved and published to public site by ${admin.name}.`
+        : `Resource submission ${decision.toUpperCase()} by ${admin.name}.${rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
       previousStatus: previousItem.status,
       newStatus: targetStatus
     });

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../services/authContext';
+import { AdminService } from '../../services/adminService';
 import {
   LayoutDashboard,
   Compass,
@@ -29,6 +30,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
   const { currentUser, firebaseUser, claims, isAdmin, isEditorOrAdmin, refreshClaims } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    AdminService.getPipelineMetrics()
+      .then((m) => {
+        if (isMounted) setPendingCount(m.pendingSubmissionsCount);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPath]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -214,7 +228,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
+                  <span className="flex-1">{item.label}</span>
+                  {item.path === '/admin/submissions' && pendingCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-slate-950 shadow-2xs">
+                      {pendingCount}
+                    </span>
+                  )}
                 </button>
               );
             })}

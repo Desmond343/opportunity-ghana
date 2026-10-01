@@ -154,9 +154,13 @@ export const OpportunitiesService = {
       }
     }
 
-    // By default, public website displays ONLY published & active (or closed) records, NOT drafts/pending
+    // By default, public website displays ONLY published & active (or closed) records, NOT drafts/pending/rejected
     if (!filters?.includeUnpublished) {
-      items = items.filter(o => o.status === 'published' || o.status === 'closed');
+      items = items.filter(o =>
+        (o.status === 'published' || o.status === 'closed') &&
+        o.submissionStatus !== 'pending' &&
+        o.submissionStatus !== 'rejected'
+      );
     }
 
     if (filters) {
@@ -600,5 +604,246 @@ export const OpportunitiesService = {
       return featured.slice(0, limit);
     }
     return items.slice(0, limit);
+  },
+
+  /**
+   * Submits a new opportunity from an authenticated community member for review.
+   * Saved strictly with status: 'pending' and does NOT appear on public website until approved.
+   */
+  async submitUserOpportunity(
+    data: Partial<Opportunity>,
+    user: { uid: string; email: string; name: string }
+  ): Promise<Opportunity> {
+    if (!data.title?.trim()) {
+      throw new Error('Opportunity title is required.');
+    }
+    if (!data.category?.trim()) {
+      throw new Error('Opportunity category is required.');
+    }
+    if (!data.description?.trim()) {
+      throw new Error('Description is required.');
+    }
+    if (!data.applicationUrl?.trim()) {
+      throw new Error('Application link is required.');
+    }
+
+    const id = 'opp_sub_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+    const now = new Date().toISOString();
+    const rawSlug = (data.title || 'opportunity')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    const slug = `${rawSlug}-${id.substring(8, 14)}`;
+
+    const submission: Opportunity = {
+      id,
+      slug: data.slug || slug,
+      title: data.title.trim(),
+      description: data.description.trim(),
+      organizationId: data.organizationId || user.uid,
+      organizationName: data.organizationName?.trim() || 'Community Partner',
+      organizationLogo: data.organizationLogo,
+      category: data.category || 'Scholarships',
+      subcategory: data.subcategory || '',
+      opportunityType: data.opportunityType || 'Full-time',
+      location: data.location?.trim() || 'Ghana / Remote',
+      country: data.country?.trim() || 'Ghana',
+      region: data.region?.trim() || 'All Ghana',
+      educationLevel: data.educationLevel || 'Undergraduate',
+      fieldOfStudy: data.fieldOfStudy || 'All Fields',
+      experienceLevel: data.experienceLevel || 'Entry Level',
+      ageRequirement: data.ageRequirement || '',
+      nationality: data.nationality || 'Ghanaian citizens',
+      fundingType: data.fundingType || 'Fully Funded',
+      funding: data.funding || '',
+      tuition: data.tuition || '',
+      accommodation: data.accommodation || '',
+      stipend: data.stipend || '',
+      travel: data.travel || '',
+      otherBenefits: data.otherBenefits || '',
+      benefits: Array.isArray(data.benefits) ? data.benefits : (data.benefits ? [data.benefits] : []),
+      requirements: Array.isArray(data.requirements) ? data.requirements : (data.requirements ? [data.requirements] : []),
+      documentsRequired: Array.isArray(data.documentsRequired) ? data.documentsRequired : [],
+      applicationUrl: data.applicationUrl.trim(),
+      officialApplicationUrl: data.officialApplicationUrl?.trim() || data.applicationUrl.trim(),
+      applicationMethod: data.applicationMethod || 'online_form',
+      applicationInstructions: data.applicationInstructions || '',
+      deadline: data.deadline || '',
+      openingDate: data.openingDate || '',
+      studyLevel: data.studyLevel || data.educationLevel || '',
+      fundingDetails: data.fundingDetails || '',
+      imageUrl: data.imageUrl,
+      imagePath: data.imagePath,
+      sourceName: data.sourceName || data.organizationName || 'User Contribution',
+      sourceUrl: data.sourceUrl?.trim() || data.applicationUrl.trim(),
+
+      // Strict moderation workflow
+      status: 'pending',
+      submissionStatus: 'pending',
+      verificationStatus: 'needs_verification',
+      verificationNotes: `Submitted by user ${user.name} (${user.email}). Awaiting editorial review.`,
+
+      // User Submitter attribution
+      isUserSubmitted: true,
+      submittedBy: user.uid,
+      submittedByName: user.name || 'User',
+      submittedByEmail: user.email,
+      submittedAt: now,
+      contactEmail: data.contactEmail || user.email,
+      contactPhone: data.contactPhone || '',
+      contactInfo: data.contactInfo || '',
+
+      createdAt: now,
+      updatedAt: now,
+      views: 0,
+      saves: 0
+    };
+
+    const items = getStoredOpportunities();
+    items.unshift(submission);
+    saveStoredOpportunities(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'opportunities', id), submission);
+      } catch (err: any) {
+        console.warn('Firestore submitUserOpportunity error:', err?.message || err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'opportunity',
+      entityId: id,
+      entityTitle: submission.title,
+      action: 'created',
+      performedByEmail: user.email,
+      performedByName: user.name || 'User',
+      details: `User submitted opportunity for editorial review: "${submission.title}". Status: pending review.`,
+      newStatus: 'pending'
+    });
+
+    return submission;
+  },
+
+  /**
+   * Retrieves submissions submitted by a specific user.
+   */
+  async getUserSubmissions(userId: string, userEmail?: string): Promise<Opportunity[]> {
+    if (!userId) return [];
+
+    let items = getStoredOpportunities().filter(o =>
+      o.submittedBy === userId ||
+      o.createdByUserId === userId ||
+      (userEmail && o.submittedByEmail?.toLowerCase() === userEmail.toLowerCase()) ||
+      (userEmail && o.createdByEmail?.toLowerCase() === userEmail.toLowerCase())
+    );
+
+    if (isFirebaseConfigured && db) {
+      try {
+        const q = query(collection(db, 'opportunities'), where('submittedBy', '==', userId));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const remoteItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as Opportunity));
+          const otherItems = getStoredOpportunities().filter(o => o.submittedBy !== userId && o.createdByUserId !== userId);
+          items = remoteItems;
+          saveStoredOpportunities([...remoteItems, ...otherItems]);
+        }
+      } catch (err) {
+        console.warn('Firestore getUserSubmissions opportunities error:', err);
+      }
+    }
+
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  /**
+   * Administrator approval, rejection, or changes requested workflow for Opportunity.
+   */
+  async reviewSubmission(
+    id: string,
+    decision: 'approved' | 'rejected' | 'changes_requested',
+    admin: { uid: string; email: string; name: string },
+    rejectionReason?: string,
+    adminNotes?: string,
+    editedData?: Partial<Opportunity>
+  ): Promise<Opportunity | null> {
+    const items = getStoredOpportunities();
+    const index = items.findIndex(o => o.id === id);
+    const now = new Date().toISOString();
+
+    const previousItem = index >= 0 ? items[index] : await this.getById(id);
+    if (!previousItem) return null;
+
+    const isApproval = decision === 'approved';
+    const isRejection = decision === 'rejected';
+
+    const updated: Opportunity = {
+      ...previousItem,
+      ...(editedData || {}),
+      status: isApproval ? 'published' : isRejection ? 'rejected' : 'pending',
+      submissionStatus: decision,
+      verificationStatus: isApproval ? 'verified' : previousItem.verificationStatus,
+      lastVerifiedAt: isApproval ? now : previousItem.lastVerifiedAt,
+      verifiedBy: isApproval ? admin.name : previousItem.verifiedBy,
+      verifiedByEmail: isApproval ? admin.email : previousItem.verifiedByEmail,
+      publishedAt: isApproval ? now : previousItem.publishedAt,
+      publishedByEmail: isApproval ? admin.email : previousItem.publishedByEmail,
+      reviewedAt: now,
+      reviewedBy: admin.name,
+      reviewedByEmail: admin.email,
+      rejectionReason: isRejection ? rejectionReason?.trim() : (decision === 'changes_requested' ? rejectionReason?.trim() : undefined),
+      adminNotes: adminNotes?.trim() || previousItem.adminNotes,
+      verificationNotes: isApproval
+        ? `Verified and published by ${admin.name} on ${new Date().toLocaleDateString('en-GB')}`
+        : previousItem.verificationNotes,
+      updatedAt: now
+    };
+
+    if (index >= 0) {
+      items[index] = updated;
+    } else {
+      items.unshift(updated);
+    }
+    saveStoredOpportunities(items);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'opportunities', id), {
+          ...updated,
+          updatedAt: now
+        });
+      } catch (err: any) {
+        console.warn('Firestore reviewSubmission opportunity error:', err?.message || err);
+      }
+    }
+
+    AuditService.log({
+      entityType: 'opportunity',
+      entityId: id,
+      entityTitle: updated.title,
+      action: isApproval ? 'published' : 'updated',
+      performedByEmail: admin.email,
+      performedByName: admin.name,
+      details: isApproval
+        ? `Submission approved and published to public site by ${admin.name}.`
+        : `Submission ${decision.toUpperCase()} by ${admin.name}.${rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      previousStatus: previousItem.status,
+      newStatus: updated.status
+    });
+
+    return updated;
+  },
+
+  /**
+   * Retrieves all opportunities waiting for review or submitted by users.
+   */
+  async getPendingSubmissions(): Promise<Opportunity[]> {
+    const all = await this.getAll({ includeUnpublished: true });
+    return all.filter(o =>
+      o.isUserSubmitted ||
+      o.status === 'pending' ||
+      (o.status as string) === 'pending_review' ||
+      o.submissionStatus === 'pending'
+    ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 };

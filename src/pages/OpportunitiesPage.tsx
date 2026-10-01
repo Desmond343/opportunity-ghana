@@ -5,7 +5,7 @@ import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { SearchBar } from '../components/common/SearchBar';
 import { FilterPanel } from '../components/common/FilterPanel';
 import { Pagination, EmptyState, OpportunitySkeleton } from '../components/common/CommonUI';
-import { Filter, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Filter, SlidersHorizontal, ArrowUpDown, Sparkles } from 'lucide-react';
 
 interface OpportunitiesPageProps {
   onNavigate: (path: string) => void;
@@ -94,8 +94,16 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
           </p>
         </div>
 
-        {/* Sort and mobile filter toggle */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        {/* Sort, mobile filter toggle & Submit Opportunity CTA */}
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button
+            onClick={() => onNavigate('/opportunities/submit')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#006B3F] hover:bg-[#005530] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#FCD116]" />
+            <span>Submit an Opportunity</span>
+          </button>
+
           <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
             <span>Sort:</span>

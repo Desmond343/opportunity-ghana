@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../services/authContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { ResourcesService } from '../services/resourcesService';
-import { Resource } from '../types/database';
+import { OpportunitiesService } from '../services/opportunitiesService';
+import { Resource, Opportunity } from '../types/database';
 import {
   User as UserIcon,
   Shield,
@@ -16,6 +17,7 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
+  Compass,
   Plus,
   Clock,
   CheckCircle2,
@@ -32,14 +34,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
   const { isInstalled, isInstallable, isIOS, install } = usePWAInstall();
 
   const [mySubmissions, setMySubmissions] = useState<Resource[]>([]);
+  const [myOpportunities, setMyOpportunities] = useState<Opportunity[]>([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       setLoadingSubmissions(true);
-      ResourcesService.getUserSubmissions(currentUser.id, currentUser.email)
-        .then((items) => setMySubmissions(items))
-        .catch((err) => console.warn('Failed to load user resource submissions', err))
+      Promise.all([
+        ResourcesService.getUserSubmissions(currentUser.id, currentUser.email),
+        OpportunitiesService.getUserSubmissions(currentUser.id, currentUser.email)
+      ])
+        .then(([resItems, oppItems]) => {
+          setMySubmissions(resItems);
+          setMyOpportunities(oppItems);
+        })
+        .catch((err) => console.warn('Failed to load user submissions', err))
         .finally(() => setLoadingSubmissions(false));
     }
   }, [currentUser]);
@@ -126,6 +135,115 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             <p className="font-medium text-slate-800">{currentUser.course || 'Not specified'}</p>
           </div>
         </div>
+      </div>
+
+      {/* User Contributed Opportunities Section */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#E8F5EF] text-[#006B3F] flex items-center justify-center">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">
+                My Opportunity Submissions
+              </h2>
+              <p className="text-xs text-slate-500">
+                Track status of scholarships, jobs, and programs you submitted for review
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('/opportunities/submit')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold rounded-xl shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Submit an Opportunity</span>
+          </button>
+        </div>
+
+        {loadingSubmissions ? (
+          <div className="py-6 text-center text-xs text-slate-400">Loading your opportunity submissions...</div>
+        ) : myOpportunities.length > 0 ? (
+          <div className="divide-y divide-slate-100">
+            {myOpportunities.map((opp) => {
+              const isApproved = opp.submissionStatus === 'approved' || opp.status === 'published';
+              const isRejected = opp.submissionStatus === 'rejected' || opp.status === 'rejected';
+              const isChanges = opp.submissionStatus === 'changes_requested';
+
+              return (
+                <div key={opp.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-slate-900">{opp.title}</h4>
+                      <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                        {opp.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-1">
+                      {opp.organizationName} • {opp.location} • Deadline: {opp.deadline ? new Date(opp.deadline).toLocaleDateString('en-GB') : 'Rolling'}
+                    </p>
+                    {opp.rejectionReason && (
+                      <p className="text-[11px] text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-xl mt-1">
+                        <strong>Editorial Note:</strong> {opp.rejectionReason}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isApproved ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Approved & Live
+                      </span>
+                    ) : isRejected ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-800 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full">
+                        <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                        Declined
+                      </span>
+                    ) : isChanges ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                        Changes Requested
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
+                        <Clock className="w-3.5 h-3.5 text-slate-500" />
+                        Pending Review
+                      </span>
+                    )}
+
+                    {isApproved && (
+                      <button
+                        onClick={() => onNavigate(`/opportunities/${opp.slug}`)}
+                        className="p-1 text-slate-400 hover:text-emerald-700 transition-colors cursor-pointer"
+                        title="View Public Opportunity"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
+            <Compass className="w-8 h-8 text-slate-400 mx-auto" />
+            <p className="text-xs font-bold text-slate-700">No opportunities submitted yet</p>
+            <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+              Know of a verified scholarship, graduate role, or training program? Submit it to help fellow Ghanaians advance.
+            </p>
+            <button
+              onClick={() => onNavigate('/opportunities/submit')}
+              className="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs cursor-pointer transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Submit First Opportunity</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* User Contributed Learning Resources Section */}

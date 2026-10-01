@@ -91,11 +91,13 @@ app.get('/api/health', async (req, res) => {
 
 // Get opportunities
 app.get('/api/opportunities', async (req, res) => {
+  const includeUnpublished = req.query.includeUnpublished === 'true';
+
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
-        const items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
         // Merge with verified real scholarships to ensure all newly discovered scholarships are included
         const merged = [...items];
         for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
@@ -108,13 +110,141 @@ app.get('/api/opportunities', async (req, res) => {
             merged.push(verified);
           }
         }
-        return res.json(merged);
+
+        if (!includeUnpublished) {
+          items = merged.filter((o: any) => 
+            (o.status === 'published' || o.status === 'closed') &&
+            o.status !== 'pending' &&
+            o.status !== 'rejected' &&
+            o.submissionStatus !== 'pending' &&
+            o.submissionStatus !== 'rejected'
+          );
+        } else {
+          items = merged;
+        }
+
+        return res.json(items);
       }
     } catch (e) {
       console.warn('Admin Firestore read error:', e);
     }
   }
-  res.json(VERIFIED_REAL_SCHOLARSHIPS);
+
+  let fallback = [...VERIFIED_REAL_SCHOLARSHIPS];
+  if (!includeUnpublished) {
+    fallback = fallback.filter((o: any) => o.status === 'published' || o.status === 'closed');
+  }
+  res.json(fallback);
+});
+
+// User Opportunity Submission Endpoint (Enforces pending status server-side)
+app.post('/api/submissions/opportunity', async (req, res) => {
+  const submissionData = req.body;
+  if (!submissionData || !submissionData.title || !submissionData.applicationUrl) {
+    return res.status(400).json({ error: 'Title and application URL are required.' });
+  }
+
+  const id = submissionData.id || `opp_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const now = new Date().toISOString();
+
+  // Enforce server-side security: User submissions are always pending and cannot be self-published
+  const sanitizedSubmission = {
+    ...submissionData,
+    id,
+    status: 'pending',
+    submissionStatus: 'pending',
+    verificationStatus: 'needs_verification',
+    isUserSubmitted: true,
+    submittedAt: now,
+    createdAt: submissionData.createdAt || now,
+    updatedAt: now
+  };
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('opportunities').doc(id).set(sanitizedSubmission, { merge: true });
+      return res.json({ success: true, submission: sanitizedSubmission });
+    } catch (e: any) {
+      console.warn('Could not persist user submission to Firestore Admin:', e.message);
+    }
+  }
+
+  return res.json({ success: true, submission: sanitizedSubmission, note: 'persisted_locally' });
+});
+
+// User Resource Submission Endpoint (Enforces pending status server-side)
+app.post('/api/submissions/resource', async (req, res) => {
+  const submissionData = req.body;
+  if (!submissionData || !submissionData.title || !submissionData.enrollmentUrl) {
+    return res.status(400).json({ error: 'Title and enrollment URL are required.' });
+  }
+
+  const id = submissionData.id || `res_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const now = new Date().toISOString();
+
+  const sanitizedSubmission = {
+    ...submissionData,
+    id,
+    status: 'pending',
+    submissionStatus: 'pending',
+    verificationStatus: 'needs_verification',
+    isUserSubmitted: true,
+    submittedAt: now,
+    createdAt: submissionData.createdAt || now,
+    updatedAt: now
+  };
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('resources').doc(id).set(sanitizedSubmission, { merge: true });
+      return res.json({ success: true, submission: sanitizedSubmission });
+    } catch (e: any) {
+      console.warn('Could not persist resource submission to Firestore Admin:', e.message);
+    }
+  }
+
+  return res.json({ success: true, submission: sanitizedSubmission, note: 'persisted_locally' });
+});
+
+// Admin Review & Moderation Endpoint (Strictly Admin/Editor Custom Claims Required)
+app.post('/api/submissions/review', verifyAdminAuth, async (req, res) => {
+  const { type, id, decision, rejectionReason, adminNotes, editedData } = req.body;
+  if (!id || !type || !decision) {
+    return res.status(400).json({ error: 'id, type, and decision (approved/rejected/changes_requested) are required.' });
+  }
+
+  const user = (req as any).user;
+  const now = new Date().toISOString();
+  const collectionName = type === 'opportunity' ? 'opportunities' : 'resources';
+
+  const isApproved = decision === 'approved';
+  const targetStatus = isApproved ? 'published' : decision === 'rejected' ? 'rejected' : 'pending';
+
+  const updatePayload: any = {
+    ...(editedData || {}),
+    status: targetStatus,
+    submissionStatus: decision,
+    reviewedAt: now,
+    reviewedBy: user.name || user.email || 'Administrator',
+    reviewedByEmail: user.email,
+    rejectionReason: decision === 'rejected' ? (rejectionReason || null) : null,
+    adminNotes: adminNotes || null,
+    updatedAt: now,
+    lastEditedByEmail: user.email,
+    lastEditedByName: user.name || 'Administrator',
+    ...(isApproved ? { publishedAt: now, publishedByEmail: user.email, verificationStatus: 'verified' } : {})
+  };
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection(collectionName).doc(id).set(updatePayload, { merge: true });
+      return res.json({ success: true, id, status: targetStatus, submissionStatus: decision });
+    } catch (e: any) {
+      console.warn('Error reviewing submission in Firestore Admin:', e.message);
+    }
+  }
+
+  return res.json({ success: true, id, status: targetStatus, submissionStatus: decision, note: 'updated_locally' });
 });
 
 // Save/Update opportunity (Admin only)
@@ -151,11 +281,22 @@ app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
 
 // Get resources
 app.get('/api/resources', async (req, res) => {
+  const includeUnpublished = req.query.includeUnpublished === 'true';
+
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('resources').get();
       if (!snapshot.empty) {
-        const items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        if (!includeUnpublished) {
+          items = items.filter((r: any) =>
+            (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
+            r.status !== 'pending' &&
+            r.status !== 'rejected' &&
+            r.submissionStatus !== 'pending' &&
+            r.submissionStatus !== 'rejected'
+          );
+        }
         return res.json(items);
       }
     } catch (e) {

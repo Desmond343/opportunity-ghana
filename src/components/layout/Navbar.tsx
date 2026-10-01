@@ -182,6 +182,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                         My Profile & Applications
                       </button>
                       <button
+                        onClick={() => handleNavClick('/opportunities/submit')}
+                        className="w-full px-4 py-2 text-xs text-[#006B3F] hover:bg-emerald-50 flex items-center gap-2 cursor-pointer font-bold"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-[#006B3F]" />
+                        Submit an Opportunity
+                      </button>
+                      <button
                         onClick={() => handleNavClick('/resources/submit')}
                         className="w-full px-4 py-2 text-xs text-emerald-800 hover:bg-emerald-50 flex items-center gap-2 cursor-pointer font-medium"
                       >
@@ -289,17 +296,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             ))}
 
             {currentUser && (
-              <button
-                onClick={() => handleNavClick('/resources/submit')}
-                className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 ${
-                  currentPath === '/resources/submit'
-                    ? 'bg-[#E8F5EF] text-[#006B3F] font-bold'
-                    : 'text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50'
-                }`}
-              >
-                <Sparkles className="w-4 h-4 text-[#006B3F]" />
-                Submit a Resource
-              </button>
+              <>
+                <button
+                  onClick={() => handleNavClick('/opportunities/submit')}
+                  className={`text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 ${
+                    currentPath === '/opportunities/submit'
+                      ? 'bg-[#E8F5EF] text-[#006B3F]'
+                      : 'text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-[#006B3F]" />
+                  Submit an Opportunity
+                </button>
+                <button
+                  onClick={() => handleNavClick('/resources/submit')}
+                  className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 ${
+                    currentPath === '/resources/submit'
+                      ? 'bg-[#E8F5EF] text-[#006B3F] font-bold'
+                      : 'text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-[#006B3F]" />
+                  Submit a Resource
+                </button>
+              </>
             )}
 
             {isEditorOrAdmin && (

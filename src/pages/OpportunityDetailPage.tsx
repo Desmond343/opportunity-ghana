@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Opportunity } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
+import { useAuth } from '../services/authContext';
 import { DeadlineBadge } from '../components/common/DeadlineBadge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
 import { Badge } from '../components/common/Badge';
@@ -23,6 +24,7 @@ import {
   GraduationCap,
   Globe,
   Briefcase,
+  Clock,
   Archive,
   ArrowRight,
   HelpCircle,
@@ -35,6 +37,7 @@ interface OpportunityDetailPageProps {
 }
 
 export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ slug, onNavigate }) => {
+  const { currentUser, isEditorOrAdmin } = useAuth();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [alternatives, setAlternatives] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +83,23 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
     );
   }
 
+  const isPendingOrUnpublished = opportunity.status !== 'published' && opportunity.status !== 'closed';
+  const isSubmitterOrAdmin = isEditorOrAdmin || (currentUser && (currentUser.id === opportunity.submittedBy || currentUser.email === opportunity.submittedByEmail));
+
+  // If item is pending/rejected and viewer is not authorized admin/submitter, show awaiting review state
+  if (isPendingOrUnpublished && !isSubmitterOrAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16">
+        <EmptyState
+          title="Submission Awaiting Review"
+          description="This opportunity submission is currently awaiting editorial verification before it is published on Opportunity Ghana."
+          actionText="Browse Active Opportunities"
+          onAction={() => onNavigate('/opportunities')}
+        />
+      </div>
+    );
+  }
+
   const isClosed = opportunity.status === 'closed' || calculateDeadlineInfo(opportunity.deadline).isClosed;
 
   const handleShare = () => {
@@ -90,6 +110,25 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Pending Banner if viewing in preview mode */}
+      {isPendingOrUnpublished && (
+        <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>Status: {opportunity.status === 'rejected' ? 'Rejected' : 'Pending Review'}.</strong> This submission is not yet live to the public.
+            </span>
+          </div>
+          {isEditorOrAdmin && (
+            <button
+              onClick={() => onNavigate('/admin/submissions')}
+              className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold self-start sm:self-auto cursor-pointer"
+            >
+              Open in Review Console
+            </button>
+          )}
+        </div>
+      )}
       {/* Structured Data (Schema.org JSON-LD) */}
       <script
         type="application/ld+json"

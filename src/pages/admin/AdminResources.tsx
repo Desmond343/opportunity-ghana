@@ -150,7 +150,16 @@ export const AdminResources: React.FC<{ onNavigate: (path: string) => void }> = 
 
   // Filters
   const filteredResources = resources.filter(res => {
-    if (filterStatus !== 'all' && res.status !== filterStatus) return false;
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'pending' || filterStatus === 'pending_review') {
+        const isPending = res.status === 'pending' || (res.status as string) === 'pending_review' || res.submissionStatus === 'pending';
+        if (!isPending) return false;
+      } else if (filterStatus === 'rejected') {
+        if (res.status !== 'rejected' && res.submissionStatus !== 'rejected') return false;
+      } else if (res.status !== filterStatus) {
+        return false;
+      }
+    }
     if (filterCategory !== 'all' && res.category.toLowerCase() !== filterCategory.toLowerCase()) return false;
     if (filterFree === 'free' && !res.isFree) return false;
     if (filterFree === 'paid' && res.isFree) return false;
@@ -207,9 +216,10 @@ export const AdminResources: React.FC<{ onNavigate: (path: string) => void }> = 
               className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
             >
               <option value="all">All Statuses</option>
-              <option value="draft">Drafts Only</option>
-              <option value="pending_review">Pending Review</option>
+              <option value="pending">Pending Review / Submissions</option>
               <option value="published">Published</option>
+              <option value="draft">Drafts Only</option>
+              <option value="rejected">Rejected</option>
               <option value="closed">Closed</option>
               <option value="archived">Archived</option>
             </select>
@@ -404,14 +414,20 @@ export const AdminResources: React.FC<{ onNavigate: (path: string) => void }> = 
                           className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                             res.status === 'published'
                               ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                              : res.status === 'pending_review'
+                              : res.status === 'pending' || (res.status as string) === 'pending_review' || res.submissionStatus === 'pending'
                               ? 'bg-amber-50 text-amber-800 border border-amber-300'
+                              : res.status === 'rejected' || res.submissionStatus === 'rejected'
+                              ? 'bg-rose-50 text-rose-800 border border-rose-300'
                               : res.status === 'closed'
                               ? 'bg-slate-100 text-slate-600 border border-slate-300'
                               : 'bg-slate-100 text-slate-700 border border-slate-300'
                           }`}
                         >
-                          {res.status.replace('_', ' ')}
+                          {res.status === 'pending' || (res.status as string) === 'pending_review' || res.submissionStatus === 'pending'
+                            ? 'Pending Review'
+                            : res.status === 'rejected' || res.submissionStatus === 'rejected'
+                            ? 'Rejected'
+                            : res.status.replace('_', ' ')}
                         </span>
                       </td>
 

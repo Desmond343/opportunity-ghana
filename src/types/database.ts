@@ -38,7 +38,7 @@ export interface Organization {
   updatedAt: string;
 }
 
-export type OpportunityStatus = 'draft' | 'pending_review' | 'verified' | 'published' | 'closed' | 'archived';
+export type OpportunityStatus = 'draft' | 'pending_review' | 'verified' | 'published' | 'closed' | 'archived' | 'pending' | 'approved' | 'rejected';
 export type VerificationStatus = 'verified' | 'needs_verification' | 'warning' | 'closed';
 
 export type OpportunityCategory =
@@ -118,6 +118,23 @@ export interface Opportunity {
   verifiedBy?: string;
   isResearchDiscovered?: boolean;
   researchRunId?: string;
+
+  // User Submission & Moderation Fields
+  submittedBy?: string;
+  submittedByName?: string;
+  submittedByEmail?: string;
+  createdByUserId?: string;
+  isUserSubmitted?: boolean;
+  submissionStatus?: SubmissionStatus;
+  submittedAt?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  contactInfo?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewedByEmail?: string;
+  rejectionReason?: string;
+  adminNotes?: string;
   
   // Audit & Authorship
   createdByEmail?: string;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { PipelineMetrics } from '../../types/database';
 import { AdminService } from '../../services/adminService';
+import { OpportunitiesService } from '../../services/opportunitiesService';
+import { ResourcesService } from '../../services/resourcesService';
 import {
   Compass,
   CheckCircle2,
@@ -22,20 +24,70 @@ import {
   FileText
 } from 'lucide-react';
 
+interface PendingQueueItem {
+  id: string;
+  type: 'opportunity' | 'resource' | 'partner';
+  title: string;
+  provider: string;
+  submitter: string;
+  submittedAt: string;
+  category: string;
+}
+
 export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const [metrics, setMetrics] = useState<PipelineMetrics | null>(null);
+  const [pendingQueue, setPendingQueue] = useState<PendingQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadMetrics() {
+    async function loadMetricsAndQueue() {
       try {
-        const data = await AdminService.getPipelineMetrics();
+        const [data, opps, resList, partners] = await Promise.all([
+          AdminService.getPipelineMetrics(),
+          OpportunitiesService.getPendingSubmissions(),
+          ResourcesService.getPendingSubmissions(),
+          AdminService.loadSubmissionsFromFirestore()
+        ]);
         setMetrics(data);
+
+        const unified: PendingQueueItem[] = [
+          ...opps.map(o => ({
+            id: o.id,
+            type: 'opportunity' as const,
+            title: o.title,
+            provider: o.organizationName || 'Offering Organization',
+            submitter: o.submittedByName || o.createdByName || 'Community Contributor',
+            submittedAt: o.submittedAt || o.createdAt,
+            category: o.category
+          })),
+          ...resList.map(r => ({
+            id: r.id,
+            type: 'resource' as const,
+            title: r.title,
+            provider: r.providerName || 'Learning Provider',
+            submitter: r.submittedByName || r.createdByName || 'Contributor',
+            submittedAt: r.submittedAt || r.createdAt,
+            category: r.category
+          })),
+          ...partners.filter(p => p.status === 'pending').map(p => ({
+            id: p.id,
+            type: 'partner' as const,
+            title: p.title,
+            provider: p.organizationName,
+            submitter: p.submittedByName,
+            submittedAt: p.createdAt,
+            category: p.type === 'opportunity' ? 'Partner Opportunity' : 'Partner Resource'
+          }))
+        ].sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+
+        setPendingQueue(unified.slice(0, 4));
+      } catch (err) {
+        console.error('Failed to load dashboard metrics or queue:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadMetrics();
+    loadMetricsAndQueue();
   }, []);
 
   return (
@@ -110,7 +162,7 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
 
         {/* 3. Pending Review */}
         <div
-          onClick={() => onNavigate('/admin/opportunities')}
+          onClick={() => onNavigate('/admin/submissions')}
           className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:border-amber-300 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
@@ -120,7 +172,7 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
           <p className="text-3xl font-extrabold text-amber-600 mt-2 font-space">
             {metrics?.pendingReviewCount ?? 0}
           </p>
-          <p className="text-[11px] text-amber-800 mt-1">Waiting for source verification check</p>
+          <p className="text-[11px] text-amber-800 mt-1">Awaiting admin review & publishing</p>
         </div>
 
         {/* 4. Closing Soon */}
@@ -276,42 +328,66 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
-              <span>Priority Editorial Tasks</span>
+              <span>Pending Submission Review Queue</span>
             </h3>
             <button
-              onClick={() => onNavigate('/admin/opportunities')}
+              onClick={() => onNavigate('/admin/submissions')}
               className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
             >
-              Open Opportunities →
+              View All ({metrics?.pendingSubmissionsCount ?? 0}) →
             </button>
           </div>
 
-          <div className="space-y-2 text-xs">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
-              <div>
-                <p className="font-bold text-slate-800">Review Partner Submission #sub-01</p>
-                <p className="text-[11px] text-slate-500">Graduate Environmental Analyst (Ghana EPA)</p>
+          <div className="space-y-2.5 text-xs">
+            {loading ? (
+              <div className="p-4 text-center text-slate-400 text-xs">Loading queue...</div>
+            ) : pendingQueue.length === 0 ? (
+              <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl text-center space-y-1">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
+                <p className="font-bold text-emerald-950 text-xs">All Caught Up</p>
+                <p className="text-[11px] text-emerald-800">
+                  There are currently no community or partner submissions awaiting editorial review.
+                </p>
               </div>
-              <button
-                onClick={() => onNavigate('/admin/submissions')}
-                className="px-2.5 py-1 bg-white border border-slate-200 font-bold rounded-lg text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                Review
-              </button>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
-              <div>
-                <p className="font-bold text-slate-800">Dead Link Report #rep-01</p>
-                <p className="text-[11px] text-slate-500">Digital Marketing Internship application link</p>
-              </div>
-              <button
-                onClick={() => onNavigate('/admin/reports')}
-                className="px-2.5 py-1 bg-white border border-slate-200 font-bold rounded-lg text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                Inspect
-              </button>
-            </div>
+            ) : (
+              pendingQueue.map((item) => (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className="p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/70 flex items-center justify-between gap-3 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span
+                        className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded-md ${
+                          item.type === 'opportunity'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : item.type === 'resource'
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {item.type}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(item.submittedAt).toLocaleDateString('en-GB')}
+                      </span>
+                    </div>
+                    <p className="font-bold text-slate-900 truncate" title={item.title}>
+                      {item.title}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {item.provider} • By {item.submitter}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('/admin/submissions')}
+                    className="px-3 py-1.5 bg-white border border-slate-300 font-bold rounded-xl text-slate-700 hover:bg-emerald-700 hover:text-white hover:border-emerald-700 cursor-pointer shrink-0 transition-colors shadow-2xs"
+                  >
+                    Review
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

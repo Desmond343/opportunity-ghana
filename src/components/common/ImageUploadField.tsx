@@ -7,7 +7,7 @@ interface ImageUploadFieldProps {
   label: string;
   currentImageUrl?: string;
   onFileSelect: (file: File | null) => void;
-  onRemoveCurrent: () => void;
+  onRemoveCurrent?: () => void;
   uploadProgress?: number | null;
   isRemoved?: boolean;
   disabled?: boolean;
@@ -18,7 +18,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   label,
   currentImageUrl,
   onFileSelect,
-  onRemoveCurrent,
+  onRemoveCurrent = () => {},
   uploadProgress,
   isRemoved = false,
   disabled = false,

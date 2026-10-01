@@ -157,7 +157,16 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
 
   // Filter pipeline
   const filteredOpportunities = opportunities.filter(opp => {
-    if (filterStatus !== 'all' && opp.status !== filterStatus) return false;
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'pending' || filterStatus === 'pending_review') {
+        const isPending = opp.status === 'pending' || (opp.status as string) === 'pending_review' || opp.submissionStatus === 'pending';
+        if (!isPending) return false;
+      } else if (filterStatus === 'rejected') {
+        if (opp.status !== 'rejected' && opp.submissionStatus !== 'rejected') return false;
+      } else if (opp.status !== filterStatus) {
+        return false;
+      }
+    }
     if (filterVerification !== 'all' && opp.verificationStatus !== filterVerification) return false;
     if (filterCategory !== 'all' && opp.category.toLowerCase() !== filterCategory.toLowerCase()) return false;
     if (search.trim()) {
@@ -215,10 +224,10 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
               className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden font-medium"
             >
               <option value="all">All Statuses</option>
-              <option value="draft">Drafts Only</option>
-              <option value="pending_review">Pending Review</option>
-              <option value="verified">Verified</option>
+              <option value="pending">Pending Review / Submissions</option>
               <option value="published">Published (Live)</option>
+              <option value="draft">Drafts Only</option>
+              <option value="rejected">Rejected</option>
               <option value="closed">Closed</option>
               <option value="archived">Archived</option>
             </select>
@@ -408,8 +417,10 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
                           className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                             opp.status === 'published'
                               ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                              : opp.status === 'pending_review'
+                              : opp.status === 'pending' || (opp.status as string) === 'pending_review' || opp.submissionStatus === 'pending'
                               ? 'bg-amber-50 text-amber-800 border border-amber-300'
+                              : opp.status === 'rejected' || opp.submissionStatus === 'rejected'
+                              ? 'bg-rose-50 text-rose-800 border border-rose-300'
                               : opp.status === 'closed'
                               ? 'bg-slate-100 text-slate-600 border border-slate-300'
                               : opp.status === 'archived'
@@ -417,7 +428,11 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
                               : 'bg-slate-100 text-slate-700 border border-slate-300'
                           }`}
                         >
-                          {opp.status.replace('_', ' ')}
+                          {opp.status === 'pending' || (opp.status as string) === 'pending_review' || opp.submissionStatus === 'pending'
+                            ? 'Pending Review'
+                            : opp.status === 'rejected' || opp.submissionStatus === 'rejected'
+                            ? 'Rejected'
+                            : opp.status.replace('_', ' ')}
                         </span>
                       </td>
 
