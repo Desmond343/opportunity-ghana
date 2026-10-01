@@ -375,8 +375,20 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
 
                       {/* Title & Org */}
                       <td className="py-3 px-3 max-w-xs">
-                        <div className="font-bold text-slate-900 truncate" title={opp.title}>
-                          {opp.title}
+                        <div className="flex items-center gap-1.5">
+                          <div className="font-bold text-slate-900 truncate" title={opp.title}>
+                            {opp.title}
+                          </div>
+                          {opp.featuredInSlideshow && (
+                            <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                              Slideshow
+                            </span>
+                          )}
+                          {opp.featured && !opp.featuredInSlideshow && (
+                            <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              Featured
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-slate-500 truncate mt-0.5">
                           {opp.organizationName || 'Institution pending'}

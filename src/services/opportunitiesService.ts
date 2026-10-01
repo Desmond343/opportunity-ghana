@@ -527,5 +527,27 @@ export const OpportunitiesService = {
     return items
       .sort((a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime())
       .slice(0, limit);
+  },
+
+  async getSlideshowOpportunities(limit: number = 6): Promise<Opportunity[]> {
+    const items = await this.getAll({ onlyActive: true });
+    // Prioritize explicitly flagged slideshow items
+    const slideshowItems = items.filter(o => o.featuredInSlideshow || o.featured);
+    if (slideshowItems.length > 0) {
+      return slideshowItems
+        .sort((a, b) => (a.slideshowPriority ?? 99) - (b.slideshowPriority ?? 99))
+        .slice(0, limit);
+    }
+    // Fallback: Return top active opportunities
+    return items.slice(0, limit);
+  },
+
+  async getFeatured(limit: number = 6): Promise<Opportunity[]> {
+    const items = await this.getAll({ onlyActive: true });
+    const featured = items.filter(o => o.featured);
+    if (featured.length > 0) {
+      return featured.slice(0, limit);
+    }
+    return items.slice(0, limit);
   }
 };

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Opportunity, Resource } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
 import { ResourcesService } from '../services/resourcesService';
-import { SearchBar } from '../components/common/SearchBar';
+import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
-import { OPPORTUNITY_CATEGORIES } from '../data/categories';
-import { LoadingState } from '../components/common/CommonUI';
+import { OpportunitySkeleton } from '../components/common/CommonUI';
+import { GHANA_REGIONS } from '../data/categories';
 import {
   GraduationCap,
   Briefcase,
@@ -18,10 +18,18 @@ import {
   Clock,
   Sparkles,
   TrendingUp,
-  CheckCircle2,
   ShieldCheck,
   Award,
-  Zap
+  Zap,
+  Search,
+  MapPin,
+  X,
+  Target,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  CheckCircle2
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -29,27 +37,44 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+  const [slideshowOpps, setSlideshowOpps] = useState<Opportunity[]>([]);
+  const [featuredOpps, setFeaturedOpps] = useState<Opportunity[]>([]);
   const [closingSoon, setClosingSoon] = useState<Opportunity[]>([]);
   const [newlyAdded, setNewlyAdded] = useState<Opportunity[]>([]);
   const [freeCourses, setFreeCourses] = useState<Resource[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Quick alert newsletter email
+  // Search input state in Hero
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLocation, setSearchLocation] = useState('All Regions');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  // Newsletter email state
   const [alertEmail, setAlertEmail] = useState('');
   const [alertSuccess, setAlertSuccess] = useState(false);
+
+  // Horizontal scroll container ref for "What's available right now?"
+  const availableScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
-        const [closing, recent, courses] = await Promise.all([
+        const [slides, featured, closing, recent, courses, all] = await Promise.all([
+          OpportunitiesService.getSlideshowOpportunities(6),
+          OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
-          ResourcesService.getFreeCourses(3)
+          ResourcesService.getFreeCourses(3),
+          OpportunitiesService.getAll({ onlyActive: true })
         ]);
+        setSlideshowOpps(slides);
+        setFeaturedOpps(featured);
         setClosingSoon(closing);
         setNewlyAdded(recent);
         setFreeCourses(courses);
+        setTotalCount(all.length);
       } catch (err) {
         console.error('Failed to load homepage data', err);
       } finally {
@@ -59,10 +84,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     loadData();
   }, []);
 
-  const handleHeroSearch = (term: string, category: string) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const params = new URLSearchParams();
-    if (term) params.set('search', term);
-    if (category && category !== 'All') params.set('category', category);
+    if (searchTerm.trim()) params.set('search', searchTerm.trim());
+    if (searchLocation && searchLocation !== 'All Regions' && searchLocation !== 'All Ghana') {
+      params.set('region', searchLocation);
+    }
+    if (selectedCategory && selectedCategory !== 'All') {
+      params.set('category', selectedCategory);
+    }
     onNavigate(`/opportunities?${params.toString()}`);
   };
 
@@ -75,467 +106,701 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     }
   };
 
-  const heroCategories = [
-    { label: 'Scholarships', icon: GraduationCap, category: 'Scholarships' },
-    { label: 'Jobs', icon: Briefcase, category: 'Jobs' },
-    { label: 'Internships', icon: Compass, category: 'Internships' },
-    { label: 'Admissions', icon: BookOpen, category: 'Admissions' },
-    { label: 'Grants', icon: Coins, category: 'Grants' },
-    { label: 'Courses', icon: Sparkles, path: '/resources' },
-    { label: 'Certifications', icon: Award, path: '/resources?type=certification' }
+  const scrollAvailable = (direction: 'left' | 'right') => {
+    if (availableScrollRef.current) {
+      const scrollAmount = 320;
+      availableScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Section 8: "What's Available Right Now?" (Jobberman-style "Who's hiring right now?" concept)
+  const availableTracks = [
+    {
+      category: 'Scholarships',
+      label: 'Scholarships & Grants',
+      subtitle: 'Tuition waivers, living stipends, study abroad',
+      tag: 'Academic Funding',
+      tagColor: 'bg-[#E8F5EF] text-[#006B3F]',
+      icon: GraduationCap,
+      href: '/opportunities?category=Scholarships'
+    },
+    {
+      category: 'Jobs',
+      label: 'Graduate & Career Jobs',
+      subtitle: 'Corporate recruitments, tech startups & public service',
+      tag: 'Employment',
+      tagColor: 'bg-blue-50 text-blue-800',
+      icon: Briefcase,
+      href: '/opportunities?category=Jobs'
+    },
+    {
+      category: 'Internships',
+      label: 'Internships & Attachments',
+      subtitle: 'Student vacation attachments & NSS postings',
+      tag: 'Entry Level',
+      tagColor: 'bg-emerald-50 text-emerald-800',
+      icon: Compass,
+      href: '/opportunities?category=Internships'
+    },
+    {
+      category: 'Fellowships',
+      label: 'Fellowships & Leadership',
+      subtitle: 'African leadership institutes & policy academies',
+      tag: 'Leadership',
+      tagColor: 'bg-amber-50 text-amber-800',
+      icon: Award,
+      href: '/opportunities?category=Fellowships'
+    },
+    {
+      category: 'Grants',
+      label: 'Startup & Innovation Grants',
+      subtitle: 'Seed funding, SME acceleration & incubation',
+      tag: 'Capital',
+      tagColor: 'bg-purple-50 text-purple-800',
+      icon: Coins,
+      href: '/opportunities?category=Grants'
+    },
+    {
+      category: 'Training',
+      label: 'Free Certified Courses',
+      subtitle: 'Tech, data analytics, business certifications',
+      tag: 'Upskilling',
+      tagColor: 'bg-[#FFF8D6] text-amber-900',
+      icon: Sparkles,
+      href: '/resources?free=true'
+    }
   ];
 
   return (
-    <div className="space-y-16 pb-16">
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-slate-900 text-white pt-16 pb-20 px-4 sm:px-6 lg:px-8">
-        {/* Subtle patterned background */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]" />
+    <div className="space-y-16 sm:space-y-20 pb-20 bg-white">
+      {/* ==================================================
+          1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR
+         ================================================== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F7F8FA] via-white to-white pt-10 sm:pt-16 pb-12 sm:pb-16 border-b border-slate-200/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* HERO LEFT: Brand Messaging & CTAs */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              {/* Ghanaian Platform Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F5EF] border border-[#006B3F]/20 text-xs font-bold text-[#006B3F]">
+                <span className="w-2 h-2 rounded-full bg-[#006B3F]" />
+                <span>The Modern Ghanaian Opportunity Portal</span>
+              </div>
 
-        <div className="relative max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/40 text-xs font-semibold text-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Verified Opportunities for Ghana
-          </div>
+              {/* Large Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] tracking-tight leading-[1.1] font-space">
+                Discover Opportunities.{' '}
+                <span className="text-[#006B3F] block sm:inline">Build Your Future.</span>
+              </h1>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight font-space">
-            Find your next opportunity.
-          </h1>
+              {/* Supporting Text */}
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+                Find scholarships, jobs, internships, fellowships, grants, training programs and more — all in one verified place.
+              </p>
 
-          <p className="text-base sm:text-lg text-emerald-100/90 max-w-2xl mx-auto leading-relaxed">
-            Discover jobs, scholarships, internships, courses, certifications and other opportunities available to you.
-          </p>
+              {/* Hero Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => onNavigate('/opportunities')}
+                  className="px-6 py-3.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-98 flex items-center gap-2"
+                >
+                  <span>Explore Opportunities</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onNavigate('/resources')}
+                  className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
+                >
+                  Browse Resources
+                </button>
+              </div>
 
-          {/* Search Box */}
-          <div className="pt-2 max-w-3xl mx-auto">
-            <SearchBar
-              onSearch={handleHeroSearch}
-              placeholder="Search jobs, scholarships, courses, internships..."
-            />
-          </div>
+              {/* Micro Trust Indicators */}
+              <div className="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-500 border-t border-slate-200/80">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
+                  <span className="font-semibold text-slate-700">100% Verified Sources</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#FCD116]" />
+                  <span className="font-semibold text-slate-700">All 16 Regions of Ghana</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#006B3F]" />
+                  <span className="font-semibold text-slate-700">Zero Application Fees Policy</span>
+                </div>
+              </div>
+            </div>
 
-          {/* Quick Category Chips */}
-          <div className="pt-3">
-            <p className="text-xs text-emerald-300/80 font-medium mb-3">Popular Categories:</p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {heroCategories.map((item, idx) => {
-                const Icon = item.icon;
-                return (
+            {/* HERO RIGHT: Large Ghanaian Lifestyle Photograph */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-100 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3">
+                <img
+                  src="/images/ghana_hero_professionals.jpg"
+                  alt="Young Ghanaian professionals and university students collaborating"
+                  className="w-full h-full object-cover object-center transform hover:scale-102 transition-transform duration-700"
+                  loading="eager"
+                />
+
+                {/* Subtle protective gradient over image bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+
+                {/* Floating Highlights Card on Image */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-white/20 shadow-xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#E8F5EF] text-[#006B3F] flex items-center justify-center font-bold">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 font-space">
+                        Verified Opportunities Active
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        {totalCount > 0 ? `${totalCount} Openings Cataloged` : 'Nationwide Listings'}
+                      </p>
+                    </div>
+                  </div>
                   <button
-                    key={idx}
-                    onClick={() => {
-                      if (item.path) {
-                        onNavigate(item.path);
-                      } else {
-                        onNavigate(`/opportunities?category=${item.category}`);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-semibold text-white transition-all backdrop-blur-xs cursor-pointer"
+                    onClick={() => onNavigate('/opportunities')}
+                    className="p-2 rounded-xl bg-[#006B3F] text-white hover:bg-[#005530] transition-colors cursor-pointer"
                   >
-                    <Icon className="w-3.5 h-3.5 text-emerald-300" />
-                    <span>{item.label}</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
-                );
-              })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ==================================================
+              HERO SEARCH BAR (Jobberman-Style Horizontal Bar)
+             ================================================== */}
+          <div className="mt-10 sm:mt-12 max-w-5xl mx-auto">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="bg-white rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200 flex flex-col md:flex-row items-center gap-2"
+            >
+              {/* Keyword Search Field */}
+              <div className="relative flex-1 w-full flex items-center pl-3">
+                <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Job title, scholarship name, field of study..."
+                  className="w-full pl-2.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-2 p-1 text-slate-400 hover:text-slate-600 rounded-md"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Location Selector */}
+              <div className="w-full md:w-56 border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                <select
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 py-2 focus:outline-none cursor-pointer"
+                >
+                  <option value="All Regions">All Locations / Ghana</option>
+                  <option value="Remote">Remote / Online</option>
+                  {GHANA_REGIONS.map((reg) => (
+                    <option key={reg} value={reg}>
+                      {reg}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category Selector */}
+              <div className="w-full md:w-52 border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 py-2 focus:outline-none cursor-pointer"
+                >
+                  <option value="All">All Categories</option>
+                  <option value="Scholarships">Scholarships</option>
+                  <option value="Jobs">Jobs</option>
+                  <option value="Internships">Internships</option>
+                  <option value="Fellowships">Fellowships</option>
+                  <option value="Grants">Grants</option>
+                  <option value="Training">Training & Courses</option>
+                </select>
+              </div>
+
+              {/* Primary Search Submit Button */}
+              <button
+                type="submit"
+                className="w-full md:w-auto px-7 py-3.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+              >
+                <span>Search</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================================================
+          2. FEATURED OPPORTUNITIES SLIDESHOW SECTION
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#111111] font-space tracking-tight">
+              Featured Opportunities Carousel
+            </h2>
+          </div>
+          <button
+            onClick={() => onNavigate('/opportunities')}
+            className="text-xs font-bold text-[#006B3F] hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>View all listings</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <OpportunitySlideshow
+          opportunities={slideshowOpps}
+          onNavigate={onNavigate}
+          loading={loading}
+        />
+      </section>
+
+      {/* ==================================================
+          3. "WHAT'S AVAILABLE RIGHT NOW?" SECTION (Jobberman-inspired horizontal cards)
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
+          <div>
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] font-space">
+              Live Category Tracks
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight mt-0.5">
+              What&apos;s Available Right Now?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Browse major opportunity pathways curated for Ghanaian youth, students, and professionals.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-end">
+            <button
+              onClick={() => scrollAvailable('left')}
+              aria-label="Scroll left"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer shadow-2xs"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => scrollAvailable('right')}
+              aria-label="Scroll right"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer shadow-2xs"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Horizontal Scrollable Row */}
+        <div
+          ref={availableScrollRef}
+          className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-4 pt-1 snap-x scrollbar-none"
+        >
+          {availableTracks.map((track) => {
+            const Icon = track.icon;
+            return (
+              <div
+                key={track.category}
+                onClick={() => onNavigate(track.href)}
+                className="group w-72 sm:w-80 shrink-0 snap-start bg-[#F7F8FA] hover:bg-white rounded-2xl p-5 border border-slate-200 hover:border-[#006B3F]/60 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#006B3F] flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${track.tagColor}`}>
+                      {track.tag}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#006B3F] transition-colors font-space">
+                      {track.label}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {track.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-200/80 flex items-center justify-between text-xs font-bold text-[#006B3F]">
+                  <span>Explore opportunities</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ==================================================
+          4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Targeted visual tracks)
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] font-space">
+            Tailored Journeys
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
+            Opportunities for Your Next Step
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600">
+            Whether you are completing SHS, graduating university, or seeking funding for a Ghanaian enterprise.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Track 1: Students & Undergraduates */}
+          <div
+            onClick={() => onNavigate('/opportunities?category=Scholarships')}
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+          >
+            <img
+              src="/images/ghana_student_workspace.jpg"
+              alt="Young Ghanaian student studying in modern university commons"
+              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-60"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            <div className="relative p-6 space-y-2 text-white">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111]">
+                Students & Graduates
+              </span>
+              <h3 className="text-lg font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
+                Scholarships & University Fellowships
+              </h3>
+              <p className="text-xs text-slate-200/90 leading-relaxed">
+                Full tuition waivers, Mastercard Foundation awards, and international graduate programs for Ghanaian students.
+              </p>
+              <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
+                <span>Discover Scholarships</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </div>
+
+          {/* Track 2: Early Career Professionals */}
+          <div
+            onClick={() => onNavigate('/opportunities?category=Jobs')}
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+          >
+            <img
+              src="/images/ghana_hero_professionals.jpg"
+              alt="Young Ghanaian professionals in modern workplace"
+              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-60"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            <div className="relative p-6 space-y-2 text-white">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500 text-white">
+                Early Career & NSS
+              </span>
+              <h3 className="text-lg font-bold font-space text-white group-hover:text-emerald-300 transition-colors">
+                Jobs, Internships & Graduate Schemes
+              </h3>
+              <p className="text-xs text-slate-200/90 leading-relaxed">
+                Verified entry-level vacancies, management trainee programs, and paid corporate attachments across Ghana.
+              </p>
+              <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-emerald-300">
+                <span>View Open Vacancies</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </div>
+
+          {/* Track 3: Practical Skills & Upskilling */}
+          <div
+            onClick={() => onNavigate('/resources?free=true')}
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-gradient-to-br from-[#005530] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
+          >
+            <div className="space-y-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111]">
+                100% Free Learning
+              </span>
+              <h3 className="text-xl font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
+                Free Accredited Courses with Certificates
+              </h3>
+              <p className="text-xs text-emerald-100/90 leading-relaxed">
+                Upskill in software engineering, data analytics, digital marketing, and financial management with verified partners.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-white/15 space-y-3">
+              <div className="space-y-1.5 text-xs text-emerald-100">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
+                  <span>Verified credentials from accredited providers</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
+                  <span>Self-paced and cohort-based options</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
+                <span>Browse Free Courses</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        {/* SECTION 1: CLOSING SOON */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200/80 pb-3">
+      {/* ==================================================
+          5. FEATURED OPPORTUNITIES GRID (3 columns desktop, 2 tablet, 1 mobile)
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight font-space">
+                Featured Opportunities
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Handpicked, verified notices actively open for application.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('/opportunities')}
+            className="text-xs sm:text-sm font-bold text-[#006B3F] hover:text-[#005530] flex items-center gap-1.5 self-start sm:self-auto cursor-pointer group"
+          >
+            <span>View all opportunities</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((n) => (
+              <OpportunitySkeleton key={n} />
+            ))}
+          </div>
+        ) : featuredOpps.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredOpps.map((opp) => (
+              <OpportunityCard
+                key={opp.id}
+                opportunity={opp}
+                onNavigate={onNavigate}
+                featured={true}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-10 text-center space-y-3">
+            <Compass className="w-10 h-10 text-[#006B3F] mx-auto" />
+            <h3 className="text-base font-bold text-slate-900 font-space">
+              No Opportunities Available Yet
+            </h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              Check back soon for new opportunities or set free alerts to be notified immediately.
+            </p>
+            <button
+              onClick={() => onNavigate('/alerts')}
+              className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B3F] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            >
+              Set Opportunity Alerts
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* ==================================================
+          6. CLOSING SOON (URGENT DEADLINES)
+         ================================================== */}
+      {closingSoon.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-space">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#CE1126] animate-ping" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight font-space">
                   Closing Soon
                 </h2>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Urgent application deadlines approaching. Don't miss these windows.
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Urgent application windows closing in the near future.
               </p>
             </div>
             <button
               onClick={() => onNavigate('/opportunities')}
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 self-start sm:self-auto"
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>View all urgent deadlines</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          {loading ? (
-            <LoadingState message="Fetching urgent opportunities..." />
-          ) : closingSoon.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {closingSoon.map((opp) => (
-                <OpportunityCard
-                  key={opp.id}
-                  opportunity={opp}
-                  onNavigate={onNavigate}
-                  featured={true}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 text-center space-y-2">
-              <Clock className="w-8 h-8 text-slate-400 mx-auto" />
-              <p className="text-sm font-bold text-slate-700">No Imminent Deadlines in the Next 7 Days</p>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                All currently active scholarships, jobs, and programmes have extended application periods.
-              </p>
-              <button
-                onClick={() => onNavigate('/opportunities')}
-                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer"
-              >
-                Browse All Open Opportunities
-              </button>
-            </div>
-          )}
-        </section>
-
-        {/* SECTION 2: NEWLY ADDED */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200/80 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-600" />
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-space">
-                  Newly Added
-                </h2>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Freshly verified openings published across Ghana.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigate('/opportunities')}
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 self-start sm:self-auto cursor-pointer"
-            >
-              <span>Explore all opportunities</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {loading ? (
-            <LoadingState />
-          ) : newlyAdded.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {newlyAdded.map((opp) => (
-                <OpportunityCard
-                  key={opp.id}
-                  opportunity={opp}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 text-center space-y-3">
-              <Compass className="w-10 h-10 text-emerald-600 mx-auto" />
-              <h3 className="text-base font-bold text-slate-800">Fresh Opportunities Being Curated</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                Our editorial team verifies notices directly from Ghanaian universities, ministries, and accredited employers before publishing.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2 pt-2">
-                <button
-                  onClick={() => onNavigate('/alerts')}
-                  className="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs hover:bg-emerald-800 transition-colors cursor-pointer"
-                >
-                  Set Opportunity Alerts
-                </button>
-                <button
-                  onClick={() => onNavigate('/careers')}
-                  className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold shadow-2xs hover:bg-slate-50 cursor-pointer"
-                >
-                  Explore Career Tracks
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* SECTION 3: BROWSE OPPORTUNITIES BY CATEGORY */}
-        <section className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-1">
-            <h2 className="text-2xl font-bold text-slate-900 font-space">
-              Browse Opportunities
-            </h2>
-            <p className="text-xs text-slate-500">
-              Targeted categories structured for students, graduates, and professionals in Ghana.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {OPPORTUNITY_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => onNavigate(`/opportunities?category=${cat.id}`)}
-                className="group p-4 bg-white rounded-2xl border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-sm transition-all text-left flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                    <Compass className="w-4 h-4" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                    {cat.name}
-                  </h3>
-                  <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                    {cat.description}
-                  </p>
-                </div>
-                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-emerald-700">
-                  <span>Explore category</span>
-                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {closingSoon.map((opp) => (
+              <OpportunityCard
+                key={opp.id}
+                opportunity={opp}
+                onNavigate={onNavigate}
+              />
             ))}
           </div>
         </section>
+      )}
 
-        {/* SECTION 4: RESOURCES & BOOTCAMPS */}
-        <section className="space-y-6 bg-slate-100/70 p-6 sm:p-8 rounded-3xl border border-slate-200/80">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-3">
+      {/* ==================================================
+          7. SUCCESS STORIES (Verified Stories Only / Professional Empty State)
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="border-b border-slate-200 pb-4">
+          <div className="flex items-center gap-2">
+            <Award className="w-5 h-5 text-[#006B3F]" />
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
+              Success Stories
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Real people. Real opportunities. Real journeys.
+          </p>
+        </div>
+
+        {/* Note: Section 10 strictly requires: "If there are no verified stories, DO NOT create fake people. Instead show a beautiful empty state" */}
+        <div className="bg-[#F7F8FA] border border-slate-200/90 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-3xl mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-[#006B3F] flex items-center justify-center mx-auto shadow-2xs">
+            <Users className="w-6 h-6" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 font-space">
+              Success Stories are Coming Soon
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-lg mx-auto">
+              We exclusively publish authenticated, verified alumnus journeys. Benefited from an opportunity discovered through Opportunity Ghana?
+            </p>
+          </div>
+          <div className="pt-2">
+            <button
+              onClick={() => onNavigate('/alerts')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+            >
+              Share Your Journey
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================================================
+          8. RESOURCES & LEARNING PATHS
+         ================================================== */}
+      {freeCourses.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-space">
-                  Resources & Learning Paths
+                <BookOpen className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
+                  Featured Learning Resources
                 </h2>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Courses, bootcamps, workshops, and verified credentials to build high-demand skills.
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Courses, bootcamps, and verified credentials to build high-demand skills in Ghana.
               </p>
             </div>
             <button
               onClick={() => onNavigate('/resources')}
-              className="text-xs font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-1"
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>View all resources</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          {freeCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {freeCourses.map((resource) => (
-                <ResourceCard
-                  key={resource.id}
-                  resource={resource}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl border border-slate-200/90 p-8 text-center space-y-2">
-              <BookOpen className="w-8 h-8 text-indigo-600 mx-auto" />
-              <p className="text-sm font-bold text-slate-800">Upskilling & Certification Programs</p>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Explore accredited online cohorts, bootcamps, and professional certificates curated for youth and professionals in Ghana.
-              </p>
-              <button
-                onClick={() => onNavigate('/resources')}
-                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors shadow-xs cursor-pointer"
-              >
-                Browse All Learning Tracks
-              </button>
-            </div>
-          )}
-        </section>
-
-        {/* SECTION 5: FREE COURSES HIGHLIGHT */}
-        <section className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-3xl text-white p-8 sm:p-10 shadow-md">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-700/80 text-xs font-bold text-emerald-200">
-                <Zap className="w-3.5 h-3.5 text-amber-300" />
-                100% Free Learning
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-space">
-                Free Courses with Certificates
-              </h2>
-              <p className="text-sm text-emerald-100 leading-relaxed">
-                Upskill without tuition barriers. We catalog free, accredited courses and practical cohorts from leading universities and industry partners in software, data, finance, and marketing.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-3">
-                <button
-                  onClick={() => onNavigate('/resources?free=true')}
-                  className="px-5 py-2.5 rounded-xl bg-white text-emerald-900 text-xs font-bold hover:bg-emerald-50 transition-colors shadow-xs"
-                >
-                  Browse Free Courses
-                </button>
-                <button
-                  onClick={() => onNavigate('/careers')}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-700/60 hover:bg-emerald-700/80 text-white text-xs font-bold border border-emerald-500/40 transition-colors"
-                >
-                  Explore Career Pathways
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-400" />
-                Featured Free Tracks
-              </h3>
-              <ul className="space-y-2.5 text-xs text-emerald-100">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Full Stack React & Node.js Developer Curriculum</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Practical Financial Management for Micro-Enterprises</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Data Analytics & SQL Fundamentals Certificate</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>AI Prompt Engineering & Digital Productivity Cohort</span>
-                </li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {freeCourses.map((resource) => (
+              <ResourceCard
+                key={resource.id}
+                resource={resource}
+                onNavigate={onNavigate}
+              />
+            ))}
           </div>
         </section>
+      )}
 
-        {/* SECTION 6: CAREER FOUNDATION & SKILLS */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200/80 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-space">
-                  Career Pathways & Skills
-                </h2>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Understand in-demand Ghanaian job roles and their corresponding learning paths.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigate('/careers')}
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
-            >
-              <span>Explore all career tracks</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                High Demand
-              </span>
-              <h3 className="text-base font-bold text-slate-900">Software Engineering</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Build backend web services, mobile apps, and fintech tools for Ghana’s surging digital economy.
-              </p>
-              <div className="pt-2 flex items-center justify-between text-xs">
-                <span className="text-slate-400">Relevant: 8 Courses</span>
-                <button
-                  onClick={() => onNavigate('/careers')}
-                  className="font-bold text-emerald-700 hover:underline"
-                >
-                  View Skill Map →
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
-                Growing Field
-              </span>
-              <h3 className="text-base font-bold text-slate-900">Data Analytics & Business Intelligence</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Analyze commercial data, create dashboards, and support evidence-based decisions for companies and banks.
-              </p>
-              <div className="pt-2 flex items-center justify-between text-xs">
-                <span className="text-slate-400">Relevant: 5 Courses</span>
-                <button
-                  onClick={() => onNavigate('/careers')}
-                  className="font-bold text-emerald-700 hover:underline"
-                >
-                  View Skill Map →
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
-                Entrepreneurship
-              </span>
-              <h3 className="text-base font-bold text-slate-900">Agribusiness & Value Addition</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Scale modern food processing, precision farming, and export agriculture ventures across all 16 regions.
-              </p>
-              <div className="pt-2 flex items-center justify-between text-xs">
-                <span className="text-slate-400">Relevant: 4 Grants</span>
-                <button
-                  onClick={() => onNavigate('/careers')}
-                  className="font-bold text-emerald-700 hover:underline"
-                >
-                  View Skill Map →
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 7: ALERTS & NOTIFICATIONS */}
-        <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-xs">
-          <div className="max-w-2xl mx-auto text-center space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
-              <Bell className="w-6 h-6" />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 font-space">
-              Never Miss a Deadline
+      {/* ==================================================
+          9. CALL TO ACTION (Your next opportunity could be here)
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-br from-[#003822] via-[#006B3F] to-slate-950 rounded-3xl p-8 sm:p-12 text-white text-center space-y-6 shadow-xl relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:20px_20px]" />
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space">
+              Take the Next Step
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black font-space tracking-tight text-white">
+              Your next opportunity could be here.
             </h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Get targeted alerts directly when scholarships, graduate recruitments, or government grants matching your profile and education level are verified.
+            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-xl mx-auto">
+              Stay ahead of verified deadlines for Ghanaian scholarships, internships, graduate recruitment, and grants.
             </p>
 
             {alertSuccess ? (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold animate-in fade-in">
-                ✓ Thank you! You will receive verified opportunity alerts.
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl text-xs sm:text-sm font-bold text-[#FCD116]">
+                ✓ Thank you! You will receive verified opportunity alerts directly.
               </div>
             ) : (
-              <form onSubmit={handleAlertSubmit} className="pt-2 flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+              <form onSubmit={handleAlertSubmit} className="pt-2 flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
                 <input
                   type="email"
                   required
-                  placeholder="Enter your email address"
+                  placeholder="Enter your email for free alerts"
                   value={alertEmail}
                   onChange={(e) => setAlertEmail(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
+                  className="flex-1 px-4 py-3 rounded-xl bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+                  className="px-6 py-3 rounded-xl bg-[#FCD116] hover:bg-[#D9B400] text-[#111111] text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer"
                 >
                   Set Free Alerts
                 </button>
               </form>
             )}
 
-            <div className="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-2">
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                Spam-free & zero spam policy
-              </span>
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs text-emerald-200/80">
+              <button
+                onClick={() => onNavigate('/opportunities')}
+                className="underline hover:text-white font-semibold cursor-pointer"
+              >
+                Browse All Open Listings
+              </button>
               <span>•</span>
               <button
                 onClick={() => onNavigate('/alerts')}
-                className="text-emerald-700 font-semibold underline"
+                className="underline hover:text-white font-semibold cursor-pointer"
               >
-                Configure WhatsApp & category filters
+                Configure WhatsApp Alerts
               </button>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Opportunity } from '../../types/database';
 import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
-import { Badge } from '../common/Badge';
-import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap } from 'lucide-react';
+import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap, Sparkles } from 'lucide-react';
 import { SavedService } from '../../services/savedService';
 
 interface OpportunityCardProps {
@@ -44,107 +43,139 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
     setIsSaved(updated);
   };
 
+  const isActuallyFeatured = featured || opportunity.featured;
+
   return (
     <article
       onClick={() => onNavigate(`/opportunities/${opportunity.slug}`)}
-      className={`group relative bg-white rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden ${
-        featured
-          ? 'border-[#FCD116]/70 shadow-sm ring-1 ring-[#FCD116]/30 hover:shadow-md'
-          : 'border-[#E5E7EB] shadow-2xs hover:border-[#006B3F]/40 hover:shadow-sm'
+      className={`group relative bg-white rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden hover:-translate-y-0.5 ${
+        isActuallyFeatured
+          ? 'border-[#006B3F]/30 shadow-sm hover:border-[#006B3F] hover:shadow-md'
+          : 'border-slate-200/90 shadow-2xs hover:border-[#006B3F]/50 hover:shadow-md'
       }`}
     >
-      {/* Featured Gold Top Accent Line */}
-      {featured && (
-        <div className="bg-[#FCD116] h-1 w-full" />
+      {/* Featured Top Highlight */}
+      {isActuallyFeatured && (
+        <div className="bg-gradient-to-r from-[#006B3F] via-[#FCD116] to-[#006B3F] h-1 w-full" />
       )}
 
-      {/* Optional Opportunity Photo Banner */}
-      {opportunity.imageUrl && (
-        <div className="relative w-full h-36 sm:h-40 overflow-hidden bg-slate-100">
+      {/* Opportunity Photo Banner (or tasteful branded fallback banner) */}
+      <div className="relative w-full h-40 sm:h-44 overflow-hidden bg-slate-900">
+        {opportunity.imageUrl ? (
           <img
             src={opportunity.imageUrl}
             alt={opportunity.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
             loading="lazy"
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-emerald-950 via-[#006B3F] to-slate-900 flex items-center justify-center p-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:14px_14px]" />
+            <div className="relative z-10 space-y-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space block">
+                {opportunity.category}
+              </span>
+              <p className="text-xs font-bold text-white font-space truncate max-w-[200px] mx-auto">
+                {opportunity.organizationName || 'Opportunity Ghana'}
+              </p>
+            </div>
+          </div>
+        )}
 
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Header: Organization & Actions */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2.5 min-w-0">
+        {/* Floating Category Badge over image */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md text-[#FCD116] border border-white/10 shadow-xs font-space">
+            {opportunity.category}
+          </span>
+          {isActuallyFeatured && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#FCD116] text-[#111111] shadow-xs">
+              Featured
+            </span>
+          )}
+        </div>
+
+        {/* Floating Save Button */}
+        <div className="absolute top-3 right-3">
+          <button
+            onClick={toggleSave}
+            title={isSaved ? 'Remove from saved' : 'Save opportunity'}
+            aria-label={isSaved ? 'Remove from saved' : 'Save opportunity'}
+            className={`p-2 rounded-xl backdrop-blur-md transition-all shadow-xs cursor-pointer ${
+              isSaved
+                ? 'bg-[#006B3F] text-[#FCD116] border border-[#006B3F]'
+                : 'bg-slate-950/70 hover:bg-slate-950 text-white/90 hover:text-white border border-white/15'
+            }`}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Card Content Area */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+        <div className="space-y-2">
+          {/* Organization & Location Header */}
+          <div className="flex items-center gap-2 text-xs text-slate-600">
             {opportunity.organizationLogo ? (
               <img
                 src={opportunity.organizationLogo}
                 alt={opportunity.organizationName || 'Organization'}
-                className="w-10 h-10 rounded-xl object-cover border border-slate-100 shrink-0"
+                className="w-4 h-4 rounded object-contain"
               />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-[#E6F0EB] border border-[#006B3F]/20 text-[#006B3F] flex items-center justify-center font-bold text-xs shrink-0">
-                <Building className="w-5 h-5 text-[#006B3F]" />
-              </div>
+              <Building className="w-3.5 h-3.5 text-[#006B3F] shrink-0" />
             )}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-[#111111] truncate">
-                {opportunity.organizationName || 'Ghana Partner'}
-              </p>
-              <div className="flex items-center gap-1.5 text-[11px] text-[#5F6368]">
-                <MapPin className="w-3 h-3 text-[#737373] shrink-0" />
-                <span className="truncate">{opportunity.location}</span>
-              </div>
-            </div>
+            <span className="font-semibold text-slate-800 truncate">
+              {opportunity.organizationName || 'Verified Partner'}
+            </span>
+            {opportunity.location && (
+              <>
+                <span className="text-slate-300">•</span>
+                <span className="truncate text-slate-500 text-[11px]">{opportunity.location}</span>
+              </>
+            )}
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={toggleSave}
-              title={isSaved ? 'Remove from saved' : 'Save opportunity'}
-              className={`p-1.5 rounded-lg border transition-colors ${
-                isSaved
-                  ? 'bg-[#E6F0EB] border-[#006B3F]/30 text-[#006B3F]'
-                  : 'bg-[#F7F9F8] border-[#E5E7EB] text-[#737373] hover:text-[#111111] hover:bg-slate-100'
-              }`}
-            >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-[#006B3F]' : ''}`} />
-            </button>
-          </div>
+          {/* Title */}
+          <h3 className="text-base font-bold text-[#111111] group-hover:text-[#006B3F] transition-colors line-clamp-2 leading-snug font-space">
+            {opportunity.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+            {opportunity.description}
+          </p>
         </div>
 
-        {/* Opportunity Title */}
-        <h3 className="text-base font-bold text-[#111111] group-hover:text-[#006B3F] transition-colors line-clamp-2 leading-snug mb-2">
-          {opportunity.title}
-        </h3>
-
-        {/* Short description */}
-        <p className="text-xs text-[#5F6368] line-clamp-2 mb-4 leading-relaxed flex-1">
-          {opportunity.description}
-        </p>
-
-        {/* Tags row */}
-        <div className="flex flex-wrap items-center gap-1.5 mb-4">
-          <Badge variant={opportunity.category === 'Scholarships' ? 'ghana-gold' : 'ghana-green'}>
-            {opportunity.category}
-          </Badge>
-          <Badge variant="slate">{opportunity.opportunityType}</Badge>
-          {featured && (
-            <Badge variant="ghana-gold" size="sm">Featured</Badge>
+        {/* Tag pills: Education level, funding, type */}
+        <div className="pt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+          {opportunity.opportunityType && (
+            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
+              {opportunity.opportunityType}
+            </span>
           )}
+
+          {opportunity.fundingType && (
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-[#006B3F] font-semibold border border-emerald-100/60">
+              {opportunity.fundingType}
+            </span>
+          )}
+
           {opportunity.educationLevel && (
-            <Badge variant="slate" className="truncate max-w-[170px]">
-              <GraduationCap className="w-3 h-3" />
-              {opportunity.educationLevel}
-            </Badge>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[140px]">
+              <GraduationCap className="w-3 h-3 shrink-0 text-slate-400" />
+              <span className="truncate">{opportunity.educationLevel}</span>
+            </span>
           )}
         </div>
       </div>
 
-      {/* Footer bar */}
-      <div className="bg-[#F7F9F8] border-t border-[#E5E7EB] px-5 py-3 flex items-center justify-between gap-2">
+      {/* Footer bar with deadline & verification */}
+      <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
         <DeadlineBadge deadline={opportunity.deadline} />
         <div className="flex items-center gap-2">
           <VerificationBadge status={opportunity.verificationStatus} />
-          <span className="text-[#737373] group-hover:text-[#006B3F] transition-colors">
+          <span className="p-1 rounded-lg text-slate-400 group-hover:text-[#006B3F] group-hover:bg-emerald-50 transition-all">
             <ArrowUpRight className="w-4 h-4" />
           </span>
         </div>

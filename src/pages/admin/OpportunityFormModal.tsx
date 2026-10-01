@@ -19,7 +19,8 @@ import {
   Calendar,
   Briefcase,
   HelpCircle,
-  Clock
+  Clock,
+  Sparkles
 } from 'lucide-react';
 
 interface OpportunityFormModalProps {
@@ -80,6 +81,9 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('verified');
   const [verificationNotes, setVerificationNotes] = useState('');
   const [status, setStatus] = useState<OpportunityStatus>('draft');
+  const [featured, setFeatured] = useState(false);
+  const [featuredInSlideshow, setFeaturedInSlideshow] = useState(false);
+  const [slideshowPriority, setSlideshowPriority] = useState<number>(1);
 
   // Duplicate Check
   const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
@@ -138,6 +142,9 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       setVerificationStatus(opportunityToEdit.verificationStatus || 'verified');
       setVerificationNotes(opportunityToEdit.verificationNotes || '');
       setStatus(opportunityToEdit.status || 'draft');
+      setFeatured(Boolean(opportunityToEdit.featured));
+      setFeaturedInSlideshow(Boolean(opportunityToEdit.featuredInSlideshow));
+      setSlideshowPriority(opportunityToEdit.slideshowPriority ?? 1);
     } else {
       // Default new form state
       setTitle('');
@@ -180,6 +187,9 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       setVerificationStatus('needs_verification');
       setVerificationNotes('');
       setStatus('draft');
+      setFeatured(false);
+      setFeaturedInSlideshow(false);
+      setSlideshowPriority(1);
     }
   }, [opportunityToEdit, isOpen]);
 
@@ -258,6 +268,9 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       imagePath: isImageRemoved ? undefined : currentImagePath,
       status: targetStatus,
       verificationStatus,
+      featured,
+      featuredInSlideshow,
+      slideshowPriority: Number(slideshowPriority) || 1,
       lastVerifiedAt: new Date().toISOString(),
       verificationNotes: verificationNotes.trim() || undefined,
       createdAt: opportunityToEdit?.createdAt || new Date().toISOString(),
@@ -901,6 +914,56 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
                       placeholder="e.g. Cross-referenced with the university registrar's circular. Application portal tested and operational."
                       className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden"
                     />
+                  </div>
+
+                  {/* Section 26: Homepage Slideshow & Featured Controls */}
+                  <div className="md:col-span-2 p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-3">
+                    <h4 className="text-xs font-bold text-emerald-950 font-space flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#006B3F]" />
+                      <span>Homepage Display & Slideshow Controls</span>
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      <label className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={featured}
+                          onChange={(e) => setFeatured(e.target.checked)}
+                          className="w-4 h-4 text-[#006B3F] rounded focus:ring-[#006B3F]"
+                        />
+                        <span className="text-xs font-semibold text-slate-800">
+                          Feature on Homepage
+                        </span>
+                      </label>
+
+                      <label className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={featuredInSlideshow}
+                          onChange={(e) => setFeaturedInSlideshow(e.target.checked)}
+                          className="w-4 h-4 text-[#006B3F] rounded focus:ring-[#006B3F]"
+                        />
+                        <span className="text-xs font-semibold text-slate-800">
+                          Hero Slideshow Slide
+                        </span>
+                      </label>
+
+                      <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-emerald-200">
+                        <span className="text-xs font-medium text-slate-600 shrink-0">Priority:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="99"
+                          value={slideshowPriority}
+                          onChange={(e) => setSlideshowPriority(Number(e.target.value) || 1)}
+                          className="w-16 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white"
+                          title="Display order (1 = highest)"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-emerald-800/80 leading-relaxed">
+                      Only verified, published opportunities are displayed in the homepage carousel.
+                    </p>
                   </div>
                 </div>
               </div>

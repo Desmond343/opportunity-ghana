@@ -119,6 +119,9 @@ export interface Opportunity {
   updatedAt: string;
   views: number;
   saves: number;
+  featured?: boolean;
+  featuredInSlideshow?: boolean;
+  slideshowPriority?: number;
 }
 
 export type ResourceType =
