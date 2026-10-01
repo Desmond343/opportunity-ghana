@@ -318,19 +318,6 @@ export const ResourcesService = {
   },
 
   /**
-   * Retrieves submissions submitted by a specific user
-   */
-  async getUserSubmissions(userId: string, userEmail?: string): Promise<Resource[]> {
-    const all = await this.getAll({ includeUnpublished: true });
-    return all.filter(r => 
-      r.isUserSubmitted && (
-        r.createdByUserId === userId || 
-        (userEmail && r.createdByEmail?.toLowerCase() === userEmail.toLowerCase())
-      )
-    );
-  },
-
-  /**
    * Administrator moderation of user-submitted resource
    */
   async reviewResourceSubmission(
@@ -690,10 +677,15 @@ export const ResourcesService = {
   /**
    * Retrieves all submissions created by a specific user.
    */
-  async getUserSubmissions(userId: string): Promise<Resource[]> {
+  async getUserSubmissions(userId: string, userEmail?: string): Promise<Resource[]> {
     if (!userId) return [];
 
-    let items = getStoredResources().filter(r => r.submittedBy === userId);
+    let items = getStoredResources().filter(r => 
+      r.submittedBy === userId || 
+      r.createdByUserId === userId || 
+      (userEmail && r.createdByEmail?.toLowerCase() === userEmail.toLowerCase()) ||
+      (userEmail && r.submittedByEmail?.toLowerCase() === userEmail.toLowerCase())
+    );
 
     if (isFirebaseConfigured && db) {
       try {
@@ -701,7 +693,7 @@ export const ResourcesService = {
         const snap = await getDocs(q);
         if (!snap.empty) {
           const remoteItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as Resource));
-          const otherItems = getStoredResources().filter(r => r.submittedBy !== userId);
+          const otherItems = getStoredResources().filter(r => r.submittedBy !== userId && r.createdByUserId !== userId);
           items = remoteItems;
           saveStoredResources([...remoteItems, ...otherItems]);
         }

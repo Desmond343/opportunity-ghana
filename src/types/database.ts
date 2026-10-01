@@ -216,7 +216,6 @@ export interface Resource {
   createdByUserId?: string;
   isUserSubmitted?: boolean;
   submissionStatus?: 'pending' | 'approved' | 'rejected' | 'changes_requested';
-  rejectionReason?: string;
   submittedAt?: string;
   contactInfo?: string;
   lastEditedByEmail?: string;

@@ -11,12 +11,14 @@ interface ResourcesPageProps {
   onNavigate: (path: string) => void;
   initialType?: string;
   initialFree?: boolean;
+  initialOpenSubmit?: boolean;
 }
 
 export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   onNavigate,
   initialType = 'All',
-  initialFree = false
+  initialFree = false,
+  initialOpenSubmit = false
 }) => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +27,12 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [onlyFree, setOnlyFree] = useState<boolean>(initialFree);
   const [onlyCert, setOnlyCert] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialOpenSubmit) {
+      onNavigate('/resources/submit');
+    }
+  }, [initialOpenSubmit, onNavigate]);
 
   useEffect(() => {
     async function loadResources() {
