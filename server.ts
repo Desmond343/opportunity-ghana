@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin';
 import { extractSourceContent } from './server/aiExtraction';
+import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -101,7 +102,7 @@ app.get('/api/opportunities', async (req, res) => {
       console.warn('Admin Firestore read error:', e);
     }
   }
-  res.json([]);
+  res.json(VERIFIED_REAL_SCHOLARSHIPS);
 });
 
 // Save/Update opportunity (Admin only)

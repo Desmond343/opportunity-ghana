@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-gnpc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2D59"/>
+      <stop offset="60%" stop-color="#0A1E3D"/>
+      <stop offset="100%" stop-color="#040D1A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD116"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-gnpc)"/>
+  <circle cx="700" cy="90" r="170" fill="#FCD116" opacity="0.12"/>
+  <circle cx="90" cy="370" r="130" fill="#2563EB" opacity="0.2"/>
+
+  <!-- GNPC Flame & Rig Icon -->
+  <g transform="translate(60, 55)">
+    <rect width="80" height="80" rx="20" fill="url(#gold)" opacity="0.95"/>
+    <path d="M40 20 C40 20 48 30 48 40 C48 48 42 54 36 56 C33 54 30 50 30 45 C30 38 36 32 36 32 C36 32 32 36 32 42 C32 46 34 50 36 52 C38 48 44 44 44 38 C44 28 40 20 40 20 Z" fill="#0F2D59"/>
+  </g>
+
+  <text x="160" y="90" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FCD116" letter-spacing="2">GHANA NATIONAL PETROLEUM CORPORATION</text>
+  <text x="160" y="120" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#93C5FD">GNPC Foundation Education Unit</text>
+
+  <text x="60" y="205" font-family="system-ui, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">GNPC Local Tertiary Scholarship</text>
+  <text x="60" y="245" font-family="system-ui, sans-serif" font-size="22" font-weight="500" fill="#E2E8F0">Full Tuition &amp; Residential Support for STEM, TVET &amp; Humanities</text>
+
+  <g transform="translate(60, 285)">
+    <rect width="250" height="42" rx="21" fill="#006B3F" opacity="0.95"/>
+    <text x="20" y="26" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🇬🇭 Ghanaian Public Universities</text>
+  </g>
+  <g transform="translate(325, 285)">
+    <rect width="250" height="42" rx="21" fill="#FFFFFF" opacity="0.15"/>
+    <text x="20" y="26" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🔬 STEM &amp; TVET Priority</text>
+  </g>
+
+  <line x1="60" y1="365" x2="740" y2="365" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="60" y="405" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#FCD116">Official Portal: gnpcghana.com/gnpc-foundation</text>
+  <text x="490" y="405" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#93C5FD">Tuition + Accommodation + Stipend</text>
+</svg>

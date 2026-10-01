@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-mr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C2D12"/>
+      <stop offset="60%" stop-color="#451A03"/>
+      <stop offset="100%" stop-color="#1C0A00"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD116"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-mr)"/>
+  <circle cx="710" cy="80" r="180" fill="#FCD116" opacity="0.12"/>
+  <circle cx="90" cy="380" r="140" fill="#B45309" opacity="0.2"/>
+
+  <!-- Leadership Laurel / Medal -->
+  <g transform="translate(60, 55)">
+    <rect width="80" height="80" rx="20" fill="url(#gold)" opacity="0.95"/>
+    <circle cx="40" cy="40" r="22" fill="#7C2D12"/>
+    <path d="M40 26 L43 35 L52 35 L45 41 L47 50 L40 44 L33 50 L35 41 L28 35 L37 35 Z" fill="#FCD116"/>
+  </g>
+
+  <text x="160" y="90" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FCD116" letter-spacing="2">THE MANDELA RHODES FOUNDATION</text>
+  <text x="160" y="120" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#FED7AA">Cape Town, South Africa</text>
+
+  <text x="60" y="205" font-family="system-ui, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Mandela Rhodes Scholarships</text>
+  <text x="60" y="245" font-family="system-ui, sans-serif" font-size="22" font-weight="500" fill="#E2E8F0">Postgraduate Study &amp; Leadership Development in South Africa</text>
+
+  <g transform="translate(60, 285)">
+    <rect width="250" height="42" rx="21" fill="#006B3F" opacity="0.95"/>
+    <text x="20" y="26" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🇿🇦 South African Universities</text>
+  </g>
+  <g transform="translate(325, 285)">
+    <rect width="270" height="42" rx="21" fill="#FFFFFF" opacity="0.15"/>
+    <text x="20" y="26" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">👑 Tuition, Allowance &amp; Leadership</text>
+  </g>
+
+  <line x1="60" y1="365" x2="740" y2="365" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="60" y="405" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#FCD116">Official Portal: mandelarhodes.org/scholarship/apply</text>
+  <text x="500" y="405" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#FED7AA">Honours &amp; Master's Degrees</text>
+</svg>
