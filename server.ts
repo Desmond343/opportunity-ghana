@@ -96,7 +96,19 @@ app.get('/api/opportunities', async (req, res) => {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
         const items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-        return res.json(items);
+        // Merge with verified real scholarships to ensure all newly discovered scholarships are included
+        const merged = [...items];
+        for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+          const exists = merged.some(m => 
+            m.id === verified.id || 
+            m.slug === verified.slug || 
+            (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+          );
+          if (!exists) {
+            merged.push(verified);
+          }
+        }
+        return res.json(merged);
       }
     } catch (e) {
       console.warn('Admin Firestore read error:', e);
