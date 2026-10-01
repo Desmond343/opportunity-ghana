@@ -3,6 +3,8 @@ import { db, isFirebaseConfigured } from './firebase';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed } from './deadlineService';
+import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
+import { detectDuplicates } from './duplicateDetection';
 import { 
   collection, 
   getDocs, 
@@ -37,26 +39,48 @@ function getStoredOpportunities(): Opportunity[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         // Purge any old demo/mock records from storage
-        const cleaned = parsed.filter(o => 
+        let cleaned = parsed.filter(o => 
           o && 
           o.id && 
           !o.id.startsWith('opp-demo-') && 
           !o.title?.includes('[DEMO RECORD]') &&
           !o.applicationUrl?.includes('example.com')
         );
-        if (cleaned.length !== parsed.length) {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+
+        // Merge in verified scholarships if any are missing or need updating
+        for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+          const existingIdx = cleaned.findIndex(o => 
+            o.id === verified.id || 
+            o.slug === verified.slug || 
+            (o.applicationUrl && verified.applicationUrl && o.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+          );
+          if (existingIdx >= 0) {
+            // Update fields with freshest verified data
+            cleaned[existingIdx] = {
+              ...cleaned[existingIdx],
+              ...verified,
+              views: cleaned[existingIdx].views || 0,
+              saves: cleaned[existingIdx].saves || 0
+            };
+          } else {
+            cleaned.push(verified);
+          }
         }
+
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
         return cleaned.map(syncWithDeadlineAutomation);
       }
     }
   } catch (e) {
     console.error('Failed to load local opportunities storage', e);
   }
-  // Production returns empty array when no real records exist
-  return [];
+
+  // Initial populate with verified real scholarships
+  const initial = VERIFIED_REAL_SCHOLARSHIPS.map(syncWithDeadlineAutomation);
+  saveStoredOpportunities(initial);
+  return initial;
 }
 
 function saveStoredOpportunities(items: Opportunity[]) {
@@ -105,8 +129,22 @@ export const OpportunitiesService = {
           .map((d: any) => syncWithDeadlineAutomation({ id: d.id, ...d.data() } as Opportunity))
           .filter((o: Opportunity) => !o.id.startsWith('opp-demo-') && !o.title?.includes('[DEMO RECORD]'));
         
-        items = results;
-        saveStoredOpportunities(items);
+        if (results.length > 0) {
+          // Merge in any missing verified scholarships
+          for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+            if (!results.some((r: Opportunity) => r.id === verified.id || r.slug === verified.slug)) {
+              results.push(verified);
+              setDoc(doc(db, 'opportunities', verified.id), verified, { merge: true }).catch(() => {});
+            }
+          }
+          items = results;
+          saveStoredOpportunities(items);
+        } else {
+          // Seed Firestore with verified items
+          for (const opp of items) {
+            setDoc(doc(db, 'opportunities', opp.id), opp, { merge: true }).catch(() => {});
+          }
+        }
       } catch (err: any) {
         if (err?.code !== 'unavailable' && err?.message !== 'timeout') {
           console.warn('Firestore opportunities read error:', err?.message || err);

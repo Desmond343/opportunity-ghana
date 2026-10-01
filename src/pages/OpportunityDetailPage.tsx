@@ -166,12 +166,35 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
       {/* Featured Opportunity Photo */}
       {opportunity.imageUrl && (
-        <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs bg-slate-100">
-          <img
-            src={opportunity.imageUrl}
-            alt={opportunity.title}
-            className="w-full h-full object-cover"
-          />
+        <div className="space-y-1.5">
+          <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs bg-slate-100">
+            <img
+              src={opportunity.imageUrl}
+              alt={opportunity.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Branded fallback
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+          {opportunity.imageSourceName && (
+            <p className="text-[11px] text-slate-400 text-right px-2">
+              Image source:{' '}
+              {opportunity.imageSourceUrl ? (
+                <a
+                  href={opportunity.imageSourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-emerald-700 underline font-medium"
+                >
+                  {opportunity.imageSourceName}
+                </a>
+              ) : (
+                <span className="text-slate-500">{opportunity.imageSourceName}</span>
+              )}
+            </p>
+          )}
         </div>
       )}
 

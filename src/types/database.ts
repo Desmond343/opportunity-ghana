@@ -90,6 +90,8 @@ export interface Opportunity {
   // Media & Attachments
   imageUrl?: string;
   imagePath?: string;
+  imageSourceUrl?: string;
+  imageSourceName?: string;
 
   // Application
   requirements: string[];
@@ -118,8 +120,8 @@ export interface Opportunity {
 
   createdAt: string;
   updatedAt: string;
-  views: number;
-  saves: number;
+  views?: number;
+  saves?: number;
   featured?: boolean;
   featuredInSlideshow?: boolean;
   slideshowPriority?: number;

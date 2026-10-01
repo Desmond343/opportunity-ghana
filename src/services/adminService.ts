@@ -1,5 +1,6 @@
 import { Organization, Skill, Submission, ContentReport, PipelineMetrics, User } from '../types/database';
 import { STANDARD_CAREER_TRACKS } from '../data/categories';
+import { VERIFIED_ORGANIZATIONS } from '../data/verifiedOpportunities';
 import { OpportunitiesService } from './opportunitiesService';
 import { ResourcesService } from './resourcesService';
 import { calculateDeadlineInfo } from './deadlineService';
