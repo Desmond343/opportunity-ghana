@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="biz-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B132B"/>
+      <stop offset="50%" stop-color="#1C2541"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD116"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#biz-bg)"/>
+
+  <!-- Geometric Grid & Trends -->
+  <g opacity="0.08" stroke="#FCD116" stroke-width="1.5">
+    <path d="M60 380 L180 300 L300 340 L440 220 L600 260 L740 140" fill="none"/>
+    <circle cx="740" cy="140" r="5" fill="#FCD116"/>
+    <circle cx="440" cy="220" r="5" fill="#FCD116"/>
+  </g>
+
+  <!-- Business / Leadership Emblem -->
+  <g transform="translate(60, 50)">
+    <rect width="76" height="76" rx="20" fill="url(#gold-grad)" opacity="0.95"/>
+    <!-- Growth chart bars -->
+    <rect x="20" y="42" width="8" height="18" rx="2" fill="#0B132B"/>
+    <rect x="34" y="32" width="8" height="28" rx="2" fill="#0B132B"/>
+    <rect x="48" y="20" width="8" height="40" rx="2" fill="#0B132B"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="156" y="82" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FCD116" letter-spacing="2">BUSINESS &amp; LEADERSHIP</text>
+  <text x="156" y="112" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="600" fill="#CBD5E1">MBA, Finance, Economics &amp; Enterprise</text>
+
+  <text x="60" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Global Business &amp; Executive Aid</text>
+  <text x="60" y="238" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="#E2E8F0">Financing Emerging African Founders &amp; Corporate Visionaries</text>
+
+  <!-- Badges -->
+  <g transform="translate(60, 276)">
+    <rect width="210" height="38" rx="19" fill="#006B3F" opacity="0.95"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">💼 Executive MBA Aid</text>
+  </g>
+  <g transform="translate(286, 276)">
+    <rect width="260" height="38" rx="19" fill="#FFFFFF" opacity="0.12"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🏆 Leadership Mentorship Included</text>
+  </g>
+
+  <line x1="60" y1="355" x2="740" y2="355" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+  <text x="60" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#94A3B8">Opportunity Ghana • Executive Studies</text>
+  <text x="560" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#FCD116">Merit &amp; Enterprise Grants</text>
+</svg>

@@ -4,6 +4,8 @@ import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
 import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap, Sparkles } from 'lucide-react';
 import { SavedService } from '../../services/savedService';
+import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
+import { CardVisualHeader } from './CardVisualHeader';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -44,6 +46,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const isActuallyFeatured = featured || opportunity.featured;
+  const media = resolveOpportunityMedia(opportunity);
 
   return (
     <article
@@ -59,43 +62,25 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         <div className="bg-gradient-to-r from-[#006B3F] via-[#FCD116] to-[#006B3F] h-1 w-full" />
       )}
 
-      {/* Opportunity Photo Banner (or tasteful branded fallback banner) */}
-      <div className="relative w-full h-40 sm:h-44 overflow-hidden bg-slate-900">
-        {opportunity.imageUrl ? (
-          <img
-            src={opportunity.imageUrl}
-            alt={opportunity.title}
-            className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-950 via-[#006B3F] to-slate-900 flex items-center justify-center p-6 text-center relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:14px_14px]" />
-            <div className="relative z-10 space-y-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space block">
-                {opportunity.category}
-              </span>
-              <p className="text-xs font-bold text-white font-space truncate max-w-[200px] mx-auto">
-                {opportunity.organizationName || 'Opportunity Ghana'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Floating Category Badge over image */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md text-[#FCD116] border border-white/10 shadow-xs font-space">
-            {opportunity.category}
-          </span>
-          {isActuallyFeatured && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#FCD116] text-[#111111] shadow-xs">
-              Featured
+      {/* Visual Header (Image with subtle dark gradient overlay, or category gradient fallback) */}
+      <CardVisualHeader
+        media={media}
+        alt={opportunity.title}
+        title={opportunity.title}
+        subtitle={opportunity.organizationName || 'Opportunity Ghana'}
+        badgeTopLeft={
+          <>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md text-[#FCD116] border border-white/10 shadow-xs font-space">
+              {opportunity.category}
             </span>
-          )}
-        </div>
-
-        {/* Floating Save Button */}
-        <div className="absolute top-3 right-3">
+            {isActuallyFeatured && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#FCD116] text-[#111111] shadow-xs">
+                Featured
+              </span>
+            )}
+          </>
+        }
+        actionsTopRight={
           <button
             onClick={toggleSave}
             title={isSaved ? 'Remove from saved' : 'Save opportunity'}
@@ -108,8 +93,8 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           >
             <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Card Content Area */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-3">

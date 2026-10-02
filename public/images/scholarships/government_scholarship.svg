@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gov-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022D1F"/>
+      <stop offset="50%" stop-color="#006B3F"/>
+      <stop offset="100%" stop-color="#011811"/>
+    </linearGradient>
+    <linearGradient id="gh-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD116"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#gov-bg)"/>
+
+  <!-- Subtle Emblem Star Motif -->
+  <g opacity="0.12" fill="#FCD116">
+    <polygon points="700,60 720,110 775,115 730,150 745,205 700,175 655,205 670,150 625,115 680,110"/>
+  </g>
+
+  <!-- Ghanaian Official Star & Pillar Emblem -->
+  <g transform="translate(60, 50)">
+    <rect width="76" height="76" rx="20" fill="url(#gh-gold)" opacity="0.95"/>
+    <!-- Black Star -->
+    <polygon points="38,20 43,33 57,34 46,43 50,56 38,48 26,56 30,43 19,34 33,33" fill="#111111"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="156" y="82" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FCD116" letter-spacing="2">PUBLIC SECTOR &amp; BILATERAL AID</text>
+  <text x="156" y="112" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="600" fill="#A7F3D0">Ministry, Agency &amp; Statutory Bursaries</text>
+
+  <text x="60" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Government &amp; National Scholarships</text>
+  <text x="60" y="238" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="#D1FAE5">Supporting Ghanaian Students Across All 16 Regions</text>
+
+  <!-- Badges -->
+  <g transform="translate(60, 276)">
+    <rect width="210" height="38" rx="19" fill="#111827" opacity="0.85"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FCD116">🇬🇭 Republic of Ghana</text>
+  </g>
+  <g transform="translate(286, 276)">
+    <rect width="250" height="38" rx="19" fill="#FFFFFF" opacity="0.15"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🏛️ District &amp; Tertiary Bursary</text>
+  </g>
+
+  <line x1="60" y1="355" x2="740" y2="355" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+  <text x="60" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#6EE7B7">Opportunity Ghana • Verified Government Initiative</text>
+  <text x="560" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#FCD116">100% Verified Statutory Aid</text>
+</svg>

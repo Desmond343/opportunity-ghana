@@ -3,6 +3,7 @@ import { Opportunity } from '../../types/database';
 import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
 import { SavedService } from '../../services/savedService';
+import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
 import {
   ChevronLeft,
   ChevronRight,
@@ -315,43 +316,52 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
 
         {/* Right Column: Prominent Media Display with Fallback */}
         <div className="lg:col-span-5 relative overflow-hidden bg-slate-900 flex items-center justify-center min-h-[220px] sm:min-h-[260px] lg:min-h-full">
-          {activeOpp.imageUrl ? (
-            <div className="relative w-full h-full min-h-[220px] lg:min-h-[460px]">
-              <img
-                src={activeOpp.imageUrl}
-                alt={activeOpp.title}
-                loading="eager"
-                className="w-full h-full object-cover object-center transition-all duration-500 hover:scale-103"
-              />
-              {/* Soft gradient overlay for seamless integration */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent lg:bg-gradient-to-r lg:from-slate-950 lg:via-transparent lg:to-transparent opacity-80" />
-            </div>
-          ) : (
-            /* Tasteful Ghanaian-inspired branded fallback vector */
-            <div className="relative w-full h-full min-h-[220px] lg:min-h-[460px] bg-gradient-to-br from-[#005530] via-[#006B3F] to-slate-950 flex flex-col items-center justify-center p-8 text-center overflow-hidden">
-              {/* Geometric Ghanaian Kente-inspired line work */}
-              <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:16px_16px]" />
-              <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-[#FCD116]/10 blur-2xl pointer-events-none" />
-              <div className="absolute -left-16 -bottom-16 w-56 h-56 rounded-full bg-[#006B3F]/30 blur-2xl pointer-events-none" />
+          {(() => {
+            const media = resolveOpportunityMedia(activeOpp);
+            return media.imageUrl ? (
+              <div className="relative w-full h-full min-h-[220px] lg:min-h-[460px]">
+                <img
+                  src={media.imageUrl}
+                  alt={activeOpp.title}
+                  loading="eager"
+                  className="w-full h-full object-cover object-center transition-all duration-500 hover:scale-103"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+                {/* Soft gradient overlay for seamless integration */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent lg:bg-gradient-to-r lg:from-slate-950 lg:via-transparent lg:to-transparent opacity-80 pointer-events-none" />
+              </div>
+            ) : (
+              /* Professional Category Gradient Banner */
+              <div
+                className="relative w-full h-full min-h-[220px] lg:min-h-[460px] flex flex-col items-center justify-center p-8 text-center overflow-hidden"
+                style={{ background: media.gradient.cssGradient }}
+              >
+                {/* Geometric line work */}
+                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:16px_16px]" />
+                <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-[#FCD116]/10 blur-2xl pointer-events-none" />
+                <div className="absolute -left-16 -bottom-16 w-56 h-56 rounded-full bg-[#006B3F]/30 blur-2xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-3 max-w-xs">
-                <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center mx-auto text-[#FCD116] shadow-xl">
-                  <Compass className="w-8 h-8" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space">
-                    Opportunity Ghana Verified
-                  </p>
-                  <p className="text-base font-bold text-white font-space">
-                    {activeOpp.organizationName || 'Accredited Opening'}
-                  </p>
-                  <p className="text-xs text-emerald-100/70">
-                    {activeOpp.category} • {activeOpp.opportunityType}
-                  </p>
+                <div className="relative z-10 space-y-3 max-w-xs">
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center mx-auto text-[#FCD116] shadow-xl">
+                    <Compass className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space">
+                      {activeOpp.category}
+                    </p>
+                    <p className="text-base font-bold text-white font-space">
+                      {activeOpp.organizationName || 'Accredited Opening'}
+                    </p>
+                    <p className="text-xs text-emerald-100/70">
+                      {activeOpp.opportunityType || 'Opportunity Ghana Verified'}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Quick Category Stamp Overlay on Image */}
           <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white shadow-lg">

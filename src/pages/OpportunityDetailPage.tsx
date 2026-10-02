@@ -7,6 +7,7 @@ import { VerificationBadge } from '../components/common/VerificationBadge';
 import { Badge } from '../components/common/Badge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
 import { calculateDeadlineInfo, useDeadlineInfo } from '../services/deadlineService';
+import { resolveOpportunityMedia } from '../utils/cardBackgrounds';
 import {
   MapPin,
   Calendar,
@@ -204,39 +205,63 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         </div>
       )}
 
-      {/* Featured Opportunity Photo */}
-      {opportunity.imageUrl && (
-        <div className="space-y-1.5">
-          <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs bg-slate-100">
-            <img
-              src={opportunity.imageUrl}
-              alt={opportunity.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Branded fallback
-                (e.target as HTMLElement).style.display = 'none';
-              }}
-            />
-          </div>
-          {opportunity.imageSourceName && (
-            <p className="text-[11px] text-slate-400 text-right px-2">
-              Image source:{' '}
-              {opportunity.imageSourceUrl ? (
-                <a
-                  href={opportunity.imageSourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-500 hover:text-emerald-700 underline font-medium"
-                >
-                  {opportunity.imageSourceName}
-                </a>
+      {/* Featured Opportunity Visual Banner */}
+      {(() => {
+        const media = resolveOpportunityMedia(opportunity);
+        return (
+          <div className="space-y-1.5">
+            <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs relative bg-slate-950">
+              {media.imageUrl ? (
+                <div className="relative w-full h-full">
+                  <img
+                    src={media.imageUrl}
+                    alt={opportunity.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
+                </div>
               ) : (
-                <span className="text-slate-500">{opportunity.imageSourceName}</span>
+                <div
+                  className="w-full h-full flex flex-col justify-end p-8 relative overflow-hidden"
+                  style={{ background: media.gradient.cssGradient }}
+                >
+                  <div className="relative z-10 space-y-2">
+                    <span
+                      className="text-xs font-extrabold uppercase tracking-widest font-space"
+                      style={{ color: media.gradient.accentColor }}
+                    >
+                      {opportunity.category}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white font-space">
+                      {opportunity.organizationName || 'Opportunity Ghana'}
+                    </h2>
+                  </div>
+                </div>
               )}
-            </p>
-          )}
-        </div>
-      )}
+            </div>
+            {opportunity.imageSourceName && (
+              <p className="text-[11px] text-slate-400 text-right px-2">
+                Image source:{' '}
+                {opportunity.imageSourceUrl ? (
+                  <a
+                    href={opportunity.imageSourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-500 hover:text-emerald-700 underline font-medium"
+                  >
+                    {opportunity.imageSourceName}
+                  </a>
+                ) : (
+                  <span className="text-slate-500">{opportunity.imageSourceName}</span>
+                )}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Hero Header */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">

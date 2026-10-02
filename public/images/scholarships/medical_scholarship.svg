@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="med-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#042F2E"/>
+      <stop offset="50%" stop-color="#115E59"/>
+      <stop offset="100%" stop-color="#021C1B"/>
+    </linearGradient>
+    <linearGradient id="teal-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#med-bg)"/>
+
+  <!-- Subtle Medical / DNA Cross Pattern -->
+  <g opacity="0.1" stroke="#2DD4BF" stroke-width="1.5">
+    <circle cx="700" cy="90" r="160" fill="none" stroke-dasharray="4,8"/>
+    <path d="M60 380 Q 200 320 340 380 T 620 380" fill="none"/>
+    <path d="M60 380 Q 200 440 340 380 T 620 380" fill="none"/>
+  </g>
+
+  <!-- Medical Emblem -->
+  <g transform="translate(60, 50)">
+    <rect width="76" height="76" rx="20" fill="url(#teal-glow)" opacity="0.95"/>
+    <!-- Medical Cross -->
+    <rect x="29" y="16" width="18" height="44" rx="4" fill="#FFFFFF"/>
+    <rect x="16" y="29" width="44" height="18" rx="4" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="156" y="82" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FCD116" letter-spacing="2">HEALTH &amp; MEDICAL SCIENCES</text>
+  <text x="156" y="112" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="600" fill="#99F6E4">Clinical Medicine, Nursing &amp; Public Health</text>
+
+  <text x="60" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Healthcare Leaders Scholarship</text>
+  <text x="60" y="238" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="#CCFBF1">Advancing Medical Research &amp; Clinical Care in Ghana</text>
+
+  <!-- Badges -->
+  <g transform="translate(60, 276)">
+    <rect width="210" height="38" rx="19" fill="#0D9488" opacity="0.9"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">🩺 Clinical &amp; Hospital Aid</text>
+  </g>
+  <g transform="translate(286, 276)">
+    <rect width="260" height="38" rx="19" fill="#FFFFFF" opacity="0.12"/>
+    <text x="18" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">✨ Tuition, Training &amp; Allowance</text>
+  </g>
+
+  <line x1="60" y1="355" x2="740" y2="355" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+  <text x="60" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#2DD4BF">Opportunity Ghana • Health Fellowships</text>
+  <text x="560" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#FCD116">Fully &amp; Partially Funded</text>
+</svg>
