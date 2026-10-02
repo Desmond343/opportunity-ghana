@@ -9,7 +9,6 @@ import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { SubmitResourcePage } from './pages/SubmitResourcePage';
-import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { CareersPage } from './pages/CareersPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';

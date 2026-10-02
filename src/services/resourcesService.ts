@@ -1,5 +1,6 @@
 import { Resource, OpportunityStatus, VerificationStatus } from '../types/database';
 import { db, isFirebaseConfigured } from './firebase';
+import { sanitizeForFirestore } from './firebase/firestoreService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import {
@@ -189,7 +190,8 @@ export const ResourcesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'resources', toSave.id), toSave, { merge: true });
+        const cleanData = sanitizeForFirestore(toSave);
+        await setDoc(doc(db, 'resources', toSave.id), cleanData, { merge: true });
       } catch (err) {
         console.warn('Firestore saveResource error:', err);
       }
@@ -298,7 +300,8 @@ export const ResourcesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'resources', newResource.id), newResource);
+        const cleanData = sanitizeForFirestore(newResource);
+        await setDoc(doc(db, 'resources', newResource.id), cleanData);
       } catch (err) {
         console.warn('Firestore submitUserResource error:', err);
       }
@@ -335,7 +338,8 @@ export const ResourcesService = {
       localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
 
       if (isFirebaseConfigured && db) {
-        setDoc(doc(db, 'submissions', submissionRecord.id), submissionRecord, { merge: true }).catch(() => {});
+        const cleanSub = sanitizeForFirestore(submissionRecord);
+        setDoc(doc(db, 'submissions', submissionRecord.id), cleanSub, { merge: true }).catch(() => {});
       }
     } catch (e) {
       console.warn('Failed to mirror resource to submissions store:', e);
@@ -428,7 +432,7 @@ export const ResourcesService = {
           localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
 
           if (isFirebaseConfigured && db) {
-            updateDoc(doc(db, 'submissions', subList[sIdx].id), {
+            const cleanSubUpdate = sanitizeForFirestore({
               status: isApproval ? 'approved' : 'rejected',
               reviewedAt: now,
               reviewedBy: admin.name,
@@ -437,7 +441,8 @@ export const ResourcesService = {
               rejectionReason: decision === 'rejected' ? (notes || '') : null,
               data: updated,
               updatedAt: now
-            }).catch(() => {});
+            });
+            updateDoc(doc(db, 'submissions', subList[sIdx].id), cleanSubUpdate).catch(() => {});
           }
         }
       }
@@ -838,10 +843,11 @@ export const ResourcesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await updateDoc(doc(db, 'resources', id), {
+        const cleanData = sanitizeForFirestore({
           ...updated,
           updatedAt: now
         });
+        await updateDoc(doc(db, 'resources', id), cleanData);
       } catch (err) {
         console.warn('Firestore reviewSubmission error:', err);
       }

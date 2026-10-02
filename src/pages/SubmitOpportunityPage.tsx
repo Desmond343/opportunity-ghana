@@ -5,6 +5,8 @@ import { FirebaseStorageService } from '../services/firebase/storageService';
 import { OPPORTUNITY_CATEGORIES, GHANA_REGIONS, EDUCATION_LEVELS } from '../data/categories';
 import { ImageUploadField } from '../components/common/ImageUploadField';
 import { Opportunity } from '../types/database';
+import { DeadlineBadge } from '../components/common/DeadlineBadge';
+import { calculateDeadlineInfo } from '../services/deadlineService';
 import {
   Compass,
   CheckCircle2,
@@ -262,6 +264,8 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
         officialApplicationUrl: applicationUrl.trim(),
         sourceUrl: sourceUrl.trim() || applicationUrl.trim(),
         deadline,
+        deadlineAt: deadline ? (deadline.includes('T') ? deadline : `${deadline}T23:59:59Z`) : undefined,
+        deadlineTimezone: 'GMT',
         applicationInstructions: applicationInstructions.trim(),
         imageUrl: uploadedImageUrl,
         imagePath: uploadedImagePath,
@@ -603,6 +607,16 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
                 onChange={(e) => setDeadline(e.target.value)}
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#006B3F] focus:outline-none"
               />
+              {deadline && (() => {
+                const info = calculateDeadlineInfo(`${deadline}T23:59:59Z`);
+                return (
+                  <div className="pt-1 flex items-center gap-2">
+                    <span className="text-[11px] text-slate-500">Live preview:</span>
+                    <DeadlineBadge deadline={`${deadline}T23:59:59Z`} />
+                    <span className="text-[10px] text-slate-400 font-mono">({info.formattedDate})</span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="space-y-1.5">

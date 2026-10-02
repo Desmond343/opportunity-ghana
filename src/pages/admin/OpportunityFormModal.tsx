@@ -278,6 +278,8 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       applicationUrl: applicationUrl.trim(),
       applicationMethod,
       deadline: formattedDeadline,
+      deadlineAt: formattedDeadline,
+      deadlineTimezone: 'GMT',
       sourceUrl: sourceUrl.trim() || undefined,
       imageUrl: isImageRemoved ? undefined : currentImageUrl,
       imagePath: isImageRemoved ? undefined : currentImagePath,

@@ -6,7 +6,7 @@ import { DeadlineBadge } from '../components/common/DeadlineBadge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
 import { Badge } from '../components/common/Badge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
-import { calculateDeadlineInfo } from '../services/deadlineService';
+import { calculateDeadlineInfo, useDeadlineInfo } from '../services/deadlineService';
 import {
   MapPin,
   Calendar,
@@ -43,6 +43,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
+  const deadlineInfo = useDeadlineInfo(opportunity?.deadline);
 
   useEffect(() => {
     async function loadOpportunity() {
@@ -100,7 +101,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
     );
   }
 
-  const isClosed = opportunity.status === 'closed' || calculateDeadlineInfo(opportunity.deadline).isClosed;
+  const isClosed = opportunity.status === 'closed' || deadlineInfo.isClosed;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -515,6 +516,15 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               Application Details
             </h3>
             <div className="space-y-3 text-xs text-slate-600">
+              <div>
+                <span className="text-slate-400 font-medium block">Application Deadline:</span>
+                <span className="font-semibold text-slate-900 font-mono block">
+                  {deadlineInfo.formattedDeadline}
+                </span>
+                <div className="mt-1">
+                  <DeadlineBadge deadline={opportunity.deadline} />
+                </div>
+              </div>
               <div>
                 <span className="text-slate-400 font-medium block">Method:</span>
                 <span className="font-semibold text-slate-800 capitalize">

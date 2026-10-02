@@ -130,6 +130,7 @@ export interface Opportunity {
   submittedBy?: string;
   submittedByName?: string;
   submittedByEmail?: string;
+  submittedByUserId?: string;
   createdByUserId?: string;
   isUserSubmitted?: boolean;
   submissionStatus?: SubmissionStatus;
@@ -274,10 +275,16 @@ export interface Submission {
   organizationName: string;
   submittedByEmail: string;
   submittedByName: string;
+  submittedByUserId?: string;
+  category?: string;
+  location?: string;
   data: Partial<Opportunity | Resource | Organization>;
   status: 'pending' | 'approved' | 'rejected';
   reviewedBy?: string;
+  reviewedByEmail?: string;
   reviewedAt?: string;
+  publishedAt?: string;
+  rejectionReason?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;

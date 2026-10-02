@@ -4,6 +4,7 @@ import { OpportunitiesService } from '../../services/opportunitiesService';
 import { OPPORTUNITY_CATEGORIES } from '../../data/categories';
 import { VerificationBadge } from '../../components/common/VerificationBadge';
 import { DeadlineBadge } from '../../components/common/DeadlineBadge';
+import { calculateDeadlineInfo } from '../../services/deadlineService';
 import { OpportunityFormModal } from './OpportunityFormModal';
 import { AuditHistoryModal } from './AuditHistoryModal';
 import { useAuth } from '../../services/authContext';
@@ -38,6 +39,7 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterVerification, setFilterVerification] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterDeadline, setFilterDeadline] = useState<string>('all');
   const [search, setSearch] = useState('');
 
   // Modals state
@@ -169,6 +171,15 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
     }
     if (filterVerification !== 'all' && opp.verificationStatus !== filterVerification) return false;
     if (filterCategory !== 'all' && opp.category.toLowerCase() !== filterCategory.toLowerCase()) return false;
+    if (filterDeadline !== 'all') {
+      const dInfo = calculateDeadlineInfo(opp.deadline);
+      if (filterDeadline === 'today' && !dInfo.isToday) return false;
+      if (filterDeadline === 'closing_soon' && (dInfo.status !== 'closing_soon' || dInfo.isClosed)) return false;
+      if (filterDeadline === 'approaching' && dInfo.status !== 'approaching') return false;
+      if (filterDeadline === 'open' && dInfo.status !== 'open') return false;
+      if (filterDeadline === 'expired' && !dInfo.isClosed) return false;
+      if (filterDeadline === 'rolling' && dInfo.status !== 'rolling') return false;
+    }
     if (search.trim()) {
       const q = search.toLowerCase().trim();
       const matchTitle = opp.title.toLowerCase().includes(q);
@@ -203,7 +214,7 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Search */}
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -261,6 +272,23 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
                   {c.name}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Deadline Urgency Filter */}
+          <div>
+            <select
+              value={filterDeadline}
+              onChange={(e) => setFilterDeadline(e.target.value)}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden font-medium"
+            >
+              <option value="all">All Deadlines</option>
+              <option value="today">Closing Today</option>
+              <option value="closing_soon">Closing Soon (1–7 days)</option>
+              <option value="approaching">Approaching (8–30 days)</option>
+              <option value="open">Open (30+ days)</option>
+              <option value="expired">Expired / Passed</option>
+              <option value="rolling">Rolling Basis</option>
             </select>
           </div>
         </div>
@@ -443,7 +471,16 @@ export const AdminOpportunities: React.FC<{ onNavigate: (path: string) => void }
 
                       {/* Deadline */}
                       <td className="py-3 px-3 whitespace-nowrap">
-                        <DeadlineBadge deadline={opp.deadline} compact />
+                        <div className="space-y-0.5">
+                          <DeadlineBadge deadline={opp.deadline} compact />
+                          {opp.deadline ? (
+                            <div className="text-[10px] text-slate-500 font-mono">
+                              {opp.deadline}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-slate-400 italic">Rolling</div>
+                          )}
+                        </div>
                       </td>
 
                       {/* Last Verified */}

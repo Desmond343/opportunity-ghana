@@ -825,6 +825,23 @@ export const OpportunitiesService = {
   /**
    * Administrator approval, rejection, or changes requested workflow for Opportunity.
    */
+  async reviewOpportunitySubmission(
+    id: string,
+    decision: 'approved' | 'rejected' | 'changes_requested',
+    admin: { email: string; name: string; uid?: string },
+    rejectionReason?: string,
+    editedData?: Partial<Opportunity>
+  ): Promise<Opportunity | null> {
+    return this.reviewSubmission(
+      id,
+      decision,
+      { uid: admin.uid || 'admin', email: admin.email, name: admin.name },
+      rejectionReason,
+      undefined,
+      editedData
+    );
+  },
+
   async reviewSubmission(
     id: string,
     decision: 'approved' | 'rejected' | 'changes_requested',

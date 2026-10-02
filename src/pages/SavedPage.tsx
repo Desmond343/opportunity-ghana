@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SavedService, SavedItem } from '../services/savedService';
 import { Bookmark, ArrowRight, Trash2, Calendar, Building, Sparkles } from 'lucide-react';
 import { InstallAppPrompt } from '../components/pwa/InstallAppPrompt';
+import { DeadlineBadge } from '../components/common/DeadlineBadge';
 
 interface SavedPageProps {
   onNavigate: (path: string) => void;
@@ -105,14 +106,7 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                {item.deadline ? (
-                  <span className="flex items-center gap-1.5 text-slate-500">
-                    <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Deadline: {item.deadline}</span>
-                  </span>
-                ) : (
-                  <span className="text-slate-400">Rolling Admission</span>
-                )}
+                <DeadlineBadge deadline={item.deadline} compact />
                 <span className="font-bold text-emerald-700 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                   View <ArrowRight className="w-3.5 h-3.5" />
                 </span>

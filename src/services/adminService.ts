@@ -1,4 +1,4 @@
-import { Organization, Skill, Submission, ContentReport, PipelineMetrics, User } from '../types/database';
+import { Organization, Skill, Submission, ContentReport, PipelineMetrics, User, Opportunity, Resource } from '../types/database';
 import { STANDARD_CAREER_TRACKS } from '../data/categories';
 import { VERIFIED_ORGANIZATIONS } from '../data/verifiedOpportunities';
 import { OpportunitiesService } from './opportunitiesService';
@@ -125,7 +125,7 @@ export const AdminService = {
       }
       if (filters.category && filters.category !== 'all') {
         const cat = filters.category.toLowerCase();
-        list = list.filter(s => (s.category && s.category.toLowerCase() === cat) || (s.data?.category && s.data.category.toLowerCase() === cat));
+        list = list.filter(s => (s.category && s.category.toLowerCase() === cat) || ((s.data as any)?.category && (s.data as any).category.toLowerCase() === cat));
       }
       if (filters.search && filters.search.trim()) {
         const q = filters.search.toLowerCase().trim();
@@ -438,7 +438,7 @@ export const AdminService = {
     sub.reviewedBy = adminUser.name;
     sub.reviewedByEmail = adminUser.email;
     if (sub.data) {
-      sub.data.status = 'draft';
+      (sub.data as any).status = 'draft';
       (sub.data as any).submissionStatus = 'rejected';
       (sub.data as any).rejectionReason = reasonText;
     }

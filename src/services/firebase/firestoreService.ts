@@ -35,6 +35,24 @@ export function getFirebaseCollection(name: string): CollectionReference<Documen
   return collection(db, name);
 }
 
+/**
+ * Strips undefined properties and converts unsupported values so Firestore never rejects operations
+ */
+export function sanitizeForFirestore<T extends Record<string, any>>(data: T): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) {
+      continue;
+    }
+    if (value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+      result[key] = sanitizeForFirestore(value);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 // Collection references to the existing project collections (null-safe)
 export const collections = {
   get users() { return getFirebaseCollection('users'); },
