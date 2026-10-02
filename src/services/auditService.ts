@@ -4,6 +4,9 @@ const AUDIT_STORAGE_KEY = 'opp_gh_audit_logs';
 
 export const AuditService = {
   getLogs(entityId?: string): AuditLogEntry[] {
+    if (typeof localStorage === 'undefined') {
+      return [];
+    }
     try {
       const raw = localStorage.getItem(AUDIT_STORAGE_KEY);
       if (raw) {
@@ -30,6 +33,9 @@ export const AuditService = {
   },
 
   log(entry: Omit<AuditLogEntry, 'id' | 'timestamp'>): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
     try {
       const newEntry: AuditLogEntry = {
         ...entry,

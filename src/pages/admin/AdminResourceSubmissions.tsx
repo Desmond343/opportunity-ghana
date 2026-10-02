@@ -35,7 +35,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
 
   // Selected Submission for Review Modal
   const [selectedSub, setSelectedSub] = useState<Resource | null>(null);
-  const [decisionAction, setDecisionAction] = useState<'approve' | 'reject' | 'changes' | null>(null);
+  const [decisionAction, setDecisionAction] = useState<'approved' | 'rejected' | 'changes_requested' | null>(null);
   const [feedbackReason, setFeedbackReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -72,6 +72,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
       return;
     }
 
+    setDecisionAction(decision);
     setIsProcessing(true);
     try {
       const updated = await ResourcesService.reviewSubmission(
@@ -88,7 +89,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
 
       if (updated) {
         setSubmissions(prev => prev.map(s => (s.id === updated.id ? updated : s)));
-        setActionSuccessMessage(`Submission marked as ${decision.toUpperCase()}`);
+        setActionSuccessMessage(`Submission marked as ${decision === 'approved' ? 'PUBLISHED' : decision.toUpperCase()}`);
         setTimeout(() => setActionSuccessMessage(null), 4000);
       }
       setSelectedSub(null);
@@ -96,9 +97,11 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
       setFeedbackReason('');
       setAdminNotes('');
     } catch (err: any) {
-      alert(err?.message || 'Error processing review decision.');
+      console.error('[Admin Review Decision Error]', err);
+      alert(decision === 'approved' ? 'The resource could not be published. Please try again.' : (err?.message || 'Error processing review decision.'));
     } finally {
       setIsProcessing(false);
+      setDecisionAction(null);
     }
   };
 
@@ -349,6 +352,9 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
                     src={selectedSub.imageUrl}
                     alt={selectedSub.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                    }}
                   />
                 </div>
               )}
@@ -477,10 +483,19 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
                   type="button"
                   disabled={isProcessing}
                   onClick={() => handleReviewDecision('approved')}
-                  className="px-6 py-2 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                  className="px-6 py-2 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 disabled:opacity-60"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-[#FCD116]" />
-                  <span>Approve & Publish</span>
+                  {isProcessing && decisionAction === 'approved' ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Publishing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-[#FCD116]" />
+                      <span>Approve & Publish</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

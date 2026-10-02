@@ -175,13 +175,19 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
       if (imageFile) {
         setUploadProgress(15);
         const tempResId = 'res_sub_' + Math.random().toString(36).substring(2, 9);
-        const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
-          tempResId,
-          imageFile,
-          (pct) => setUploadProgress(pct)
-        );
-        uploadedImageUrl = uploadRes.imageUrl;
-        uploadedImagePath = uploadRes.imagePath;
+        try {
+          const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
+            tempResId,
+            imageFile,
+            (pct) => setUploadProgress(pct)
+          );
+          uploadedImageUrl = uploadRes.imageUrl;
+          uploadedImagePath = uploadRes.imagePath;
+        } catch (imgErr: any) {
+          console.error('[SubmitResourceModal Image Upload Error]', imgErr);
+          setErrorMessage('Image upload failed. Please try again.');
+          return;
+        }
       }
 
       // 2. Parse skills tags
@@ -191,42 +197,48 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
         .filter((s) => s.length > 0);
 
       // 3. Submit resource record for verification
-      await ResourcesService.submitResource(
-        {
-          title: title.trim(),
-          slug: '',
-          description: description.trim(),
-          providerId: currentUser.id || 'community',
-          providerName: providerName.trim() || currentUser.name || 'Community Contribution',
-          category,
-          resourceType,
-          level,
-          format,
-          location: location.trim() || undefined,
-          duration: duration.trim() || 'Self-paced',
-          cost: isFree ? 0 : Math.max(0, parseFloat(cost) || 0),
-          currency: isFree ? 'GHS' : currency,
-          isFree,
-          hasCertificate,
-          skills: skills.length > 0 ? skills : [category],
-          enrollmentUrl: formattedUrl,
-          imageUrl: uploadedImageUrl,
-          imagePath: uploadedImagePath,
-          contactEmail: contactEmail.trim() || currentUser.email || undefined,
-          contactPhone: contactPhone.trim() || undefined
-        },
-        {
-          uid: currentUser.id,
-          email: currentUser.email,
-          name: currentUser.name
-        }
-      );
+      try {
+        await ResourcesService.submitResource(
+          {
+            title: title.trim(),
+            slug: '',
+            description: description.trim(),
+            providerId: currentUser.id || 'community',
+            providerName: providerName.trim() || currentUser.name || 'Community Contribution',
+            category,
+            resourceType,
+            level,
+            format,
+            location: location.trim() || undefined,
+            duration: duration.trim() || 'Self-paced',
+            cost: isFree ? 0 : Math.max(0, parseFloat(cost) || 0),
+            currency: isFree ? 'GHS' : currency,
+            isFree,
+            hasCertificate,
+            skills: skills.length > 0 ? skills : [category],
+            enrollmentUrl: formattedUrl,
+            imageUrl: uploadedImageUrl,
+            imagePath: uploadedImagePath,
+            contactEmail: contactEmail.trim() || currentUser.email || undefined,
+            contactPhone: contactPhone.trim() || undefined
+          },
+          {
+            uid: currentUser.id,
+            email: currentUser.email,
+            name: currentUser.name
+          }
+        );
+      } catch (subErr: any) {
+        console.error('[SubmitResourceModal Service Error]', subErr);
+        setErrorMessage('The resource could not be published. Please try again.');
+        return;
+      }
 
       setIsSubmittedSuccess(true);
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error('Resource submission error:', err);
-      setErrorMessage(err?.message || 'Could not submit resource. Please check your connection and try again.');
+      setErrorMessage(err?.message || 'The resource could not be published. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

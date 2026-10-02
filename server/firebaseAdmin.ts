@@ -49,6 +49,11 @@ try {
 
   adminAuth = getAuth(app);
   adminDb = getFirestore(app);
+  try {
+    adminDb.settings({ ignoreUndefinedProperties: true });
+  } catch (e: any) {
+    console.debug('adminDb.settings note:', e?.message || e);
+  }
   adminStorage = getStorage(app);
   isInitialized = Boolean(serviceAccount);
   

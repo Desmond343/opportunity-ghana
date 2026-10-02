@@ -5,14 +5,24 @@ import firebaseAppletConfig from '../../../firebase-applet-config.json';
  * Opportunity Ghana - Firebase Project Configuration
  * Reads from firebase-applet-config.json with optional VITE_ environment overrides
  */
+const getEnv = (key: string): string => {
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
+    return (import.meta as any).env[key] || '';
+  }
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key] || '';
+  }
+  return '';
+};
+
 export const firebaseConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || firebaseAppletConfig.apiKey || '').trim(),
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseAppletConfig.authDomain || '').trim(),
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || firebaseAppletConfig.projectId || '').trim(),
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseAppletConfig.storageBucket || '').trim(),
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseAppletConfig.messagingSenderId || '').trim(),
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID || firebaseAppletConfig.appId || '').trim(),
-  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || firebaseAppletConfig.measurementId || '').trim()
+  apiKey: (getEnv('VITE_FIREBASE_API_KEY') || firebaseAppletConfig.apiKey || '').trim(),
+  authDomain: (getEnv('VITE_FIREBASE_AUTH_DOMAIN') || firebaseAppletConfig.authDomain || '').trim(),
+  projectId: (getEnv('VITE_FIREBASE_PROJECT_ID') || firebaseAppletConfig.projectId || '').trim(),
+  storageBucket: (getEnv('VITE_FIREBASE_STORAGE_BUCKET') || firebaseAppletConfig.storageBucket || '').trim(),
+  messagingSenderId: (getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID') || firebaseAppletConfig.messagingSenderId || '').trim(),
+  appId: (getEnv('VITE_FIREBASE_APP_ID') || firebaseAppletConfig.appId || '').trim(),
+  measurementId: (getEnv('VITE_FIREBASE_MEASUREMENT_ID') || firebaseAppletConfig.measurementId || '').trim()
 };
 
 // Check if live API key is valid (not empty, not placeholder)

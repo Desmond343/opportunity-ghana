@@ -215,20 +215,35 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       // Upload new image if selected
       if (selectedImageFile) {
         setUploadProgress(0);
-        const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
-          finalResource.id,
-          selectedImageFile,
-          (pct) => setUploadProgress(pct)
-        );
-        newUploadedPath = uploadRes.imagePath;
-        finalResource.imageUrl = uploadRes.imageUrl;
-        finalResource.imagePath = uploadRes.imagePath;
+        try {
+          const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
+            finalResource.id,
+            selectedImageFile,
+            (pct) => setUploadProgress(pct)
+          );
+          newUploadedPath = uploadRes.imagePath;
+          finalResource.imageUrl = uploadRes.imageUrl;
+          finalResource.imagePath = uploadRes.imagePath;
+        } catch (imgErr: any) {
+          console.error('[Resource Form Image Upload Error]', imgErr);
+          setUploadError('Image upload failed. Please try again.');
+          return;
+        }
       } else if (isImageRemoved) {
         finalResource.imageUrl = undefined;
         finalResource.imagePath = undefined;
       }
 
-      await onSave(finalResource, targetStatus);
+      try {
+        await onSave(finalResource, targetStatus);
+      } catch (saveErr: any) {
+        console.error('[Resource Form Save Error]', saveErr);
+        if (newUploadedPath) {
+          await FirebaseStorageService.deleteFile(newUploadedPath);
+        }
+        setUploadError(saveErr?.message || 'The resource could not be published. Please try again.');
+        return;
+      }
 
       // Clean up previous image if replaced or removed
       if (selectedImageFile && currentImagePath && currentImagePath !== newUploadedPath) {
@@ -243,7 +258,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       if (newUploadedPath) {
         await FirebaseStorageService.deleteFile(newUploadedPath);
       }
-      setUploadError(err.message || 'The item could not be saved. Your existing photo has not been deleted.');
+      setUploadError(err.message || 'The resource could not be published. Please try again.');
     } finally {
       setSaving(false);
       setUploadProgress(null);

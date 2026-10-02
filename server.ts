@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
+import multer from 'multer';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
@@ -10,9 +11,57 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Middleware: Verify Firebase ID Token for Admin / Editor Custom Claims
+// Setup local uploads storage directory
+const uploadBaseDir = path.resolve(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadBaseDir)) {
+  fs.mkdirSync(uploadBaseDir, { recursive: true });
+}
+for (const sub of ['opportunities', 'resources', 'users', 'public']) {
+  const subDir = path.join(uploadBaseDir, sub);
+  if (!fs.existsSync(subDir)) {
+    fs.mkdirSync(subDir, { recursive: true });
+  }
+}
+
+// Serve uploaded static files directly
+app.use('/uploads', express.static(uploadBaseDir));
+
+const uploadDiskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const rawEntity = (req.body && req.body.entityType) || 'resources';
+    const safeEntity = ['opportunities', 'resources', 'users', 'public'].includes(rawEntity) ? rawEntity : 'resources';
+    const destDir = path.join(uploadBaseDir, safeEntity);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    cb(null, destDir);
+  },
+  filename: (req, file, cb) => {
+    const entityId = ((req.body && req.body.entityId) || 'file').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const ext = path.extname(file.originalname).toLowerCase() || '.webp';
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    cb(null, `${entityId}_${timestamp}_${random}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: uploadDiskStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid image type. Only JPG, PNG, and WebP images are allowed.'));
+    }
+  }
+});
+
+// Middleware: Verify Firebase ID Token for Admin / Editor (Custom Claims or Firestore user doc role)
 async function verifyAdminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -29,11 +78,28 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
   if (adminAuth) {
     try {
       const decoded = await adminAuth.verifyIdToken(token);
-      if (decoded.admin !== true && decoded.editor !== true) {
+      let isAuthorized = decoded.admin === true || decoded.editor === true;
+
+      if (!isAuthorized && adminDb) {
+        try {
+          const userDoc = await adminDb.collection('users').doc(decoded.uid).get();
+          if (userDoc.exists) {
+            const data = userDoc.data();
+            if (data?.role === 'admin' || data?.role === 'editor') {
+              isAuthorized = true;
+            }
+          }
+        } catch (docErr) {
+          console.debug('User role lookup note:', docErr);
+        }
+      }
+
+      if (!isAuthorized) {
         return res.status(403).json({
-          error: 'Forbidden: Insufficient privileges. Account does not possess administrator custom claims.'
+          error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.'
         });
       }
+
       (req as any).user = decoded;
       return next();
     } catch (err: any) {
@@ -47,6 +113,56 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
     error: 'Service unavailable: Authentication verification engine not ready.'
   });
 }
+
+// Photo Upload Route (Handles image uploads for opportunities, resources, users, public assets)
+app.post('/api/upload', (req, res) => {
+  upload.any()(req as any, res as any, (err: any) => {
+    if (err) {
+      console.warn('[Upload Error]', err.message);
+      return res.status(400).json({ success: false, error: err.message || 'File upload failed.' });
+    }
+    const uploadedFile = (req.files && (req.files as any[])[0]) || req.file;
+    if (!uploadedFile) {
+      return res.status(400).json({ success: false, error: 'No image file uploaded.' });
+    }
+
+    const rawEntity = (req.body && req.body.entityType) || 'resources';
+    const safeEntity = ['opportunities', 'resources', 'users', 'public'].includes(rawEntity) ? rawEntity : 'resources';
+    const filename = uploadedFile.filename;
+    const imageUrl = `/uploads/${safeEntity}/${filename}`;
+    const imagePath = `public/uploads/${safeEntity}/${filename}`;
+
+    console.info(`[Upload Success] Stored ${uploadedFile.size} bytes to ${imagePath}`);
+
+    return res.json({
+      success: true,
+      imageUrl,
+      imagePath,
+      filename,
+      size: uploadedFile.size,
+      mimetype: uploadedFile.mimetype
+    });
+  });
+});
+
+// Photo Delete Route
+app.delete('/api/upload', (req, res) => {
+  try {
+    const { imagePath } = req.body || {};
+    if (imagePath && typeof imagePath === 'string') {
+      const normalized = path.normalize(imagePath).replace(/^(\.\.(\/|\\|$))+/, '');
+      const fullPath = path.resolve(process.cwd(), normalized);
+      if (fullPath.startsWith(uploadBaseDir) && fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+        return res.json({ success: true, deleted: imagePath });
+      }
+    }
+    return res.json({ success: true, note: 'file_not_found_or_ignored' });
+  } catch (err: any) {
+    console.warn('[Delete Upload Notice]', err.message);
+    return res.json({ success: false, error: err.message });
+  }
+});
 
 // API Health & Firebase Status
 app.get('/api/health', async (req, res) => {
@@ -313,15 +429,58 @@ app.post('/api/resources', verifyAdminAuth, async (req, res) => {
     return res.status(400).json({ error: 'Resource object with id is required' });
   }
 
+  // Normalize image data to clean string primitives
+  if (item.imageUrl && typeof item.imageUrl === 'object') {
+    item.imageUrl = item.imageUrl.url || item.imageUrl.imageUrl || item.imageUrl.src;
+  }
+  if (!item.imageUrl && item.image) {
+    item.imageUrl = typeof item.image === 'string' ? item.image : (item.image.url || item.image.imageUrl || item.image.src);
+  }
+  delete item.image;
+  delete item.coverImage;
+
   if (adminDb && isInitialized) {
     try {
       await adminDb.collection('resources').doc(item.id).set(item, { merge: true });
       return res.json({ success: true, resource: item });
     } catch (e: any) {
       console.warn('Could not persist resource to Firestore Admin:', e.message);
+      return res.status(500).json({ error: `Persistence error: ${e.message}` });
     }
   }
   return res.json({ success: true, resource: item, note: 'persisted_locally' });
+});
+
+// Explicit Publish Resource Route (Admin only)
+app.post('/api/resources/:id/publish', verifyAdminAuth, async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body || {};
+
+  const now = new Date().toISOString();
+  const publishPayload: Record<string, any> = {
+    ...updates,
+    status: 'published',
+    verificationStatus: 'verified',
+    publishedAt: updates.publishedAt || now,
+    updatedAt: now
+  };
+
+  if (publishPayload.imageUrl && typeof publishPayload.imageUrl === 'object') {
+    publishPayload.imageUrl = publishPayload.imageUrl.url || publishPayload.imageUrl.imageUrl || publishPayload.imageUrl.src;
+  }
+  delete publishPayload.image;
+  delete publishPayload.coverImage;
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('resources').doc(id).set(publishPayload, { merge: true });
+      return res.json({ success: true, id, status: 'published', publishedAt: publishPayload.publishedAt });
+    } catch (e: any) {
+      console.error('Firestore admin publish error:', e.message);
+      return res.status(500).json({ error: `Could not publish resource: ${e.message}` });
+    }
+  }
+  return res.json({ success: true, id, status: 'published', note: 'published_locally' });
 });
 
 // Delete resource (Admin only)

@@ -74,13 +74,14 @@ service cloud.firestore {
     match /resources/{resourceId} {
       allow read: if resource.data.status == 'published' ||
                      isAdminOrEditor() ||
-                     (isAuthenticated() && resource.data.createdByUserId == request.auth.uid);
+                     (isAuthenticated() && (
+                       resource.data.createdByUserId == request.auth.uid ||
+                       resource.data.submittedBy == request.auth.uid
+                     ));
       allow create: if isAdminOrEditor() || (
         isAuthenticated() &&
-        request.resource.data.status == 'pending_review' &&
-        request.resource.data.submissionStatus == 'pending' &&
-        request.resource.data.isUserSubmitted == true &&
-        request.resource.data.createdByUserId == request.auth.uid
+        (request.resource.data.status == 'pending_review' || request.resource.data.status == 'pending') &&
+        (request.resource.data.createdByUserId == request.auth.uid || request.resource.data.submittedBy == request.auth.uid)
       );
       allow update, delete: if isAdminOrEditor();
     }

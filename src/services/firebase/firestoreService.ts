@@ -15,7 +15,8 @@ function createFirestoreInstance(): Firestore | null {
   try {
     return initializeFirestore(app, {
       experimentalAutoDetectLongPolling: true,
-      experimentalForceLongPolling: true
+      experimentalForceLongPolling: true,
+      ignoreUndefinedProperties: true
     });
   } catch {
     try {
