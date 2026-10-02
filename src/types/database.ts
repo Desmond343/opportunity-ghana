@@ -67,10 +67,14 @@ export interface Opportunity {
   subcategory?: string;
   opportunityType: string; // e.g. "Full-time", "Partial Scholarship", "Undergraduate", "Remote"
   location: string; // e.g. "Accra, Ghana", "Kumasi, Ghana", "Remote"
+  locationType?: 'ghana' | 'abroad' | 'online' | string;
   country: string;
+  destinationCountry?: string;
   region: string; // e.g. "Greater Accra", "Ashanti", "Western", "Northern"
   
   // Eligibility
+  eligibleCountries?: string[];
+  isGhanaEligible?: boolean;
   educationLevel?: string; // e.g. "Undergraduate", "Masters", "SHS Graduate", "Any"
   fieldOfStudy?: string;
   experienceLevel?: string; // e.g. "Entry Level", "Mid Level", "Student"
@@ -78,7 +82,8 @@ export interface Opportunity {
   nationality?: string; // e.g. "Ghanaian citizens only", "All nationalities"
   
   // Benefits
-  fundingType?: string; // e.g. "Fully Funded", "Tuition Only", "Paid", "Unpaid Stipend"
+  fundingType?: string; // e.g. "Fully Funded", "Tuition Only", "Paid", "Unpaid Stipend", "Grant"
+  fundingAmount?: string;
   funding?: string;
   tuition?: string;
   accommodation?: string;
@@ -102,6 +107,8 @@ export interface Opportunity {
   applicationMethod: 'online_form' | 'email' | 'external_portal' | 'in_person';
   applicationInstructions?: string;
   deadline: string; // ISO date string or formatted date
+  deadlineAt?: string; // Optional precise timestamp
+  deadlineTimezone?: string; // e.g. 'GMT', 'UTC', 'Africa/Accra'
   openingDate?: string;
   academicYear?: string;
   studyLevel?: string;

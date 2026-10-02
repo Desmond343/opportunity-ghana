@@ -9,6 +9,7 @@ import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { SubmitResourcePage } from './pages/SubmitResourcePage';
+import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { CareersPage } from './pages/CareersPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';
@@ -77,7 +78,7 @@ export function AppContent() {
       return <OpportunityDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    // 2. Opportunities Directory: /opportunities
+    // 3. Opportunities Directory: /opportunities
     if (currentPath === '/opportunities') {
       const searchParams = new URLSearchParams(window.location.search);
       const category = searchParams.get('category') || 'All';

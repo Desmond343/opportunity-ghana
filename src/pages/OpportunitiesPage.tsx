@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Opportunity } from '../types/database';
 import { OpportunitiesService, OpportunityFilters } from '../services/opportunitiesService';
+import { calculateDeadlineInfo } from '../services/deadlineService';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { SearchBar } from '../components/common/SearchBar';
 import { FilterPanel } from '../components/common/FilterPanel';
@@ -43,7 +44,21 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
 
         // Apply in-memory sort
         if (sortBy === 'deadline') {
-          results.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+          results.sort((a, b) => {
+            const infoA = calculateDeadlineInfo(a.deadline);
+            const infoB = calculateDeadlineInfo(b.deadline);
+
+            // Active open deadlines come first
+            if (infoA.isClosed !== infoB.isClosed) {
+              return infoA.isClosed ? 1 : -1;
+            }
+            // Definite deadlines before rolling basis
+            if ((infoA.status === 'rolling') !== (infoB.status === 'rolling')) {
+              return infoA.status === 'rolling' ? 1 : -1;
+            }
+            // Sort ascending by remaining milliseconds
+            return infoA.diffMs - infoB.diffMs;
+          });
         } else {
           results.sort((a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime());
         }

@@ -96,35 +96,190 @@ export const AdminService = {
     }
   },
 
-  getSubmissions(): Submission[] {
+  getSubmissions(filters?: {
+    status?: string;
+    type?: string;
+    category?: string;
+    dateRange?: string;
+    search?: string;
+  }): Submission[] {
+    let list: Submission[] = [];
     try {
       const raw = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          return parsed.filter(s => s && s.id && !s.id.startsWith('sub-0'));
+          list = parsed.filter(s => s && s.id && !s.id.startsWith('sub-0'));
         }
       }
     } catch (e) {
       console.error(e);
     }
-    return [];
+
+    if (filters) {
+      if (filters.status && filters.status !== 'all') {
+        list = list.filter(s => s.status === filters.status);
+      }
+      if (filters.type && filters.type !== 'all') {
+        list = list.filter(s => s.type === filters.type);
+      }
+      if (filters.category && filters.category !== 'all') {
+        const cat = filters.category.toLowerCase();
+        list = list.filter(s => (s.category && s.category.toLowerCase() === cat) || (s.data?.category && s.data.category.toLowerCase() === cat));
+      }
+      if (filters.search && filters.search.trim()) {
+        const q = filters.search.toLowerCase().trim();
+        list = list.filter(s =>
+          s.title?.toLowerCase().includes(q) ||
+          s.submittedByName?.toLowerCase().includes(q) ||
+          s.submittedByEmail?.toLowerCase().includes(q) ||
+          s.organizationName?.toLowerCase().includes(q)
+        );
+      }
+      if (filters.dateRange && filters.dateRange !== 'all') {
+        const now = Date.now();
+        list = list.filter(s => {
+          const date = new Date(s.createdAt).getTime();
+          if (isNaN(date)) return true;
+          const diffHours = (now - date) / (1000 * 60 * 60);
+          if (filters.dateRange === 'today') return diffHours <= 24;
+          if (filters.dateRange === 'week') return diffHours <= 168;
+          if (filters.dateRange === 'month') return diffHours <= 720;
+          return true;
+        });
+      }
+    }
+
+    // Sort: Pending first, then newest
+    return list.sort((a, b) => {
+      if (a.status === 'pending' && b.status !== 'pending') return -1;
+      if (a.status !== 'pending' && b.status === 'pending') return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   },
 
   async loadSubmissionsFromFirestore(): Promise<Submission[]> {
+    let list: Submission[] = [];
     if (isFirebaseConfigured && db) {
       try {
         const snap = await getDocs(collection(db, 'submissions'));
-        const list = snap.docs
+        list = snap.docs
           .map(d => ({ id: d.id, ...d.data() } as Submission))
           .filter(s => !s.id.startsWith('sub-0'));
-        localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(list));
-        return list;
       } catch (err) {
         console.warn('Firestore loadSubmissions error:', err);
       }
     }
-    return this.getSubmissions();
+
+    if (list.length === 0) {
+      list = this.getSubmissions();
+    }
+
+    // Sync any user-submitted opportunities that might have been submitted directly
+    try {
+      const opps = await OpportunitiesService.getAll({ includeUnpublished: true });
+      const userOpps = opps.filter(o => o.isUserSubmitted);
+      for (const opp of userOpps) {
+        const subId = `sub_${opp.id}`;
+        const existingIdx = list.findIndex(s => s.id === subId || s.data?.id === opp.id);
+        const subStatus: 'pending' | 'approved' | 'rejected' =
+          opp.submissionStatus === 'approved' || opp.status === 'published'
+            ? 'approved'
+            : opp.submissionStatus === 'rejected'
+            ? 'rejected'
+            : 'pending';
+
+        const subItem: Submission = {
+          id: subId,
+          type: 'opportunity',
+          title: opp.title,
+          organizationName: opp.organizationName || 'Community Contributor',
+          category: opp.category,
+          location: opp.location,
+          submittedByEmail: opp.createdByEmail || opp.submittedByEmail || 'user@opportunityghana.com',
+          submittedByName: opp.createdByName || opp.submittedByName || 'Community Contributor',
+          submittedByUserId: opp.createdByUserId || opp.submittedByUserId,
+          data: opp,
+          status: subStatus,
+          reviewedBy: opp.reviewedBy,
+          reviewedByEmail: opp.reviewedByEmail,
+          reviewedAt: opp.reviewedAt,
+          publishedAt: opp.publishedAt,
+          rejectionReason: opp.rejectionReason,
+          createdAt: opp.submittedAt || opp.createdAt,
+          updatedAt: opp.updatedAt
+        };
+
+        if (existingIdx >= 0) {
+          list[existingIdx] = { ...list[existingIdx], ...subItem };
+        } else {
+          list.unshift(subItem);
+        }
+      }
+
+      // Sync any user-submitted resources
+      const resources = await ResourcesService.getAll({ includeUnpublished: true });
+      const userResources = resources.filter(r => r.isUserSubmitted);
+      for (const res of userResources) {
+        const subId = `sub_${res.id}`;
+        const existingIdx = list.findIndex(s => s.id === subId || s.data?.id === res.id);
+        const subStatus: 'pending' | 'approved' | 'rejected' =
+          res.submissionStatus === 'approved' || res.status === 'published'
+            ? 'approved'
+            : res.submissionStatus === 'rejected'
+            ? 'rejected'
+            : 'pending';
+
+        const subItem: Submission = {
+          id: subId,
+          type: 'resource',
+          title: res.title,
+          organizationName: res.providerName || 'Community Contributor',
+          category: res.category,
+          location: res.location,
+          submittedByEmail: res.createdByEmail || 'user@opportunityghana.com',
+          submittedByName: res.createdByName || 'Community Contributor',
+          submittedByUserId: res.createdByUserId,
+          data: res,
+          status: subStatus,
+          reviewedBy: res.lastEditedByName,
+          reviewedByEmail: res.verifiedByEmail,
+          reviewedAt: res.lastVerifiedAt,
+          publishedAt: res.publishedAt,
+          rejectionReason: res.rejectionReason,
+          createdAt: res.submittedAt || res.createdAt,
+          updatedAt: res.updatedAt
+        };
+
+        if (existingIdx >= 0) {
+          list[existingIdx] = { ...list[existingIdx], ...subItem };
+        } else {
+          list.unshift(subItem);
+        }
+      }
+    } catch (e) {
+      console.warn('Error syncing submissions from entity stores:', e);
+    }
+
+    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(list));
+    return list;
+  },
+
+  saveSubmission(sub: Submission) {
+    const list = this.getSubmissions();
+    const idx = list.findIndex(s => s.id === sub.id);
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...sub, updatedAt: new Date().toISOString() };
+    } else {
+      list.unshift({ ...sub, createdAt: sub.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() });
+    }
+    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(list));
+
+    if (isFirebaseConfigured && db) {
+      setDoc(doc(db, 'submissions', sub.id), sub, { merge: true }).catch(err =>
+        console.warn('Firestore saveSubmission error:', err)
+      );
+    }
   },
 
   updateSubmissionStatus(id: string, status: 'approved' | 'rejected', notes?: string) {
@@ -144,6 +299,156 @@ export const AdminService = {
         }).catch(err => console.warn('Firestore updateSubmission error:', err));
       }
     }
+  },
+
+  async updateSubmissionData(id: string, updatedData: Partial<Opportunity | Resource>): Promise<void> {
+    const list = this.getSubmissions();
+    const idx = list.findIndex(s => s.id === id);
+    if (idx >= 0) {
+      list[idx].data = { ...list[idx].data, ...updatedData };
+      if ((updatedData as any).title) list[idx].title = (updatedData as any).title;
+      if ((updatedData as any).organizationName) list[idx].organizationName = (updatedData as any).organizationName;
+      if ((updatedData as any).category) list[idx].category = (updatedData as any).category;
+      if ((updatedData as any).location) list[idx].location = (updatedData as any).location;
+      list[idx].updatedAt = new Date().toISOString();
+      localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(list));
+
+      if (isFirebaseConfigured && db) {
+        await updateDoc(doc(db, 'submissions', id), {
+          data: list[idx].data,
+          title: list[idx].title,
+          updatedAt: list[idx].updatedAt
+        }).catch(err => console.warn('Firestore updateSubmissionData error:', err));
+      }
+    }
+  },
+
+  async approveSubmission(
+    id: string,
+    adminUser: { email: string; name: string },
+    editedData?: Partial<Opportunity | Resource>
+  ): Promise<{ success: boolean; error?: string; opportunity?: Opportunity; resource?: Resource }> {
+    const submissions = await this.loadSubmissionsFromFirestore();
+    const sub = submissions.find(s => s.id === id);
+    if (!sub) {
+      return { success: false, error: 'Submission record not found in system.' };
+    }
+
+    const now = new Date().toISOString();
+    const mergedData = { ...(sub.data || {}), ...(editedData || {}) };
+
+    if (sub.type === 'opportunity') {
+      const oppData = mergedData as Opportunity;
+      if (!oppData.title?.trim()) {
+        return { success: false, error: 'Opportunity title is required to approve & publish.' };
+      }
+      if (!oppData.category) {
+        return { success: false, error: 'Opportunity category is required.' };
+      }
+      if (!oppData.applicationUrl?.trim()) {
+        return { success: false, error: 'Valid application URL is required.' };
+      }
+
+      // Publish the opportunity
+      const publishedOpp = await OpportunitiesService.reviewOpportunitySubmission(
+        oppData.id,
+        'approved',
+        adminUser,
+        undefined,
+        oppData
+      );
+
+      // Update submission record
+      sub.status = 'approved';
+      sub.reviewedAt = now;
+      sub.reviewedBy = adminUser.name;
+      sub.reviewedByEmail = adminUser.email;
+      sub.publishedAt = now;
+      sub.data = publishedOpp || oppData;
+      this.saveSubmission(sub);
+
+      return { success: true, opportunity: publishedOpp || oppData };
+    } else if (sub.type === 'resource') {
+      const resData = mergedData as Resource;
+      if (!resData.title?.trim()) {
+        return { success: false, error: 'Resource title is required to approve & publish.' };
+      }
+      if (!resData.enrollmentUrl?.trim()) {
+        return { success: false, error: 'Valid enrollment URL is required.' };
+      }
+
+      await ResourcesService.reviewResourceSubmission(
+        resData.id,
+        'approved',
+        adminUser
+      );
+
+      sub.status = 'approved';
+      sub.reviewedAt = now;
+      sub.reviewedBy = adminUser.name;
+      sub.reviewedByEmail = adminUser.email;
+      sub.publishedAt = now;
+      sub.data = {
+        ...resData,
+        status: 'published',
+        verificationStatus: 'verified',
+        publishedAt: now
+      };
+      this.saveSubmission(sub);
+
+      return { success: true, resource: sub.data as Resource };
+    }
+
+    return { success: false, error: 'Unsupported submission type.' };
+  },
+
+  async rejectSubmission(
+    id: string,
+    rejectionReason: string,
+    adminUser: { email: string; name: string }
+  ): Promise<{ success: boolean; error?: string }> {
+    const submissions = await this.loadSubmissionsFromFirestore();
+    const sub = submissions.find(s => s.id === id);
+    if (!sub) {
+      return { success: false, error: 'Submission record not found in system.' };
+    }
+
+    const now = new Date().toISOString();
+    const reasonText = rejectionReason.trim() || 'Declined during editorial verification review.';
+
+    if (sub.type === 'opportunity' && sub.data?.id) {
+      await OpportunitiesService.reviewOpportunitySubmission(
+        sub.data.id,
+        'rejected',
+        adminUser,
+        reasonText
+      );
+    } else if (sub.type === 'resource' && sub.data?.id) {
+      await ResourcesService.reviewResourceSubmission(
+        sub.data.id,
+        'rejected',
+        adminUser,
+        reasonText
+      );
+    }
+
+    sub.status = 'rejected';
+    sub.rejectionReason = reasonText;
+    sub.reviewedAt = now;
+    sub.reviewedBy = adminUser.name;
+    sub.reviewedByEmail = adminUser.email;
+    if (sub.data) {
+      sub.data.status = 'draft';
+      (sub.data as any).submissionStatus = 'rejected';
+      (sub.data as any).rejectionReason = reasonText;
+    }
+    this.saveSubmission(sub);
+
+    return { success: true };
+  },
+
+  getPendingSubmissionsCount(): number {
+    return this.getSubmissions().filter(s => s.status === 'pending').length;
   },
 
   getReports(): ContentReport[] {

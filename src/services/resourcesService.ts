@@ -304,6 +304,43 @@ export const ResourcesService = {
       }
     }
 
+    // Mirror to unified submissions store
+    try {
+      const rawSub = localStorage.getItem('opp_gh_submissions_store');
+      let subList: any[] = [];
+      if (rawSub) {
+        try { subList = JSON.parse(rawSub) || []; } catch {}
+      }
+      const submissionRecord = {
+        id: 'sub_' + newResource.id,
+        type: 'resource',
+        title: newResource.title,
+        organizationName: newResource.providerName || 'Community Submitter',
+        submittedByEmail: user.email,
+        submittedByName: user.name,
+        submittedByUserId: user.uid,
+        category: newResource.category,
+        location: newResource.location,
+        data: newResource,
+        status: 'pending',
+        createdAt: now,
+        updatedAt: now
+      };
+      const existingIdx = subList.findIndex((s: any) => s.id === submissionRecord.id);
+      if (existingIdx >= 0) {
+        subList[existingIdx] = submissionRecord;
+      } else {
+        subList.unshift(submissionRecord);
+      }
+      localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
+
+      if (isFirebaseConfigured && db) {
+        setDoc(doc(db, 'submissions', submissionRecord.id), submissionRecord, { merge: true }).catch(() => {});
+      }
+    } catch (e) {
+      console.warn('Failed to mirror resource to submissions store:', e);
+    }
+
     AuditService.log({
       entityType: 'resource',
       entityId: newResource.id,
@@ -372,6 +409,40 @@ export const ResourcesService = {
       } catch (err) {
         console.warn('Firestore reviewResourceSubmission error:', err);
       }
+    }
+
+    // Mirror to submissions store
+    try {
+      const rawSub = localStorage.getItem('opp_gh_submissions_store');
+      if (rawSub) {
+        const subList = JSON.parse(rawSub) || [];
+        const sIdx = subList.findIndex((s: any) => s.id === `sub_${id}` || s.data?.id === id);
+        if (sIdx >= 0) {
+          subList[sIdx].status = isApproval ? 'approved' : 'rejected';
+          subList[sIdx].reviewedAt = now;
+          subList[sIdx].reviewedBy = admin.name;
+          subList[sIdx].reviewedByEmail = admin.email;
+          if (isApproval) subList[sIdx].publishedAt = now;
+          if (decision === 'rejected') subList[sIdx].rejectionReason = notes;
+          subList[sIdx].data = updated;
+          localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
+
+          if (isFirebaseConfigured && db) {
+            updateDoc(doc(db, 'submissions', subList[sIdx].id), {
+              status: isApproval ? 'approved' : 'rejected',
+              reviewedAt: now,
+              reviewedBy: admin.name,
+              reviewedByEmail: admin.email,
+              publishedAt: isApproval ? now : null,
+              rejectionReason: decision === 'rejected' ? (notes || '') : null,
+              data: updated,
+              updatedAt: now
+            }).catch(() => {});
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Mirroring resource review to submission store error:', e);
     }
 
     AuditService.log({

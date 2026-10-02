@@ -85,10 +85,38 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
         </div>
 
+        {/* Location Scope (Ghana vs Abroad vs Online) */}
+        <div className="py-4">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+            Location Scope
+          </label>
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
+            {[
+              { id: 'all', label: 'All Locations' },
+              { id: 'ghana', label: '🇬🇭 In Ghana' },
+              { id: 'abroad', label: '🌍 Abroad' },
+              { id: 'online', label: '💻 Online / Remote' }
+            ].map(loc => (
+              <button
+                key={loc.id}
+                type="button"
+                onClick={() => onFilterChange({ ...filters, locationType: loc.id === 'all' ? undefined : loc.id })}
+                className={`px-2 py-1.5 rounded-lg font-medium text-left transition-all ${
+                  (filters.locationType === loc.id || (!filters.locationType && loc.id === 'all'))
+                    ? 'bg-[#006B3F] text-white font-bold'
+                    : 'bg-[#F7F9F8] text-slate-700 hover:bg-[#E6F0EB]'
+                }`}
+              >
+                {loc.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Region Filter */}
         <div className="py-4">
           <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
-            Location / Region
+            Ghana Region
           </label>
           <select
             value={filters.region || 'All Ghana'}
@@ -103,22 +131,55 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </select>
         </div>
 
-        {/* Education Level */}
+        {/* Funding Type Filter */}
         <div className="py-4">
           <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
-            Education Level
+            Funding Type
           </label>
           <select
-            value={filters.educationLevel || 'All Education Levels'}
-            onChange={(e) => onFilterChange({ ...filters, educationLevel: e.target.value })}
+            value={filters.fundingType || 'All'}
+            onChange={(e) => onFilterChange({ ...filters, fundingType: e.target.value === 'All' ? undefined : e.target.value })}
             className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
           >
-            {EDUCATION_LEVELS.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
+            <option value="All">All Funding Types</option>
+            <option value="Fully Funded">Fully Funded (100% Coverage)</option>
+            <option value="Partially Funded">Partially Funded</option>
+            <option value="Grant">Direct Grants & Seed Capital</option>
+            <option value="Tuition Only">Tuition Only</option>
+            <option value="Stipend">Stipend / Living Allowance</option>
           </select>
+        </div>
+
+        {/* Study Level Filter */}
+        <div className="py-4">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+            Study / Target Level
+          </label>
+          <select
+            value={filters.studyLevel || 'All'}
+            onChange={(e) => onFilterChange({ ...filters, studyLevel: e.target.value === 'All' ? undefined : e.target.value })}
+            className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
+          >
+            <option value="All">All Study Levels</option>
+            <option value="Undergraduate">Undergraduate (BSc, BA, WASSCE)</option>
+            <option value="Master's">Master's (MSc, MA, MBA, MPhil)</option>
+            <option value="PhD">PhD / Doctoral</option>
+            <option value="Fellowship">Fellowship & Leadership</option>
+            <option value="Research">Research & Postdoctoral</option>
+          </select>
+        </div>
+
+        {/* Ghanaian Eligibility Toggle */}
+        <div className="py-4">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#006B3F]">
+            <input
+              type="checkbox"
+              checked={filters.isGhanaEligible || false}
+              onChange={(e) => onFilterChange({ ...filters, isGhanaEligible: e.target.checked ? true : undefined })}
+              className="rounded text-[#006B3F] focus:ring-[#006B3F] w-4 h-4"
+            />
+            <span>🇬🇭 Eligible for Ghanaians Only</span>
+          </label>
         </div>
 
         {/* Verification Status */}

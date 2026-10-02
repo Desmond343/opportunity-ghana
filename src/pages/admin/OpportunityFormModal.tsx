@@ -5,6 +5,7 @@ import { detectDuplicates } from '../../services/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { ImageUploadField } from '../../components/common/ImageUploadField';
 import { FirebaseStorageService } from '../../services/firebase/storageService';
+import { calculateDeadlineInfo } from '../../services/deadlineService';
 import {
   X,
   Check,
@@ -75,6 +76,7 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
   const [applicationMethod, setApplicationMethod] = useState<'online_form' | 'email' | 'external_portal' | 'in_person'>('online_form');
   const [documentsRequiredString, setDocumentsRequiredString] = useState('Curriculum Vitae (CV), Transcripts, Recommendation Letter');
   const [deadline, setDeadline] = useState('');
+  const [deadlineTime, setDeadlineTime] = useState('23:59');
 
   // Verification
   const [sourceUrl, setSourceUrl] = useState('https://');
@@ -136,7 +138,19 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
       setApplicationUrl(opportunityToEdit.applicationUrl || 'https://');
       setApplicationMethod(opportunityToEdit.applicationMethod || 'online_form');
       setDocumentsRequiredString(opportunityToEdit.documentsRequired?.join(', ') || '');
-      setDeadline(opportunityToEdit.deadline ? opportunityToEdit.deadline.split('T')[0] : '');
+      if (opportunityToEdit.deadline) {
+        if (opportunityToEdit.deadline.includes('T')) {
+          const [dPart, tPart] = opportunityToEdit.deadline.split('T');
+          setDeadline(dPart);
+          setDeadlineTime(tPart.replace('Z', '').substring(0, 5) || '23:59');
+        } else {
+          setDeadline(opportunityToEdit.deadline);
+          setDeadlineTime('23:59');
+        }
+      } else {
+        setDeadline('');
+        setDeadlineTime('23:59');
+      }
 
       setSourceUrl(opportunityToEdit.sourceUrl || 'https://');
       setVerificationStatus(opportunityToEdit.verificationStatus || 'verified');
@@ -231,7 +245,8 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-    const formattedDeadline = deadline ? (deadline.includes('T') ? deadline : `${deadline}T23:59:59Z`) : '';
+    const timeToUse = deadlineTime ? (deadlineTime.length === 5 ? `${deadlineTime}:00` : deadlineTime) : '23:59:59';
+    const formattedDeadline = deadline ? (deadline.includes('T') ? deadline : `${deadline}T${timeToUse}Z`) : '';
 
     return {
       id: opportunityToEdit?.id || 'opp_' + Math.random().toString(36).substring(2, 9),
@@ -841,6 +856,61 @@ export const OpportunityFormModal: React.FC<OpportunityFormModalProps> = ({
                       className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden font-medium"
                     />
                   </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                      <span>Closing Time (GMT)</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Default: End of Day</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={deadlineTime}
+                      onChange={(e) => setDeadlineTime(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-emerald-600 outline-hidden font-medium font-mono"
+                    />
+                  </div>
+
+                  {/* Dynamic Real-time Deadline Preview Card */}
+                  {deadline && (() => {
+                    const previewStr = `${deadline}T${deadlineTime || '23:59'}:00Z`;
+                    const info = calculateDeadlineInfo(previewStr);
+                    return (
+                      <div className="md:col-span-2">
+                        <div
+                          className={`p-3 rounded-xl border text-xs ${
+                            info.isClosed
+                              ? 'bg-rose-50 border-rose-200 text-rose-800'
+                              : info.isToday
+                              ? 'bg-amber-50 border-amber-300 text-amber-900 ring-1 ring-amber-300'
+                              : info.isClosingSoon
+                              ? 'bg-amber-50/70 border-amber-200 text-amber-800'
+                              : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 font-bold">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 shrink-0" />
+                              <span>Calculated: {info.label}</span>
+                            </span>
+                            <span className="uppercase text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-white border border-slate-200 shadow-2xs">
+                              {info.status.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-[11px] mt-1 leading-relaxed opacity-90">
+                            {info.isClosed ? (
+                              <span>
+                                ⚠️ <strong>Past Deadline:</strong> This date is in the past. If published, the system will automatically display this opportunity as closed.
+                              </span>
+                            ) : (
+                              <span>
+                                Applications close on <strong>{info.formattedDeadline}</strong>. Days remaining is dynamically computed daily — no manual admin updates needed.
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   <div className="space-y-1 md:col-span-2">
                     <label className="text-xs font-bold text-slate-700">

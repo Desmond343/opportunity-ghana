@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-tef" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CE1126"/>
+      <stop offset="50%" stop-color="#991B1B"/>
+      <stop offset="100%" stop-color="#450A0A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-tef)"/>
+  <circle cx="720" cy="90" r="150" fill="#FCD116" opacity="0.1"/>
+  
+  <g transform="translate(60, 60)">
+    <rect x="0" y="0" width="190" height="34" rx="8" fill="#FCD116" opacity="0.95"/>
+    <text x="95" y="22" font-family="system-ui, sans-serif" font-size="12" font-weight="800" fill="#111111" text-anchor="middle" letter-spacing="1.5">SEED CAPITAL GRANT</text>
+    
+    <text x="0" y="110" font-family="system-ui, sans-serif" font-size="34" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">Tony Elumelu Foundation Grant</text>
+    <text x="0" y="150" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#FCD116">$5,000 Non-Refundable Seed Capital</text>
+    
+    <text x="0" y="210" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#E2E8F0">Pan-African Entrepreneurship Grant + 12-Week World-Class Training</text>
+    <text x="0" y="235" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#CBD5E1">Eligible: Ghanaian student entrepreneurs &amp; early-stage founders</text>
+    
+    <g transform="translate(0, 270)">
+      <rect x="0" y="0" width="160" height="32" rx="16" fill="#006B3F" opacity="0.9"/>
+      <text x="80" y="20" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">$5,000 Seed Grant</text>
+      
+      <rect x="170" y="0" width="170" height="32" rx="16" fill="#FFFFFF" opacity="0.15"/>
+      <text x="255" y="20" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">Ghana &amp; Pan-Africa</text>
+      
+      <rect x="350" y="0" width="170" height="32" rx="16" fill="#FFFFFF" opacity="0.15"/>
+      <text x="435" y="20" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">TEFConnect Portal</text>
+    </g>
+  </g>
+</svg>

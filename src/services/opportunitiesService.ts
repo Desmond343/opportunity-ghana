@@ -2,7 +2,7 @@ import { Opportunity, OpportunityStatus, VerificationStatus } from '../types/dat
 import { db, isFirebaseConfigured } from './firebase';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
-import { isOpportunityActuallyClosed } from './deadlineService';
+import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
 import { detectDuplicates } from './duplicateDetection';
 import { 
@@ -101,10 +101,13 @@ export interface OpportunityFilters {
   category?: string;
   search?: string;
   region?: string;
+  locationType?: 'all' | 'ghana' | 'abroad' | 'online' | string;
+  destinationCountry?: string;
   opportunityType?: string;
   educationLevel?: string;
   studyLevel?: string;
   fundingType?: string;
+  isGhanaEligible?: boolean;
   status?: OpportunityStatus;
   verificationStatus?: VerificationStatus;
   onlyActive?: boolean;
@@ -171,10 +174,51 @@ export const OpportunitiesService = {
         items = items.filter(o => o.verificationStatus === filters.verificationStatus);
       }
       if (filters.category && filters.category !== 'All') {
-        items = items.filter(o => o.category.toLowerCase() === filters.category!.toLowerCase());
+        const catQuery = filters.category.toLowerCase();
+        items = items.filter(o => {
+          if (o.category.toLowerCase() === catQuery) return true;
+          // Support searching 'Study Abroad' to include international study abroad programs
+          if (catQuery === 'study abroad') {
+            return o.category.toLowerCase() === 'study abroad' ||
+              (o.locationType === 'abroad') ||
+              (o.category.toLowerCase() === 'scholarships' && o.country && o.country.toLowerCase() !== 'ghana');
+          }
+          return false;
+        });
       }
       if (filters.region && filters.region !== 'All Regions' && filters.region !== 'All Ghana') {
         items = items.filter(o => o.region?.toLowerCase() === filters.region!.toLowerCase());
+      }
+      if (filters.locationType && filters.locationType !== 'all') {
+        const locType = filters.locationType.toLowerCase();
+        items = items.filter(o => {
+          if (locType === 'ghana') {
+            return o.locationType === 'ghana' || (!o.locationType && o.country?.toLowerCase() === 'ghana');
+          }
+          if (locType === 'abroad') {
+            return o.locationType === 'abroad' || (!o.locationType && o.country && o.country.toLowerCase() !== 'ghana');
+          }
+          if (locType === 'online') {
+            return o.locationType === 'online' || o.location?.toLowerCase().includes('online') || o.opportunityType?.toLowerCase().includes('remote');
+          }
+          return true;
+        });
+      }
+      if (filters.destinationCountry && filters.destinationCountry !== 'All') {
+        const dCountry = filters.destinationCountry.toLowerCase();
+        items = items.filter(o =>
+          (o.destinationCountry && o.destinationCountry.toLowerCase().includes(dCountry)) ||
+          (o.country && o.country.toLowerCase().includes(dCountry))
+        );
+      }
+      if (filters.isGhanaEligible) {
+        items = items.filter(o =>
+          o.isGhanaEligible !== false && (
+            o.isGhanaEligible === true ||
+            o.nationality?.toLowerCase().includes('ghana') ||
+            (o.eligibleCountries && o.eligibleCountries.some(c => c.toLowerCase().includes('ghana')))
+          )
+        );
       }
       if (filters.opportunityType && filters.opportunityType !== 'All') {
         items = items.filter(o => o.opportunityType?.toLowerCase().includes(filters.opportunityType!.toLowerCase()));
@@ -193,22 +237,42 @@ export const OpportunitiesService = {
         );
       }
       if (filters.fundingType && filters.fundingType !== 'All') {
+        const fType = filters.fundingType.toLowerCase();
         items = items.filter(o =>
-          (o.fundingType && o.fundingType.toLowerCase().includes(filters.fundingType!.toLowerCase()))
+          o.fundingType && o.fundingType.toLowerCase().includes(fType)
         );
       }
       if (filters.onlyActive) {
         items = items.filter(o => o.status === 'published' && !isOpportunityActuallyClosed(o.status, o.deadline));
       }
       if (filters.search && filters.search.trim().length > 0) {
-        const q = filters.search.toLowerCase().trim();
-        items = items.filter(o =>
-          o.title.toLowerCase().includes(q) ||
-          o.description.toLowerCase().includes(q) ||
-          (o.organizationName && o.organizationName.toLowerCase().includes(q)) ||
-          o.category.toLowerCase().includes(q) ||
-          (o.location && o.location.toLowerCase().includes(q))
-        );
+        const rawQ = filters.search.toLowerCase().trim();
+        // Split into tokens for multi-term matching (e.g. "scholarships for Ghanaian students")
+        const tokens = rawQ.split(/\s+/).filter(t => t.length > 2 && !['for', 'the', 'and', 'with', 'from'].includes(t));
+        
+        items = items.filter(o => {
+          const searchable = [
+            o.title,
+            o.description,
+            o.organizationName || '',
+            o.category,
+            o.location || '',
+            o.country || '',
+            o.destinationCountry || '',
+            o.nationality || '',
+            o.fieldOfStudy || '',
+            o.fundingType || '',
+            o.studyLevel || ''
+          ].join(' ').toLowerCase();
+
+          // If exact match
+          if (searchable.includes(rawQ)) return true;
+          // Or all significant tokens match
+          if (tokens.length > 0) {
+            return tokens.every(token => searchable.includes(token));
+          }
+          return false;
+        });
       }
     }
 
@@ -572,8 +636,10 @@ export const OpportunitiesService = {
   async getClosingSoon(limit: number = 4): Promise<Opportunity[]> {
     const items = await this.getAll({ onlyActive: true });
     return items
-      .filter(o => o.deadline)
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+      .map(o => ({ item: o, info: calculateDeadlineInfo(o.deadline) }))
+      .filter(({ info }) => !info.isClosed && info.diffMs > 0 && info.status !== 'rolling')
+      .sort((a, b) => a.info.diffMs - b.info.diffMs)
+      .map(({ item }) => item)
       .slice(0, limit);
   },
 
