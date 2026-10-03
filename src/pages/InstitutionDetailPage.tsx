@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { InstitutionsService } from '../services/institutionsService';
 import { Institution, AdmissionCycle } from '../types/institution';
+import { getInstitutionMedia } from '../utils/institutionMedia';
 import {
   Building2,
   MapPin,
@@ -34,6 +35,7 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
   const [activeTab, setActiveTab] = useState<'admissions' | 'programmes' | 'requirements' | 'application'>('admissions');
   const [isSaved, setIsSaved] = useState(() => (institution ? InstitutionsService.isSaved(institution.id) : false));
   const [copiedLink, setCopiedLink] = useState(false);
+  const media = institution ? getInstitutionMedia(institution) : null;
 
   if (!institution) {
     return (
@@ -105,8 +107,28 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
         </div>
 
         {/* Hero Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="relative bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8 overflow-hidden">
+          {media && (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <img
+                src={media.url}
+                alt={media.alt}
+                className="w-full h-full object-cover"
+                style={{
+                  objectPosition: media.position,
+                  filter: 'contrast(1.05) saturate(1.06) brightness(0.98)',
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.95) 100%)',
+                }}
+              />
+            </div>
+          )}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
