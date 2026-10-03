@@ -5,6 +5,8 @@ import { ResourcesService } from '../services/resourcesService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
+import { InstitutionCard } from '../components/institutions/InstitutionCard';
+import { InstitutionsService } from '../services/institutionsService';
 import { OpportunitySkeleton } from '../components/common/CommonUI';
 import { GHANA_REGIONS } from '../data/categories';
 import {
@@ -56,6 +58,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   // Horizontal scroll container ref for "What's available right now?"
   const availableScrollRef = useRef<HTMLDivElement>(null);
+  const featuredInstitutions = InstitutionsService.getFeatured().slice(0, 6);
+  const [savedInstIds, setSavedInstIds] = useState<string[]>(() => InstitutionsService.getSavedIds());
+
+  const handleToggleSaveInst = (id: string) => {
+    InstitutionsService.toggleSave(id);
+    setSavedInstIds(InstitutionsService.getSavedIds());
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -471,6 +480,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
           </div>
         </div>
+
+        {/* Featured University & College Listing Cards Preview */}
+        {featuredInstitutions.length > 0 && (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredInstitutions.map((inst) => (
+              <InstitutionCard
+                key={inst.id}
+                institution={inst}
+                onNavigate={onNavigate}
+                isSaved={savedInstIds.includes(inst.id)}
+                onToggleSave={handleToggleSaveInst}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ==================================================

@@ -101,6 +101,17 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
       <div className="max-w-7xl mx-auto">
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 rounded-2xl p-6 sm:p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+            <img
+              src="/images/institutions/ug_students_workshop.jpg"
+              alt=""
+              loading="eager"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-[center_25%] opacity-20 mix-blend-luminosity"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-slate-900/80 to-emerald-950/65" />
+          </div>
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold uppercase tracking-wider mb-4">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />

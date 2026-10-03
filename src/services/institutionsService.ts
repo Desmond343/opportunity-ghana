@@ -31,6 +31,14 @@ export class InstitutionsService {
   }
 
   /**
+   * Retrieves featured institutions with real-time calculated admission deadlines
+   */
+  static getFeatured(limit?: number): Institution[] {
+    const featured = this.getAll().filter((inst) => inst.isFeatured);
+    return typeof limit === 'number' ? featured.slice(0, limit) : featured;
+  }
+
+  /**
    * Look up a single institution by slug or id
    */
   static getBySlug(slug: string): Institution | null {

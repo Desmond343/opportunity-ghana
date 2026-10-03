@@ -9,6 +9,7 @@
  */
 
 import { Opportunity, Resource } from '../types/database';
+import { Institution } from '../types/institution';
 
 export interface CategoryGradientConfig {
   id: string;
@@ -1072,5 +1073,212 @@ export function resolveResourceMedia(resource: Partial<Resource>): ResolvedCardM
     isSvg: false,
     source: 'gradient',
     gradient
+  };
+}
+
+export interface InstitutionBackgroundMedia {
+  /** Verified authentic African/Ghanaian student photograph URL */
+  imageUrl: string;
+  /** Accessible alt description of the student scene */
+  alt: string;
+  /** Tailwind object-position class for optimal framing of human subjects */
+  focalPointClass: string;
+  /** Subtle top-right ambient tint matching the institution category */
+  tintClass: string;
+}
+
+/**
+ * Curated registry of authentic Ghanaian & African student photographs
+ * tailored to each accredited institution in Ghana.
+ */
+const INSTITUTION_STUDENT_BACKGROUNDS: Record<
+  string,
+  { imageUrl: string; alt: string; focalPointClass: string }
+> = {
+  'inst-ug-legon': {
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    alt: 'University of Ghana students engaged in an academic seminar workshop at Legon campus',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-knust-kumasi': {
+    imageUrl: '/images/ghana_student_workspace.jpg',
+    alt: 'Ghanaian STEM and engineering university student working on laptop in modern learning workspace',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-ucc-capecoast': {
+    imageUrl: '/images/institutions/ucc_tertiary_conference.jpg',
+    alt: 'Ghanaian tertiary students at the University of Cape Coast academic conference',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-uew-winneba': {
+    imageUrl: '/images/institutions/ug_students_seminar.jpg',
+    alt: 'Ghanaian university students participating in a higher education lecture seminar',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-uds-tamale': {
+    imageUrl: '/images/categories/scholarships.jpg',
+    alt: 'African university students collaborating on development studies coursework on campus',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-uhas-ho': {
+    imageUrl: '/images/institutions/african_medical_nursing_students.jpg',
+    alt: 'African medical and allied health sciences students in clinical training',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-umat-tarkwa': {
+    imageUrl: '/images/categories/internships.jpg',
+    alt: 'African engineering and technology students in practical technical training',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-upsa-accra': {
+    imageUrl: '/images/ghana_hero_professionals.jpg',
+    alt: 'Young Ghanaian business and professional studies students collaborating',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-uenr-sunyani': {
+    imageUrl: '/images/categories/grants.jpg',
+    alt: 'African energy, science, and environmental research students collaborating',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-gctu-accra': {
+    imageUrl: '/images/institutions/ug_students_laptops.jpg',
+    alt: 'Ghanaian computing and information technology students working on laptops',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-atu-accra': {
+    imageUrl: '/images/institutions/african_students_computing.jpg',
+    alt: 'African technical university students working together on a laptop',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-kstu-kumasi': {
+    imageUrl: '/images/categories/courses.jpg',
+    alt: 'Ghanaian technical and applied science students engaged in digital learning',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-ttu-takoradi': {
+    imageUrl: '/images/institutions/african_students_laptop_group.jpg',
+    alt: 'Group of African technical university students collaborating with a computer on campus',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-cctu-capecoast': {
+    imageUrl: '/images/institutions/west_african_campus_students_1.jpg',
+    alt: 'West African university students gathered on campus walkway',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-ktu-koforidua': {
+    imageUrl: '/images/institutions/african_library_research_students.jpg',
+    alt: 'African university students researching on laptops in an academic library',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-htu-ho': {
+    imageUrl: '/images/institutions/west_african_campus_students_2.jpg',
+    alt: 'West African university students discussing academics on campus',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-ashesi-berekuso': {
+    imageUrl: '/images/institutions/ashesi_library_students.jpg',
+    alt: 'Ashesi University students studying in the Todd and Ruth Warren Library at Berekuso',
+    focalPointClass: 'object-[center_30%]'
+  },
+  'inst-central-accra': {
+    imageUrl: '/images/institutions/ashesi_lecture_students.jpg',
+    alt: 'Ghanaian private university students in an interactive classroom discussion',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-gimpa-accra': {
+    imageUrl: '/images/categories/fellowships.jpg',
+    alt: 'Ghanaian public administration, law, and management scholars in executive seminar',
+    focalPointClass: 'object-[center_20%]'
+  },
+  'inst-princof-coe-ghana': {
+    imageUrl: '/images/institutions/african_university_training_session.jpg',
+    alt: 'African teacher education college students during an interactive training session',
+    focalPointClass: 'object-[center_25%]'
+  },
+  'inst-moh-nursing-ghana': {
+    imageUrl: '/images/institutions/african_nursing_college_students.jpg',
+    alt: 'African nursing and health training college students in clinical uniform',
+    focalPointClass: 'object-[center_20%]'
+  }
+};
+
+const INSTITUTION_VARIETY_POOL: Array<{
+  imageUrl: string;
+  alt: string;
+  focalPointClass: string;
+}> = Object.values(INSTITUTION_STUDENT_BACKGROUNDS);
+
+/**
+ * Resolves a subtle, authentic African human/student background image for any tertiary institution card.
+ */
+export function resolveInstitutionBackground(
+  institution: Partial<Institution>
+): InstitutionBackgroundMedia {
+  const type = institution.institutionType || '';
+  let tintClass = 'from-emerald-600/[0.06] via-transparent to-transparent';
+
+  if (type.includes('Technical')) {
+    tintClass = 'from-sky-600/[0.06] via-transparent to-transparent';
+  } else if (type.includes('Private')) {
+    tintClass = 'from-indigo-600/[0.06] via-transparent to-transparent';
+  } else if (type.includes('Education')) {
+    tintClass = 'from-amber-600/[0.06] via-transparent to-transparent';
+  } else if (type.includes('Nursing') || type.includes('Health')) {
+    tintClass = 'from-teal-600/[0.06] via-transparent to-transparent';
+  }
+
+  // 1. Exact ID match in curated Ghanaian & African student registry
+  if (institution.id && INSTITUTION_STUDENT_BACKGROUNDS[institution.id]) {
+    const matched = INSTITUTION_STUDENT_BACKGROUNDS[institution.id];
+    return {
+      imageUrl: institution.coverImageUrl || matched.imageUrl,
+      alt: matched.alt,
+      focalPointClass: matched.focalPointClass,
+      tintClass
+    };
+  }
+
+  // 2. Explicit coverImageUrl on the institution record
+  if (isUploadedRealImage(institution.coverImageUrl)) {
+    return {
+      imageUrl: institution.coverImageUrl!.trim(),
+      alt: `${institution.name || 'Ghanaian tertiary institution'} students on campus`,
+      focalPointClass: 'object-[center_25%]',
+      tintClass
+    };
+  }
+
+  // 3. Thematic match by institution type for any new institutions
+  if (type.includes('Nursing') || type.includes('Health')) {
+    return {
+      ...INSTITUTION_STUDENT_BACKGROUNDS['inst-moh-nursing-ghana'],
+      tintClass
+    };
+  }
+  if (type.includes('Education')) {
+    return {
+      ...INSTITUTION_STUDENT_BACKGROUNDS['inst-princof-coe-ghana'],
+      tintClass
+    };
+  }
+  if (type.includes('Technical')) {
+    const techPool = [
+      INSTITUTION_STUDENT_BACKGROUNDS['inst-atu-accra'],
+      INSTITUTION_STUDENT_BACKGROUNDS['inst-ttu-takoradi'],
+      INSTITUTION_STUDENT_BACKGROUNDS['inst-ktu-koforidua']
+    ];
+    const idx = hashString(institution.name || 'tech') % techPool.length;
+    return {
+      ...techPool[idx],
+      tintClass
+    };
+  }
+
+  // 4. Deterministic rotation across the 21-image African student pool
+  const seed = `${institution.id || ''}-${institution.shortName || ''}-${institution.name || 'inst'}`;
+  const idx = hashString(seed) % INSTITUTION_VARIETY_POOL.length;
+  return {
+    ...INSTITUTION_VARIETY_POOL[idx],
+    tintClass
   };
 }
