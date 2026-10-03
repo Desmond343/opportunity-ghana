@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="harv_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#30090D"/>
+      <stop offset="60%" stop-color="#4F1118"/>
+      <stop offset="100%" stop-color="#1A0406"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#harv_bg)"/>
+  <circle cx="700" cy="110" r="150" fill="#A51C30" opacity="0.12"/>
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="20" fill="#29050A" stroke="#FF6B7A" stroke-width="2.5"/>
+    <!-- Code Bracket and Harvard H -->
+    <path d="M26 30 L18 40 L26 50" fill="none" stroke="#FF6B7A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M54 30 L62 40 L54 50" fill="none" stroke="#FF6B7A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M43 28 L37 52" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="110" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#FF8A96" letter-spacing="2">HARVARD UNIVERSITY • HARVARDX (EDX)</text>
+    <text x="110" y="66" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">CS50 Web Programming</text>
+    <text x="110" y="96" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#FECDD3">Python & JavaScript • Django, React, SQL, CI/CD & Cloud Deployments</text>
+  </g>
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#24070A" stroke="#66101F" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">VERIFIED CERTIFICATE</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">$199 USD (Audit is Free)</text>
+
+    <line x1="230" y1="18" x2="230" y2="52" stroke="#66101F" stroke-width="1"/>
+    <text x="250" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">EDX FINANCIAL AID</text>
+    <text x="250" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">Up to 90% Assistance</text>
+
+    <line x1="470" y1="18" x2="470" y2="52" stroke="#66101F" stroke-width="1"/>
+    <text x="490" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">INSTRUCTOR</text>
+    <text x="490" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">Prof. David J. Malan</text>
+  </g>
+  <rect x="0" y="442" width="800" height="8" fill="#A51C30"/>
+</svg>

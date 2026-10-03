@@ -54,8 +54,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
   const [cost, setCost] = useState<number>(0);
   const [currency, setCurrency] = useState('GHS');
   const [isFree, setIsFree] = useState(true);
+  const [pricingModel, setPricingModel] = useState<Resource['pricingModel']>('one-time');
   const [hasCertificate, setHasCertificate] = useState(true);
   const [financialAid, setFinancialAid] = useState(true);
+  const [targetAudience, setTargetAudience] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [accessGhanaNotes, setAccessGhanaNotes] = useState('');
+  const [imageSourceName, setImageSourceName] = useState('');
+  const [imageSourceUrl, setImageSourceUrl] = useState('');
 
   // Skills & URLs
   const [skillsString, setSkillsString] = useState('Python, Data Analysis, SQL, Spreadsheets');
@@ -101,8 +107,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       setCost(resourceToEdit.cost || 0);
       setCurrency(resourceToEdit.currency || 'GHS');
       setIsFree(resourceToEdit.isFree ?? true);
+      setPricingModel(resourceToEdit.pricingModel || (resourceToEdit.isFree ? 'free' : 'one-time'));
       setHasCertificate(resourceToEdit.hasCertificate ?? true);
       setFinancialAid(resourceToEdit.financialAid ?? false);
+      setTargetAudience(resourceToEdit.targetAudience || '');
+      setPaymentNotes(resourceToEdit.paymentNotes || '');
+      setAccessGhanaNotes(resourceToEdit.accessGhanaNotes || '');
+      setImageSourceName(resourceToEdit.imageSourceName || '');
+      setImageSourceUrl(resourceToEdit.imageSourceUrl || '');
 
       setSkillsString(resourceToEdit.skills?.join(', ') || '');
       setPrerequisitesString(resourceToEdit.prerequisites?.join(', ') || '');
@@ -135,8 +147,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       setCost(0);
       setCurrency('GHS');
       setIsFree(true);
+      setPricingModel('one-time');
       setHasCertificate(true);
       setFinancialAid(true);
+      setTargetAudience('');
+      setPaymentNotes('');
+      setAccessGhanaNotes('');
+      setImageSourceName('');
+      setImageSourceUrl('');
       setSkillsString('');
       setPrerequisitesString('');
       setEnrollmentUrl('https://');
@@ -194,8 +212,14 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         cost: isFree ? 0 : Number(cost),
         currency,
         isFree,
+        pricingModel: isFree ? 'free' : pricingModel,
         hasCertificate,
         financialAid,
+        targetAudience: targetAudience.trim() || undefined,
+        paymentNotes: paymentNotes.trim() || undefined,
+        accessGhanaNotes: accessGhanaNotes.trim() || undefined,
+        imageSourceName: imageSourceName.trim() || undefined,
+        imageSourceUrl: imageSourceUrl.trim() || undefined,
         skills: skills.length > 0 ? skills : ['General Development'],
         prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
         enrollmentUrl: enrollmentUrl.trim(),
@@ -440,7 +464,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">Description & Syllabus Summary</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Detail the curriculum modules, learning outcomes, hands-on capstone project, and career benefits..."
@@ -448,10 +472,21 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                 />
               </div>
 
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Target Audience / Who Should Enroll</label>
+                <input
+                  type="text"
+                  value={targetAudience}
+                  onChange={(e) => setTargetAudience(e.target.value)}
+                  placeholder="e.g. University graduates, software engineers, accountants, and career transitioners in Ghana"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
+                />
+              </div>
+
               {/* Resource Photo Upload Section */}
-              <div className="pt-2 border-t border-slate-200">
+              <div className="pt-2 border-t border-slate-200 space-y-3">
                 <ImageUploadField
-                  label="Resource Photo"
+                  label="Resource Photo / Logo"
                   currentImageUrl={currentImageUrl}
                   onFileSelect={(file) => {
                     setSelectedImageFile(file);
@@ -465,6 +500,29 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                   isRemoved={isImageRemoved}
                   disabled={saving}
                 />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600">Image Attribution Name</label>
+                    <input
+                      type="text"
+                      value={imageSourceName}
+                      onChange={(e) => setImageSourceName(e.target.value)}
+                      placeholder="e.g. Amazon Web Services Training"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600">Image Source URL</label>
+                    <input
+                      type="url"
+                      value={imageSourceUrl}
+                      onChange={(e) => setImageSourceUrl(e.target.value)}
+                      placeholder="https://aws.amazon.com/certification/"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 font-mono"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -585,7 +643,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                 {!isFree && (
                   <>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Cost / Fee Amount</label>
+                      <label className="text-xs font-bold text-slate-700">Cost / Fee Amount *</label>
                       <input
                         type="number"
                         min="0"
@@ -596,20 +654,57 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Currency</label>
+                      <label className="text-xs font-bold text-slate-700">Currency *</label>
                       <select
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
                       >
-                        <option value="GHS">GHS (Ghanaian Cedi)</option>
                         <option value="USD">USD (US Dollar)</option>
-                        <option value="EUR">EUR (Euro)</option>
+                        <option value="GHS">GHS (Ghanaian Cedi)</option>
                         <option value="GBP">GBP (British Pound)</option>
+                        <option value="EUR">EUR (Euro)</option>
                       </select>
+                    </div>
+
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-700">Pricing Model</label>
+                      <select
+                        value={pricingModel}
+                        onChange={(e) => setPricingModel(e.target.value as any)}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
+                      >
+                        <option value="one-time">One-Time Fee / Exam Voucher</option>
+                        <option value="monthly">Monthly Subscription (e.g. Coursera)</option>
+                        <option value="per-course">Tiered / Per-Course (e.g. MITx MicroMasters)</option>
+                        <option value="per-exam">Per-Exam Paper (e.g. ACCA)</option>
+                        <option value="annual">Annual Subscription</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-700">Payment &amp; Voucher Specifics</label>
+                      <textarea
+                        rows={2}
+                        value={paymentNotes}
+                        onChange={(e) => setPaymentNotes(e.target.value)}
+                        placeholder="e.g. Standard $150 USD paid via Pearson VUE. Passing provides a 50% discount voucher on subsequent exams."
+                        className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden"
+                      />
                     </div>
                   </>
                 )}
+
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-xs font-bold text-slate-700">Ghana Accessibility &amp; Exam Center Notes</label>
+                  <textarea
+                    rows={2}
+                    value={accessGhanaNotes}
+                    onChange={(e) => setAccessGhanaNotes(e.target.value)}
+                    placeholder="e.g. Available online via remote proctoring or at Pearson VUE testing centers in Accra and Kumasi. Ghanaian cards accepted."
+                    className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden"
+                  />
+                </div>
 
                 <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 md:col-span-2">
                   <label className="text-xs font-bold text-slate-800 flex items-center justify-between">

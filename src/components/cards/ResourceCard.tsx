@@ -113,13 +113,17 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
         </div>
         <div className="flex items-center gap-2">
           {resource.isFree ? (
-            <span className="text-xs font-bold text-[#006B3F] bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
-              FREE
+            <span className="text-[11px] font-extrabold text-[#006B3F] bg-emerald-50 border border-emerald-300/80 px-2 py-0.5 rounded-md tracking-wider">
+              FREE TUITION
             </span>
           ) : (
-            <span className="text-xs font-bold text-slate-900">
-              {resource.currency} {resource.cost}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-slate-900 bg-amber-50/80 border border-amber-200/90 text-amber-900 px-2 py-0.5 rounded-md font-mono">
+                {resource.currency === 'USD' ? '$' : resource.currency === 'GBP' ? '£' : `${resource.currency} `}
+                {resource.cost.toLocaleString()}
+                {resource.pricingModel === 'monthly' ? '/mo' : resource.pricingModel === 'per-course' ? ' /course' : resource.pricingModel === 'per-exam' ? ' /paper' : ''}
+              </span>
+            </div>
           )}
           <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#006B3F] transition-colors" />
         </div>

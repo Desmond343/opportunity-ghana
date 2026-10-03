@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="acca_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#380812"/>
+      <stop offset="60%" stop-color="#591322"/>
+      <stop offset="100%" stop-color="#20040A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#acca_bg)"/>
+  <circle cx="700" cy="110" r="150" fill="#E60000" opacity="0.1"/>
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="20" fill="#2E040D" stroke="#EF4444" stroke-width="2.5"/>
+    <!-- ACCA Hex Shield -->
+    <polygon points="40,20 60,32 60,56 40,68 20,56 20,32" fill="#7F1D1D" stroke="#EF4444" stroke-width="2"/>
+    <text x="40" y="49" font-family="system-ui, sans-serif" font-size="12" font-weight="900" fill="#FFFFFF" text-anchor="middle">ACCA</text>
+    <text x="110" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#F87171" letter-spacing="2">ACCA GLOBAL • GHANA BRANCH (ACCRA)</text>
+    <text x="110" y="66" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">ACCA Qualification (Chartered)</text>
+    <text x="110" y="96" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#FECDD3">Applied Knowledge &amp; Skills • Financial Accounting, Audit, Tax &amp; Law</text>
+  </g>
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#23040B" stroke="#7F1D1D" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">REGISTRATION FEE</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">£36 Initial / £40–£58/Paper</text>
+
+    <line x1="260" y1="18" x2="260" y2="52" stroke="#7F1D1D" stroke-width="1"/>
+    <text x="280" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">EXAM FORMAT</text>
+    <text x="280" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">Computer-Based Exam (CBE)</text>
+
+    <line x1="510" y1="18" x2="510" y2="52" stroke="#7F1D1D" stroke-width="1"/>
+    <text x="530" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">CENTRES IN GHANA</text>
+    <text x="530" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">British Council Accra</text>
+  </g>
+  <rect x="0" y="442" width="800" height="8" fill="#EF4444"/>
+</svg>

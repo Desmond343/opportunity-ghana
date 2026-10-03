@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mit_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D1115"/>
+      <stop offset="60%" stop-color="#4A181D"/>
+      <stop offset="100%" stop-color="#140608"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#mit_bg)"/>
+  <circle cx="700" cy="110" r="150" fill="#A31F34" opacity="0.12"/>
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="20" fill="#24070A" stroke="#E26577" stroke-width="2.5"/>
+    <!-- MIT Bars -->
+    <rect x="22" y="24" width="6" height="32" fill="#E26577"/>
+    <rect x="34" y="24" width="6" height="20" fill="#FFFFFF"/>
+    <rect x="46" y="24" width="6" height="32" fill="#E26577"/>
+    <rect x="58" y="24" width="6" height="20" fill="#FFFFFF"/>
+    <text x="110" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#FF8A96" letter-spacing="2">MASSACHUSETTS INSTITUTE OF TECHNOLOGY • MITX</text>
+    <text x="110" y="66" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">MITx MicroMasters® in DEDP</text>
+    <text x="110" y="96" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#FECDD3">Data, Economics, &amp; Design of Policy • J-PAL &amp; MIT Economics Dept</text>
+  </g>
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#1C0609" stroke="#5E1620" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">GHANA TIERED PRICE</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">$250 USD / Course (Income &lt; $25k)</text>
+
+    <line x1="280" y1="18" x2="280" y2="52" stroke="#5E1620" stroke-width="1"/>
+    <text x="300" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">SCHOLARSHIP COUPON</text>
+    <text x="300" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">$100 Lottery Eligible</text>
+
+    <line x1="510" y1="18" x2="510" y2="52" stroke="#5E1620" stroke-width="1"/>
+    <text x="530" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#FECDD3">DEGREE PATHWAY</text>
+    <text x="530" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">MIT Master&apos;s Credit</text>
+  </g>
+  <rect x="0" y="442" width="800" height="8" fill="#A31F34"/>
+</svg>

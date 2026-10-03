@@ -3,6 +3,7 @@ import { db, isFirebaseConfigured } from './firebase';
 import { sanitizeForFirestore } from './firebase/firestoreService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
+import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
 import {
   collection,
   getDocs,
@@ -22,26 +23,38 @@ const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
 function getStoredResources(): Resource[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let list: Resource[] = [];
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        const cleaned = parsed.filter(r => 
+        list = parsed.filter(r => 
           r && 
           r.id && 
           !r.id.startsWith('res-demo-') && 
           !r.title?.includes('[DEMO RECORD]') &&
           !r.enrollmentUrl?.includes('example.com')
         );
-        if (cleaned.length !== parsed.length) {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
-        }
-        return cleaned;
       }
     }
+
+    // Ensure all curated verified resources are present
+    const existingIds = new Set(list.map(r => r.id));
+    let hasNew = false;
+    for (const verified of VERIFIED_REAL_RESOURCES) {
+      if (!existingIds.has(verified.id)) {
+        list.push(verified);
+        hasNew = true;
+      }
+    }
+
+    if (hasNew || !raw) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
+    }
+    return list;
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  return [];
+  return [...VERIFIED_REAL_RESOURCES];
 }
 
 function saveStoredResources(items: Resource[]) {
@@ -62,6 +75,7 @@ export interface ResourceFilters {
   category?: string;
   resourceType?: string;
   isFree?: boolean;
+  pricingModel?: string;
   search?: string;
   hasCertificate?: boolean;
   status?: OpportunityStatus;
@@ -82,8 +96,17 @@ export const ResourcesService = {
         const results = snapshot.docs
           .map((d: any) => ({ id: d.id, ...d.data() } as Resource))
           .filter((r: Resource) => !r.id.startsWith('res-demo-') && !r.title?.includes('[DEMO RECORD]'));
-        items = results;
-        saveStoredResources(items);
+        if (results.length > 0) {
+          const remoteIds = new Set(results.map((r: Resource) => r.id));
+          const merged = [...results];
+          for (const v of VERIFIED_REAL_RESOURCES) {
+            if (!remoteIds.has(v.id)) {
+              merged.push(v);
+            }
+          }
+          items = merged;
+          saveStoredResources(items);
+        }
       } catch (e: any) {
         if (e?.code !== 'unavailable' && e?.message !== 'timeout') {
           console.warn('Firestore resources read error:', e?.message || e);
@@ -108,6 +131,9 @@ export const ResourcesService = {
       }
       if (filters.isFree !== undefined) {
         items = items.filter(r => r.isFree === filters.isFree);
+      }
+      if (filters.pricingModel && filters.pricingModel !== 'All') {
+        items = items.filter(r => r.pricingModel === filters.pricingModel);
       }
       if (filters.hasCertificate !== undefined) {
         items = items.filter(r => r.hasCertificate === filters.hasCertificate);

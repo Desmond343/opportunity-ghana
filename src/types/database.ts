@@ -216,6 +216,14 @@ export interface Resource {
   enrollmentUrl: string;
   imageUrl?: string;
   imagePath?: string;
+  imageSourceUrl?: string;
+  imageSourceName?: string;
+
+  // Pricing & Accessibility Details
+  pricingModel?: 'one-time' | 'monthly' | 'subscription' | 'annual' | 'per-course' | 'per-exam' | 'free';
+  targetAudience?: string;
+  paymentNotes?: string;
+  accessGhanaNotes?: string;
   
   // Verification & Editorial
   sourceUrl?: string;

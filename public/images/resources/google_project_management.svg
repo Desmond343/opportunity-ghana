@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gpm_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="60%" stop-color="#312E81"/>
+      <stop offset="100%" stop-color="#0F0D24"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#gpm_bg)"/>
+  <circle cx="680" cy="110" r="150" fill="#6366F1" opacity="0.1"/>
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="20" fill="#2E1065" stroke="#818CF8" stroke-width="2.5"/>
+    <!-- Kanban icon -->
+    <rect x="22" y="24" width="16" height="32" rx="4" fill="#818CF8"/>
+    <rect x="42" y="24" width="16" height="22" rx="4" fill="#C4B5FD"/>
+    <text x="110" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#A5B4FC" letter-spacing="2">GOOGLE CAREER CERTIFICATE • PMI CAPM QUALIFYING</text>
+    <text x="110" y="66" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">Google Project Management</text>
+    <text x="110" y="96" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#E0E7FF">Professional Certificate • Agile, Scrum, Asana & Risk Planning</text>
+  </g>
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#18153A" stroke="#4338CA" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#A5B4FC">PRICING</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">$49 USD / mo</text>
+
+    <line x1="180" y1="18" x2="180" y2="52" stroke="#4338CA" stroke-width="1"/>
+    <text x="210" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#A5B4FC">PMI HOURS</text>
+    <text x="210" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">Qualifies for 100+ PM Hours</text>
+
+    <line x1="450" y1="18" x2="450" y2="52" stroke="#4338CA" stroke-width="1"/>
+    <text x="470" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#A5B4FC">EXPERIENCE</text>
+    <text x="470" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">No Degree Required</text>
+  </g>
+  <rect x="0" y="442" width="800" height="8" fill="#6366F1"/>
+</svg>

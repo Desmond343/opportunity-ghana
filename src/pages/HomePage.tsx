@@ -583,20 +583,25 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Track 3: Practical Skills & Upskilling */}
+          {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
-            onClick={() => onNavigate('/resources?free=true')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-gradient-to-br from-[#005530] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
+            onClick={() => onNavigate('/resources?paid=true')}
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
           >
             <div className="space-y-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111]">
-                100% Free Learning
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111] font-mono">
+                  Verified Pricing
+                </span>
+                <span className="text-[10px] font-semibold text-emerald-200">
+                  Global Credentials
+                </span>
+              </div>
               <h3 className="text-xl font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
-                Free Accredited Courses with Certificates
+                Paid Certifications &amp; Professional Training
               </h3>
               <p className="text-xs text-emerald-100/90 leading-relaxed">
-                Upskill in software engineering, data analytics, digital marketing, and financial management with verified partners.
+                Vetted courses from AWS, Google, Microsoft, Harvard, PMI and ACCA. Full transparency on tuition, exam fees, and accessibility for learners in Ghana.
               </p>
             </div>
 
@@ -604,16 +609,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <div className="space-y-1.5 text-xs text-emerald-100">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
-                  <span>Verified credentials from accredited providers</span>
+                  <span>Accredited global certificates &amp; digital badges</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
-                  <span>Self-paced and cohort-based options</span>
+                  <span>Exam centers in Accra &amp; online proctoring verified</span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
-                <span>Browse Free Courses</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
+                  <span>Explore Paid Courses</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate('/resources?free=true');
+                  }}
+                  className="text-[11px] text-white hover:text-[#FCD116] underline font-medium cursor-pointer"
+                >
+                  View Free Only
+                </button>
               </div>
             </div>
           </div>

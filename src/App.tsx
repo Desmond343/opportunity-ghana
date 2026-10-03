@@ -106,12 +106,14 @@ export function AppContent() {
     if (currentPath === '/resources') {
       const searchParams = new URLSearchParams(window.location.search);
       const isFree = searchParams.get('free') === 'true';
+      const isPaid = searchParams.get('paid') === 'true';
       const type = searchParams.get('type') || 'All';
       const openSubmit = searchParams.get('action') === 'submit';
       return (
         <ResourcesPage
           onNavigate={navigate}
           initialFree={isFree}
+          initialPaid={isPaid}
           initialType={type}
           initialOpenSubmit={openSubmit}
         />

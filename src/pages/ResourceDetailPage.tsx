@@ -139,6 +139,26 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         );
       })()}
 
+      {/* Media Attribution */}
+      {resource.imageSourceName && (
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium px-2">
+          <span>Official credential graphic provided by</span>
+          {resource.imageSourceUrl ? (
+            <a
+              href={resource.imageSourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#006B3F] hover:underline font-bold inline-flex items-center gap-0.5"
+            >
+              <span>{resource.imageSourceName}</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
+          ) : (
+            <strong className="text-slate-700">{resource.imageSourceName}</strong>
+          )}
+        </div>
+      )}
+
       {/* Hero */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
@@ -220,13 +240,22 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
           <div className="p-3 bg-slate-50 rounded-xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Certificate</p>
             <p className="text-xs font-bold text-slate-900 mt-0.5">
-              {resource.hasCertificate ? 'Yes, Upon Completion' : 'Audit Only'}
+              {resource.hasCertificate ? 'Yes, Official Credential' : 'Audit Only'}
             </p>
           </div>
           <div className="p-3 bg-slate-50 rounded-xl">
-            <p className="text-[10px] uppercase font-bold text-slate-400">Cost</p>
+            <p className="text-[10px] uppercase font-bold text-slate-400">Cost & Pricing</p>
             <p className="text-xs font-bold text-emerald-700 mt-0.5">
-              {resource.isFree ? '100% Free' : `${resource.currency} ${resource.cost.toLocaleString()}`}
+              {resource.isFree ? (
+                '100% Free'
+              ) : (
+                <>
+                  {resource.currency} {resource.cost.toLocaleString()}
+                  <span className="text-[10px] text-slate-500 font-normal ml-1">
+                    {resource.pricingModel === 'monthly' ? '/ month' : resource.pricingModel === 'per-course' ? '/ course' : resource.pricingModel === 'per-exam' ? '/ paper' : '(one-time)'}
+                  </span>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -239,6 +268,72 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
             <h2 className="text-base font-bold text-slate-900 font-space">Curriculum Overview</h2>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{resource.description}</p>
           </section>
+
+          {/* Target Audience Section */}
+          {resource.targetAudience && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 font-space">Who Should Enroll?</h2>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{resource.targetAudience}</p>
+            </section>
+          )}
+
+          {/* Pricing & Fee Transparency Card */}
+          {!resource.isFree && (
+            <section className="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 rounded-3xl border border-amber-200/80 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-amber-950 font-space flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-amber-700" />
+                  <span>Verified Price &amp; Payment Transparency</span>
+                </h2>
+                <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                  {resource.pricingModel?.replace('-', ' ').toUpperCase() || 'ONE-TIME'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Published Price</p>
+                  <p className="text-base font-black text-slate-900 font-mono mt-0.5">
+                    {resource.currency} {resource.cost.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Billing Structure</p>
+                  <p className="text-xs font-bold text-slate-800 mt-1 capitalize">
+                    {resource.pricingModel === 'monthly' ? 'Monthly Subscription' : resource.pricingModel === 'per-course' ? 'Pay-per-course / Tiered' : resource.pricingModel === 'per-exam' ? 'Per Exam Registration' : 'One-Time Voucher / Exam'}
+                  </p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Financial Aid / Aid</p>
+                  <p className="text-xs font-bold text-emerald-800 mt-1">
+                    {resource.financialAid ? '✓ Relief / Discounts Available' : 'Standard Rate'}
+                  </p>
+                </div>
+              </div>
+
+              {resource.paymentNotes && (
+                <div className="text-xs text-slate-700 leading-relaxed bg-white/90 p-4 rounded-2xl border border-amber-100 space-y-1">
+                  <strong className="text-slate-900 block font-semibold">Payment &amp; Voucher Specifics:</strong>
+                  <p>{resource.paymentNotes}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Ghana Access & Examination Centers */}
+          {resource.accessGhanaNotes && (
+            <section className="bg-emerald-50/60 rounded-3xl border border-emerald-200/80 p-6 sm:p-8 space-y-3 shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                <h2 className="text-base font-bold text-emerald-950 font-space">
+                  Access &amp; Testing Information for Ghana
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
+                {resource.accessGhanaNotes}
+              </p>
+            </section>
+          )}
 
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
             <h2 className="text-base font-bold text-slate-900 font-space">Skills You Will Master</h2>

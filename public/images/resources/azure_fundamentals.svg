@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="az_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#002D59"/>
+      <stop offset="60%" stop-color="#005A9E"/>
+      <stop offset="100%" stop-color="#001833"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#az_bg)"/>
+  <circle cx="700" cy="100" r="140" fill="#0078D4" opacity="0.12"/>
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="20" fill="#004578" stroke="#50E6FF" stroke-width="2.5"/>
+    <!-- Azure "A" Icon -->
+    <path d="M26 62 L48 20 L58 38 L38 62 Z" fill="#50E6FF"/>
+    <path d="M42 46 L62 46 L52 62 L32 62 Z" fill="#0078D4"/>
+    <text x="110" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#50E6FF" letter-spacing="2">MICROSOFT CERTIFIED • EXAM AZ-900</text>
+    <text x="110" y="66" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">Azure Fundamentals</text>
+    <text x="110" y="96" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#BAE6FD">Official Certification • Cloud Concepts, Architecture, Governance & SLAs</text>
+  </g>
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#002040" stroke="#005A9E" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#BAE6FD">EXAM FEE</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">$99 USD (One-time)</text>
+
+    <line x1="200" y1="18" x2="200" y2="52" stroke="#005A9E" stroke-width="1"/>
+    <text x="230" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#BAE6FD">LEARNING CONTENT</text>
+    <text x="230" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">100% Free on MS Learn</text>
+
+    <line x1="470" y1="18" x2="470" y2="52" stroke="#005A9E" stroke-width="1"/>
+    <text x="490" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#BAE6FD">PROCTORING</text>
+    <text x="490" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">Online in Ghana</text>
+  </g>
+  <rect x="0" y="442" width="800" height="8" fill="#50E6FF"/>
+</svg>

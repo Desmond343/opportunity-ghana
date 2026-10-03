@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="aws_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141F2E"/>
+      <stop offset="50%" stop-color="#232F3E"/>
+      <stop offset="100%" stop-color="#0F1722"/>
+    </linearGradient>
+    <linearGradient id="aws_gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9900"/>
+      <stop offset="100%" stop-color="#FFB84D"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#aws_bg)"/>
+  <circle cx="720" cy="80" r="160" fill="#FF9900" opacity="0.06"/>
+  <circle cx="100" cy="380" r="180" fill="#FF9900" opacity="0.04"/>
+  <g opacity="0.08" stroke="#FFFFFF" stroke-width="1">
+    <line x1="0" y1="90" x2="800" y2="90"/>
+    <line x1="0" y1="180" x2="800" y2="180"/>
+    <line x1="0" y1="270" x2="800" y2="270"/>
+    <line x1="0" y1="360" x2="800" y2="360"/>
+    <line x1="160" y1="0" x2="160" y2="450"/>
+    <line x1="320" y1="0" x2="320" y2="450"/>
+    <line x1="480" y1="0" x2="480" y2="450"/>
+    <line x1="640" y1="0" x2="640" y2="450"/>
+  </g>
+  <!-- Certification Badge Visual -->
+  <g transform="translate(80, 75)">
+    <!-- Badge Polygon -->
+    <polygon points="60,10 110,38 110,95 60,123 10,95 10,38" fill="#1B2636" stroke="#FF9900" stroke-width="3"/>
+    <polygon points="60,18 102,42 102,91 60,115 18,91 18,42" fill="#232F3E"/>
+    <path d="M40 70 L55 85 L85 50" fill="none" stroke="#FF9900" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Text Elements -->
+    <text x="140" y="45" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#FF9900" letter-spacing="2">AMAZON WEB SERVICES • SAA-C03</text>
+    <text x="140" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">AWS Certified Solutions Architect</text>
+    <text x="140" y="112" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#94A3B8">Associate Level • Globally Recognized Cloud Credential</text>
+  </g>
+  <!-- Info pill bar -->
+  <g transform="translate(80, 240)">
+    <rect width="640" height="70" rx="16" fill="#141E2B" stroke="#334155" stroke-width="1"/>
+    <text x="30" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#94A3B8">EXAM FEE</text>
+    <text x="30" y="52" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#FCD116">$150 USD</text>
+
+    <line x1="160" y1="18" x2="160" y2="52" stroke="#334155" stroke-width="1"/>
+    <text x="190" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#94A3B8">FORMAT</text>
+    <text x="190" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">Online Remote or Pearson VUE</text>
+
+    <line x1="420" y1="18" x2="420" y2="52" stroke="#334155" stroke-width="1"/>
+    <text x="450" y="32" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#94A3B8">GHANA STATUS</text>
+    <text x="450" y="52" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#34D399">✓ Verified in Ghana</text>
+  </g>
+  <!-- Footer Bar -->
+  <rect x="0" y="442" width="800" height="8" fill="#FF9900"/>
+</svg>
