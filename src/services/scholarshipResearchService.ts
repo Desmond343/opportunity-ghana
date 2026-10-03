@@ -5,7 +5,7 @@ import type {
   DiscoveredScholarshipCandidate,
   RecheckSummary
 } from '../types/scholarshipResearch';
-import { VERIFIED_OFFICIAL_SCHOLARSHIP_PROVIDERS } from '../../server/scholarshipResearch';
+import { VERIFIED_OFFICIAL_SCHOLARSHIP_PROVIDERS } from '../data/scholarshipProviders';
 
 export class ScholarshipResearchService {
   private static async getAuthHeader(): Promise<HeadersInit> {

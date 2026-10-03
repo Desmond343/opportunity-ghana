@@ -210,24 +210,25 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         const media = resolveOpportunityMedia(opportunity);
         return (
           <div className="space-y-1.5">
-            <div className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs relative bg-slate-950">
+            <div
+              className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs relative bg-slate-950"
+              style={{ background: media.gradient.cssGradient }}
+            >
               {media.imageUrl ? (
                 <div className="relative w-full h-full">
                   <img
                     src={media.imageUrl}
-                    alt={opportunity.title}
-                    className="w-full h-full object-cover"
+                    alt={media.imageAlt || opportunity.title}
+                    className="w-full h-full object-cover object-[center_25%]"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent pointer-events-none" />
                 </div>
               ) : (
-                <div
-                  className="w-full h-full flex flex-col justify-end p-8 relative overflow-hidden"
-                  style={{ background: media.gradient.cssGradient }}
-                >
+                <div className="w-full h-full flex flex-col justify-end p-8 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-12 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
                   <div className="relative z-10 space-y-2">
                     <span
                       className="text-xs font-extrabold uppercase tracking-widest font-space"
@@ -238,11 +239,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                     <h2 className="text-xl sm:text-2xl font-bold text-white font-space">
                       {opportunity.organizationName || 'Opportunity Ghana'}
                     </h2>
+                    <p className="text-xs sm:text-sm text-slate-300 font-medium line-clamp-1">
+                      {opportunity.title}
+                    </p>
                   </div>
                 </div>
               )}
             </div>
-            {opportunity.imageSourceName && (
+            {(opportunity.imageSourceName || media.imageAttribution) && (
               <p className="text-[11px] text-slate-400 text-right px-2">
                 Image source:{' '}
                 {opportunity.imageSourceUrl ? (
@@ -255,7 +259,9 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                     {opportunity.imageSourceName}
                   </a>
                 ) : (
-                  <span className="text-slate-500">{opportunity.imageSourceName}</span>
+                  <span className="text-slate-500">
+                    {opportunity.imageSourceName || media.imageAttribution}
+                  </span>
                 )}
               </p>
             )}

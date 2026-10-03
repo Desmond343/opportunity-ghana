@@ -329,8 +329,8 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
-                {/* Soft gradient overlay for seamless integration */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent lg:bg-gradient-to-r lg:from-slate-950 lg:via-transparent lg:to-transparent opacity-80 pointer-events-none" />
+                {/* Soft gradient overlay for seamless integration without dimming subjects */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent lg:bg-gradient-to-r lg:from-slate-950/70 lg:via-transparent lg:to-transparent pointer-events-none" />
               </div>
             ) : (
               /* Professional Category Gradient Banner */

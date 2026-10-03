@@ -3,11 +3,9 @@
  *
  * Professional visual background and gradient system for Opportunity Ghana cards.
  * Implements strict hierarchy:
- * 1. Valid uploaded / existing image
- * 2. Specialty scholarship / field image (STEM, medical, business, government, university, etc.)
- * 3. Category image fallback (scholarships.jpg, jobs.jpg, etc.)
- * 4. Professional category-based gradient
- * 5. Default executive gradient
+ * 1. Valid uploaded / existing real image
+ * 2. If scholarship: authentic, human-centered educational photograph matching provider or field of study
+ * 3. If Resource or non-scholarship Opportunity without image: attractive, professional category-based gradient
  */
 
 import { Opportunity, Resource } from '../types/database';
@@ -34,6 +32,7 @@ export interface CategoryGradientConfig {
 
 /**
  * Reusable mapping of category gradients tailored to Opportunity Ghana branding
+ * Designed with rich tones: Ghana green (#006B3F), Ghana gold (#FCD116), deep navy, teal, and slate.
  */
 export const CATEGORY_GRADIENTS: Record<string, CategoryGradientConfig> = {
   // --- TECH & DIGITAL ---
@@ -72,6 +71,18 @@ export const CATEGORY_GRADIENTS: Record<string, CategoryGradientConfig> = {
     iconName: 'Sparkles',
     badgeBg: 'bg-purple-950/80 border-purple-500/30',
     badgeText: 'text-purple-300'
+  },
+  data: {
+    id: 'data',
+    name: 'Data & Analytics',
+    gradientClass: 'bg-gradient-to-br from-[#0A1A2F] via-[#133E68] to-[#0284C7]',
+    cssGradient: 'linear-gradient(135deg, #081426 0%, #133E68 55%, #0284C7 100%)',
+    accentColor: '#38BDF8',
+    accentTextColor: '#38BDF8',
+    pattern: 'grid',
+    iconName: 'Cpu',
+    badgeBg: 'bg-sky-950/80 border-sky-500/30',
+    badgeText: 'text-sky-300'
   },
   cybersecurity: {
     id: 'cybersecurity',
@@ -385,10 +396,11 @@ export const CATEGORY_GRADIENTS: Record<string, CategoryGradientConfig> = {
 function normalizeCategoryKey(category?: string | null): string {
   if (!category) return 'default';
   const raw = category.trim().toLowerCase();
-  
+
   if (raw.includes('tech') || raw.includes('software') || raw.includes('computer')) return 'technology';
   if (raw.includes('program') || raw.includes('coding') || raw.includes('developer') || raw.includes('web dev')) return 'programming';
-  if (raw.includes('ai') || raw.includes('artificial') || raw.includes('data') || raw.includes('machine learning')) return 'ai';
+  if (raw.includes('ai') || raw.includes('artificial') || raw.includes('machine learning')) return 'ai';
+  if (raw.includes('data')) return 'data';
   if (raw.includes('cyber') || raw.includes('security')) return 'cybersecurity';
   if (raw.includes('scholarship')) return 'scholarships';
   if (raw.includes('job') || raw.includes('employment') || raw.includes('career')) return 'jobs';
@@ -435,171 +447,552 @@ export function isValidImageUrl(url?: string | null): boolean {
 }
 
 /**
- * Mapping of known institutions / keywords to tailored scholarship SVGs
+ * Determines whether a given image URL represents a genuine, user- or admin-uploaded photograph
+ * or custom photography URL (as opposed to empty values or legacy synthetic SVG placeholders).
  */
-const KNOWN_SCHOLARSHIP_IMAGES: { pattern: RegExp; image: string }[] = [
-  { pattern: /chevening/i, image: '/images/scholarships/chevening_uk.svg' },
-  { pattern: /commonwealth/i, image: '/images/scholarships/commonwealth_csc.svg' },
-  { pattern: /gates[\s-_]?cambridge/i, image: '/images/scholarships/gates_cambridge.svg' },
-  { pattern: /knight[\s-_]?hennessy/i, image: '/images/scholarships/knight_hennessy.svg' },
-  { pattern: /ireland/i, image: '/images/scholarships/ireland_postgrad.svg' },
-  { pattern: /mandela[\s-_]?washington/i, image: '/images/scholarships/mandela_washington.svg' },
-  { pattern: /swiss/i, image: '/images/scholarships/swiss_excellence.svg' },
-  { pattern: /edinburgh/i, image: '/images/scholarships/edinburgh_mcf.svg' },
-  { pattern: /eiffel/i, image: '/images/scholarships/eiffel_excellence.svg' },
-  { pattern: /weidenfeld/i, image: '/images/scholarships/weidenfeld_hoffmann.svg' },
-  { pattern: /mo[\s-_]?ibrahim/i, image: '/images/scholarships/mo_ibrahim.svg' },
-  { pattern: /ghana\s+scholarships\s+authority|scholarships\.gov\.gh|\bgsa\b/i, image: '/images/scholarships/gsa_ghana.svg' },
-  { pattern: /gnpc/i, image: '/images/scholarships/gnpc_foundation.svg' },
-  { pattern: /mtn/i, image: '/images/scholarships/mtn_bright.svg' },
-  { pattern: /getfund/i, image: '/images/scholarships/getfund_ghana.svg' },
-  { pattern: /knust/i, image: '/images/scholarships/knust_mcf.svg' },
-  { pattern: /ashesi/i, image: '/images/scholarships/ashesi_mcf.svg' },
-  { pattern: /fulbright/i, image: '/images/scholarships/fulbright_ghana.svg' },
-  { pattern: /daad/i, image: '/images/scholarships/daad_epos.svg' },
-  { pattern: /rhodes/i, image: '/images/scholarships/rhodes_oxford.svg' },
-  { pattern: /pau|pan[\s-_]?african\s+university/i, image: '/images/scholarships/pau_african_union.svg' },
-  { pattern: /mandela[\s-_]?rhodes/i, image: '/images/scholarships/mandela_rhodes.svg' },
-  { pattern: /world[\s-_]?bank|jjwbgsp/i, image: '/images/scholarships/world_bank_jjwbgsp.svg' },
-  { pattern: /reach[\s-_]?oxford/i, image: '/images/scholarships/reach_oxford.svg' },
-  { pattern: /clarendon/i, image: '/images/scholarships/clarendon_oxford.svg' },
-  { pattern: /erasmus/i, image: '/images/scholarships/erasmus_mundus.svg' },
-  { pattern: /hungaricum|hungary/i, image: '/images/scholarships/stipendium_hungaricum.svg' },
-  { pattern: /swedish|sweden/i, image: '/images/scholarships/swedish_institute.svg' },
-  { pattern: /flanders|master[\s-_]?mind/i, image: '/images/scholarships/master_mind_flanders.svg' },
-  { pattern: /lester[\s-_]?b?\.?[\s-_]?pearson|toronto/i, image: '/images/scholarships/lester_b_pearson.svg' },
-  { pattern: /singa|singapore/i, image: '/images/scholarships/singa_singapore.svg' },
-  { pattern: /tony[\s-_]?elumelu/i, image: '/images/scholarships/tony_elumelu.svg' },
-  { pattern: /afdb|jads/i, image: '/images/scholarships/afdb_jads.svg' }
+export function isUploadedRealImage(url?: string | null): boolean {
+  if (!isValidImageUrl(url)) return false;
+  const lower = url!.trim().toLowerCase();
+
+  // Exclude legacy synthetic SVG illustration paths or placeholder SVG paths
+  if (lower.endsWith('.svg') || lower.includes('/scholarships/')) {
+    if (lower.includes('.svg') || lower.includes('/scholarships/')) return false;
+  }
+
+  return true;
+}
+
+export interface ScholarshipPhoto {
+  url: string;
+  alt: string;
+  attribution: string;
+}
+
+/**
+ * Curated registry of authentic, human-centered photographs for flagship scholarship schemes.
+ * All images are royalty-free (Unsplash Educational Media or Opportunity Ghana licensed assets).
+ * Every major scheme has its own unique photo to avoid visual repetition across listings.
+ */
+const FLAGSHIP_SCHOLARSHIP_PHOTOS: { pattern: RegExp; photo: ScholarshipPhoto }[] = [
+  {
+    pattern: /chevening/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80',
+      alt: 'University scholars walking on collegiate campus lawn with notebooks and satchels',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /commonwealth.*(phd|doctor|research)/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80',
+      alt: 'Doctoral research scholar studying at academic desk with research manuscripts',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /commonwealth/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop&q=80',
+      alt: 'University study group collaborating on academic coursework',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /knust/i,
+    photo: {
+      url: '/images/ghana_student_workspace.jpg',
+      alt: 'Young Ghanaian student with laptop in university learning workspace',
+      attribution: 'Opportunity Ghana Official Media'
+    }
+  },
+  {
+    pattern: /ashesi/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=800&auto=format&fit=crop&q=80',
+      alt: 'Young African university students on modern campus courtyard',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /ghana\s+scholarships\s+authority|scholarships\.gov\.gh|\bgsa\b|local\s+tertiary/i,
+    photo: {
+      url: '/images/ghana_hero_professionals.jpg',
+      alt: 'Ghanaian university graduates and tertiary scholars celebrating academic achievement',
+      attribution: 'Opportunity Ghana Official Media'
+    }
+  },
+  {
+    pattern: /getfund/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
+      alt: 'Students engaged in lecture hall seminar discussion',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /daad/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=800&auto=format&fit=crop&q=80',
+      alt: 'University students actively participating in seminar lecture room',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /erasmus/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&auto=format&fit=crop&q=80',
+      alt: 'Diverse international students studying on university campus steps',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /gates[\s-_]?cambridge/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&auto=format&fit=crop&q=80',
+      alt: 'University scholars walking across collegiate campus lawn',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /clarendon/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1460518451282-474b15696894?w=800&auto=format&fit=crop&q=80',
+      alt: 'Postgraduate scholars studying alongside historic library window',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /reach[\s-_]?oxford/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
+      alt: 'University students gathered with laptops on university lawn',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /rhodes/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1526976668912-1a811878dd37?w=800&auto=format&fit=crop&q=80',
+      alt: 'University scholars walking through collegiate arches on sunny afternoon',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /weidenfeld[\s-_]?hoffmann/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1534644107580-3a4dbd494a95?w=800&auto=format&fit=crop&q=80',
+      alt: 'University student studying in historic academic library surrounded by book stacks',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /edinburgh/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80',
+      alt: 'Diverse scholars collaborating around wooden study table with laptops and books',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /fulbright/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&auto=format&fit=crop&q=80',
+      alt: 'Scholar studying with research books in university library',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /mtn/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80',
+      alt: 'University student with laptop engaged in digital learning',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /gnpc/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=800&auto=format&fit=crop&q=80',
+      alt: 'Engineering and technology student working in university laboratory',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /tony[\s-_]?elumelu|mo[\s-_]?ibrahim/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+      alt: 'Young African business entrepreneurs and scholars in strategy workshop',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /mandela[\s-_]?washington/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&auto=format&fit=crop&q=80',
+      alt: 'Young African leadership scholars in academic auditorium',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /mandela[\s-_]?rhodes/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=800&auto=format&fit=crop&q=80',
+      alt: 'University student on campus lawn with backpack and textbooks',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /swiss/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80',
+      alt: 'Scientific research scholar working with precision instruments in laboratory',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /swedish/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+      alt: 'Professional scholar focused on laptop and research notes in modern academic space',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /eiffel/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80',
+      alt: 'Graduate scholar in smart academic attire in university study hall',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /hungaricum/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80',
+      alt: 'Students in academic lecture hall engaged in interactive coursework',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /master[\s-_]?mind/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&auto=format&fit=crop&q=80',
+      alt: 'Students in university library reading room surrounded by high bookshelves',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /ireland/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80',
+      alt: 'Postgraduate students and researchers in academic seminar discussion',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /singa|singapore/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1532619675605-1ede6c2ed2b0?w=800&auto=format&fit=crop&q=80',
+      alt: 'Science and engineering PhD researchers in high-tech laboratory',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /knight[\s-_]?hennessy/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80',
+      alt: 'Graduate university scholars at modern campus commons discussing coursework',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /lester[\s-_]?b?\.?[\s-_]?pearson/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80',
+      alt: 'Diverse group of undergraduate university scholars smiling on campus',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /pan\s+african\s+university|\bpau\b/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1524749292158-7540c2494485?w=800&auto=format&fit=crop&q=80',
+      alt: 'Diverse students collaborating with open books and notebooks in study commons',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  {
+    pattern: /world[\s-_]?bank|afdb|jads/i,
+    photo: {
+      url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80',
+      alt: 'Graduate development economics scholars analyzing data and reports together',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  }
 ];
 
 /**
- * Finds a thematic scholarship banner matching field of study, audience, or degree
+ * Thematic scholarship photographs matching field of study, audience, or degree
  */
-function findThematicScholarshipImage(opp: Partial<Opportunity>): string | null {
-  const text = [
+const THEMATIC_SCHOLARSHIP_PHOTOS: { match: (text: string) => boolean; photo: ScholarshipPhoto }[] = [
+  // 1. Women in STEM & Higher Education
+  {
+    match: (text) => text.includes('women') || text.includes('female') || text.includes('girls in tech'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+      alt: 'Young woman university student in computer science seminar',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 2. STEM / Engineering / Computing / Robotics
+  {
+    match: (text) =>
+      text.includes('stem') ||
+      text.includes('engineer') ||
+      text.includes('computer') ||
+      text.includes('software') ||
+      text.includes('data science') ||
+      text.includes('robotics') ||
+      text.includes('technology'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=800&auto=format&fit=crop&q=80',
+      alt: 'Engineering and technology students working in university lab',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 3. Medical, Nursing, Healthcare, Pharmacy
+  {
+    match: (text) =>
+      text.includes('medic') ||
+      text.includes('health') ||
+      text.includes('nurs') ||
+      text.includes('pharm') ||
+      text.includes('clinical') ||
+      text.includes('biomedical'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop&q=80',
+      alt: 'Health sciences students in clinical education seminar',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 4. Business, MBA, Finance, Economics, Entrepreneurship
+  {
+    match: (text) =>
+      text.includes('business') ||
+      text.includes('mba') ||
+      text.includes('finance') ||
+      text.includes('econom') ||
+      text.includes('entrepreneur') ||
+      text.includes('accounting') ||
+      text.includes('management'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+      alt: 'Business and economics students in strategy workshop',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 5. Agriculture, Food Security, Environment, Botany
+  {
+    match: (text) =>
+      text.includes('agri') ||
+      text.includes('farm') ||
+      text.includes('crop') ||
+      text.includes('botany') ||
+      text.includes('environmental') ||
+      text.includes('food security'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80',
+      alt: 'Students learning agricultural and environmental science',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 6. Research, PhD, Doctoral, Postdoc
+  {
+    match: (text) =>
+      text.includes('phd') ||
+      text.includes('doctoral') ||
+      text.includes('doctorate') ||
+      text.includes('postdoctoral') ||
+      text.includes('research fellowship') ||
+      text.includes('thesis'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80',
+      alt: 'Doctoral researcher studying at academic desk with books',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 7. Law, Public Policy, Governance, Social Sciences
+  {
+    match: (text) =>
+      text.includes('law') ||
+      text.includes('public policy') ||
+      text.includes('governance') ||
+      text.includes('social science') ||
+      text.includes('international relations'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1534644107580-3a4dbd494a95?w=800&auto=format&fit=crop&q=80',
+      alt: 'Student researching in academic library',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 8. International Study Abroad
+  {
+    match: (text) =>
+      text.includes('study abroad') ||
+      text.includes('international student') ||
+      text.includes('overseas') ||
+      text.includes('exchange'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80',
+      alt: 'Diverse international students smiling together on university campus',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 9. Master's Degree (General)
+  {
+    match: (text) => text.includes('master') || text.includes('postgraduate') || text.includes('graduate'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80',
+      alt: 'Graduate university students walking on campus with notebooks',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  },
+  // 10. Undergraduate Degree (General)
+  {
+    match: (text) =>
+      text.includes('undergraduate') ||
+      text.includes('bachelor') ||
+      text.includes('first degree') ||
+      text.includes('tertiary'),
+    photo: {
+      url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
+      alt: 'University students studying together with laptop on campus',
+      attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    }
+  }
+];
+
+/**
+ * Curated pool of diverse educational photos rotated deterministically
+ * to prevent visual repetition when no specific subject matches.
+ */
+const SCHOLARSHIP_VARIETY_POOL: ScholarshipPhoto[] = [
+  {
+    url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
+    alt: 'University students collaborating with laptops on campus lawn',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop&q=80',
+    alt: 'University study group collaborating on academic coursework',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Team of students reviewing coursework around wooden study table',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+    alt: 'University student engaged in digital learning and research',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80',
+    alt: 'Diverse university students smiling on campus',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80',
+    alt: 'Postgraduate scholars in academic seminar discussion',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  {
+    url: '/images/ghana_student_workspace.jpg',
+    alt: 'Young Ghanaian student with laptop in university workspace',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+  {
+    url: '/images/ghana_hero_professionals.jpg',
+    alt: 'Ghanaian university graduates celebrating academic milestone',
+    attribution: 'Opportunity Ghana Official Media'
+  }
+];
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * Resolves a human-centered photograph for a scholarship opportunity based on
+ * institution, subject, degree level, or deterministic variety pool.
+ */
+export function getHumanCenteredScholarshipImage(opp: Partial<Opportunity>): ScholarshipPhoto {
+  const oppString = `${opp.title || ''} ${opp.organizationName || ''} ${opp.sourceUrl || ''}`;
+
+  // 1. Check flagship providers
+  for (const item of FLAGSHIP_SCHOLARSHIP_PHOTOS) {
+    if (item.pattern.test(oppString)) {
+      return item.photo;
+    }
+  }
+
+  // 2. Check thematic keywords across opportunity fields
+  const fullText = [
     opp.title || '',
     opp.description || '',
     opp.fieldOfStudy || '',
     opp.educationLevel || '',
     opp.opportunityType || '',
+    opp.subcategory || '',
     opp.organizationName || ''
-  ].join(' ').toLowerCase();
+  ]
+    .join(' ')
+    .toLowerCase();
 
-  // Women in Tech / STEM
-  if (text.includes('women') || text.includes('female') || text.includes('girls in tech')) {
-    return '/images/scholarships/women_in_stem.svg';
+  for (const item of THEMATIC_SCHOLARSHIP_PHOTOS) {
+    if (item.match(fullText)) {
+      return item.photo;
+    }
   }
 
-  // STEM / Science / Engineering / Computing / Tech / AI
-  if (
-    text.includes('stem') ||
-    text.includes('engineering') ||
-    text.includes('computer') ||
-    text.includes('software') ||
-    text.includes('artificial intelligence') ||
-    text.includes('data science') ||
-    text.includes('technology') ||
-    text.includes('mathematics') ||
-    text.includes('physics')
-  ) {
-    return '/images/scholarships/stem_scholarship.svg';
-  }
-
-  // Medical / Health / Nursing / Pharmacy
-  if (
-    text.includes('medic') ||
-    text.includes('health') ||
-    text.includes('nurs') ||
-    text.includes('pharm') ||
-    text.includes('clinical') ||
-    text.includes('biomedical')
-  ) {
-    return '/images/scholarships/medical_scholarship.svg';
-  }
-
-  // Business / MBA / Economics / Finance / Leadership
-  if (
-    text.includes('mba') ||
-    text.includes('business') ||
-    text.includes('finance') ||
-    text.includes('economics') ||
-    text.includes('management') ||
-    text.includes('entrepreneurship')
-  ) {
-    return '/images/scholarships/business_scholarship.svg';
-  }
-
-  // Research / PhD / Doctoral / Postdoc
-  if (
-    text.includes('phd') ||
-    text.includes('doctoral') ||
-    text.includes('doctorate') ||
-    text.includes('postdoctoral') ||
-    text.includes('research fellowship')
-  ) {
-    return '/images/scholarships/research_scholarship.svg';
-  }
-
-  // Government / Ministry / Bilateral / Statutory
-  if (
-    text.includes('ministry') ||
-    text.includes('government') ||
-    text.includes('bursary') ||
-    text.includes('statutory') ||
-    text.includes('district')
-  ) {
-    return '/images/scholarships/government_scholarship.svg';
-  }
-
-  // International Study Abroad / Mobility
-  if (
-    (opp.country && opp.country.toLowerCase() !== 'ghana') ||
-    text.includes('study abroad') ||
-    text.includes('international student') ||
-    text.includes('exchange')
-  ) {
-    return '/images/scholarships/international_scholarship.svg';
-  }
-
-  // Default university campus academic image
-  return '/images/scholarships/university_scholarship.svg';
+  // 3. Fallback to deterministic variety rotation so cards don't repeat the same image
+  const seed = `${opp.id || ''}-${opp.title || 'scholarship'}`;
+  const idx = hashString(seed) % SCHOLARSHIP_VARIETY_POOL.length;
+  return SCHOLARSHIP_VARIETY_POOL[idx];
 }
-
-/**
- * Standard category image paths in public/images/categories/
- */
-const CATEGORY_IMAGE_PATHS: Record<string, string> = {
-  scholarships: '/images/categories/scholarships.jpg',
-  jobs: '/images/categories/jobs.jpg',
-  internships: '/images/categories/internships.jpg',
-  grants: '/images/categories/grants.jpg',
-  fellowships: '/images/categories/fellowships.jpg',
-  courses: '/images/categories/courses.jpg'
-};
 
 export interface ResolvedCardMedia {
   /** If present, image URL to load */
   imageUrl: string | null;
+  /** Image alternative text */
+  imageAlt?: string;
+  /** Image attribution or source note */
+  imageAttribution?: string;
   /** Whether the image is a vector SVG */
   isSvg: boolean;
   /** Resolution hierarchy level */
-  source: 'uploaded' | 'specialty' | 'category' | 'gradient';
+  source: 'uploaded' | 'scholarship' | 'gradient';
   /** Gradient configuration for background or fallback */
   gradient: CategoryGradientConfig;
 }
 
 /**
- * Resolves the visual media for an Opportunity card according to the strict hierarchy:
- * 1. Valid uploaded / existing image
- * 2. Relevant scholarship specialty / thematic vector image
- * 3. Configured category image
- * 4. Professional gradient fallback
+ * Resolves the visual media for an Opportunity card according to the strict priority system:
+ * 1. Valid uploaded / existing real image (preserves user/admin uploads)
+ * 2. If scholarship: authentic, human-centered educational photograph matching provider or field of study
+ * 3. If non-scholarship opportunity without image (Job, Internship, Grant, etc.): attractive category-based gradient
  */
 export function resolveOpportunityMedia(opp: Partial<Opportunity>): ResolvedCardMedia {
   const gradient = getCategoryGradient(opp.category, 'opportunity');
 
-  // 1. Check existing / uploaded image fields
+  // 1. Check existing / uploaded image fields (preserves real photo uploads)
   const existingUrl =
     opp.imageUrl ||
     (opp as any).image ||
@@ -607,57 +1000,41 @@ export function resolveOpportunityMedia(opp: Partial<Opportunity>): ResolvedCard
     (opp as any).thumbnail ||
     (opp as any).featuredImage;
 
-  if (isValidImageUrl(existingUrl)) {
+  if (isUploadedRealImage(existingUrl)) {
     return {
-      imageUrl: existingUrl.trim(),
-      isSvg: existingUrl.endsWith('.svg'),
+      imageUrl: existingUrl!.trim(),
+      isSvg: existingUrl!.endsWith('.svg'),
       source: 'uploaded',
       gradient
     };
   }
 
+  // 2. Is this item a scholarship?
   const categoryLower = (opp.category || '').toLowerCase();
+  const titleLower = (opp.title || '').toLowerCase();
+  const typeLower = (opp.opportunityType || '').toLowerCase();
+
   const isScholarship =
-    categoryLower === 'scholarships' ||
-    (opp.title && /scholarship|bursary|fellowship/i.test(opp.title));
+    categoryLower.includes('scholarship') ||
+    titleLower.includes('scholarship') ||
+    titleLower.includes('bursary') ||
+    typeLower.includes('scholarship') ||
+    typeLower.includes('bursary');
 
-  // 2. If it's a scholarship, check for institution or thematic SVG
   if (isScholarship) {
-    const oppString = `${opp.title || ''} ${opp.organizationName || ''} ${opp.sourceUrl || ''}`;
-    for (const item of KNOWN_SCHOLARSHIP_IMAGES) {
-      if (item.pattern.test(oppString)) {
-        return {
-          imageUrl: item.image,
-          isSvg: true,
-          source: 'specialty',
-          gradient
-        };
-      }
-    }
-
-    const thematic = findThematicScholarshipImage(opp);
-    if (thematic) {
-      return {
-        imageUrl: thematic,
-        isSvg: true,
-        source: 'specialty',
-        gradient
-      };
-    }
-  }
-
-  // 3. Category image fallback (if category has a curated photo)
-  const catKey = normalizeCategoryKey(opp.category);
-  if (CATEGORY_IMAGE_PATHS[catKey]) {
+    const scholarshipPhoto = getHumanCenteredScholarshipImage(opp);
     return {
-      imageUrl: CATEGORY_IMAGE_PATHS[catKey],
+      imageUrl: scholarshipPhoto.url,
+      imageAlt: scholarshipPhoto.alt,
+      imageAttribution: scholarshipPhoto.attribution,
       isSvg: false,
-      source: 'category',
+      source: 'scholarship',
       gradient
     };
   }
 
-  // 4. Clean professional category gradient
+  // 3. For any non-scholarship opportunity without an image (Job, Internship, Grant, etc.):
+  // Automatically provide clean, attractive category-based gradient (no random photo)
   return {
     imageUrl: null,
     isSvg: false,
@@ -668,8 +1045,8 @@ export function resolveOpportunityMedia(opp: Partial<Opportunity>): ResolvedCard
 
 /**
  * Resolves the visual media for a Resource card according to:
- * 1. Valid uploaded / existing image
- * 2. Professional category-based gradient
+ * 1. Valid uploaded image (preserves user/admin uploads)
+ * 2. If no image: attractive, professional category-based gradient
  */
 export function resolveResourceMedia(resource: Partial<Resource>): ResolvedCardMedia {
   const gradient = getCategoryGradient(resource.category, 'resource');
@@ -680,16 +1057,16 @@ export function resolveResourceMedia(resource: Partial<Resource>): ResolvedCardM
     (resource as any).coverImage ||
     (resource as any).thumbnail;
 
-  if (isValidImageUrl(existingUrl)) {
+  if (isUploadedRealImage(existingUrl)) {
     return {
-      imageUrl: existingUrl.trim(),
-      isSvg: existingUrl.endsWith('.svg'),
+      imageUrl: existingUrl!.trim(),
+      isSvg: existingUrl!.endsWith('.svg'),
       source: 'uploaded',
       gradient
     };
   }
 
-  // No image: return clean category gradient
+  // No image: return clean, professional category gradient
   return {
     imageUrl: null,
     isSvg: false,

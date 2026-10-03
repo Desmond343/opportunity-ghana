@@ -182,19 +182,19 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
           {/* Main Visual Image */}
           <img
             src={media.imageUrl!}
-            alt={alt}
+            alt={media.imageAlt || alt}
             onError={() => setImageError(true)}
-            className={`w-full h-full object-cover transition-transform duration-500 ${
+            className={`w-full h-full object-cover object-[center_25%] transition-transform duration-500 ease-out ${
               hoverScale ? 'group-hover:scale-105' : ''
             }`}
             loading="lazy"
           />
 
-          {/* Subtle Bottom-To-Top Dark Gradient Overlay for Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/25 to-transparent pointer-events-none" />
+          {/* Subtle bottom gradient to ground the visual header and blend into card body */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
 
-          {/* Subtle top vignette for badges contrast */}
-          <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-slate-950/60 to-transparent pointer-events-none" />
+          {/* Subtle top vignette for crisp floating badge legibility */}
+          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
         </>
       ) : (
         /* Professional Category Gradient Banner */

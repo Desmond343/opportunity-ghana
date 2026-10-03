@@ -4,7 +4,9 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
+import { verifyUserToken } from './server/authMiddleware.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
+import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 
 const app = express();
@@ -103,14 +105,34 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
       (req as any).user = decoded;
       return next();
     } catch (err: any) {
-      return res.status(401).json({
-        error: `Unauthorized: Token verification failed (${err.message || 'invalid token'}).`
-      });
+      // Continue to verifyUserToken fallback
     }
   }
 
-  return res.status(503).json({
-    error: 'Service unavailable: Authentication verification engine not ready.'
+  // Fallback token verification using Google Identity Toolkit REST API
+  try {
+    const verified = await verifyUserToken(token);
+    if (verified && (verified.role === 'admin' || verified.role === 'editor')) {
+      (req as any).user = {
+        uid: verified.uid,
+        email: verified.email,
+        name: verified.email.split('@')[0],
+        role: verified.role
+      };
+      return next();
+    }
+
+    if (verified) {
+      return res.status(403).json({
+        error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.'
+      });
+    }
+  } catch (restErr: any) {
+    console.debug('REST token verification notice:', restErr.message);
+  }
+
+  return res.status(401).json({
+    error: 'Unauthorized: Invalid or expired authentication token.'
   });
 }
 
@@ -510,6 +532,178 @@ app.post('/api/ai/extract', verifyAdminAuth, async (req, res) => {
   } catch (error: any) {
     console.error('Error in /api/ai/extract:', error);
     return res.status(500).json({ error: error.message || 'Failed to extract content' });
+  }
+});
+
+// Scholarship Research In-Memory Store & Endpoints
+const scholarshipRuns: any[] = [];
+
+// 1. Start research run (Admin only)
+app.post('/api/admin/scholarship-research/start', verifyAdminAuth, async (req, res) => {
+  try {
+    const params = req.body || {};
+    const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
+
+    let existingOpps: any[] = [...VERIFIED_REAL_SCHOLARSHIPS];
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('opportunities').get();
+        if (!snap.empty) {
+          existingOpps = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        }
+      } catch (err: any) {
+        console.warn('Error fetching opps for research dedup:', err.message);
+      }
+    }
+
+    const { run, candidates } = await executeScholarshipResearch(
+      params,
+      { email: user.email || 'admin@opportunityghana.com', name: user.name || user.email || 'Administrator' },
+      existingOpps
+    );
+
+    scholarshipRuns.unshift(run);
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('scholarship_research_runs').doc(run.id).set(run);
+      } catch (err: any) {
+        console.warn('Error saving scholarship run to Firestore:', err.message);
+      }
+    }
+
+    return res.json({ success: true, run, candidates });
+  } catch (error: any) {
+    console.error('Error starting scholarship research:', error);
+    return res.status(500).json({ error: error.message || 'Failed to execute scholarship research' });
+  }
+});
+
+// 2. Recheck active deadlines (Admin only)
+app.post('/api/admin/scholarship-research/recheck', verifyAdminAuth, async (req, res) => {
+  try {
+    let opps: any[] = [...VERIFIED_REAL_SCHOLARSHIPS];
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('opportunities').get();
+        if (!snap.empty) {
+          opps = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        }
+      } catch (err: any) {
+        console.warn('Error loading opps for recheck:', err.message);
+      }
+    }
+
+    const summary = recheckScholarshipDeadlines(opps);
+
+    if (adminDb && isInitialized && summary.updatedItems.length > 0) {
+      try {
+        const batch = adminDb.batch();
+        for (const item of summary.updatedItems) {
+          const docRef = adminDb.collection('opportunities').doc(item.id);
+          batch.update(docRef, {
+            status: item.newStatus,
+            verificationStatus: 'closed',
+            closedAt: summary.timestamp,
+            updatedAt: summary.timestamp
+          });
+        }
+        await batch.commit();
+      } catch (e: any) {
+        console.warn('Error saving recheck updates:', e.message);
+      }
+    }
+
+    return res.json({ success: true, summary });
+  } catch (error: any) {
+    console.error('Error during deadline recheck:', error);
+    return res.status(500).json({ error: error.message || 'Failed to recheck scholarship deadlines' });
+  }
+});
+
+// 3. Past research runs (Admin only)
+app.get('/api/admin/scholarship-research/runs', verifyAdminAuth, async (req, res) => {
+  try {
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('scholarship_research_runs').orderBy('startedAt', 'desc').limit(20).get();
+        if (!snap.empty) {
+          return res.json(snap.docs.map((d: any) => ({ id: d.id, ...d.data() })));
+        }
+      } catch {}
+    }
+    return res.json(scholarshipRuns);
+  } catch (error: any) {
+    console.error('Error fetching scholarship runs:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch scholarship runs' });
+  }
+});
+
+// 4. Publish discovered scholarship (Admin only)
+app.post('/api/admin/scholarship-research/publish', verifyAdminAuth, async (req, res) => {
+  try {
+    const { scholarship } = req.body || {};
+    if (!scholarship || !scholarship.title || !scholarship.officialApplicationUrl) {
+      return res.status(400).json({ error: 'Valid scholarship candidate is required.' });
+    }
+
+    const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
+    const now = new Date().toISOString();
+    const id = scholarship.matchedExistingId || scholarship.id || `opp-sch-${Date.now()}`;
+    const slug = scholarship.slug || scholarship.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const publishedOpp = {
+      id,
+      title: scholarship.title,
+      slug,
+      description: scholarship.description || '',
+      organizationName: scholarship.providerName,
+      category: 'Scholarships',
+      subcategory: scholarship.studyLevel || 'Scholarships',
+      opportunityType: scholarship.fundingType || 'Fully Funded',
+      location: scholarship.location || 'Ghana',
+      country: scholarship.country || 'Ghana',
+      nationality: scholarship.nationality || 'Ghanaian citizens only',
+      educationLevel: scholarship.studyLevel || 'Undergraduate',
+      fieldOfStudy: scholarship.fieldOfStudy || 'Open to All Fields',
+      fundingType: scholarship.fundingType || 'Fully Funded',
+      funding: scholarship.fundingDetails || '',
+      tuition: scholarship.tuition || '',
+      stipend: scholarship.stipend || '',
+      travel: scholarship.travel || '',
+      accommodation: scholarship.accommodation || '',
+      benefits: scholarship.benefits || [],
+      requirements: scholarship.academicRequirements || [],
+      documentsRequired: scholarship.documentsRequired || [],
+      deadline: scholarship.deadline || '',
+      applicationUrl: scholarship.officialApplicationUrl,
+      sourceUrl: scholarship.sourceUrl || scholarship.officialApplicationUrl,
+      sourceName: scholarship.sourceName,
+      imageUrl: scholarship.imageUrl || '',
+      status: 'published',
+      verificationStatus: 'verified',
+      academicYear: scholarship.academicYear || '2026/2027',
+      isDeadlineVerified: scholarship.isDeadlineVerified ?? true,
+      lastVerifiedAt: now,
+      publishedAt: now,
+      publishedByEmail: user.email,
+      reviewedBy: user.name || user.email || 'Administrator',
+      reviewedByEmail: user.email,
+      createdAt: scholarship.createdAt || now,
+      updatedAt: now
+    };
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('opportunities').doc(id).set(publishedOpp, { merge: true });
+      } catch (err: any) {
+        console.warn('Error writing published scholarship to Firestore:', err.message);
+      }
+    }
+
+    return res.json({ success: true, opportunity: publishedOpp });
+  } catch (error: any) {
+    console.error('Error publishing scholarship:', error);
+    return res.status(500).json({ error: error.message || 'Failed to publish scholarship' });
   }
 });
 
