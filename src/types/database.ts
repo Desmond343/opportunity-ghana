@@ -267,6 +267,22 @@ export interface Resource {
 
   // Pricing & Accessibility Details
   pricingModel?: 'one-time' | 'monthly' | 'subscription' | 'annual' | 'per-course' | 'per-exam' | 'free';
+  freeStatus?: 'completely_free' | 'free_to_audit' | 'free_with_paid_certificate' | 'paid';
+  certificateStatus?: 'free_certificate' | 'paid_certificate' | 'no_certificate';
+  certificateCost?: string;
+  courseUrl?: string;
+  providerWebsite?: string;
+  estimatedWorkload?: string;
+  language?: string;
+  subtitles?: string;
+  startDate?: string;
+  endDate?: string;
+  enrollmentDeadline?: string;
+  requiredSoftware?: string;
+  learningOutcomes?: string[];
+  assessmentMethod?: string;
+  geographicRestrictions?: string;
+  enrollmentNotes?: string;
   targetAudience?: string;
   paymentNotes?: string;
   accessGhanaNotes?: string;

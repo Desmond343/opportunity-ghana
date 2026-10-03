@@ -1,6 +1,14 @@
 import { Resource } from '../types/database';
+import { VERIFIED_FREE_TECH_AND_DATA_COURSES } from './freeCoursesTechAndData';
+import { VERIFIED_FREE_BUSINESS_AND_CAREER_COURSES } from './freeCoursesBusinessAndCareer';
+
+export const VERIFIED_FREE_COURSES: Resource[] = [
+  ...VERIFIED_FREE_TECH_AND_DATA_COURSES,
+  ...VERIFIED_FREE_BUSINESS_AND_CAREER_COURSES
+];
 
 export const VERIFIED_REAL_RESOURCES: Resource[] = [
+  ...VERIFIED_FREE_COURSES,
   {
     id: 'res-aws-solutions-architect-assoc',
     title: 'AWS Certified Solutions Architect – Associate (SAA-C03)',

@@ -66,7 +66,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
-          ResourcesService.getFreeCourses(3),
+          ResourcesService.getFreeCourses(6),
           OpportunitiesService.getAll({ onlyActive: true })
         ]);
         setSlideshowOpps(slides);
@@ -841,32 +841,33 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* ==================================================
-          8. RESOURCES & LEARNING PATHS
+          8. VERIFIED FREE ONLINE COURSES & LEARNING PATHS
          ================================================== */}
       {freeCourses.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#006B3F]" />
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
-                  Featured Learning Resources
-                </h2>
+              <div className="flex items-center gap-2 text-xs font-bold text-[#006B3F] mb-1">
+                <BookOpen className="w-4 h-4" />
+                <span>Verified Free Skills &amp; Certificates</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Courses, bootcamps, and verified credentials to build high-demand skills in Ghana.
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
+                Verified Free Online Courses
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
+                100% genuine free courses from Harvard, MIT, freeCodeCamp, Cisco, Google, IBM, HubSpot, UN FAO, and Jobberman Ghana—each verified for certificate status and direct access in Ghana.
               </p>
             </div>
             <button
-              onClick={() => onNavigate('/resources')}
-              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+              onClick={() => onNavigate('/free-courses')}
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer shrink-0"
             >
-              <span>View all resources</span>
+              <span>Browse all 34+ free courses</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {freeCourses.map((resource) => (
               <ResourceCard
                 key={resource.id}

@@ -138,10 +138,10 @@ export function AppContent() {
       return <ResourceDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    // 5. Resources Directory: /resources
-    if (currentPath === '/resources') {
+    // 5. Resources Directory: /resources and /free-courses
+    if (currentPath === '/resources' || currentPath === '/free-courses') {
       const searchParams = new URLSearchParams(window.location.search);
-      const isFree = searchParams.get('free') === 'true';
+      const isFree = currentPath === '/free-courses' || searchParams.get('free') === 'true';
       const isPaid = searchParams.get('paid') === 'true';
       const type = searchParams.get('type') || 'All';
       const openSubmit = searchParams.get('action') === 'submit';

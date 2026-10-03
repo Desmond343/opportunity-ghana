@@ -75,6 +75,10 @@ export interface ResourceFilters {
   category?: string;
   resourceType?: string;
   isFree?: boolean;
+  freeStatus?: string;
+  certificateStatus?: string;
+  level?: string;
+  provider?: string;
   pricingModel?: string;
   search?: string;
   hasCertificate?: boolean;
@@ -132,6 +136,21 @@ export const ResourcesService = {
       if (filters.isFree !== undefined) {
         items = items.filter(r => r.isFree === filters.isFree);
       }
+      if (filters.freeStatus && filters.freeStatus !== 'All') {
+        items = items.filter(r => r.freeStatus === filters.freeStatus);
+      }
+      if (filters.certificateStatus && filters.certificateStatus !== 'All') {
+        items = items.filter(r => {
+          const certStatus = r.certificateStatus || (r.hasCertificate ? 'free_certificate' : 'no_certificate');
+          return certStatus === filters.certificateStatus;
+        });
+      }
+      if (filters.level && filters.level !== 'All') {
+        items = items.filter(r => r.level === filters.level);
+      }
+      if (filters.provider && filters.provider !== 'All') {
+        items = items.filter(r => (r.providerName || '').toLowerCase().includes(filters.provider!.toLowerCase()));
+      }
       if (filters.pricingModel && filters.pricingModel !== 'All') {
         items = items.filter(r => r.pricingModel === filters.pricingModel);
       }
@@ -143,6 +162,7 @@ export const ResourcesService = {
         items = items.filter(r =>
           r.title.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q) ||
+          (r.subcategory && r.subcategory.toLowerCase().includes(q)) ||
           r.skills.some(s => s.toLowerCase().includes(q)) ||
           (r.providerName && r.providerName.toLowerCase().includes(q))
         );
