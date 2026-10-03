@@ -27,10 +27,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
 
   const navLinks = [
     { label: 'Home', path: '/' },
-    { label: 'Opportunities', path: '/opportunities' },
-    { label: 'Institutions & Admissions', path: '/institutions' },
+    { label: 'Jobs', path: '/jobs' },
+    { label: 'Internships', path: '/internships' },
+    { label: 'Scholarships', path: '/scholarships' },
+    { label: 'All Opportunities', path: '/opportunities' },
     { label: 'Resources', path: '/resources' },
-    { label: 'Careers', path: '/careers' },
     { label: 'Saved', path: '/saved' }
   ];
 

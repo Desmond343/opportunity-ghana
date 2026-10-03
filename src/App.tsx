@@ -50,11 +50,9 @@ export function AppContent() {
   }, []);
 
   const navigate = (path: string) => {
-    if (path !== currentPath) {
-      window.history.pushState({}, '', path);
-      setCurrentPath(path.split('?')[0]);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleGlobalSearch = (e: React.FormEvent) => {
@@ -68,24 +66,60 @@ export function AppContent() {
 
   // Route Resolver
   const renderRoute = () => {
-    // 1. User Opportunity Submission: /opportunities/submit
-    if (currentPath === '/opportunities/submit') {
+    const [pathname, queryString] = currentPath.split('?');
+
+    // 1. Direct Jobs Route: /jobs
+    if (pathname === '/jobs') {
+      return (
+        <OpportunitiesPage
+          key="Jobs"
+          onNavigate={navigate}
+          initialCategory="Jobs"
+        />
+      );
+    }
+
+    // 2. Direct Internships Route: /internships
+    if (pathname === '/internships') {
+      return (
+        <OpportunitiesPage
+          key="Internships"
+          onNavigate={navigate}
+          initialCategory="Internships"
+        />
+      );
+    }
+
+    // 3. Direct Scholarships Route: /scholarships
+    if (pathname === '/scholarships') {
+      return (
+        <OpportunitiesPage
+          key="Scholarships"
+          onNavigate={navigate}
+          initialCategory="Scholarships"
+        />
+      );
+    }
+
+    // 4. User Opportunity Submission: /opportunities/submit
+    if (pathname === '/opportunities/submit') {
       return <SubmitOpportunityPage onNavigate={navigate} />;
     }
 
-    // 2. Opportunities Detail: /opportunities/:slug
-    if (currentPath.startsWith('/opportunities/') && currentPath !== '/opportunities') {
-      const slug = currentPath.replace('/opportunities/', '').replace(/\/$/, '');
+    // 5. Opportunities Detail: /opportunities/:slug
+    if (pathname.startsWith('/opportunities/') && pathname !== '/opportunities') {
+      const slug = pathname.replace('/opportunities/', '').replace(/\/$/, '');
       return <OpportunityDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    // 3. Opportunities Directory: /opportunities
-    if (currentPath === '/opportunities') {
-      const searchParams = new URLSearchParams(window.location.search);
+    // 6. Opportunities Directory: /opportunities
+    if (pathname === '/opportunities') {
+      const searchParams = new URLSearchParams(queryString || window.location.search);
       const category = searchParams.get('category') || 'All';
       const search = searchParams.get('search') || '';
       return (
         <OpportunitiesPage
+          key={`${category}-${search}`}
           onNavigate={navigate}
           initialCategory={category}
           initialQuery={search}

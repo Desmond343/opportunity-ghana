@@ -45,8 +45,8 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
   const [category, setCategory] = useState<string>('Technology');
   const [subcategory, setSubcategory] = useState('');
   const [description, setDescription] = useState('');
-  const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels'>('Beginner');
-  const [format, setFormat] = useState<'Self-paced Online' | 'Live Online' | 'In-person' | 'Hybrid'>('Self-paced Online');
+  const [level, setLevel] = useState<Resource['level']>('Beginner');
+  const [format, setFormat] = useState<Resource['format']>('Self-paced Online');
   const [location, setLocation] = useState('Online');
   const [duration, setDuration] = useState('6 Months (10 hrs/week)');
 

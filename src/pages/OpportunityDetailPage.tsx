@@ -356,27 +356,81 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
             <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Deadline</p>
             <div className="mt-1">
-              <DeadlineBadge deadline={opportunity.deadline} />
+              <DeadlineBadge
+                deadline={opportunity.deadline}
+                isDeadlineSpecified={opportunity.isDeadlineSpecified}
+              />
             </div>
           </div>
-          <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Funding / Pay</p>
-            <p className="text-xs font-bold text-slate-900 mt-1 truncate">
-              {opportunity.fundingType || 'Fully Funded / Stipend'}
-            </p>
-          </div>
-          <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Education Level</p>
-            <p className="text-xs font-bold text-slate-900 mt-1 truncate">
-              {opportunity.educationLevel || 'All Qualifications'}
-            </p>
-          </div>
-          <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Nationality</p>
-            <p className="text-xs font-bold text-slate-900 mt-1 truncate">
-              {opportunity.nationality || 'Ghanaian Citizens'}
-            </p>
-          </div>
+
+          {opportunity.category === 'Jobs' ? (
+            <>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Arrangement</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.workArrangement ? `${opportunity.workArrangement === 'Remote' ? '🌐' : opportunity.workArrangement === 'Hybrid' ? '🔄' : '🏢'} ${opportunity.workArrangement}` : '🏢 On-site'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Employment Type</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.employmentType || 'Full-time'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Salary / Compensation</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate" title={opportunity.salary || 'Salary not disclosed by employer'}>
+                  {opportunity.salary || 'Salary not disclosed'}
+                </p>
+              </div>
+            </>
+          ) : opportunity.category === 'Internships' ? (
+            <>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Compensation</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate" title={opportunity.stipend || opportunity.internshipType || 'Stipend provided'}>
+                  {opportunity.internshipType === 'Paid'
+                    ? (opportunity.stipend ? `💰 ${opportunity.stipend}` : '💰 Paid Internship')
+                    : opportunity.internshipType === 'Unpaid'
+                    ? '📄 Unpaid'
+                    : 'Compensation not specified'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duration</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.duration || 'Standard Placement'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Arrangement</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.workArrangement ? `${opportunity.workArrangement === 'Remote' ? '🌐' : opportunity.workArrangement === 'Hybrid' ? '🔄' : '🏢'} ${opportunity.workArrangement}` : '🏢 On-site'}
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Funding / Pay</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.fundingType || 'Fully Funded / Stipend'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Education Level</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.educationLevel || 'All Qualifications'}
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Nationality</p>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
+                  {opportunity.nationality || 'Ghanaian Citizens'}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -387,12 +441,54 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           {/* Detailed Overview */}
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
             <h2 className="text-lg font-bold text-slate-900 font-space">
-              About This Opportunity
+              {opportunity.category === 'Jobs' ? 'Position Overview' : opportunity.category === 'Internships' ? 'Internship Overview' : 'About This Opportunity'}
             </h2>
             <div className="text-sm text-slate-700 leading-relaxed space-y-3">
               <p>{opportunity.description}</p>
             </div>
           </section>
+
+          {/* Key Responsibilities */}
+          {opportunity.responsibilities && opportunity.responsibilities.length > 0 && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
+                  Key Responsibilities & Duties
+                </h2>
+              </div>
+              <ul className="space-y-2.5">
+                {opportunity.responsibilities.map((resp, i) => (
+                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+                    <CheckCircle className="w-4 h-4 text-[#006B3F] shrink-0 mt-0.5" />
+                    <span>{resp}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Skills Required */}
+          {opportunity.skills && opportunity.skills.length > 0 && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
+                  Required Skills & Competencies
+                </h2>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {opportunity.skills.map((skill, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200 shadow-2xs hover:bg-[#E8F5EF] hover:text-[#006B3F] transition-colors"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Benefits */}
           {opportunity.benefits && opportunity.benefits.length > 0 && (
@@ -400,7 +496,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-emerald-600" />
                 <h2 className="text-lg font-bold text-slate-900 font-space">
-                  Benefits & Entitlements
+                  {opportunity.category === 'Jobs' ? 'Compensation & Benefits' : opportunity.category === 'Internships' ? 'Internship Benefits & Learning Outcomes' : 'Benefits & Entitlements'}
                 </h2>
               </div>
               <ul className="space-y-2.5">
@@ -550,12 +646,37 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               <div>
                 <span className="text-slate-400 font-medium block">Application Deadline:</span>
                 <span className="font-semibold text-slate-900 font-mono block">
-                  {deadlineInfo.formattedDeadline}
+                  {opportunity.isDeadlineSpecified === false ? 'Not specified by employer' : deadlineInfo.formattedDeadline}
                 </span>
                 <div className="mt-1">
-                  <DeadlineBadge deadline={opportunity.deadline} />
+                  <DeadlineBadge
+                    deadline={opportunity.deadline}
+                    isDeadlineSpecified={opportunity.isDeadlineSpecified}
+                  />
                 </div>
               </div>
+              {opportunity.workArrangement && (
+                <div>
+                  <span className="text-slate-400 font-medium block">Work Arrangement:</span>
+                  <span className="font-semibold text-slate-800">
+                    {opportunity.workArrangement === 'Remote' ? '🌐 Fully Remote' : opportunity.workArrangement === 'Hybrid' ? '🔄 Hybrid (Office & Remote)' : '🏢 On-site'}
+                  </span>
+                </div>
+              )}
+              {opportunity.employerWebsite && (
+                <div>
+                  <span className="text-slate-400 font-medium block">Employer Website:</span>
+                  <a
+                    href={opportunity.employerWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#006B3F] hover:underline flex items-center gap-1 mt-0.5 truncate"
+                  >
+                    <span className="truncate">{opportunity.employerWebsite.replace(/^https?:\/\//, '')}</span>
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </a>
+                </div>
+              )}
               <div>
                 <span className="text-slate-400 font-medium block">Method:</span>
                 <span className="font-semibold text-slate-800 capitalize">

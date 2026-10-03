@@ -4,6 +4,7 @@ import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
+import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from '../data/verifiedJobsAndInternships';
 import { detectDuplicates } from './duplicateDetection';
 import { 
   collection, 
@@ -18,6 +19,11 @@ import {
 } from 'firebase/firestore';
 
 const LOCAL_STORAGE_KEY = 'opp_gh_opportunities_store';
+
+export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = [
+  ...VERIFIED_REAL_SCHOLARSHIPS,
+  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
+];
 
 function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
   if (opp.status !== 'archived' && opp.status !== 'draft') {
@@ -49,8 +55,8 @@ function getStoredOpportunities(): Opportunity[] {
           !o.applicationUrl?.includes('example.com')
         );
 
-        // Merge in verified scholarships if any are missing or need updating
-        for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+        // Merge in verified opportunities (scholarships, jobs, and internships)
+        for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
           const existingIdx = cleaned.findIndex(o => 
             o.id === verified.id || 
             o.slug === verified.slug || 
@@ -77,8 +83,8 @@ function getStoredOpportunities(): Opportunity[] {
     console.error('Failed to load local opportunities storage', e);
   }
 
-  // Initial populate with verified real scholarships
-  const initial = VERIFIED_REAL_SCHOLARSHIPS.map(syncWithDeadlineAutomation);
+  // Initial populate with verified real scholarships, jobs, and internships
+  const initial = ALL_VERIFIED_INITIAL_OPPORTUNITIES.map(syncWithDeadlineAutomation);
   saveStoredOpportunities(initial);
   return initial;
 }
@@ -107,6 +113,11 @@ export interface OpportunityFilters {
   educationLevel?: string;
   studyLevel?: string;
   fundingType?: string;
+  workArrangement?: string;
+  employmentType?: string;
+  internshipType?: string;
+  experienceLevel?: string;
+  skills?: string[];
   isGhanaEligible?: boolean;
   status?: OpportunityStatus;
   verificationStatus?: VerificationStatus;
@@ -135,8 +146,8 @@ export const OpportunitiesService = {
           .filter((o: Opportunity) => !o.id.startsWith('opp-demo-') && !o.title?.includes('[DEMO RECORD]'));
         
         if (results.length > 0) {
-          // Merge in any missing verified scholarships
-          for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+          // Merge in any missing verified opportunities (scholarships, jobs, and internships)
+          for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
             if (!results.some((r: Opportunity) => r.id === verified.id || r.slug === verified.slug)) {
               results.push(verified);
               setDoc(doc(db, 'opportunities', verified.id), verified, { merge: true }).catch(() => {});
@@ -199,7 +210,7 @@ export const OpportunitiesService = {
             return o.locationType === 'abroad' || (!o.locationType && o.country && o.country.toLowerCase() !== 'ghana');
           }
           if (locType === 'online') {
-            return o.locationType === 'online' || o.location?.toLowerCase().includes('online') || o.opportunityType?.toLowerCase().includes('remote');
+            return o.locationType === 'online' || o.location?.toLowerCase().includes('online') || o.opportunityType?.toLowerCase().includes('remote') || o.workArrangement?.toLowerCase() === 'remote';
           }
           return true;
         });
@@ -219,6 +230,22 @@ export const OpportunitiesService = {
             (o.eligibleCountries && o.eligibleCountries.some(c => c.toLowerCase().includes('ghana')))
           )
         );
+      }
+      if (filters.workArrangement && filters.workArrangement !== 'All') {
+        const arr = filters.workArrangement.toLowerCase();
+        items = items.filter(o => o.workArrangement?.toLowerCase() === arr);
+      }
+      if (filters.employmentType && filters.employmentType !== 'All') {
+        const emp = filters.employmentType.toLowerCase();
+        items = items.filter(o => o.employmentType?.toLowerCase().includes(emp));
+      }
+      if (filters.internshipType && filters.internshipType !== 'All') {
+        const intType = filters.internshipType.toLowerCase();
+        items = items.filter(o => o.internshipType?.toLowerCase() === intType);
+      }
+      if (filters.experienceLevel && filters.experienceLevel !== 'All') {
+        const exp = filters.experienceLevel.toLowerCase();
+        items = items.filter(o => o.experienceLevel?.toLowerCase().includes(exp));
       }
       if (filters.opportunityType && filters.opportunityType !== 'All') {
         items = items.filter(o => o.opportunityType?.toLowerCase().includes(filters.opportunityType!.toLowerCase()));
@@ -247,8 +274,8 @@ export const OpportunitiesService = {
       }
       if (filters.search && filters.search.trim().length > 0) {
         const rawQ = filters.search.toLowerCase().trim();
-        // Split into tokens for multi-term matching (e.g. "scholarships for Ghanaian students")
-        const tokens = rawQ.split(/\s+/).filter(t => t.length > 2 && !['for', 'the', 'and', 'with', 'from'].includes(t));
+        // Split into tokens for multi-term matching (e.g. "software engineer accra" or "graduate internship")
+        const tokens = rawQ.split(/\s+/).filter(t => t.length > 1 && !['for', 'the', 'and', 'with', 'from', 'in', 'at'].includes(t));
         
         items = items.filter(o => {
           const searchable = [
@@ -256,13 +283,22 @@ export const OpportunitiesService = {
             o.description,
             o.organizationName || '',
             o.category,
+            o.subcategory || '',
             o.location || '',
             o.country || '',
+            o.region || '',
             o.destinationCountry || '',
             o.nationality || '',
             o.fieldOfStudy || '',
             o.fundingType || '',
-            o.studyLevel || ''
+            o.studyLevel || '',
+            o.workArrangement || '',
+            o.employmentType || '',
+            o.internshipType || '',
+            o.experienceLevel || '',
+            o.educationLevel || '',
+            o.skills?.join(' ') || '',
+            o.responsibilities?.join(' ') || ''
           ].join(' ').toLowerCase();
 
           // If exact match

@@ -34,6 +34,14 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
   });
 
   useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      category: initialCategory,
+      search: initialQuery
+    }));
+  }, [initialCategory, initialQuery]);
+
+  useEffect(() => {
     async function fetchOpportunities() {
       setLoading(true);
       try {
@@ -102,10 +110,22 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
-            Browse Opportunities
+            {filters.category === 'Jobs'
+              ? 'Verified Jobs in Ghana & Remote Roles'
+              : filters.category === 'Internships'
+              ? 'Internships & Graduate Trainee Programmes'
+              : filters.category === 'Scholarships'
+              ? 'Verified Scholarships for Ghanaian Students'
+              : 'Browse Opportunities'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Search verified jobs, scholarships, internships, grants, and training across Ghana.
+            {filters.category === 'Jobs'
+              ? 'Current, verified employment opportunities with verified employer career portals and Ghanaian eligibility.'
+              : filters.category === 'Internships'
+              ? 'Explore vetted attachments, paid internships, NSS placements, and graduate development schemes.'
+              : filters.category === 'Scholarships'
+              ? 'Search verified academic funding, fellowships, and study abroad grants for Ghanaians.'
+              : 'Search verified jobs, scholarships, internships, grants, and training across Ghana.'}
           </p>
         </div>
 

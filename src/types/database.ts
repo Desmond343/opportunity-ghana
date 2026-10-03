@@ -81,6 +81,23 @@ export interface Opportunity {
   ageRequirement?: string;
   nationality?: string; // e.g. "Ghanaian citizens only", "All nationalities"
   
+  // Specific Job & Internship Metadata
+  workArrangement?: 'On-site' | 'Hybrid' | 'Remote' | string;
+  employmentType?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Temporary' | 'Freelance' | 'Graduate Programme' | string;
+  internshipType?: 'Paid' | 'Unpaid' | 'Not Specified' | string;
+  salary?: string;
+  salaryCurrency?: string;
+  salaryFrequency?: 'monthly' | 'yearly' | 'hourly' | 'project' | string;
+  duration?: string;
+  startDate?: string;
+  endDate?: string;
+  skills?: string[];
+  responsibilities?: string[];
+  visaSupport?: string;
+  relocationSupport?: string;
+  employerWebsite?: string;
+  isDeadlineSpecified?: boolean;
+
   // Benefits
   fundingType?: string; // e.g. "Fully Funded", "Tuition Only", "Paid", "Unpaid Stipend", "Grant"
   fundingAmount?: string;
@@ -191,6 +208,21 @@ export type ResourceCategory =
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested';
 
+export type CourseCostType =
+  | 'free'
+  | 'free_to_audit'
+  | 'free_with_paid_certificate'
+  | 'paid';
+
+export type CertificateType =
+  | 'Included Free'
+  | 'Optional Paid Certificate'
+  | 'Professional Certification'
+  | 'Digital Skill Badge'
+  | 'Statement of Participation'
+  | 'Certificate of Completion'
+  | 'None';
+
 export interface Resource {
   id: string;
   title: string;
@@ -199,21 +231,35 @@ export interface Resource {
   providerId: string;
   providerName?: string;
   providerLogo?: string;
+  providerWebsiteUrl?: string;
   resourceType: ResourceType;
   category: ResourceCategory | string;
   subcategory?: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
-  format: 'Self-paced Online' | 'Live Online' | 'In-person' | 'Hybrid';
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels' | 'Not specified';
+  format: 'Self-paced Online' | 'Live Online' | 'In-person' | 'Hybrid' | 'Recorded' | 'Cohort-based';
   location?: string;
   duration: string;
   cost: number;
   currency: string;
   isFree: boolean;
+  costType?: CourseCostType;
+  costDescription?: string;
+  pricingFrequency?: 'one-time' | 'monthly' | 'annual' | 'free';
   hasCertificate: boolean;
+  certificateType?: CertificateType;
+  certificateCost?: string;
   financialAid?: boolean;
+  financialAidUrl?: string;
   skills: string[];
   prerequisites?: string[];
+  whoIsThisFor?: string[];
+  whatYouWillLearn?: string[];
   enrollmentUrl: string;
+  officialCourseUrl?: string;
+  language?: string;
+  subtitles?: string[];
+  ghanaAccessibility?: string;
+  accreditationNotes?: string;
   imageUrl?: string;
   imagePath?: string;
   imageSourceUrl?: string;
@@ -230,6 +276,7 @@ export interface Resource {
   status: OpportunityStatus | SubmissionStatus;
   verificationStatus?: VerificationStatus;
   lastVerifiedAt?: string;
+  lastPriceVerifiedAt?: string;
   verificationNotes?: string;
   
   // User Submission & Moderation Fields

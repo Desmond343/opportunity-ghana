@@ -4,6 +4,7 @@ import { useDeadlineInfo } from '../../services/deadlineService';
 
 interface DeadlineBadgeProps {
   deadline?: string;
+  isDeadlineSpecified?: boolean;
   className?: string;
   compact?: boolean;
   showDate?: boolean;
@@ -11,10 +12,25 @@ interface DeadlineBadgeProps {
 
 export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
   deadline,
+  isDeadlineSpecified,
   className = '',
   compact = false,
   showDate = false
 }) => {
+  // If the employer did not specify a deadline (Section 7 critical requirement)
+  if (isDeadlineSpecified === false) {
+    return (
+      <span
+        title="Application deadline is not specified by the employer — check the official listing."
+        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs ${className}`}
+        role="status"
+      >
+        <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+        <span>{compact ? 'No deadline specified' : 'Deadline not specified — check official listing'}</span>
+      </span>
+    );
+  }
+
   // Live reactive hook that recalculates automatically as time advances
   const info = useDeadlineInfo(deadline);
 

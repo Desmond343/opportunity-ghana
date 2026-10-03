@@ -8,6 +8,12 @@ import { verifyUserToken } from './server/authMiddleware.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
 import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
+import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
+
+const ALL_VERIFIED_INITIAL = [
+  ...VERIFIED_REAL_SCHOLARSHIPS,
+  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
+];
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -236,9 +242,9 @@ app.get('/api/opportunities', async (req, res) => {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
         let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-        // Merge with verified real scholarships to ensure all newly discovered scholarships are included
+        // Merge with verified real opportunities (scholarships, jobs, internships)
         const merged = [...items];
-        for (const verified of VERIFIED_REAL_SCHOLARSHIPS) {
+        for (const verified of ALL_VERIFIED_INITIAL) {
           const exists = merged.some(m => 
             m.id === verified.id || 
             m.slug === verified.slug || 
@@ -268,7 +274,7 @@ app.get('/api/opportunities', async (req, res) => {
     }
   }
 
-  let fallback = [...VERIFIED_REAL_SCHOLARSHIPS];
+  let fallback = [...ALL_VERIFIED_INITIAL];
   if (!includeUnpublished) {
     fallback = fallback.filter((o: any) => o.status === 'published' || o.status === 'closed');
   }
@@ -544,7 +550,7 @@ app.post('/api/admin/scholarship-research/start', verifyAdminAuth, async (req, r
     const params = req.body || {};
     const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
 
-    let existingOpps: any[] = [...VERIFIED_REAL_SCHOLARSHIPS];
+    let existingOpps: any[] = [...ALL_VERIFIED_INITIAL];
     if (adminDb && isInitialized) {
       try {
         const snap = await adminDb.collection('opportunities').get();
@@ -581,7 +587,7 @@ app.post('/api/admin/scholarship-research/start', verifyAdminAuth, async (req, r
 // 2. Recheck active deadlines (Admin only)
 app.post('/api/admin/scholarship-research/recheck', verifyAdminAuth, async (req, res) => {
   try {
-    let opps: any[] = [...VERIFIED_REAL_SCHOLARSHIPS];
+    let opps: any[] = [...ALL_VERIFIED_INITIAL];
     if (adminDb && isInitialized) {
       try {
         const snap = await adminDb.collection('opportunities').get();

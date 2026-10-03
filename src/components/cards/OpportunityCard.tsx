@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Opportunity } from '../../types/database';
 import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
-import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap, Sparkles } from 'lucide-react';
+import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap, Briefcase, Compass, Clock } from 'lucide-react';
 import { SavedService } from '../../services/savedService';
 import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
 import { CardVisualHeader } from './CardVisualHeader';
@@ -47,6 +47,8 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const isActuallyFeatured = featured || opportunity.featured;
   const media = resolveOpportunityMedia(opportunity);
+  const isJob = opportunity.category === 'Jobs';
+  const isInternship = opportunity.category === 'Internships';
 
   return (
     <article
@@ -116,11 +118,13 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </span>
             </div>
 
-            {/* Destination Country or Location */}
-            {(opportunity.destinationCountry || opportunity.country) && (
+            {/* Location / Region Badge */}
+            {(opportunity.location || opportunity.region || opportunity.country) && (
               <span className="inline-flex items-center gap-1 text-slate-600 text-[11px] font-medium bg-slate-100/80 px-2 py-0.5 rounded-md">
-                <span>🌍</span>
-                <span className="truncate">{opportunity.destinationCountry || opportunity.country}</span>
+                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                <span className="truncate">
+                  {opportunity.location || `${opportunity.region ? opportunity.region + ', ' : ''}${opportunity.country || 'Ghana'}`}
+                </span>
               </span>
             )}
           </div>
@@ -136,31 +140,80 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </p>
         </div>
 
-        {/* Tag pills: Ghanaian eligibility, study level, funding, type */}
+        {/* Tag pills: Ghanaian eligibility, work arrangement, employment/internship type, salary/funding */}
         <div className="pt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
           {/* Ghanaian Eligibility Badge */}
           {(opportunity.isGhanaEligible || opportunity.nationality?.toLowerCase().includes('ghana') || opportunity.eligibleCountries?.includes('Ghana')) && (
             <span className="px-2 py-0.5 rounded-md bg-[#E6F0EB] text-[#006B3F] font-bold border border-[#006B3F]/20">
-              ✓ Eligible for Ghanaians
+              🇬🇭 Open to Ghanaians
             </span>
           )}
 
-          {opportunity.fundingType && (
+          {/* Work Arrangement (Remote / Hybrid / On-site) */}
+          {opportunity.workArrangement && (
+            <span className={`px-2 py-0.5 rounded-md font-semibold ${
+              opportunity.workArrangement.toLowerCase() === 'remote'
+                ? 'bg-sky-50 text-sky-800 border border-sky-200'
+                : opportunity.workArrangement.toLowerCase() === 'hybrid'
+                ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                : 'bg-slate-100 text-slate-700'
+            }`}>
+              {opportunity.workArrangement.toLowerCase() === 'remote' ? '🌐 Remote' : opportunity.workArrangement.toLowerCase() === 'hybrid' ? '🔄 Hybrid' : '🏢 On-site'}
+            </span>
+          )}
+
+          {/* Employment Type for Jobs */}
+          {isJob && opportunity.employmentType && (
+            <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+              {opportunity.employmentType}
+            </span>
+          )}
+
+          {/* Internship Type (Paid vs Unpaid) */}
+          {isInternship && opportunity.internshipType && (
+            <span className={`px-2 py-0.5 rounded-md font-bold ${
+              opportunity.internshipType.toLowerCase() === 'paid'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'bg-slate-100 text-slate-700'
+            }`}>
+              {opportunity.internshipType.toLowerCase() === 'paid' ? '💰 Paid Internship' : '📄 Unpaid Internship'}
+            </span>
+          )}
+
+          {/* Duration for Internships */}
+          {isInternship && opportunity.duration && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-800 font-medium border border-indigo-100">
+              <Clock className="w-3 h-3 text-indigo-600" />
+              <span>{opportunity.duration}</span>
+            </span>
+          )}
+
+          {/* Salary where officially provided */}
+          {opportunity.salary && (
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-[#006B3F] font-bold border border-emerald-200/80">
+              💵 {opportunity.salary}
+            </span>
+          )}
+
+          {/* Funding Type for Scholarships */}
+          {!isJob && !isInternship && opportunity.fundingType && (
             <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-[#006B3F] font-semibold border border-emerald-100/60">
               {opportunity.fundingType}
             </span>
           )}
 
-          {(opportunity.studyLevel || opportunity.educationLevel) && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-[150px]">
-              <GraduationCap className="w-3 h-3 shrink-0 text-slate-500" />
-              <span className="truncate">{opportunity.studyLevel || opportunity.educationLevel}</span>
+          {/* Experience level for Jobs */}
+          {opportunity.experienceLevel && (
+            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium truncate max-w-[150px]">
+              {opportunity.experienceLevel}
             </span>
           )}
 
-          {opportunity.opportunityType && (
-            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">
-              {opportunity.opportunityType}
+          {/* Study level / education */}
+          {(opportunity.studyLevel || opportunity.educationLevel) && !opportunity.experienceLevel && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-[150px]">
+              <GraduationCap className="w-3 h-3 shrink-0 text-slate-500" />
+              <span className="truncate">{opportunity.studyLevel || opportunity.educationLevel}</span>
             </span>
           )}
         </div>
@@ -168,11 +221,14 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       {/* Footer bar with deadline & verification */}
       <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
-        <DeadlineBadge deadline={opportunity.deadline} />
+        <DeadlineBadge
+          deadline={opportunity.deadline}
+          isDeadlineSpecified={opportunity.isDeadlineSpecified}
+        />
         <div className="flex items-center gap-2">
           <VerificationBadge status={opportunity.verificationStatus} />
           <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 group-hover:text-[#006B3F] transition-colors">
-            <span className="hidden sm:inline">View Opportunity</span>
+            <span className="hidden sm:inline">View Listing</span>
             <ArrowUpRight className="w-4 h-4 text-[#006B3F]" />
           </span>
         </div>

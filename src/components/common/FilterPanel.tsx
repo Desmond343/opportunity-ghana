@@ -131,10 +131,106 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </select>
         </div>
 
+        {/* Work Arrangement Filter (Remote / Hybrid / On-site) */}
+        <div className="py-4">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+            Work Arrangement
+          </label>
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
+            {[
+              { id: 'All', label: 'All Types' },
+              { id: 'On-site', label: '🏢 On-site' },
+              { id: 'Hybrid', label: '🔄 Hybrid' },
+              { id: 'Remote', label: '🌐 Remote' }
+            ].map((arr) => (
+              <button
+                key={arr.id}
+                type="button"
+                onClick={() => onFilterChange({ ...filters, workArrangement: arr.id === 'All' ? undefined : arr.id })}
+                className={`px-2 py-1.5 rounded-lg font-medium text-left transition-all ${
+                  (filters.workArrangement === arr.id || (!filters.workArrangement && arr.id === 'All'))
+                    ? 'bg-[#006B3F] text-white font-bold'
+                    : 'bg-[#F7F9F8] text-slate-700 hover:bg-[#E6F0EB]'
+                }`}
+              >
+                {arr.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Employment Type Filter (For Jobs) */}
+        {(!filters.category || filters.category === 'All' || filters.category === 'Jobs') && (
+          <div className="py-4">
+            <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+              Employment Type
+            </label>
+            <select
+              value={filters.employmentType || 'All'}
+              onChange={(e) => onFilterChange({ ...filters, employmentType: e.target.value === 'All' ? undefined : e.target.value })}
+              className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
+            >
+              <option value="All">All Employment Types</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+              <option value="Graduate Programme">Graduate Trainee Programme</option>
+              <option value="Internship">Internship</option>
+            </select>
+          </div>
+        )}
+
+        {/* Internship Compensation Filter (For Internships) */}
+        {(!filters.category || filters.category === 'All' || filters.category === 'Internships') && (
+          <div className="py-4">
+            <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+              Internship Compensation
+            </label>
+            <div className="grid grid-cols-2 gap-1.5 text-xs">
+              {[
+                { id: 'All', label: 'All Internships' },
+                { id: 'Paid', label: '💰 Paid Only' },
+                { id: 'Unpaid', label: '📄 Unpaid' }
+              ].map((comp) => (
+                <button
+                  key={comp.id}
+                  type="button"
+                  onClick={() => onFilterChange({ ...filters, internshipType: comp.id === 'All' ? undefined : comp.id })}
+                  className={`px-2 py-1.5 rounded-lg font-medium text-left transition-all ${
+                    (filters.internshipType === comp.id || (!filters.internshipType && comp.id === 'All'))
+                      ? 'bg-[#006B3F] text-white font-bold'
+                      : 'bg-[#F7F9F8] text-slate-700 hover:bg-[#E6F0EB]'
+                  }`}
+                >
+                  {comp.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Experience Level Filter */}
+        <div className="py-4">
+          <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+            Experience Level
+          </label>
+          <select
+            value={filters.experienceLevel || 'All'}
+            onChange={(e) => onFilterChange({ ...filters, experienceLevel: e.target.value === 'All' ? undefined : e.target.value })}
+            className="w-full text-xs font-medium text-[#111111] bg-[#F7F9F8] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006B3F]"
+          >
+            <option value="All">All Experience Levels</option>
+            <option value="Student">Student / Recent Graduate</option>
+            <option value="Entry">Entry Level (0–2 years)</option>
+            <option value="Mid">Mid Level (3–5 years)</option>
+            <option value="Senior">Senior / Specialist (5+ years)</option>
+          </select>
+        </div>
+
         {/* Funding Type Filter */}
         <div className="py-4">
           <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
-            Funding Type
+            Funding Type (Scholarships / Grants)
           </label>
           <select
             value={filters.fundingType || 'All'}
