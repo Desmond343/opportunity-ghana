@@ -713,17 +713,6 @@ app.post('/api/admin/scholarship-research/publish', verifyAdminAuth, async (req,
   }
 });
 
-// Ads.txt for Google AdSense verification
-app.get('/ads.txt', (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-  const adsTxtPath = path.resolve(process.cwd(), 'public', 'ads.txt');
-  if (fs.existsSync(adsTxtPath)) {
-    return res.sendFile(adsTxtPath);
-  }
-  return res.send('google.com, pub-6039000825705760, DIRECT, f08c47fec0942fa0\n');
-});
-
 // PWA Service Worker specific headers and direct serving
 app.get('/sw.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');

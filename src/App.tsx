@@ -138,10 +138,10 @@ export function AppContent() {
       return <ResourceDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    // 5. Resources Directory: /resources and /free-courses
-    if (currentPath === '/resources' || currentPath === '/free-courses') {
+    // 5. Resources Directory: /resources
+    if (currentPath === '/resources') {
       const searchParams = new URLSearchParams(window.location.search);
-      const isFree = currentPath === '/free-courses' || searchParams.get('free') === 'true';
+      const isFree = searchParams.get('free') === 'true';
       const isPaid = searchParams.get('paid') === 'true';
       const type = searchParams.get('type') || 'All';
       const openSubmit = searchParams.get('action') === 'submit';
@@ -235,16 +235,9 @@ export function AppContent() {
   };
 
   const isAdminRoute = currentPath.startsWith('/admin');
-  const isExcludedFromAds =
-    isAdminRoute ||
-    currentPath === '/login' ||
-    currentPath === '/signup' ||
-    currentPath === '/profile' ||
-    currentPath === '/saved' ||
-    currentPath === '/alerts';
 
   return (
-    <div className={`min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans ${isExcludedFromAds ? 'google-anno-skip' : ''}`}>
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans">
       {/* Offline Status Warning */}
       <OfflineIndicator />
 
@@ -258,12 +251,7 @@ export function AppContent() {
       )}
 
       {/* Main View with mobile safe bottom spacing */}
-      <main
-        className={`flex-1 pb-20 md:pb-0 ${isExcludedFromAds ? 'google-anno-skip' : ''}`}
-        data-no-ads={isExcludedFromAds ? 'true' : undefined}
-      >
-        {renderRoute()}
-      </main>
+      <main className="flex-1 pb-20 md:pb-0">{renderRoute()}</main>
 
       {/* PWA Floating Install Prompt (suppresses automatically if installed or dismissed) */}
       {!isAdminRoute && <InstallAppPrompt variant="banner" />}

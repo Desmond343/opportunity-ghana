@@ -162,15 +162,12 @@ export const AdminService = {
     let list: Submission[] = [];
     if (isFirebaseConfigured && db) {
       try {
-        const timeout = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 3000)
-        );
-        const snap: any = await Promise.race([getDocs(collection(db, 'submissions')), timeout]);
+        const snap = await getDocs(collection(db, 'submissions'));
         list = snap.docs
-          .map((d: any) => ({ id: d.id, ...d.data() } as Submission))
-          .filter((s: any) => !s.id.startsWith('sub-0'));
+          .map(d => ({ id: d.id, ...d.data() } as Submission))
+          .filter(s => !s.id.startsWith('sub-0'));
       } catch (err) {
-        // Continue to fallback
+        console.warn('Firestore loadSubmissions error:', err);
       }
     }
 

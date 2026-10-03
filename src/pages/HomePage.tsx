@@ -5,8 +5,6 @@ import { ResourcesService } from '../services/resourcesService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
-import { InstitutionCard } from '../components/institutions/InstitutionCard';
-import { InstitutionsService } from '../services/institutionsService';
 import { OpportunitySkeleton } from '../components/common/CommonUI';
 import { GHANA_REGIONS } from '../data/categories';
 import {
@@ -58,13 +56,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   // Horizontal scroll container ref for "What's available right now?"
   const availableScrollRef = useRef<HTMLDivElement>(null);
-  const featuredInstitutions = InstitutionsService.getFeatured().slice(0, 6);
-  const [savedInstIds, setSavedInstIds] = useState<string[]>(() => InstitutionsService.getSavedIds());
-
-  const handleToggleSaveInst = (id: string) => {
-    InstitutionsService.toggleSave(id);
-    setSavedInstIds(InstitutionsService.getSavedIds());
-  };
 
   useEffect(() => {
     async function loadData() {
@@ -75,7 +66,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
-          ResourcesService.getFreeCourses(6),
+          ResourcesService.getFreeCourses(3),
           OpportunitiesService.getAll({ onlyActive: true })
         ]);
         setSlideshowOpps(slides);
@@ -480,21 +471,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
           </div>
         </div>
-
-        {/* Featured University & College Listing Cards Preview */}
-        {featuredInstitutions.length > 0 && (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredInstitutions.map((inst) => (
-              <InstitutionCard
-                key={inst.id}
-                institution={inst}
-                onNavigate={onNavigate}
-                isSaved={savedInstIds.includes(inst.id)}
-                onToggleSave={handleToggleSaveInst}
-              />
-            ))}
-          </div>
-        )}
       </section>
 
       {/* ==================================================
@@ -865,33 +841,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* ==================================================
-          8. VERIFIED FREE ONLINE COURSES & LEARNING PATHS
+          8. RESOURCES & LEARNING PATHS
          ================================================== */}
       {freeCourses.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-[#006B3F] mb-1">
-                <BookOpen className="w-4 h-4" />
-                <span>Verified Free Skills &amp; Certificates</span>
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
+                  Featured Learning Resources
+                </h2>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
-                Verified Free Online Courses
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
-                100% genuine free courses from Harvard, MIT, freeCodeCamp, Cisco, Google, IBM, HubSpot, UN FAO, and Jobberman Ghana—each verified for certificate status and direct access in Ghana.
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Courses, bootcamps, and verified credentials to build high-demand skills in Ghana.
               </p>
             </div>
             <button
-              onClick={() => onNavigate('/free-courses')}
-              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer shrink-0"
+              onClick={() => onNavigate('/resources')}
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
-              <span>Browse all 34+ free courses</span>
+              <span>View all resources</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {freeCourses.map((resource) => (
               <ResourceCard
                 key={resource.id}

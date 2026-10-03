@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { InstitutionsService } from '../services/institutionsService';
 import { Institution, AdmissionCycle } from '../types/institution';
-import { resolveInstitutionBackground } from '../utils/cardBackgrounds';
 import {
   Building2,
   MapPin,
@@ -61,8 +60,6 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
     setIsSaved(next);
   };
 
-  const bgMedia = resolveInstitutionBackground(institution);
-
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href);
@@ -108,20 +105,8 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
         </div>
 
         {/* Hero Card */}
-        <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8">
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-            <img
-              src={bgMedia.imageUrl}
-              alt={bgMedia.alt}
-              loading="eager"
-              decoding="async"
-              referrerPolicy="no-referrer"
-              className={`w-full h-full object-cover ${bgMedia.focalPointClass} opacity-[0.18] saturate-[1.06]`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/82 to-white/55" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-white/75 to-white/95" />
-          </div>
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">

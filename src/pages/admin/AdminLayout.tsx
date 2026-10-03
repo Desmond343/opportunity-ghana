@@ -79,7 +79,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
   // Route protection: Must be authenticated and possess admin or editor claim
   if (!currentUser || !isEditorOrAdmin) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-4 bg-slate-50 google-anno-skip" data-no-ads="true">
+      <div className="min-h-[80vh] flex items-center justify-center p-4 bg-slate-50">
         <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-6 shadow-xl">
           <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
             <ShieldAlert className="w-7 h-7" />
@@ -160,7 +160,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
   const maskedUid = rawUid.length > 8 ? `${rawUid.slice(0, 4)}••••${rawUid.slice(-4)}` : rawUid;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col google-anno-skip" data-no-ads="true">
+    <div className="min-h-screen bg-slate-100 flex flex-col">
       {/* Top Admin Header */}
       <header className="bg-slate-900 text-white border-b border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">

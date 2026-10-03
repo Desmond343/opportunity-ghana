@@ -221,11 +221,7 @@ export type CertificateType =
   | 'Digital Skill Badge'
   | 'Statement of Participation'
   | 'Certificate of Completion'
-  | 'None'
-  | 'free'
-  | 'paid'
-  | 'optional'
-  | 'none';
+  | 'None';
 
 export interface Resource {
   id: string;
@@ -260,6 +256,8 @@ export interface Resource {
   whatYouWillLearn?: string[];
   enrollmentUrl: string;
   officialCourseUrl?: string;
+  language?: string;
+  subtitles?: string[];
   ghanaAccessibility?: string;
   accreditationNotes?: string;
   imageUrl?: string;
@@ -269,21 +267,6 @@ export interface Resource {
 
   // Pricing & Accessibility Details
   pricingModel?: 'one-time' | 'monthly' | 'subscription' | 'annual' | 'per-course' | 'per-exam' | 'free';
-  freeStatus?: 'completely_free' | 'free_to_audit' | 'free_with_paid_certificate' | 'paid';
-  certificateStatus?: 'free_certificate' | 'paid_certificate' | 'no_certificate';
-  courseUrl?: string;
-  providerWebsite?: string;
-  estimatedWorkload?: string;
-  language?: string;
-  subtitles?: string | string[];
-  startDate?: string;
-  endDate?: string;
-  enrollmentDeadline?: string;
-  requiredSoftware?: string;
-  learningOutcomes?: string[];
-  assessmentMethod?: string;
-  geographicRestrictions?: string;
-  enrollmentNotes?: string;
   targetAudience?: string;
   paymentNotes?: string;
   accessGhanaNotes?: string;
@@ -295,12 +278,6 @@ export interface Resource {
   lastVerifiedAt?: string;
   lastPriceVerifiedAt?: string;
   verificationNotes?: string;
-  
-  // Free Course Details & Certificate Transparency
-  freeAccessType?: 'completely_free' | 'free_to_audit' | 'free_course_paid_certificate' | 'free_materials';
-  certificateDetails?: string;
-  workload?: string;
-  institution?: string;
   
   // User Submission & Moderation Fields
   submittedBy?: string; // Authenticated user UID

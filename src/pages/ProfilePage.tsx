@@ -55,7 +55,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
 
   if (!currentUser) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-6 google-anno-skip" data-no-ads="true">
+      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
           <UserIcon className="w-8 h-8" />
         </div>
@@ -84,7 +84,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8 google-anno-skip" data-no-ads="true">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
       {/* Profile Header Card */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

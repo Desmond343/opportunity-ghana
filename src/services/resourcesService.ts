@@ -37,33 +37,17 @@ function getStoredResources(): Resource[] {
       }
     }
 
-    // Ensure all curated verified resources are present and up-to-date with canonical verified data
-    const verifiedMap = new Map(VERIFIED_REAL_RESOURCES.map(v => [v.id, v]));
+    // Ensure all curated verified resources are present
     const existingIds = new Set(list.map(r => r.id));
-    let hasChanges = false;
-
-    // Refresh existing verified items with canonical updates (e.g. certificate types, access types)
-    list = list.map(item => {
-      const canonical = verifiedMap.get(item.id);
-      if (canonical) {
-        return {
-          ...item,
-          ...canonical,
-          views: item.views || canonical.views,
-          saves: item.saves || canonical.saves
-        };
-      }
-      return item;
-    });
-
+    let hasNew = false;
     for (const verified of VERIFIED_REAL_RESOURCES) {
       if (!existingIds.has(verified.id)) {
         list.push(verified);
-        hasChanges = true;
+        hasNew = true;
       }
     }
 
-    if (hasChanges || !raw) {
+    if (hasNew || !raw) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
     }
     return list;
@@ -91,10 +75,6 @@ export interface ResourceFilters {
   category?: string;
   resourceType?: string;
   isFree?: boolean;
-  freeStatus?: string;
-  certificateStatus?: string;
-  level?: string;
-  provider?: string;
   pricingModel?: string;
   search?: string;
   hasCertificate?: boolean;
@@ -152,21 +132,6 @@ export const ResourcesService = {
       if (filters.isFree !== undefined) {
         items = items.filter(r => r.isFree === filters.isFree);
       }
-      if (filters.freeStatus && filters.freeStatus !== 'All') {
-        items = items.filter(r => r.freeStatus === filters.freeStatus);
-      }
-      if (filters.certificateStatus && filters.certificateStatus !== 'All') {
-        items = items.filter(r => {
-          const certStatus = r.certificateStatus || (r.hasCertificate ? 'free_certificate' : 'no_certificate');
-          return certStatus === filters.certificateStatus;
-        });
-      }
-      if (filters.level && filters.level !== 'All') {
-        items = items.filter(r => r.level === filters.level);
-      }
-      if (filters.provider && filters.provider !== 'All') {
-        items = items.filter(r => (r.providerName || '').toLowerCase().includes(filters.provider!.toLowerCase()));
-      }
       if (filters.pricingModel && filters.pricingModel !== 'All') {
         items = items.filter(r => r.pricingModel === filters.pricingModel);
       }
@@ -178,7 +143,6 @@ export const ResourcesService = {
         items = items.filter(r =>
           r.title.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q) ||
-          (r.subcategory && r.subcategory.toLowerCase().includes(q)) ||
           r.skills.some(s => s.toLowerCase().includes(q)) ||
           (r.providerName && r.providerName.toLowerCase().includes(q))
         );

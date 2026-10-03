@@ -1,7 +1,6 @@
 import {
   getFirestore,
   initializeFirestore,
-  setLogLevel,
   collection,
   doc,
   getDoc,
@@ -11,15 +10,12 @@ import {
 } from 'firebase/firestore';
 import { app, isFirebaseConfigured, firebaseConfig } from './config';
 
-// Suppress verbose SDK warnings when operating in offline/sandbox mode
-try {
-  setLogLevel('silent');
-} catch {}
-
 function createFirestoreInstance(): Firestore | null {
   if (!app || !isFirebaseConfigured) return null;
   try {
     return initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+      experimentalForceLongPolling: true,
       ignoreUndefinedProperties: true
     });
   } catch {
