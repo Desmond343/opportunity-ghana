@@ -874,39 +874,34 @@ const THEMATIC_SCHOLARSHIP_PHOTOS: { match: (text: string) => boolean; photo: Sc
 ];
 
 /**
- * Curated pool of diverse educational photos rotated deterministically
+ * Curated pool of authentic African and Ghanaian educational photos rotated deterministically
  * to prevent visual repetition when no specific subject matches.
  */
 const SCHOLARSHIP_VARIETY_POOL: ScholarshipPhoto[] = [
   {
-    url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
-    alt: 'University students collaborating with laptops on campus lawn',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    url: '/images/institutions/ghana_campus_students.jpg',
+    alt: 'African university scholars walking on campus grounds with books',
+    attribution: 'Opportunity Ghana Educational Media'
   },
   {
-    url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop&q=80',
-    alt: 'University study group collaborating on academic coursework',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    url: '/images/institutions/ghana_tech_students.jpg',
+    alt: 'African university students collaborating with laptops in modern study hall',
+    attribution: 'Opportunity Ghana Educational Media'
   },
   {
-    url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80',
-    alt: 'Team of students reviewing coursework around wooden study table',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    url: '/images/institutions/ghana_health_students.jpg',
+    alt: 'African medical and healthcare university students in academic training',
+    attribution: 'Opportunity Ghana Educational Media'
   },
   {
-    url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
-    alt: 'University student engaged in digital learning and research',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    url: '/images/institutions/ghana_seminar_students.jpg',
+    alt: 'African university scholars in academic seminar lecture discussion',
+    attribution: 'Opportunity Ghana Educational Media'
   },
   {
-    url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80',
-    alt: 'Diverse university students smiling on campus',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80',
-    alt: 'Postgraduate scholars in academic seminar discussion',
-    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+    url: '/images/institutions/ghana_graduates_celebrate.jpg',
+    alt: 'Ghanaian university graduates celebrating academic convocation milestone',
+    attribution: 'Opportunity Ghana Educational Media'
   },
   {
     url: '/images/ghana_student_workspace.jpg',

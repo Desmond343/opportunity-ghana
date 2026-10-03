@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Institution } from '../../types/institution';
 import { InstitutionsService } from '../../services/institutionsService';
 import { getInstitutionMedia } from '../../utils/institutionMedia';
@@ -31,6 +31,7 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
   const nearest = InstitutionsService.getNearestActiveDeadline(institution);
   const primaryCycle = institution.admissionCycles[0];
   const media = getInstitutionMedia(institution);
+  const [imgSrc, setImgSrc] = useState(media.url);
 
   const getStatusBadge = () => {
     switch (institution.overallAdmissionStatus) {
@@ -68,8 +69,14 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
       {/* Background African Student / Human Photograph */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
-          src={media.url}
+          src={imgSrc}
           alt={media.alt}
+          referrerPolicy="no-referrer"
+          onError={() => {
+            if (imgSrc !== '/images/institutions/ghana_campus_students.jpg') {
+              setImgSrc('/images/institutions/ghana_campus_students.jpg');
+            }
+          }}
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           style={{
             objectPosition: media.position,

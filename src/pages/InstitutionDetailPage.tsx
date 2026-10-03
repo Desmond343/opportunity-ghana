@@ -113,6 +113,10 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
               <img
                 src={media.url}
                 alt={media.alt}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/institutions/ghana_campus_students.jpg';
+                }}
                 className="w-full h-full object-cover"
                 style={{
                   objectPosition: media.position,
