@@ -221,7 +221,11 @@ export type CertificateType =
   | 'Digital Skill Badge'
   | 'Statement of Participation'
   | 'Certificate of Completion'
-  | 'None';
+  | 'None'
+  | 'free'
+  | 'paid'
+  | 'optional'
+  | 'none';
 
 export interface Resource {
   id: string;
@@ -294,10 +298,7 @@ export interface Resource {
   
   // Free Course Details & Certificate Transparency
   freeAccessType?: 'completely_free' | 'free_to_audit' | 'free_course_paid_certificate' | 'free_materials';
-  certificateType?: 'free' | 'paid' | 'optional' | 'none';
   certificateDetails?: string;
-  learningOutcomes?: string[];
-  language?: string;
   workload?: string;
   institution?: string;
   

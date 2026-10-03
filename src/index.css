@@ -95,3 +95,50 @@
 .btn-ghana-danger:hover {
   background-color: #B50E20;
 }
+
+/* ==========================================================================
+   Google AdSense Auto Ads: Visual Distinction & Exclusion Control
+   ========================================================================== */
+
+/* Maintain absolute visual separation so ads cannot be confused with genuine opportunities */
+ins.adsbygoogle[data-ad-status="filled"],
+.adsbygoogle-wrapper {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1rem !important;
+  padding: 0.75rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  position: relative !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Clear sponsor label above ad containers */
+.adsbygoogle-wrapper::before,
+ins.adsbygoogle[data-ad-status="filled"]::before {
+  content: "SPONSORED ADVERTISEMENT • GOOGLE ADSENSE";
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  text-align: center;
+  margin-bottom: 6px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Strictly exclude ads from Admin CMS, Authentication, and Private Dashboards */
+.google-anno-skip ins.adsbygoogle,
+.google-anno-skip .adsbygoogle,
+.google-anno-skip .adsbygoogle-wrapper,
+[data-no-ads="true"] ins.adsbygoogle,
+[data-no-ads="true"] .adsbygoogle,
+[data-no-ads="true"] .adsbygoogle-wrapper {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  pointer-events: none !important;
+}
+

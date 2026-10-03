@@ -24,7 +24,7 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 google-anno-skip" data-no-ads="true">
       <div className="border-b border-slate-200 pb-5">
         <div className="flex items-center gap-2 mb-1">
           <Bell className="w-5 h-5 text-emerald-700" />

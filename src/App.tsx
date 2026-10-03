@@ -235,9 +235,16 @@ export function AppContent() {
   };
 
   const isAdminRoute = currentPath.startsWith('/admin');
+  const isExcludedFromAds =
+    isAdminRoute ||
+    currentPath === '/login' ||
+    currentPath === '/signup' ||
+    currentPath === '/profile' ||
+    currentPath === '/saved' ||
+    currentPath === '/alerts';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans">
+    <div className={`min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans ${isExcludedFromAds ? 'google-anno-skip' : ''}`}>
       {/* Offline Status Warning */}
       <OfflineIndicator />
 
@@ -251,7 +258,12 @@ export function AppContent() {
       )}
 
       {/* Main View with mobile safe bottom spacing */}
-      <main className="flex-1 pb-20 md:pb-0">{renderRoute()}</main>
+      <main
+        className={`flex-1 pb-20 md:pb-0 ${isExcludedFromAds ? 'google-anno-skip' : ''}`}
+        data-no-ads={isExcludedFromAds ? 'true' : undefined}
+      >
+        {renderRoute()}
+      </main>
 
       {/* PWA Floating Install Prompt (suppresses automatically if installed or dismissed) */}
       {!isAdminRoute && <InstallAppPrompt variant="banner" />}
