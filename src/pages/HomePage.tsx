@@ -409,6 +409,71 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* ==================================================
+          ACCREDITED TERTIARY INSTITUTIONS & ADMISSIONS DIRECTORY
+         ================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                GTEC Master Source Directory
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-space tracking-tight text-white">
+                Accredited Tertiary Institutions & Admissions
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                Explore verified accreditation, cut-off points, application voucher fees, dynamic deadline countdowns, and official application portals for universities, technical universities, and colleges across Ghana.
+              </p>
+              <div className="pt-2 flex flex-wrap gap-2 text-xs">
+                <button
+                  onClick={() => onNavigate('/institutions?type=Public+Traditional+University')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                >
+                  Public Universities
+                </button>
+                <button
+                  onClick={() => onNavigate('/institutions?type=Public+Technical+University')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                >
+                  Technical Universities
+                </button>
+                <button
+                  onClick={() => onNavigate('/institutions?type=Public+College+of+Education')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                >
+                  Colleges of Education
+                </button>
+                <button
+                  onClick={() => onNavigate('/institutions?type=Public+Nursing+%26+Health+Training+College')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                >
+                  Nursing Training (MOH)
+                </button>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
+              <button
+                onClick={() => onNavigate('/institutions')}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg transition-colors text-center cursor-pointer"
+              >
+                <span>Browse All Institutions</span>
+                <ArrowRight className="w-4 h-4 text-slate-950" />
+              </button>
+              <button
+                onClick={() => onNavigate('/institutions?status=OPEN')}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs transition-colors text-center cursor-pointer"
+              >
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                <span>View Open Admissions</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================================================
           3. "WHAT'S AVAILABLE RIGHT NOW?" SECTION (Jobberman-inspired horizontal cards)
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">

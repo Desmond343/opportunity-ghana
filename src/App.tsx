@@ -9,6 +9,8 @@ import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { SubmitResourcePage } from './pages/SubmitResourcePage';
+import { InstitutionsPage } from './pages/InstitutionsPage';
+import { InstitutionDetailPage } from './pages/InstitutionDetailPage';
 import { CareersPage } from './pages/CareersPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';
@@ -120,7 +122,28 @@ export function AppContent() {
       );
     }
 
-    // 5. Careers & Skills: /careers
+    // 5. Tertiary Institutions & Admissions Directory
+    if (currentPath.startsWith('/institutions/') && currentPath !== '/institutions') {
+      const slug = currentPath.replace('/institutions/', '').replace(/\/$/, '');
+      return <InstitutionDetailPage slug={slug} onNavigate={navigate} />;
+    }
+
+    if (currentPath === '/institutions' || currentPath === '/admissions') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const type = searchParams.get('type') || 'All Types';
+      const region = searchParams.get('region') || 'All Regions';
+      const search = searchParams.get('search') || '';
+      return (
+        <InstitutionsPage
+          onNavigate={navigate}
+          initialType={type}
+          initialRegion={region}
+          initialSearch={search}
+        />
+      );
+    }
+
+    // 6. Careers & Skills: /careers
     if (currentPath === '/careers') {
       return <CareersPage onNavigate={navigate} />;
     }
