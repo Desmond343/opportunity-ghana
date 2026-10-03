@@ -56,6 +56,9 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
   const [isFree, setIsFree] = useState(true);
   const [pricingModel, setPricingModel] = useState<Resource['pricingModel']>('one-time');
   const [hasCertificate, setHasCertificate] = useState(true);
+  const [freeAccessType, setFreeAccessType] = useState<Resource['freeAccessType']>('completely_free');
+  const [certificateType, setCertificateType] = useState<Resource['certificateType']>('free');
+  const [certificateDetails, setCertificateDetails] = useState('');
   const [financialAid, setFinancialAid] = useState(true);
   const [targetAudience, setTargetAudience] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
@@ -109,6 +112,9 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
       setIsFree(resourceToEdit.isFree ?? true);
       setPricingModel(resourceToEdit.pricingModel || (resourceToEdit.isFree ? 'free' : 'one-time'));
       setHasCertificate(resourceToEdit.hasCertificate ?? true);
+      setFreeAccessType(resourceToEdit.freeAccessType || (resourceToEdit.isFree ? 'completely_free' : undefined));
+      setCertificateType(resourceToEdit.certificateType || (resourceToEdit.hasCertificate ? (resourceToEdit.isFree ? 'free' : 'paid') : 'none'));
+      setCertificateDetails(resourceToEdit.certificateDetails || '');
       setFinancialAid(resourceToEdit.financialAid ?? false);
       setTargetAudience(resourceToEdit.targetAudience || '');
       setPaymentNotes(resourceToEdit.paymentNotes || '');
@@ -214,6 +220,9 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         isFree,
         pricingModel: isFree ? 'free' : pricingModel,
         hasCertificate,
+        freeAccessType: isFree ? freeAccessType : undefined,
+        certificateType,
+        certificateDetails: certificateDetails.trim() || undefined,
         financialAid,
         targetAudience: targetAudience.trim() || undefined,
         paymentNotes: paymentNotes.trim() || undefined,
@@ -639,6 +648,53 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
                     Offers recognized completion diploma, digital badge or credential.
                   </p>
                 </div>
+
+                {isFree && (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Free Access Model</label>
+                      <select
+                        value={freeAccessType || 'completely_free'}
+                        onChange={(e) => setFreeAccessType(e.target.value as any)}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
+                      >
+                        <option value="completely_free">Completely Free (100% Free Learning &amp; Free Certificate)</option>
+                        <option value="free_course_paid_certificate">Free Course Content + Paid/Optional Certificate (e.g. AWS, Alison)</option>
+                        <option value="free_to_audit">Free to Audit (e.g. Coursera University Lectures)</option>
+                        <option value="free_materials">Open Courseware / Free Materials (e.g. MIT OCW, Khan Academy)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Certificate Status</label>
+                      <select
+                        value={certificateType || (hasCertificate ? 'free' : 'none')}
+                        onChange={(e) => {
+                          const val = e.target.value as any;
+                          setCertificateType(val);
+                          setHasCertificate(val === 'free');
+                        }}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
+                      >
+                        <option value="free">Free Verified Certificate / Digital Credly Badge</option>
+                        <option value="optional">Certificate Optional / Paid Track</option>
+                        <option value="paid">Paid Certification Exam Required</option>
+                        <option value="none">No Certificate Awarded (Open Courseware)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-700">Certificate &amp; Assessment Guidelines</label>
+                      <input
+                        type="text"
+                        value={certificateDetails}
+                        onChange={(e) => setCertificateDetails(e.target.value)}
+                        placeholder="e.g. Free verified Harvard CS50 Certificate upon achieving 70%+ on all problem sets."
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-indigo-600 outline-hidden font-medium"
+                      />
+                    </div>
+                  </>
+                )}
 
                 {!isFree && (
                   <>

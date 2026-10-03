@@ -37,17 +37,33 @@ function getStoredResources(): Resource[] {
       }
     }
 
-    // Ensure all curated verified resources are present
+    // Ensure all curated verified resources are present and up-to-date with canonical verified data
+    const verifiedMap = new Map(VERIFIED_REAL_RESOURCES.map(v => [v.id, v]));
     const existingIds = new Set(list.map(r => r.id));
-    let hasNew = false;
+    let hasChanges = false;
+
+    // Refresh existing verified items with canonical updates (e.g. certificate types, access types)
+    list = list.map(item => {
+      const canonical = verifiedMap.get(item.id);
+      if (canonical) {
+        return {
+          ...item,
+          ...canonical,
+          views: item.views || canonical.views,
+          saves: item.saves || canonical.saves
+        };
+      }
+      return item;
+    });
+
     for (const verified of VERIFIED_REAL_RESOURCES) {
       if (!existingIds.has(verified.id)) {
         list.push(verified);
-        hasNew = true;
+        hasChanges = true;
       }
     }
 
-    if (hasNew || !raw) {
+    if (hasChanges || !raw) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
     }
     return list;
