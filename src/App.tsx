@@ -145,25 +145,26 @@ export function AppContent() {
     }
 
     // 3. User Resource Submission: /resources/submit
-    if (currentPath === '/resources/submit') {
+    if (pathname === '/resources/submit') {
       return <SubmitResourcePage onNavigate={navigate} />;
     }
 
     // 4. Resources Detail: /resources/:slug
-    if (currentPath.startsWith('/resources/') && currentPath !== '/resources') {
-      const slug = currentPath.replace('/resources/', '').replace(/\/$/, '');
+    if (pathname.startsWith('/resources/') && pathname !== '/resources') {
+      const slug = pathname.replace('/resources/', '').replace(/\/$/, '');
       return <ResourceDetailPage slug={slug} onNavigate={navigate} />;
     }
 
     // 5. Resources Directory: /resources
-    if (currentPath === '/resources') {
-      const searchParams = new URLSearchParams(window.location.search);
+    if (pathname === '/resources') {
+      const searchParams = new URLSearchParams(queryString || window.location.search);
       const isFree = searchParams.get('free') === 'true';
       const isPaid = searchParams.get('paid') === 'true';
       const type = searchParams.get('type') || 'All';
       const openSubmit = searchParams.get('action') === 'submit';
       return (
         <ResourcesPage
+          key={`resources-${isFree}-${isPaid}-${type}`}
           onNavigate={navigate}
           initialFree={isFree}
           initialPaid={isPaid}
@@ -174,18 +175,19 @@ export function AppContent() {
     }
 
     // 5. Tertiary Institutions & Admissions Directory
-    if (currentPath.startsWith('/institutions/') && currentPath !== '/institutions') {
-      const slug = currentPath.replace('/institutions/', '').replace(/\/$/, '');
+    if (pathname.startsWith('/institutions/') && pathname !== '/institutions') {
+      const slug = pathname.replace('/institutions/', '').replace(/\/$/, '');
       return <InstitutionDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    if (currentPath === '/institutions' || currentPath === '/admissions') {
-      const searchParams = new URLSearchParams(window.location.search);
+    if (pathname === '/institutions' || pathname === '/admissions') {
+      const searchParams = new URLSearchParams(queryString || window.location.search);
       const type = searchParams.get('type') || 'All Types';
       const region = searchParams.get('region') || 'All Regions';
       const search = searchParams.get('search') || '';
       return (
         <InstitutionsPage
+          key={`institutions-${type}-${region}-${search}`}
           onNavigate={navigate}
           initialType={type}
           initialRegion={region}
@@ -195,54 +197,54 @@ export function AppContent() {
     }
 
     // 6. Careers & Skills: /careers
-    if (currentPath === '/careers') {
+    if (pathname === '/careers') {
       return <CareersPage onNavigate={navigate} />;
     }
 
     // 6. Tools: /tools
-    if (currentPath === '/tools') {
+    if (pathname === '/tools') {
       return <ToolsPage onNavigate={navigate} />;
     }
 
     // 7. Alerts: /alerts
-    if (currentPath === '/alerts') {
+    if (pathname === '/alerts') {
       return <AlertsPage onNavigate={navigate} />;
     }
 
     // 8. Saved: /saved
-    if (currentPath === '/saved') {
+    if (pathname === '/saved') {
       return <SavedPage onNavigate={navigate} />;
     }
 
     // 9. Profile: /profile
-    if (currentPath === '/profile') {
+    if (pathname === '/profile') {
       return <ProfilePage onNavigate={navigate} />;
     }
 
     // 10. Auth: /login and /signup
-    if (currentPath === '/login') {
+    if (pathname === '/login') {
       return <AuthPage mode="login" onNavigate={navigate} />;
     }
-    if (currentPath === '/signup') {
+    if (pathname === '/signup') {
       return <AuthPage mode="signup" onNavigate={navigate} />;
     }
 
     // 11. Admin routes: /admin/*
-    if (currentPath.startsWith('/admin')) {
+    if (pathname.startsWith('/admin')) {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
-          {currentPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
-          {currentPath === '/admin/scholarship-research' && <AdminScholarshipResearch onNavigate={navigate} />}
-          {currentPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
-          {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
-          {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
-          {currentPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
-          {currentPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
-          {currentPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}
-          {currentPath === '/admin/resource-submissions' && <AdminResourceSubmissions onNavigate={navigate} />}
-          {currentPath === '/admin/reports' && <AdminReports onNavigate={navigate} />}
-          {currentPath === '/admin/users' && <AdminUsers onNavigate={navigate} />}
-          {currentPath === '/admin/settings' && <AdminSettings onNavigate={navigate} />}
+          {pathname === '/admin' && <AdminDashboard onNavigate={navigate} />}
+          {pathname === '/admin/scholarship-research' && <AdminScholarshipResearch onNavigate={navigate} />}
+          {pathname === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
+          {pathname === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
+          {pathname === '/admin/resources' && <AdminResources onNavigate={navigate} />}
+          {pathname === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
+          {pathname === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
+          {pathname === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}
+          {pathname === '/admin/resource-submissions' && <AdminResourceSubmissions onNavigate={navigate} />}
+          {pathname === '/admin/reports' && <AdminReports onNavigate={navigate} />}
+          {pathname === '/admin/users' && <AdminUsers onNavigate={navigate} />}
+          {pathname === '/admin/settings' && <AdminSettings onNavigate={navigate} />}
         </AdminLayout>
       );
     }

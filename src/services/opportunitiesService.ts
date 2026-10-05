@@ -59,8 +59,7 @@ function getStoredOpportunities(): Opportunity[] {
         for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
           const existingIdx = cleaned.findIndex(o => 
             o.id === verified.id || 
-            o.slug === verified.slug || 
-            (o.applicationUrl && verified.applicationUrl && o.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+            o.slug === verified.slug
           );
           if (existingIdx >= 0) {
             // Update fields with freshest verified data
@@ -418,6 +417,10 @@ export const OpportunitiesService = {
       newStatus: toSave.status
     });
 
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('opportunities-changed', { detail: { id: toSave.id, action: isNew ? 'created' : 'updated' } }));
+    }
+
     return toSave;
   },
 
@@ -485,6 +488,10 @@ export const OpportunitiesService = {
       previousStatus,
       newStatus: status
     });
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('opportunities-changed', { detail: { id, action: 'status_updated', status } }));
+    }
   },
 
   async updateVerification(
@@ -622,6 +629,10 @@ export const OpportunitiesService = {
         details: `Deleted opportunity from database.`
       });
     }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('opportunities-changed', { detail: { id, action: 'deleted' } }));
+    }
   },
 
   async bulkUpdateStatus(
@@ -667,6 +678,26 @@ export const OpportunitiesService = {
       items[index].views = (items[index].views || 0) + 1;
       saveStoredOpportunities(items);
     }
+  },
+
+  /**
+   * Authoritative count of published, active opportunities.
+   * Guaranteed to match the exact dataset and filters used on the Opportunities listing page.
+   */
+  async getPublishedOpportunityCount(filters?: OpportunityFilters): Promise<number> {
+    const opps = await this.getPublishedOpportunities(filters);
+    return opps.length;
+  },
+
+  /**
+   * Authoritative list of published, active opportunities for public directory & cards.
+   */
+  async getPublishedOpportunities(filters?: OpportunityFilters): Promise<Opportunity[]> {
+    return this.getAll({
+      ...filters,
+      onlyActive: true,
+      includeUnpublished: false
+    });
   },
 
   async getClosingSoon(limit: number = 4): Promise<Opportunity[]> {

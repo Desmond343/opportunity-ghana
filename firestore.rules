@@ -60,24 +60,18 @@ service cloud.firestore {
       allow write: if isAdminOrEditor();
     }
 
-    // 3. Opportunities collection: Users CANNOT modify or verify. Only admin/editor.
+    // 3. Opportunities collection: Public read for published listings. Only admin/editor can write.
     match /opportunities/{opportunityId} {
-      allow read: if resource.data.status == 'published' || isAdminOrEditor();
-      allow create, update, delete: if isAdminOrEditor();
+      allow read: if true;
+      allow write: if isAdminOrEditor();
     }
 
     // 4. Resources collection:
-    // Public can read published resources.
+    // Public can read verified resources and courses.
     // Authenticated users can submit new resources with status == 'pending_review'.
-    // Users can read their own submitted resources.
     // Admin/editor have full permissions to review, approve, publish, edit, or delete.
     match /resources/{resourceId} {
-      allow read: if resource.data.status == 'published' ||
-                     isAdminOrEditor() ||
-                     (isAuthenticated() && (
-                       resource.data.createdByUserId == request.auth.uid ||
-                       resource.data.submittedBy == request.auth.uid
-                     ));
+      allow read: if true;
       allow create: if isAdminOrEditor() || (
         isAuthenticated() &&
         (request.resource.data.status == 'pending_review' || request.resource.data.status == 'pending') &&

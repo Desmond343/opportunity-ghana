@@ -240,52 +240,132 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// Get opportunities
-app.get('/api/opportunities', async (req, res) => {
-  const includeUnpublished = req.query.includeUnpublished === 'true';
+// Helper to check if an opportunity deadline is active
+function filterOpportunityActive(o: any): boolean {
+  if (o.status !== 'published') return false;
+  if (!o.deadline) return true;
+  const lower = String(o.deadline).toLowerCase();
+  if (lower.includes('rolling') || lower.includes('ongoing') || lower.includes('open-ended') || lower.includes('until filled')) {
+    return true;
+  }
+  try {
+    const raw = String(o.deadline).trim();
+    const d = new Date(raw.length === 10 ? `${raw}T23:59:59.999Z` : raw);
+    if (isNaN(d.getTime())) return true;
+    return d.getTime() >= Date.now();
+  } catch {
+    return true;
+  }
+}
 
+// Get authoritative published opportunities count
+app.get('/api/opportunities/count', async (req, res) => {
+  const onlyActive = req.query.onlyActive !== 'false';
+  const includeUnpublished = req.query.includeUnpublished === 'true';
+  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+
+  let items: any[] = [];
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
-        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-        // Merge with verified real opportunities (scholarships, jobs, internships)
-        const merged = [...items];
-        for (const verified of ALL_VERIFIED_INITIAL) {
-          const exists = merged.some(m => 
-            m.id === verified.id || 
-            m.slug === verified.slug || 
-            (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
-          );
-          if (!exists) {
-            merged.push(verified);
-          }
-        }
-
-        if (!includeUnpublished) {
-          items = merged.filter((o: any) => 
-            (o.status === 'published' || o.status === 'closed') &&
-            o.status !== 'pending' &&
-            o.status !== 'rejected' &&
-            o.submissionStatus !== 'pending' &&
-            o.submissionStatus !== 'rejected'
-          );
-        } else {
-          items = merged;
-        }
-
-        return res.json(items);
+        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
       }
-    } catch (e) {
+    } catch (e: any) {
+      console.warn('Admin Firestore count error:', e?.message || e);
+    }
+  }
+
+  // Merge with initial verified opportunities
+  const merged = [...items];
+  for (const verified of ALL_VERIFIED_INITIAL) {
+    const exists = merged.some(m => 
+      m.id === verified.id || 
+      m.slug === verified.slug || 
+      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+    );
+    if (!exists) {
+      merged.push(verified);
+    }
+  }
+
+  let filtered = merged;
+  if (!includeUnpublished) {
+    filtered = filtered.filter((o: any) => 
+      (o.status === 'published' || o.status === 'closed') &&
+      o.status !== 'pending' &&
+      o.status !== 'rejected' &&
+      o.submissionStatus !== 'pending' &&
+      o.submissionStatus !== 'rejected'
+    );
+  }
+
+  if (onlyActive) {
+    filtered = filtered.filter(filterOpportunityActive);
+  }
+
+  if (category && category !== 'All') {
+    filtered = filtered.filter((o: any) => o.category?.toLowerCase() === category.toLowerCase());
+  }
+
+  res.json({
+    success: true,
+    count: filtered.length,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Get opportunities
+app.get('/api/opportunities', async (req, res) => {
+  const includeUnpublished = req.query.includeUnpublished === 'true';
+  const onlyActive = req.query.onlyActive === 'true';
+  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+
+  let items: any[] = [];
+  if (adminDb && isInitialized) {
+    try {
+      const snapshot = await adminDb.collection('opportunities').get();
+      if (!snapshot.empty) {
+        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+      }
+    } catch (e: any) {
       console.warn('Admin Firestore read error:', e);
     }
   }
 
-  let fallback = [...ALL_VERIFIED_INITIAL];
-  if (!includeUnpublished) {
-    fallback = fallback.filter((o: any) => o.status === 'published' || o.status === 'closed');
+  // Merge with verified real opportunities (scholarships, jobs, internships)
+  const merged = [...items];
+  for (const verified of ALL_VERIFIED_INITIAL) {
+    const exists = merged.some(m => 
+      m.id === verified.id || 
+      m.slug === verified.slug || 
+      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+    );
+    if (!exists) {
+      merged.push(verified);
+    }
   }
-  res.json(fallback);
+
+  let result = merged;
+  if (!includeUnpublished) {
+    result = result.filter((o: any) => 
+      (o.status === 'published' || o.status === 'closed') &&
+      o.status !== 'pending' &&
+      o.status !== 'rejected' &&
+      o.submissionStatus !== 'pending' &&
+      o.submissionStatus !== 'rejected'
+    );
+  }
+
+  if (onlyActive) {
+    result = result.filter(filterOpportunityActive);
+  }
+
+  if (category && category !== 'All') {
+    result = result.filter((o: any) => o.category?.toLowerCase() === category.toLowerCase());
+  }
+
+  res.json(result);
 });
 
 // User Opportunity Submission Endpoint (Enforces pending status server-side)

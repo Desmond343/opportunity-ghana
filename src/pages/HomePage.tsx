@@ -61,20 +61,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     async function loadData() {
       try {
         setLoading(true);
-        const [slides, featured, closing, recent, courses, all] = await Promise.all([
+        const [slides, featured, closing, recent, courses, count] = await Promise.all([
           OpportunitiesService.getSlideshowOpportunities(6),
           OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
           ResourcesService.getFreeCourses(3),
-          OpportunitiesService.getAll({ onlyActive: true })
+          OpportunitiesService.getPublishedOpportunityCount()
         ]);
         setSlideshowOpps(slides);
         setFeaturedOpps(featured);
         setClosingSoon(closing);
         setNewlyAdded(recent);
         setFreeCourses(courses);
-        setTotalCount(all.length);
+        setTotalCount(count);
       } catch (err) {
         console.error('Failed to load homepage data', err);
       } finally {
@@ -82,6 +82,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       }
     }
     loadData();
+
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener('opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('opportunities-changed', handleUpdate);
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -125,7 +131,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tag: 'Academic Funding',
       tagColor: 'bg-white/95 text-[#006B3F] border border-white/40',
       icon: GraduationCap,
-      href: '/opportunities?category=Scholarships',
+      href: '/scholarships',
+      ctaText: 'Explore scholarships',
       backgroundImage: '/images/categories/scholarships.jpg',
       brandTint: 'from-transparent via-[#006B3F]/15 to-[#003820]/75'
     },
@@ -136,7 +143,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tag: 'Employment',
       tagColor: 'bg-white/95 text-blue-800 border border-white/40',
       icon: Briefcase,
-      href: '/opportunities?category=Jobs',
+      href: '/jobs',
+      ctaText: 'Explore jobs',
       backgroundImage: '/images/categories/jobs.jpg',
       brandTint: 'from-transparent via-blue-950/15 to-slate-950/75'
     },
@@ -147,7 +155,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tag: 'Entry Level',
       tagColor: 'bg-white/95 text-emerald-800 border border-white/40',
       icon: Compass,
-      href: '/opportunities?category=Internships',
+      href: '/internships',
+      ctaText: 'Explore internships',
       backgroundImage: '/images/categories/internships.jpg',
       brandTint: 'from-transparent via-emerald-950/15 to-[#003820]/75'
     },
@@ -159,6 +168,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tagColor: 'bg-white/95 text-amber-900 border border-white/40',
       icon: Award,
       href: '/opportunities?category=Fellowships',
+      ctaText: 'Explore fellowships',
       backgroundImage: '/images/categories/fellowships.jpg',
       brandTint: 'from-transparent via-amber-950/15 to-amber-950/75'
     },
@@ -170,6 +180,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tagColor: 'bg-white/95 text-purple-900 border border-white/40',
       icon: Coins,
       href: '/opportunities?category=Grants',
+      ctaText: 'Explore grants',
       backgroundImage: '/images/categories/grants.jpg',
       brandTint: 'from-transparent via-purple-950/15 to-purple-950/75'
     },
@@ -180,7 +191,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       tag: 'Upskilling',
       tagColor: 'bg-white/95 text-[#006B3F] border border-white/40',
       icon: Sparkles,
-      href: '/resources?free=true',
+      href: '/courses',
+      ctaText: 'Explore free courses',
       backgroundImage: '/images/categories/courses.jpg',
       brandTint: 'from-transparent via-[#006B3F]/15 to-[#003820]/75'
     }
@@ -566,7 +578,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </div>
 
                 <div className="relative z-10 pt-4 mt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
-                  <span>Explore opportunities</span>
+                  <span>{track.ctaText || 'Explore opportunities'}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 text-[#FCD116] group-hover:text-white" />
                 </div>
               </div>
