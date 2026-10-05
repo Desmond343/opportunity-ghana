@@ -3,6 +3,7 @@ import { Opportunity } from '../../types/database';
 import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
 import { SavedService } from '../../services/savedService';
+import { useAuth } from '../../services/authContext';
 import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
 import {
   ChevronLeft,
@@ -30,6 +31,7 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
   onNavigate,
   loading = false
 }) => {
+  const { currentUser, getIdToken } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [savedMap, setSavedMap] = useState<Record<string, boolean>>({});
@@ -46,8 +48,12 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
     setSavedMap(map);
 
     const handleUpdate = (e: any) => {
-      if (e.detail?.id) {
-        setSavedMap(prev => ({ ...prev, [e.detail.id]: e.detail.isSaved }));
+      if (!e.detail || e.detail.id || e.detail.userId !== undefined) {
+        const updatedMap: Record<string, boolean> = {};
+        opportunities.forEach(o => {
+          updatedMap[o.id] = SavedService.isSaved(o.id);
+        });
+        setSavedMap(updatedMap);
       }
     };
     window.addEventListener('saved-opportunities-changed', handleUpdate);
@@ -120,18 +126,26 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
     touchEndXRef.current = null;
   };
 
-  const handleToggleSave = (e: React.MouseEvent, opp: Opportunity) => {
+  const handleToggleSave = async (e: React.MouseEvent, opp: Opportunity) => {
     e.stopPropagation();
-    const updated = SavedService.toggleSave({
-      id: opp.id,
-      slug: opp.slug,
-      title: opp.title,
-      category: opp.category,
-      type: opp.opportunityType,
-      organizationName: opp.organizationName,
-      deadline: opp.deadline
-    });
-    setSavedMap(prev => ({ ...prev, [opp.id]: updated }));
+    try {
+      const updated = await SavedService.toggleSave(
+        {
+          id: opp.id,
+          slug: opp.slug,
+          title: opp.title,
+          category: opp.category,
+          type: opp.opportunityType,
+          organizationName: opp.organizationName,
+          deadline: opp.deadline
+        },
+        currentUser?.id,
+        getIdToken
+      );
+      setSavedMap(prev => ({ ...prev, [opp.id]: updated }));
+    } catch (err: any) {
+      console.warn('Slideshow save error:', err?.message || err);
+    }
   };
 
   // Loading Skeleton State

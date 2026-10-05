@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../services/authContext';
+import { SavedService } from '../../services/savedService';
 import {
   Search,
   ShieldCheck,
@@ -24,6 +25,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
   const { currentUser, logout, isEditorOrAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [savedCount, setSavedCount] = useState(() => SavedService.getSavedIds().length);
+
+  useEffect(() => {
+    setSavedCount(SavedService.getSavedIds().length);
+    const handleUpdate = () => {
+      setSavedCount(SavedService.getSavedIds().length);
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, []);
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -114,13 +125,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               onClick={() => handleNavClick('/saved')}
               aria-label="Saved opportunities"
               title="Saved Opportunities"
-              className={`p-2.5 rounded-xl transition-colors cursor-pointer ${
+              className={`relative p-2.5 rounded-xl transition-colors cursor-pointer ${
                 currentPath === '/saved'
                   ? 'bg-[#E8F5EF] text-[#006B3F]'
                   : 'text-slate-500 hover:text-[#111111] hover:bg-slate-100'
               }`}
             >
               <Bookmark className="w-4 h-4" />
+              {savedCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-[#006B3F] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center shadow-xs">
+                  {savedCount > 99 ? '99+' : savedCount}
+                </span>
+              )}
             </button>
 
             {/* Admin CMS Direct Shortcut - Displayed only for verified custom claim admins/editors */}

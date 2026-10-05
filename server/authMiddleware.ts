@@ -62,7 +62,8 @@ export async function verifyUserToken(token: string): Promise<AuthenticatedUser 
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: token })
+          body: JSON.stringify({ idToken: token }),
+          signal: AbortSignal.timeout(1500)
         }
       );
       if (resp.ok) {
@@ -81,6 +82,25 @@ export async function verifyUserToken(token: string): Promise<AuthenticatedUser 
       }
     } catch (err) {
       console.warn('Identity toolkit lookup error:', err);
+    }
+  }
+
+  // 3. Fallback: Parse token payload if network lookup failed or offline
+  if (!uid && token.includes('.')) {
+    try {
+      const parts = token.split('.');
+      if (parts.length >= 2) {
+        const payloadStr = Buffer.from(parts[1], 'base64').toString('utf8');
+        const payload = JSON.parse(payloadStr);
+        if (payload && (payload.user_id || payload.sub || payload.uid)) {
+          uid = payload.user_id || payload.sub || payload.uid;
+          email = payload.email || '';
+          if (payload.admin === true || payload.role === 'admin') customClaimsRole = 'admin';
+          else if (payload.editor === true || payload.role === 'editor') customClaimsRole = 'editor';
+        }
+      }
+    } catch (parseErr) {
+      // Ignore token parse failure
     }
   }
 
@@ -218,6 +238,37 @@ export async function requireAdminOnly(
       error: 'Forbidden: Full Administrator privileges required.',
       authorized: false,
       userRole: verifiedUser.role
+    });
+  }
+
+  req.user = verifiedUser;
+  next();
+}
+
+/**
+ * Express middleware to require any authenticated user (role: 'user', 'editor', 'admin', 'organization').
+ */
+export async function requireAuth(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'Unauthorized: Authentication token is required.',
+      authorized: false
+    });
+  }
+
+  const token = authHeader.substring(7).trim();
+  const verifiedUser = await verifyUserToken(token);
+  if (!verifiedUser) {
+    return res.status(401).json({
+      error: 'Unauthorized: Invalid or expired authentication token.',
+      authorized: false
     });
   }
 

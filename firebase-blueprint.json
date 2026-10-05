@@ -132,6 +132,12 @@
         "id": { "type": "string" },
         "userId": { "type": "string" },
         "opportunityId": { "type": "string" },
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "category": { "type": "string" },
+        "type": { "type": "string" },
+        "organizationName": { "type": "string" },
+        "deadline": { "type": "string" },
         "savedAt": { "type": "string" }
       },
       "required": ["id", "userId", "opportunityId"]

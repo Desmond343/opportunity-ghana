@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { User, UserRole } from '../types/database';
 import { isFirebaseConfigured } from './firebase/config';
 import { FirebaseAuthService } from './firebase/authService';
+import { SavedService } from './savedService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -51,14 +52,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [claims, setClaims] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Sync basic user info to localStorage for offline navigation only (roles verified by claims)
+  const getIdToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
+    const authInstance = FirebaseAuthService.getAuthInstance();
+    const activeUser = authInstance?.currentUser || firebaseUser;
+    if (!activeUser) return null;
+    try {
+      return await activeUser.getIdToken(forceRefresh);
+    } catch (err) {
+      console.warn('[Opportunity Ghana] Failed to get ID token:', err);
+      return null;
+    }
+  }, [firebaseUser]);
+
+  // Sync basic user info to localStorage and initialize SavedService
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('opp_gh_auth_user', JSON.stringify(currentUser));
+      SavedService.initForUser(currentUser.id, getIdToken).catch((err) => {
+        console.warn('[SavedService] initForUser error:', err);
+      });
     } else {
       localStorage.removeItem('opp_gh_auth_user');
+      SavedService.clearUser();
     }
-  }, [currentUser]);
+  }, [currentUser, getIdToken]);
 
   // Read Firebase auth state and custom claims
   useEffect(() => {
@@ -104,18 +121,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return () => unsubscribe();
     }
   }, []);
-
-  const getIdToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
-    const authInstance = FirebaseAuthService.getAuthInstance();
-    const activeUser = authInstance?.currentUser || firebaseUser;
-    if (!activeUser) return null;
-    try {
-      return await activeUser.getIdToken(forceRefresh);
-    } catch (err) {
-      console.warn('[Opportunity Ghana] Failed to get ID token:', err);
-      return null;
-    }
-  }, [firebaseUser]);
 
   const refreshClaims = useCallback(async (): Promise<boolean> => {
     const authInstance = FirebaseAuthService.getAuthInstance();
@@ -249,6 +254,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch (err) {
       console.error('Firebase sign out error:', err);
     } finally {
+      SavedService.clearUser();
       setFirebaseUser(null);
       setClaims({});
       setCurrentUser(null);

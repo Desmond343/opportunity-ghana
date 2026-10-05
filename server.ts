@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
-import { verifyUserToken } from './server/authMiddleware.ts';
+import { verifyUserToken, requireAuth, type AuthenticatedRequest } from './server/authMiddleware.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
 import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
@@ -421,6 +421,137 @@ app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
     }
   }
   res.json({ success: true, id, note: 'deleted_locally' });
+});
+
+// In-memory & disk fallback map for saved opportunities per user
+const SAVED_FILE = path.resolve(process.cwd(), 'data', 'saved_opportunities.json');
+
+function loadSavedOpportunitiesFromDisk(): Map<string, Map<string, any>> {
+  const map = new Map<string, Map<string, any>>();
+  try {
+    if (fs.existsSync(SAVED_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SAVED_FILE, 'utf8'));
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          if (item && item.userId && item.opportunityId) {
+            if (!map.has(item.userId)) {
+              map.set(item.userId, new Map());
+            }
+            map.get(item.userId)!.set(item.opportunityId, item);
+          }
+        }
+      }
+    }
+  } catch (e: any) {
+    console.warn('Could not read saved opportunities from disk:', e.message);
+  }
+  return map;
+}
+
+function persistSavedOpportunitiesToDisk(map: Map<string, Map<string, any>>) {
+  try {
+    const list: any[] = [];
+    for (const userMap of map.values()) {
+      for (const rec of userMap.values()) {
+        list.push(rec);
+      }
+    }
+    const dir = path.dirname(SAVED_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(SAVED_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (e: any) {
+    console.warn('Could not persist saved opportunities to disk:', e.message);
+  }
+}
+
+const inMemorySavedByUser = loadSavedOpportunitiesFromDisk();
+
+// GET /api/saved - Retrieve saved opportunity records for the authenticated user
+app.get('/api/saved', requireAuth, async (req: AuthenticatedRequest, res) => {
+  const user = req.user!;
+  if (adminDb && isInitialized) {
+    try {
+      const snap = await adminDb.collection('saved_opportunities').where('userId', '==', user.uid).get();
+      const records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.json({ success: true, saved: records });
+    } catch (e: any) {
+      console.warn('Error reading saved opportunities from adminDb:', e.message);
+    }
+  }
+
+  const userMap = inMemorySavedByUser.get(user.uid) || new Map();
+  const records = Array.from(userMap.values());
+  return res.json({ success: true, saved: records, note: 'persisted_locally' });
+});
+
+// POST /api/saved - Save an opportunity for the authenticated user
+app.post('/api/saved', requireAuth, async (req: AuthenticatedRequest, res) => {
+  const user = req.user!;
+  const { opportunityId, title, slug, category, type, organizationName, deadline } = req.body || {};
+  if (!opportunityId || typeof opportunityId !== 'string') {
+    return res.status(400).json({ error: 'Valid opportunityId is required' });
+  }
+
+  const saveId = `${user.uid}_${opportunityId}`;
+  const now = new Date().toISOString();
+  const record = {
+    id: saveId,
+    userId: user.uid,
+    opportunityId,
+    title: typeof title === 'string' ? title : '',
+    slug: typeof slug === 'string' ? slug : opportunityId,
+    category: typeof category === 'string' ? category : 'General',
+    type: typeof type === 'string' ? type : '',
+    organizationName: typeof organizationName === 'string' ? organizationName : '',
+    deadline: typeof deadline === 'string' ? deadline : '',
+    savedAt: now
+  };
+
+  if (!inMemorySavedByUser.has(user.uid)) {
+    inMemorySavedByUser.set(user.uid, new Map());
+  }
+  inMemorySavedByUser.get(user.uid)!.set(opportunityId, record);
+  persistSavedOpportunitiesToDisk(inMemorySavedByUser);
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('saved_opportunities').doc(saveId).set(record, { merge: true });
+      return res.json({ success: true, saved: true, record });
+    } catch (e: any) {
+      console.warn('Error persisting saved opportunity to adminDb:', e.message);
+    }
+  }
+
+  return res.json({ success: true, saved: true, record, note: 'persisted_locally' });
+});
+
+// DELETE /api/saved/:opportunityId - Remove a saved opportunity for the authenticated user
+app.delete('/api/saved/:opportunityId', requireAuth, async (req: AuthenticatedRequest, res) => {
+  const user = req.user!;
+  const { opportunityId } = req.params;
+  if (!opportunityId) {
+    return res.status(400).json({ error: 'opportunityId parameter is required' });
+  }
+
+  const saveId = `${user.uid}_${opportunityId}`;
+
+  if (inMemorySavedByUser.has(user.uid)) {
+    inMemorySavedByUser.get(user.uid)!.delete(opportunityId);
+    persistSavedOpportunitiesToDisk(inMemorySavedByUser);
+  }
+
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('saved_opportunities').doc(saveId).delete();
+      return res.json({ success: true, saved: false, opportunityId });
+    } catch (e: any) {
+      console.warn('Error deleting saved opportunity from adminDb:', e.message);
+    }
+  }
+
+  return res.json({ success: true, saved: false, opportunityId, note: 'deleted_locally' });
 });
 
 // Get resources

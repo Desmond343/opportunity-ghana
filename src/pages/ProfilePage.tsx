@@ -3,6 +3,7 @@ import { useAuth } from '../services/authContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { ResourcesService } from '../services/resourcesService';
 import { OpportunitiesService } from '../services/opportunitiesService';
+import { SavedService } from '../services/savedService';
 import { Resource, Opportunity } from '../types/database';
 import {
   User as UserIcon,
@@ -22,7 +23,9 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Bookmark,
+  ArrowRight
 } from 'lucide-react';
 
 interface ProfilePageProps {
@@ -135,6 +138,31 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             <p className="font-medium text-slate-800">{currentUser.course || 'Not specified'}</p>
           </div>
         </div>
+      </div>
+
+      {/* Saved Opportunities Quick Access */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+            <Bookmark className="w-6 h-6 fill-emerald-700" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 font-space">
+              Saved Opportunities &amp; Bookmarks
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              You have {SavedService.getSavedIds().length} saved opportunit{SavedService.getSavedIds().length === 1 ? 'y' : 'ies'} bookmarked for deadline tracking.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onNavigate('/saved')}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
+        >
+          <span>View Saved Items</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
 
       {/* User Contributed Opportunities Section */}

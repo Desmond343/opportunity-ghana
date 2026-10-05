@@ -4,6 +4,7 @@ import { DeadlineBadge } from '../common/DeadlineBadge';
 import { VerificationBadge } from '../common/VerificationBadge';
 import { MapPin, Bookmark, Building, ArrowUpRight, GraduationCap, Briefcase, Compass, Clock } from 'lucide-react';
 import { SavedService } from '../../services/savedService';
+import { useAuth } from '../../services/authContext';
 import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
 import { CardVisualHeader } from './CardVisualHeader';
 
@@ -18,31 +19,45 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   onNavigate,
   featured = false
 }) => {
+  const { currentUser, getIdToken } = useAuth();
   const [isSaved, setIsSaved] = useState(() => SavedService.isSaved(opportunity.id));
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setIsSaved(SavedService.isSaved(opportunity.id));
     const handleUpdate = (e: any) => {
-      if (e.detail?.id === opportunity.id) {
-        setIsSaved(e.detail.isSaved);
+      if (!e.detail || e.detail.id === opportunity.id || e.detail.userId !== undefined) {
+        setIsSaved(SavedService.isSaved(opportunity.id));
       }
     };
     window.addEventListener('saved-opportunities-changed', handleUpdate);
     return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
   }, [opportunity.id]);
 
-  const toggleSave = (e: React.MouseEvent) => {
+  const toggleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const updated = SavedService.toggleSave({
-      id: opportunity.id,
-      slug: opportunity.slug,
-      title: opportunity.title,
-      category: opportunity.category,
-      type: opportunity.opportunityType,
-      organizationName: opportunity.organizationName,
-      deadline: opportunity.deadline
-    });
-    setIsSaved(updated);
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const updated = await SavedService.toggleSave(
+        {
+          id: opportunity.id,
+          slug: opportunity.slug,
+          title: opportunity.title,
+          category: opportunity.category,
+          type: opportunity.opportunityType,
+          organizationName: opportunity.organizationName,
+          deadline: opportunity.deadline
+        },
+        currentUser?.id,
+        getIdToken
+      );
+      setIsSaved(updated);
+    } catch (err: any) {
+      console.warn('Save error on card:', err?.message || err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const isActuallyFeatured = featured || opportunity.featured;

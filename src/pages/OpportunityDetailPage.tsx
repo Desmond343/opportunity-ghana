@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Opportunity } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
+import { SavedService } from '../services/savedService';
 import { useAuth } from '../services/authContext';
 import { DeadlineBadge } from '../components/common/DeadlineBadge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
@@ -38,11 +39,12 @@ interface OpportunityDetailPageProps {
 }
 
 export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ slug, onNavigate }) => {
-  const { currentUser, isEditorOrAdmin } = useAuth();
+  const { currentUser, getIdToken, isEditorOrAdmin } = useAuth();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [alternatives, setAlternatives] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const deadlineInfo = useDeadlineInfo(opportunity?.deadline);
 
@@ -53,6 +55,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         const item = await OpportunitiesService.getBySlug(slug);
         setOpportunity(item);
         if (item) {
+          setIsSaved(SavedService.isSaved(item.id));
           OpportunitiesService.recordView(item.id);
 
           // If closed, query active alternatives in same category
@@ -69,6 +72,46 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
     }
     loadOpportunity();
   }, [slug]);
+
+  // Sync saved state when other cards or components update
+  useEffect(() => {
+    if (opportunity?.id) {
+      setIsSaved(SavedService.isSaved(opportunity.id));
+    }
+    const handleUpdate = (e: any) => {
+      if (!opportunity) return;
+      if (!e.detail || e.detail.id === opportunity.id || e.detail.userId !== undefined) {
+        setIsSaved(SavedService.isSaved(opportunity.id));
+      }
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, [opportunity?.id]);
+
+  const handleToggleSave = async () => {
+    if (!opportunity || isSaving) return;
+    setIsSaving(true);
+    try {
+      const updated = await SavedService.toggleSave(
+        {
+          id: opportunity.id,
+          slug: opportunity.slug,
+          title: opportunity.title,
+          category: opportunity.category,
+          type: opportunity.opportunityType,
+          organizationName: opportunity.organizationName,
+          deadline: opportunity.deadline
+        },
+        currentUser?.id,
+        getIdToken
+      );
+      setIsSaved(updated);
+    } catch (err: any) {
+      console.warn('Save error on detail page:', err?.message || err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (loading) {
     return <LoadingState message="Loading opportunity details..." />;
@@ -306,15 +349,20 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           {/* Quick Actions (Share, Bookmark, Apply) */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
             <button
-              onClick={() => setIsSaved(!isSaved)}
-              className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
+              onClick={handleToggleSave}
+              disabled={isSaving}
+              className={`px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
                 isSaved
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-2xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
-              title="Bookmark opportunity"
+              title={isSaved ? 'Remove from bookmarks' : 'Bookmark opportunity'}
+              aria-label={isSaved ? 'Remove from bookmarks' : 'Bookmark opportunity'}
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700 text-emerald-700' : ''}`} />
+              <span className="text-xs font-semibold">
+                {isSaved ? 'Saved' : 'Save'}
+              </span>
             </button>
             <button
               onClick={handleShare}
