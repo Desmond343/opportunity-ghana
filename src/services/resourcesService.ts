@@ -4,6 +4,7 @@ import { sanitizeForFirestore } from './firebase/firestoreService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
+import { ALL_COURSES } from '../data/courses';
 import {
   collection,
   getDocs,
@@ -19,6 +20,11 @@ import {
 } from 'firebase/firestore';
 
 const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
+
+const INITIAL_CURATED_RESOURCES: Resource[] = [
+  ...VERIFIED_REAL_RESOURCES,
+  ...ALL_COURSES
+];
 
 function getStoredResources(): Resource[] {
   try {
@@ -37,12 +43,12 @@ function getStoredResources(): Resource[] {
       }
     }
 
-    // Ensure all curated verified resources are present
+    // Ensure all curated verified resources & courses are present
     const existingIds = new Set(list.map(r => r.id));
     let hasNew = false;
-    for (const verified of VERIFIED_REAL_RESOURCES) {
-      if (!existingIds.has(verified.id)) {
-        list.push(verified);
+    for (const item of INITIAL_CURATED_RESOURCES) {
+      if (!existingIds.has(item.id)) {
+        list.push(item);
         hasNew = true;
       }
     }
@@ -54,7 +60,7 @@ function getStoredResources(): Resource[] {
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  return [...VERIFIED_REAL_RESOURCES];
+  return [...INITIAL_CURATED_RESOURCES];
 }
 
 function saveStoredResources(items: Resource[]) {
@@ -75,6 +81,11 @@ export interface ResourceFilters {
   category?: string;
   resourceType?: string;
   isFree?: boolean;
+  costType?: string;
+  level?: string;
+  format?: string;
+  providerName?: string;
+  certificateType?: string;
   pricingModel?: string;
   search?: string;
   hasCertificate?: boolean;
@@ -83,6 +94,38 @@ export interface ResourceFilters {
 }
 
 export const ResourcesService = {
+  /**
+   * Duplicate detection to prevent identical courses from being published
+   */
+  checkDuplicate(queryData: {
+    title?: string;
+    providerName?: string;
+    enrollmentUrl?: string;
+    officialCourseUrl?: string;
+    excludeId?: string;
+  }): Resource | null {
+    const items = getStoredResources();
+    const norm = (s?: string) => s?.trim().toLowerCase() || '';
+    const normUrl = (u?: string) => u?.trim().toLowerCase().replace(/\/$/, '') || '';
+
+    const targetTitle = norm(queryData.title);
+    const targetProvider = norm(queryData.providerName);
+    const targetEnroll = normUrl(queryData.enrollmentUrl);
+    const targetOfficial = normUrl(queryData.officialCourseUrl);
+
+    return (
+      items.find((r) => {
+        if (queryData.excludeId && r.id === queryData.excludeId) return false;
+        if (targetEnroll && normUrl(r.enrollmentUrl) === targetEnroll) return true;
+        if (targetOfficial && normUrl(r.officialCourseUrl) === targetOfficial) return true;
+        if (targetTitle && norm(r.title) === targetTitle) {
+          if (!targetProvider || norm(r.providerName) === targetProvider) return true;
+        }
+        return false;
+      }) || null
+    );
+  },
+
   async getAll(filters?: ResourceFilters): Promise<Resource[]> {
     let items = getStoredResources();
 
@@ -99,7 +142,7 @@ export const ResourcesService = {
         if (results.length > 0) {
           const remoteIds = new Set(results.map((r: Resource) => r.id));
           const merged = [...results];
-          for (const v of VERIFIED_REAL_RESOURCES) {
+          for (const v of INITIAL_CURATED_RESOURCES) {
             if (!remoteIds.has(v.id)) {
               merged.push(v);
             }
@@ -132,8 +175,23 @@ export const ResourcesService = {
       if (filters.isFree !== undefined) {
         items = items.filter(r => r.isFree === filters.isFree);
       }
+      if (filters.costType && filters.costType !== 'All') {
+        items = items.filter(r => r.costType === filters.costType);
+      }
+      if (filters.level && filters.level !== 'All') {
+        items = items.filter(r => r.level.toLowerCase() === filters.level!.toLowerCase());
+      }
+      if (filters.format && filters.format !== 'All') {
+        items = items.filter(r => r.format.toLowerCase() === filters.format!.toLowerCase());
+      }
+      if (filters.providerName && filters.providerName !== 'All') {
+        items = items.filter(r => r.providerName?.toLowerCase() === filters.providerName!.toLowerCase());
+      }
       if (filters.pricingModel && filters.pricingModel !== 'All') {
         items = items.filter(r => r.pricingModel === filters.pricingModel);
+      }
+      if (filters.certificateType && filters.certificateType !== 'All') {
+        items = items.filter(r => r.certificateType === filters.certificateType);
       }
       if (filters.hasCertificate !== undefined) {
         items = items.filter(r => r.hasCertificate === filters.hasCertificate);
@@ -143,8 +201,9 @@ export const ResourcesService = {
         items = items.filter(r =>
           r.title.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q) ||
-          r.skills.some(s => s.toLowerCase().includes(q)) ||
-          (r.providerName && r.providerName.toLowerCase().includes(q))
+          (r.skills && r.skills.some(s => s.toLowerCase().includes(q))) ||
+          (r.providerName && r.providerName.toLowerCase().includes(q)) ||
+          (r.subcategory && r.subcategory.toLowerCase().includes(q))
         );
       }
     }

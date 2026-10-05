@@ -101,7 +101,24 @@ export function AppContent() {
       );
     }
 
-    // 4. User Opportunity Submission: /opportunities/submit
+    // 4. Direct Courses & Free Courses Route: /courses and /free-courses
+    if (pathname === '/courses' || pathname === '/free-courses') {
+      const searchParams = new URLSearchParams(queryString || window.location.search);
+      const isFree = pathname === '/free-courses' || searchParams.get('free') === 'true' || searchParams.get('paid') !== 'true';
+      const isPaid = searchParams.get('paid') === 'true';
+      const type = searchParams.get('type') || 'All';
+      return (
+        <ResourcesPage
+          key={`courses-${isFree}-${type}`}
+          onNavigate={navigate}
+          initialFree={isFree}
+          initialPaid={isPaid}
+          initialType={type}
+        />
+      );
+    }
+
+    // 5. User Opportunity Submission: /opportunities/submit
     if (pathname === '/opportunities/submit') {
       return <SubmitOpportunityPage onNavigate={navigate} />;
     }

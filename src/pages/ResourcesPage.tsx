@@ -204,6 +204,49 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
         </div>
       )}
 
+      {/* Trust & Transparency Guarantee Callout (Visible for Free Courses) */}
+      {costFilter === 'free' && (
+        <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 rounded-2xl p-5 text-white border border-emerald-800/40 shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-400">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold font-space text-white">
+                  Opportunity Ghana Verified Free Courses Standard
+                </h3>
+                <p className="text-xs text-slate-300">
+                  Every free course is verified against the official provider to guarantee 100% free curriculum access, transparent certificate options, and full accessibility for learners in Ghana.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-bold text-[#FCD116] bg-white/10 px-3 py-1 rounded-lg border border-white/10 shrink-0 self-start sm:self-auto font-mono">
+              100% Free Tuition Verified
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-white/10 text-[11px] text-slate-300">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>World-Class Providers (Harvard, MIT, Cisco, Google, OpenWHO)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>Direct Official Enrollment Links</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>Transparent Cert Badges (Free vs Audit)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>No Credit Card Required to Learn</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filter Chips Bar */}
       <div className="flex flex-wrap items-center gap-2">
         {resourceTypes.map((type) => (

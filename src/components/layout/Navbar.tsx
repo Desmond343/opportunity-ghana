@@ -41,8 +41,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
     { label: 'Jobs', path: '/jobs' },
     { label: 'Internships', path: '/internships' },
     { label: 'Scholarships', path: '/scholarships' },
+    { label: 'Free Courses', path: '/courses' },
+    { label: 'Institutions', path: '/institutions' },
     { label: 'All Opportunities', path: '/opportunities' },
-    { label: 'Resources', path: '/resources' },
     { label: 'Saved', path: '/saved' }
   ];
 

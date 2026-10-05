@@ -9,10 +9,17 @@ import { extractSourceContent } from './server/aiExtraction.ts';
 import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
+import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
+import { ALL_COURSES } from './src/data/courses/index.ts';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
   ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
+];
+
+const ALL_VERIFIED_RESOURCES_AND_COURSES = [
+  ...VERIFIED_REAL_RESOURCES,
+  ...ALL_COURSES
 ];
 
 const app = express();
@@ -561,24 +568,47 @@ app.get('/api/resources', async (req, res) => {
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('resources').get();
+      let items: any[] = [];
       if (!snapshot.empty) {
-        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-        if (!includeUnpublished) {
-          items = items.filter((r: any) =>
-            (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
-            r.status !== 'pending' &&
-            r.status !== 'rejected' &&
-            r.submissionStatus !== 'pending' &&
-            r.submissionStatus !== 'rejected'
-          );
-        }
-        return res.json(items);
+        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
       }
+
+      // Merge with verified real resources and courses
+      const merged = [...items];
+      for (const verified of ALL_VERIFIED_RESOURCES_AND_COURSES) {
+        const exists = merged.some(m => 
+          m.id === verified.id || 
+          m.slug === verified.slug || 
+          (m.enrollmentUrl && verified.enrollmentUrl && m.enrollmentUrl.toLowerCase() === verified.enrollmentUrl.toLowerCase())
+        );
+        if (!exists) {
+          merged.push(verified);
+        }
+      }
+
+      if (!includeUnpublished) {
+        items = merged.filter((r: any) =>
+          (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
+          r.status !== 'pending' &&
+          r.status !== 'rejected' &&
+          r.submissionStatus !== 'pending' &&
+          r.submissionStatus !== 'rejected'
+        );
+      } else {
+        items = merged;
+      }
+      return res.json(items);
     } catch (e) {
       console.warn('Admin Firestore resources read error:', e);
     }
   }
-  res.json([]);
+
+  // Fallback when Firestore is empty or offline
+  let fallback = [...ALL_VERIFIED_RESOURCES_AND_COURSES];
+  if (!includeUnpublished) {
+    fallback = fallback.filter((r: any) => r.status === 'published' || r.status === 'approved');
+  }
+  res.json(fallback);
 });
 
 // Save/Update resource (Admin only)

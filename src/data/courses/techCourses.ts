@@ -57,7 +57,7 @@ export const TECH_COURSES: Resource[] = [
   {
     id: 'course-google-data-analytics',
     title: 'Google Data Analytics Professional Certificate',
-    slug: 'google-data-analytics-professional-certificate',
+    slug: 'google-data-analytics-course-coursera',
     description: 'Gain in-demand data analytics skills and prepare for entry-level roles in less than six months. Learn how to clean, organize, analyze, visualize, and present data using spreadsheets, SQL, Tableau, and R programming.',
     providerId: 'prov-google-coursera',
     providerName: 'Google',
@@ -108,7 +108,7 @@ export const TECH_COURSES: Resource[] = [
   {
     id: 'course-google-cybersecurity',
     title: 'Google Cybersecurity Professional Certificate',
-    slug: 'google-cybersecurity-professional-certificate',
+    slug: 'google-cybersecurity-course-coursera',
     description: 'Prepare for a career as a cybersecurity analyst with hands-on training from Google. Master SIEM tools, Python programming for security automation, Linux command line, intrusion detection, and incident response.',
     providerId: 'prov-google-coursera',
     providerName: 'Google',

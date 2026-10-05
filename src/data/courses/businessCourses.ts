@@ -4,7 +4,7 @@ export const BUSINESS_COURSES: Resource[] = [
   {
     id: 'course-google-project-management',
     title: 'Google Project Management Professional Certificate',
-    slug: 'google-project-management-professional-certificate',
+    slug: 'google-project-management-course-coursera',
     description: 'Gain job-ready skills for an in-demand career in project management. Learn traditional and Agile project management frameworks, documentation, risk mitigation, and team leadership developed by Google.',
     providerId: 'prov-google-coursera',
     providerName: 'Google',

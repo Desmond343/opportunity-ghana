@@ -213,9 +213,9 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               href={resource.enrollmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#006B3F] hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
             >
-              <span>Enroll / View Course</span>
+              <span>{resource.isFree ? 'Start Free Course' : 'Enroll / View Course'}</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -240,14 +240,20 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
           <div className="p-3 bg-slate-50 rounded-xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Certificate</p>
             <p className="text-xs font-bold text-slate-900 mt-0.5">
-              {resource.hasCertificate ? 'Yes, Official Credential' : 'Audit Only'}
+              {resource.hasCertificate
+                ? resource.certificateType || 'Certificate Included'
+                : 'No Certificate'}
             </p>
           </div>
           <div className="p-3 bg-slate-50 rounded-xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Cost & Pricing</p>
             <p className="text-xs font-bold text-emerald-700 mt-0.5">
               {resource.isFree ? (
-                '100% Free'
+                resource.costType === 'free_to_audit' ? (
+                  <span>Free Audit <span className="text-[10px] text-slate-500 font-normal">(Opt. Paid Cert)</span></span>
+                ) : (
+                  '100% Free Tuition'
+                )
               ) : (
                 <>
                   {resource.currency} {resource.cost.toLocaleString()}
@@ -266,14 +272,113 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         <div className="lg:col-span-2 space-y-6">
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
             <h2 className="text-base font-bold text-slate-900 font-space">Curriculum Overview</h2>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{resource.description}</p>
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">{resource.description}</p>
           </section>
 
+          {/* Free Course & Certificate Policy Transparency */}
+          {resource.isFree && (
+            <section className="bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 rounded-3xl border border-emerald-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h2 className="text-base font-bold text-emerald-950 font-space flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                  <span>Free Course Policy & Certificate Details</span>
+                </h2>
+                <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono">
+                  {resource.costType === 'free_to_audit' ? 'FREE AUDIT' : resource.costType === 'free_with_paid_certificate' ? 'FREE TUITION' : '100% FREE'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Course Tuition</p>
+                  <p className="text-base font-black text-emerald-700 font-space mt-0.5">
+                    $0 USD (Free)
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Full access to curriculum, lectures, and sandbox exercises
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Certificate Status</p>
+                  <p className="text-xs font-bold text-slate-900 mt-1">
+                    {resource.certificateType || (resource.hasCertificate ? 'Certificate Included' : 'No Certificate')}
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-1">
+                    {resource.certificateCost || (resource.hasCertificate ? 'Free of charge upon completion' : 'Not provided by official source')}
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Ghana Accessibility</p>
+                  <p className="text-xs font-bold text-emerald-800 mt-1">
+                    ✓ 100% Accessible Online
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Self-paced online format open to Ghanaian learners
+                  </p>
+                </div>
+              </div>
+
+              {resource.costDescription && (
+                <div className="text-xs text-emerald-900 leading-relaxed bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200/80">
+                  <strong className="block font-bold mb-0.5 text-emerald-950">Official Cost & Certificate Notes:</strong>
+                  {resource.costDescription}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* What You Will Learn / Outcomes */}
+          {resource.whatYouWillLearn && resource.whatYouWillLearn.length > 0 && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-600" />
+                <span>What You Will Learn / Learning Outcomes</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {resource.whatYouWillLearn.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Target Audience Section */}
-          {resource.targetAudience && (
+          {((resource.whoIsThisFor && resource.whoIsThisFor.length > 0) || resource.targetAudience) && (
             <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
               <h2 className="text-base font-bold text-slate-900 font-space">Who Should Enroll?</h2>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{resource.targetAudience}</p>
+              {resource.targetAudience && (
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">{resource.targetAudience}</p>
+              )}
+              {resource.whoIsThisFor && resource.whoIsThisFor.length > 0 && (
+                <ul className="space-y-2">
+                  {resource.whoIsThisFor.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+          {/* Ghana Access & Regional Availability */}
+          {(resource.ghanaAccessibility || resource.accessGhanaNotes) && (
+            <section className="bg-emerald-50/60 rounded-3xl border border-emerald-200/80 p-6 sm:p-8 space-y-3 shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                <h2 className="text-base font-bold text-emerald-950 font-space">
+                  Ghana Accessibility & Online Access Verification
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
+                {resource.ghanaAccessibility || resource.accessGhanaNotes}
+              </p>
             </section>
           )}
 
@@ -365,20 +470,58 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         <div className="space-y-6">
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-xs">
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-space">
-              Direct Enrollment
+              {resource.isFree ? 'Start Learning' : 'Direct Enrollment'}
             </h3>
             <p className="text-xs text-slate-500">
-              Access the official curriculum portal or partner cohort application:
+              {resource.isFree
+                ? 'Access the full course directly on the official provider portal at zero tuition fee:'
+                : 'Access the official curriculum portal or partner cohort application:'}
             </p>
+            
             <a
               href={resource.enrollmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-[#006B3F] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
             >
-              <span>Go to Enrollment Portal</span>
+              <span>{resource.isFree ? 'Start Free Course' : 'Go to Enrollment Portal'}</span>
               <ExternalLink className="w-4 h-4" />
             </a>
+
+            {resource.officialCourseUrl && resource.officialCourseUrl !== resource.enrollmentUrl && (
+              <a
+                href={resource.officialCourseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors"
+              >
+                <span>Official Course Webpage</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              </a>
+            )}
+
+            {resource.providerWebsiteUrl && (
+              <a
+                href={resource.providerWebsiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 text-slate-500 hover:text-slate-800 text-[11px] font-medium transition-colors"
+              >
+                <span>Visit {resource.providerName || 'Provider'} Website</span>
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+            )}
+
+            {/* Language & Delivery */}
+            {(resource.language || (resource.subtitles && resource.subtitles.length > 0)) && (
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block font-space">Instruction Language</span>
+                <p className="font-semibold text-slate-800">Primary: {resource.language || 'English'}</p>
+                {resource.subtitles && resource.subtitles.length > 0 && (
+                  <p className="text-[11px] text-slate-500">Subtitles: {resource.subtitles.join(', ')}</p>
+                )}
+              </div>
+            )}
 
             {/* Verification Box */}
             <div className="p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-200 text-[11px] text-indigo-950 space-y-2">
