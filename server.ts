@@ -4,22 +4,16 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
-import { verifyUserToken, requireAuth, type AuthenticatedRequest } from './server/authMiddleware.ts';
+import { verifyUserToken } from './server/authMiddleware.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
 import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
 import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
-import { ALL_COURSES } from './src/data/courses/index.ts';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
   ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
-];
-
-const ALL_VERIFIED_RESOURCES_AND_COURSES = [
-  ...VERIFIED_REAL_RESOURCES,
-  ...ALL_COURSES
 ];
 
 const app = express();
@@ -240,132 +234,52 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// Helper to check if an opportunity deadline is active
-function filterOpportunityActive(o: any): boolean {
-  if (o.status !== 'published') return false;
-  if (!o.deadline) return true;
-  const lower = String(o.deadline).toLowerCase();
-  if (lower.includes('rolling') || lower.includes('ongoing') || lower.includes('open-ended') || lower.includes('until filled')) {
-    return true;
-  }
-  try {
-    const raw = String(o.deadline).trim();
-    const d = new Date(raw.length === 10 ? `${raw}T23:59:59.999Z` : raw);
-    if (isNaN(d.getTime())) return true;
-    return d.getTime() >= Date.now();
-  } catch {
-    return true;
-  }
-}
-
-// Get authoritative published opportunities count
-app.get('/api/opportunities/count', async (req, res) => {
-  const onlyActive = req.query.onlyActive !== 'false';
-  const includeUnpublished = req.query.includeUnpublished === 'true';
-  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
-
-  let items: any[] = [];
-  if (adminDb && isInitialized) {
-    try {
-      const snapshot = await adminDb.collection('opportunities').get();
-      if (!snapshot.empty) {
-        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-      }
-    } catch (e: any) {
-      console.warn('Admin Firestore count error:', e?.message || e);
-    }
-  }
-
-  // Merge with initial verified opportunities
-  const merged = [...items];
-  for (const verified of ALL_VERIFIED_INITIAL) {
-    const exists = merged.some(m => 
-      m.id === verified.id || 
-      m.slug === verified.slug || 
-      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
-    );
-    if (!exists) {
-      merged.push(verified);
-    }
-  }
-
-  let filtered = merged;
-  if (!includeUnpublished) {
-    filtered = filtered.filter((o: any) => 
-      (o.status === 'published' || o.status === 'closed') &&
-      o.status !== 'pending' &&
-      o.status !== 'rejected' &&
-      o.submissionStatus !== 'pending' &&
-      o.submissionStatus !== 'rejected'
-    );
-  }
-
-  if (onlyActive) {
-    filtered = filtered.filter(filterOpportunityActive);
-  }
-
-  if (category && category !== 'All') {
-    filtered = filtered.filter((o: any) => o.category?.toLowerCase() === category.toLowerCase());
-  }
-
-  res.json({
-    success: true,
-    count: filtered.length,
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Get opportunities
 app.get('/api/opportunities', async (req, res) => {
   const includeUnpublished = req.query.includeUnpublished === 'true';
-  const onlyActive = req.query.onlyActive === 'true';
-  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
 
-  let items: any[] = [];
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
-        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        // Merge with verified real opportunities (scholarships, jobs, internships)
+        const merged = [...items];
+        for (const verified of ALL_VERIFIED_INITIAL) {
+          const exists = merged.some(m => 
+            m.id === verified.id || 
+            m.slug === verified.slug || 
+            (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+          );
+          if (!exists) {
+            merged.push(verified);
+          }
+        }
+
+        if (!includeUnpublished) {
+          items = merged.filter((o: any) => 
+            (o.status === 'published' || o.status === 'closed') &&
+            o.status !== 'pending' &&
+            o.status !== 'rejected' &&
+            o.submissionStatus !== 'pending' &&
+            o.submissionStatus !== 'rejected'
+          );
+        } else {
+          items = merged;
+        }
+
+        return res.json(items);
       }
-    } catch (e: any) {
+    } catch (e) {
       console.warn('Admin Firestore read error:', e);
     }
   }
 
-  // Merge with verified real opportunities (scholarships, jobs, internships)
-  const merged = [...items];
-  for (const verified of ALL_VERIFIED_INITIAL) {
-    const exists = merged.some(m => 
-      m.id === verified.id || 
-      m.slug === verified.slug || 
-      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
-    );
-    if (!exists) {
-      merged.push(verified);
-    }
-  }
-
-  let result = merged;
+  let fallback = [...ALL_VERIFIED_INITIAL];
   if (!includeUnpublished) {
-    result = result.filter((o: any) => 
-      (o.status === 'published' || o.status === 'closed') &&
-      o.status !== 'pending' &&
-      o.status !== 'rejected' &&
-      o.submissionStatus !== 'pending' &&
-      o.submissionStatus !== 'rejected'
-    );
+    fallback = fallback.filter((o: any) => o.status === 'published' || o.status === 'closed');
   }
-
-  if (onlyActive) {
-    result = result.filter(filterOpportunityActive);
-  }
-
-  if (category && category !== 'All') {
-    result = result.filter((o: any) => o.category?.toLowerCase() === category.toLowerCase());
-  }
-
-  res.json(result);
+  res.json(fallback);
 });
 
 // User Opportunity Submission Endpoint (Enforces pending status server-side)
@@ -510,137 +424,6 @@ app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
   res.json({ success: true, id, note: 'deleted_locally' });
 });
 
-// In-memory & disk fallback map for saved opportunities per user
-const SAVED_FILE = path.resolve(process.cwd(), 'data', 'saved_opportunities.json');
-
-function loadSavedOpportunitiesFromDisk(): Map<string, Map<string, any>> {
-  const map = new Map<string, Map<string, any>>();
-  try {
-    if (fs.existsSync(SAVED_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SAVED_FILE, 'utf8'));
-      if (Array.isArray(data)) {
-        for (const item of data) {
-          if (item && item.userId && item.opportunityId) {
-            if (!map.has(item.userId)) {
-              map.set(item.userId, new Map());
-            }
-            map.get(item.userId)!.set(item.opportunityId, item);
-          }
-        }
-      }
-    }
-  } catch (e: any) {
-    console.warn('Could not read saved opportunities from disk:', e.message);
-  }
-  return map;
-}
-
-function persistSavedOpportunitiesToDisk(map: Map<string, Map<string, any>>) {
-  try {
-    const list: any[] = [];
-    for (const userMap of map.values()) {
-      for (const rec of userMap.values()) {
-        list.push(rec);
-      }
-    }
-    const dir = path.dirname(SAVED_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(SAVED_FILE, JSON.stringify(list, null, 2), 'utf8');
-  } catch (e: any) {
-    console.warn('Could not persist saved opportunities to disk:', e.message);
-  }
-}
-
-const inMemorySavedByUser = loadSavedOpportunitiesFromDisk();
-
-// GET /api/saved - Retrieve saved opportunity records for the authenticated user
-app.get('/api/saved', requireAuth, async (req: AuthenticatedRequest, res) => {
-  const user = req.user!;
-  if (adminDb && isInitialized) {
-    try {
-      const snap = await adminDb.collection('saved_opportunities').where('userId', '==', user.uid).get();
-      const records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      return res.json({ success: true, saved: records });
-    } catch (e: any) {
-      console.warn('Error reading saved opportunities from adminDb:', e.message);
-    }
-  }
-
-  const userMap = inMemorySavedByUser.get(user.uid) || new Map();
-  const records = Array.from(userMap.values());
-  return res.json({ success: true, saved: records, note: 'persisted_locally' });
-});
-
-// POST /api/saved - Save an opportunity for the authenticated user
-app.post('/api/saved', requireAuth, async (req: AuthenticatedRequest, res) => {
-  const user = req.user!;
-  const { opportunityId, title, slug, category, type, organizationName, deadline } = req.body || {};
-  if (!opportunityId || typeof opportunityId !== 'string') {
-    return res.status(400).json({ error: 'Valid opportunityId is required' });
-  }
-
-  const saveId = `${user.uid}_${opportunityId}`;
-  const now = new Date().toISOString();
-  const record = {
-    id: saveId,
-    userId: user.uid,
-    opportunityId,
-    title: typeof title === 'string' ? title : '',
-    slug: typeof slug === 'string' ? slug : opportunityId,
-    category: typeof category === 'string' ? category : 'General',
-    type: typeof type === 'string' ? type : '',
-    organizationName: typeof organizationName === 'string' ? organizationName : '',
-    deadline: typeof deadline === 'string' ? deadline : '',
-    savedAt: now
-  };
-
-  if (!inMemorySavedByUser.has(user.uid)) {
-    inMemorySavedByUser.set(user.uid, new Map());
-  }
-  inMemorySavedByUser.get(user.uid)!.set(opportunityId, record);
-  persistSavedOpportunitiesToDisk(inMemorySavedByUser);
-
-  if (adminDb && isInitialized) {
-    try {
-      await adminDb.collection('saved_opportunities').doc(saveId).set(record, { merge: true });
-      return res.json({ success: true, saved: true, record });
-    } catch (e: any) {
-      console.warn('Error persisting saved opportunity to adminDb:', e.message);
-    }
-  }
-
-  return res.json({ success: true, saved: true, record, note: 'persisted_locally' });
-});
-
-// DELETE /api/saved/:opportunityId - Remove a saved opportunity for the authenticated user
-app.delete('/api/saved/:opportunityId', requireAuth, async (req: AuthenticatedRequest, res) => {
-  const user = req.user!;
-  const { opportunityId } = req.params;
-  if (!opportunityId) {
-    return res.status(400).json({ error: 'opportunityId parameter is required' });
-  }
-
-  const saveId = `${user.uid}_${opportunityId}`;
-
-  if (inMemorySavedByUser.has(user.uid)) {
-    inMemorySavedByUser.get(user.uid)!.delete(opportunityId);
-    persistSavedOpportunitiesToDisk(inMemorySavedByUser);
-  }
-
-  if (adminDb && isInitialized) {
-    try {
-      await adminDb.collection('saved_opportunities').doc(saveId).delete();
-      return res.json({ success: true, saved: false, opportunityId });
-    } catch (e: any) {
-      console.warn('Error deleting saved opportunity from adminDb:', e.message);
-    }
-  }
-
-  return res.json({ success: true, saved: false, opportunityId, note: 'deleted_locally' });
-});
-
 // Get resources
 app.get('/api/resources', async (req, res) => {
   const includeUnpublished = req.query.includeUnpublished === 'true';
@@ -648,45 +431,35 @@ app.get('/api/resources', async (req, res) => {
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('resources').get();
-      let items: any[] = [];
       if (!snapshot.empty) {
-        items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-      }
-
-      // Merge with verified real resources and courses
-      const merged = [...items];
-      for (const verified of ALL_VERIFIED_RESOURCES_AND_COURSES) {
-        const exists = merged.some(m => 
-          m.id === verified.id || 
-          m.slug === verified.slug || 
-          (m.enrollmentUrl && verified.enrollmentUrl && m.enrollmentUrl.toLowerCase() === verified.enrollmentUrl.toLowerCase())
-        );
-        if (!exists) {
-          merged.push(verified);
+        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        const merged = [...items];
+        for (const verified of VERIFIED_REAL_RESOURCES) {
+          const exists = merged.some(m => m.id === verified.id || m.slug === verified.slug);
+          if (!exists) {
+            merged.push(verified);
+          }
         }
-      }
-
-      if (!includeUnpublished) {
-        items = merged.filter((r: any) =>
-          (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
-          r.status !== 'pending' &&
-          r.status !== 'rejected' &&
-          r.submissionStatus !== 'pending' &&
-          r.submissionStatus !== 'rejected'
-        );
-      } else {
         items = merged;
+        if (!includeUnpublished) {
+          items = items.filter((r: any) =>
+            (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
+            r.status !== 'pending' &&
+            r.status !== 'rejected' &&
+            r.submissionStatus !== 'pending' &&
+            r.submissionStatus !== 'rejected'
+          );
+        }
+        return res.json(items);
       }
-      return res.json(items);
     } catch (e) {
       console.warn('Admin Firestore resources read error:', e);
     }
   }
 
-  // Fallback when Firestore is empty or offline
-  let fallback = [...ALL_VERIFIED_RESOURCES_AND_COURSES];
+  let fallback = [...VERIFIED_REAL_RESOURCES];
   if (!includeUnpublished) {
-    fallback = fallback.filter((r: any) => r.status === 'published' || r.status === 'approved');
+    fallback = fallback.filter((r: any) => r.status === 'published' || (r.status as string) === 'approved');
   }
   res.json(fallback);
 });

@@ -4,7 +4,6 @@ import { sanitizeForFirestore } from './firebase/firestoreService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
-import { ALL_COURSES } from '../data/courses';
 import {
   collection,
   getDocs,
@@ -21,12 +20,10 @@ import {
 
 const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
 
-const INITIAL_CURATED_RESOURCES: Resource[] = [
-  ...VERIFIED_REAL_RESOURCES,
-  ...ALL_COURSES
-];
-
 function getStoredResources(): Resource[] {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return [...VERIFIED_REAL_RESOURCES];
+  }
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     let list: Resource[] = [];
@@ -43,12 +40,32 @@ function getStoredResources(): Resource[] {
       }
     }
 
-    // Ensure all curated verified resources & courses are present
+    // Refresh existing items with newest verified curriculum fields (whatYouWillLearn, whoIsThisFor, costType, etc.)
+    const verifiedIdMap = new Map<string, Resource>();
+    const verifiedSlugMap = new Map<string, Resource>();
+    for (const v of VERIFIED_REAL_RESOURCES) {
+      verifiedIdMap.set(v.id, v);
+      if (v.slug) verifiedSlugMap.set(v.slug, v);
+    }
+
+    list = list.map(item => {
+      const verifiedMatch = verifiedIdMap.get(item.id) || (item.slug ? verifiedSlugMap.get(item.slug) : undefined);
+      if (verifiedMatch) {
+        return {
+          ...item,
+          ...verifiedMatch
+        };
+      }
+      return item;
+    });
+
+    // Ensure all curated verified resources are present
     const existingIds = new Set(list.map(r => r.id));
+    const existingSlugs = new Set(list.map(r => r.slug).filter(Boolean));
     let hasNew = false;
-    for (const item of INITIAL_CURATED_RESOURCES) {
-      if (!existingIds.has(item.id)) {
-        list.push(item);
+    for (const verified of VERIFIED_REAL_RESOURCES) {
+      if (!existingIds.has(verified.id) && !existingSlugs.has(verified.slug)) {
+        list.push(verified);
         hasNew = true;
       }
     }
@@ -60,10 +77,11 @@ function getStoredResources(): Resource[] {
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  return [...INITIAL_CURATED_RESOURCES];
+  return [...VERIFIED_REAL_RESOURCES];
 }
 
 function saveStoredResources(items: Resource[]) {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
   try {
     const cleaned = items.filter(r => 
       r && 
@@ -81,11 +99,6 @@ export interface ResourceFilters {
   category?: string;
   resourceType?: string;
   isFree?: boolean;
-  costType?: string;
-  level?: string;
-  format?: string;
-  providerName?: string;
-  certificateType?: string;
   pricingModel?: string;
   search?: string;
   hasCertificate?: boolean;
@@ -94,38 +107,6 @@ export interface ResourceFilters {
 }
 
 export const ResourcesService = {
-  /**
-   * Duplicate detection to prevent identical courses from being published
-   */
-  checkDuplicate(queryData: {
-    title?: string;
-    providerName?: string;
-    enrollmentUrl?: string;
-    officialCourseUrl?: string;
-    excludeId?: string;
-  }): Resource | null {
-    const items = getStoredResources();
-    const norm = (s?: string) => s?.trim().toLowerCase() || '';
-    const normUrl = (u?: string) => u?.trim().toLowerCase().replace(/\/$/, '') || '';
-
-    const targetTitle = norm(queryData.title);
-    const targetProvider = norm(queryData.providerName);
-    const targetEnroll = normUrl(queryData.enrollmentUrl);
-    const targetOfficial = normUrl(queryData.officialCourseUrl);
-
-    return (
-      items.find((r) => {
-        if (queryData.excludeId && r.id === queryData.excludeId) return false;
-        if (targetEnroll && normUrl(r.enrollmentUrl) === targetEnroll) return true;
-        if (targetOfficial && normUrl(r.officialCourseUrl) === targetOfficial) return true;
-        if (targetTitle && norm(r.title) === targetTitle) {
-          if (!targetProvider || norm(r.providerName) === targetProvider) return true;
-        }
-        return false;
-      }) || null
-    );
-  },
-
   async getAll(filters?: ResourceFilters): Promise<Resource[]> {
     let items = getStoredResources();
 
@@ -142,7 +123,7 @@ export const ResourcesService = {
         if (results.length > 0) {
           const remoteIds = new Set(results.map((r: Resource) => r.id));
           const merged = [...results];
-          for (const v of INITIAL_CURATED_RESOURCES) {
+          for (const v of VERIFIED_REAL_RESOURCES) {
             if (!remoteIds.has(v.id)) {
               merged.push(v);
             }
@@ -175,23 +156,8 @@ export const ResourcesService = {
       if (filters.isFree !== undefined) {
         items = items.filter(r => r.isFree === filters.isFree);
       }
-      if (filters.costType && filters.costType !== 'All') {
-        items = items.filter(r => r.costType === filters.costType);
-      }
-      if (filters.level && filters.level !== 'All') {
-        items = items.filter(r => r.level.toLowerCase() === filters.level!.toLowerCase());
-      }
-      if (filters.format && filters.format !== 'All') {
-        items = items.filter(r => r.format.toLowerCase() === filters.format!.toLowerCase());
-      }
-      if (filters.providerName && filters.providerName !== 'All') {
-        items = items.filter(r => r.providerName?.toLowerCase() === filters.providerName!.toLowerCase());
-      }
       if (filters.pricingModel && filters.pricingModel !== 'All') {
         items = items.filter(r => r.pricingModel === filters.pricingModel);
-      }
-      if (filters.certificateType && filters.certificateType !== 'All') {
-        items = items.filter(r => r.certificateType === filters.certificateType);
       }
       if (filters.hasCertificate !== undefined) {
         items = items.filter(r => r.hasCertificate === filters.hasCertificate);
@@ -201,9 +167,8 @@ export const ResourcesService = {
         items = items.filter(r =>
           r.title.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q) ||
-          (r.skills && r.skills.some(s => s.toLowerCase().includes(q))) ||
-          (r.providerName && r.providerName.toLowerCase().includes(q)) ||
-          (r.subcategory && r.subcategory.toLowerCase().includes(q))
+          r.skills.some(s => s.toLowerCase().includes(q)) ||
+          (r.providerName && r.providerName.toLowerCase().includes(q))
         );
       }
     }
@@ -230,8 +195,46 @@ export const ResourcesService = {
   },
 
   async getBySlug(slug: string): Promise<Resource | null> {
+    if (!slug) return null;
+    const clean = decodeURIComponent(slug).trim().toLowerCase().replace(/\/$/, '');
+
+    // Map common legacy IDs to canonical records
+    const legacyAliases: Record<string, string> = {
+      'course-google-data-analytics': 'google-data-analytics-professional-certificate',
+      'course-google-cybersecurity': 'google-cybersecurity-professional-certificate',
+      'course-google-project-management': 'google-project-management-professional-certificate',
+      'res-google-data-analytics-cert': 'google-data-analytics-professional-certificate',
+      'res-google-cybersecurity-cert': 'google-cybersecurity-professional-certificate',
+      'res-google-project-management-cert': 'google-project-management-professional-certificate'
+    };
+
+    const targetSlug = legacyAliases[clean] || clean;
+
     const items = await this.getAll({ includeUnpublished: true });
-    return items.find(r => r.slug === slug) || null;
+
+    // 1. Direct slug match
+    let found = items.find(r => r.slug && r.slug.toLowerCase() === targetSlug);
+    if (found) return found;
+
+    // 2. Direct ID match
+    found = items.find(r => r.id && r.id.toLowerCase() === clean);
+    if (found) return found;
+
+    // 3. Fallback check for raw clean slug
+    found = items.find(r => r.slug && r.slug.toLowerCase() === clean);
+    if (found) return found;
+
+    // 4. Try Firestore directly if available
+    if (isFirebaseConfigured && db) {
+      try {
+        const snap = await this.getById(clean);
+        if (snap) return snap;
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return null;
   },
 
   async saveResource(

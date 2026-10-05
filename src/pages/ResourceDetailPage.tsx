@@ -19,7 +19,13 @@ import {
   Share2,
   Bookmark,
   ShieldCheck,
-  Info
+  Info,
+  Globe,
+  DollarSign,
+  Languages,
+  MapPin,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 interface ResourceDetailPageProps {
@@ -40,6 +46,8 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
       try {
         const item = await ResourcesService.getBySlug(slug);
         setResource(item);
+      } catch (err) {
+        console.error('Error loading course details:', err);
       } finally {
         setLoading(false);
       }
@@ -47,28 +55,39 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
     loadResource();
   }, [slug]);
 
-  if (loading) return <LoadingState message="Loading resource..." />;
+  if (loading) return <LoadingState message="Loading course details..." />;
+
   if (!resource) {
     return (
       <EmptyState
-        title="Resource not found"
-        description="This learning resource might have expired or been removed."
-        actionText="Browse All Resources"
+        title="Course Not Found"
+        description="The requested learning resource could not be found. It may have been updated, relocated, or expired."
+        actionText="Browse All Courses & Credentials"
         onAction={() => onNavigate('/resources')}
       />
     );
   }
 
-  const isPendingOrUnpublished = resource.status !== 'published' && (resource.status as string) !== 'approved';
-  const isSubmitterOrAdmin = isEditorOrAdmin || (currentUser && (currentUser.id === resource.submittedBy || currentUser.email === resource.submittedByEmail || currentUser.id === resource.createdByUserId || currentUser.email === resource.createdByEmail));
+  const isPendingOrUnpublished =
+    resource.status !== 'published' &&
+    (resource.status as string) !== 'approved' &&
+    resource.submissionStatus !== 'approved';
+
+  const isSubmitterOrAdmin =
+    isEditorOrAdmin ||
+    (currentUser &&
+      (currentUser.id === resource.submittedBy ||
+        currentUser.email === resource.submittedByEmail ||
+        currentUser.id === resource.createdByUserId ||
+        currentUser.email === resource.createdByEmail));
 
   if (isPendingOrUnpublished && !isSubmitterOrAdmin) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16">
         <EmptyState
-          title="Submission Awaiting Review"
-          description="This resource submission is currently awaiting editorial verification before it is published on Opportunity Ghana."
-          actionText="Browse Active Resources"
+          title="Submission Awaiting Editorial Review"
+          description="This course or credential submission is currently being verified by Opportunity Ghana editors before it appears publicly."
+          actionText="Browse Verified Courses"
           onAction={() => onNavigate('/resources')}
         />
       </div>
@@ -76,27 +95,92 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
   }
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
   };
+
+  // Safe cost formatting
+  const formattedCost = () => {
+    if (resource.isFree) {
+      if (resource.costType === 'free_to_audit') {
+        return 'Free to Audit';
+      }
+      if (resource.costType === 'free_with_paid_certificate') {
+        return 'Free Courseware';
+      }
+      return '100% Free';
+    }
+    if (typeof resource.cost === 'number' && !isNaN(resource.cost)) {
+      return `${resource.currency || 'USD'} ${resource.cost.toLocaleString()}`;
+    }
+    return 'Paid Listing';
+  };
+
+  const getCostBadge = () => {
+    if (resource.isFree) {
+      if (resource.costType === 'free_to_audit') {
+        return (
+          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-300">
+            Free to Audit
+          </span>
+        );
+      }
+      if (resource.costType === 'free_with_paid_certificate') {
+        return (
+          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-300">
+            Free Course + Paid Certificate
+          </span>
+        );
+      }
+      return (
+        <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+          100% Free Tuition
+        </span>
+      );
+    }
+
+    return (
+      <Badge variant="amber" className="font-mono font-bold">
+        {formattedCost()}
+      </Badge>
+    );
+  };
+
+  const learningOutcomes = Array.isArray(resource.whatYouWillLearn) && resource.whatYouWillLearn.length > 0
+    ? resource.whatYouWillLearn
+    : [];
+
+  const targetAudiences = Array.isArray(resource.whoIsThisFor) && resource.whoIsThisFor.length > 0
+    ? resource.whoIsThisFor
+    : resource.targetAudience
+    ? [resource.targetAudience]
+    : [];
+
+  const skillsList = Array.isArray(resource.skills) ? resource.skills.filter(Boolean) : [];
+  const prerequisitesList = Array.isArray(resource.prerequisites) ? resource.prerequisites.filter(Boolean) : [];
+  const subtitlesList = Array.isArray(resource.subtitles) ? resource.subtitles.filter(Boolean) : [];
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Breadcrumbs */}
+      {/* Breadcrumbs Navigation */}
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto whitespace-nowrap">
         <button onClick={() => onNavigate('/')} className="hover:text-emerald-700 cursor-pointer">
           Home
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
         <button onClick={() => onNavigate('/resources')} className="hover:text-emerald-700 cursor-pointer">
-          Resources
+          Courses &amp; Credentials
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-800 font-semibold truncate max-w-[200px]">{resource.title}</span>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <span className="text-slate-800 font-semibold truncate max-w-[280px]">
+          {resource.title || 'Course Details'}
+        </span>
       </nav>
 
-      {/* Featured Resource Photo Banner */}
+      {/* Featured Header Media Banner */}
       {(() => {
         const media = resolveResourceMedia(resource);
         return (
@@ -108,13 +192,14 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               <div className="relative w-full h-full">
                 <img
                   src={media.imageUrl}
-                  alt={resource.title}
+                  alt={resource.title || 'Course Banner'}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover object-[center_25%]"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
               </div>
             ) : (
               <div className="w-full h-full flex flex-col justify-end p-8 relative overflow-hidden">
@@ -124,10 +209,10 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                     className="text-xs font-extrabold uppercase tracking-widest font-space"
                     style={{ color: media.gradient.accentColor }}
                   >
-                    {resource.category}
+                    {resource.category || 'Professional Development'}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-bold text-white font-space">
-                    {resource.providerName || 'Certified Partner'}
+                    {resource.providerName || 'Certified Education Partner'}
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300 font-medium line-clamp-1">
                     {resource.title}
@@ -139,7 +224,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         );
       })()}
 
-      {/* Media Attribution */}
+      {/* Media Attribution (if verified graphic source exists) */}
       {resource.imageSourceName && (
         <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium px-2">
           <span>Official credential graphic provided by</span>
@@ -159,38 +244,60 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         </div>
       )}
 
-      {/* Hero */}
+      {/* Main Course Header Card */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <Badge variant="indigo" className="capitalize">
-                {resource.resourceType.replace('_', ' ')}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="indigo" className="capitalize font-semibold">
+                {resource.resourceType ? resource.resourceType.replace(/_/g, ' ') : 'Course'}
               </Badge>
-              <Badge variant="slate">{resource.category}</Badge>
-              {resource.isFree ? (
-                <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
-                  FREE TUITION
-                </span>
-              ) : (
-                <Badge variant="amber">
-                  {resource.currency} {resource.cost.toLocaleString()}
-                </Badge>
-              )}
+              {resource.category && <Badge variant="slate">{resource.category}</Badge>}
+              {getCostBadge()}
               <VerificationBadge status={resource.verificationStatus || 'verified'} />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space leading-tight">
               {resource.title}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-2 flex items-center gap-2 font-medium">
+
+            <div className="text-xs sm:text-sm text-slate-600 flex flex-wrap items-center gap-2 font-medium">
               <span>Offered by</span>
-              <strong className="text-slate-800">{resource.providerName || 'Certified Academy'}</strong>
-              <span>•</span>
-              <span className="text-slate-500">{resource.format}</span>
-            </p>
+              {resource.providerWebsiteUrl ? (
+                <a
+                  href={resource.providerWebsiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-900 font-bold hover:text-emerald-700 inline-flex items-center gap-1 underline underline-offset-2"
+                >
+                  <span>{resource.providerName || 'Certified Academy'}</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                </a>
+              ) : (
+                <strong className="text-slate-800">{resource.providerName || 'Certified Academy'}</strong>
+              )}
+
+              {resource.format && (
+                <>
+                  <span>•</span>
+                  <span className="text-slate-500">{resource.format}</span>
+                </>
+              )}
+
+              {resource.language && (
+                <>
+                  <span>•</span>
+                  <span className="text-slate-500 flex items-center gap-1">
+                    <Globe className="w-3 h-3 text-slate-400" />
+                    <span>{resource.language}</span>
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Action CTAs */}
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
             <button
               onClick={() => setIsSaved(!isSaved)}
               className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
@@ -198,10 +305,11 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
-              title="Bookmark resource"
+              title="Bookmark course"
             >
               <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700' : ''}`} />
             </button>
+
             <button
               onClick={handleShare}
               className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -209,203 +317,176 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
             >
               <Share2 className="w-4 h-4" />
             </button>
-            <a
-              href={resource.enrollmentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#006B3F] hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
-            >
-              <span>{resource.isFree ? 'Start Free Course' : 'Enroll / View Course'}</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
+
+            {resource.officialCourseUrl && resource.officialCourseUrl !== resource.enrollmentUrl && (
+              <a
+                href={resource.officialCourseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold rounded-xl text-xs shadow-2xs cursor-pointer transition-colors"
+              >
+                <span>Official Course Page</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              </a>
+            )}
+
+            {resource.enrollmentUrl && (
+              <a
+                href={resource.enrollmentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
+              >
+                <span>{resource.isFree ? 'Enroll / Access Free Course' : 'Enroll / Register Now'}</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
 
         {copied && (
           <div className="text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl font-bold inline-block">
-            ✓ Course link copied to clipboard!
+            ✓ Course share link copied to clipboard!
           </div>
         )}
 
-        {/* Specs row */}
+        {/* Course Specifications Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
-          <div className="p-3 bg-slate-50 rounded-xl">
+          {/* Duration */}
+          <div className="p-3.5 bg-slate-50 rounded-2xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Duration</p>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.duration}</p>
+            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.duration || 'Self-paced'}</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-xl">
+
+          {/* Level */}
+          <div className="p-3.5 bg-slate-50 rounded-2xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Skill Level</p>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.level}</p>
+            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.level || 'All Levels'}</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-xl">
+
+          {/* Certificate */}
+          <div className="p-3.5 bg-slate-50 rounded-2xl">
             <p className="text-[10px] uppercase font-bold text-slate-400">Certificate</p>
             <p className="text-xs font-bold text-slate-900 mt-0.5">
-              {resource.hasCertificate
-                ? resource.certificateType || 'Certificate Included'
-                : 'No Certificate'}
+              {resource.certificateType || (resource.hasCertificate ? 'Official Credential' : 'No Certificate')}
             </p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-xl">
-            <p className="text-[10px] uppercase font-bold text-slate-400">Cost & Pricing</p>
+
+          {/* Cost & Pricing Model */}
+          <div className="p-3.5 bg-slate-50 rounded-2xl">
+            <p className="text-[10px] uppercase font-bold text-slate-400">Cost &amp; Access</p>
             <p className="text-xs font-bold text-emerald-700 mt-0.5">
-              {resource.isFree ? (
-                resource.costType === 'free_to_audit' ? (
-                  <span>Free Audit <span className="text-[10px] text-slate-500 font-normal">(Opt. Paid Cert)</span></span>
-                ) : (
-                  '100% Free Tuition'
-                )
-              ) : (
-                <>
-                  {resource.currency} {resource.cost.toLocaleString()}
-                  <span className="text-[10px] text-slate-500 font-normal ml-1">
-                    {resource.pricingModel === 'monthly' ? '/ month' : resource.pricingModel === 'per-course' ? '/ course' : resource.pricingModel === 'per-exam' ? '/ paper' : '(one-time)'}
-                  </span>
-                </>
+              {formattedCost()}
+              {resource.pricingModel && !resource.isFree && (
+                <span className="text-[10px] text-slate-500 font-normal ml-1">
+                  {resource.pricingModel === 'monthly'
+                    ? '/ month'
+                    : resource.pricingModel === 'per-course'
+                    ? '/ course'
+                    : resource.pricingModel === 'per-exam'
+                    ? '/ paper'
+                    : ''}
+                </span>
               )}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Content grid */}
+      {/* Main Content Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left 2 Columns: Curriculum Details */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Curriculum Overview */}
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-            <h2 className="text-base font-bold text-slate-900 font-space">Curriculum Overview</h2>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">{resource.description}</p>
+            <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-emerald-700" />
+              <span>Course Curriculum Overview</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+              {resource.description || 'Verified course curriculum from official educational partner.'}
+            </p>
           </section>
 
-          {/* Free Course & Certificate Policy Transparency */}
-          {resource.isFree && (
-            <section className="bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 rounded-3xl border border-emerald-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h2 className="text-base font-bold text-emerald-950 font-space flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-700" />
-                  <span>Free Course Policy & Certificate Details</span>
+          {/* Learning Outcomes / What You Will Learn */}
+          {learningOutcomes.length > 0 && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-emerald-700" />
+                <h2 className="text-base font-bold text-slate-900 font-space">
+                  What You Will Learn &amp; Master
                 </h2>
-                <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono">
-                  {resource.costType === 'free_to_audit' ? 'FREE AUDIT' : resource.costType === 'free_with_paid_certificate' ? 'FREE TUITION' : '100% FREE'}
-                </span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Course Tuition</p>
-                  <p className="text-base font-black text-emerald-700 font-space mt-0.5">
-                    $0 USD (Free)
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Full access to curriculum, lectures, and sandbox exercises
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Certificate Status</p>
-                  <p className="text-xs font-bold text-slate-900 mt-1">
-                    {resource.certificateType || (resource.hasCertificate ? 'Certificate Included' : 'No Certificate')}
-                  </p>
-                  <p className="text-[11px] text-slate-600 mt-1">
-                    {resource.certificateCost || (resource.hasCertificate ? 'Free of charge upon completion' : 'Not provided by official source')}
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-white rounded-xl border border-emerald-100 shadow-2xs">
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Ghana Accessibility</p>
-                  <p className="text-xs font-bold text-emerald-800 mt-1">
-                    ✓ 100% Accessible Online
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Self-paced online format open to Ghanaian learners
-                  </p>
-                </div>
-              </div>
-
-              {resource.costDescription && (
-                <div className="text-xs text-emerald-900 leading-relaxed bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200/80">
-                  <strong className="block font-bold mb-0.5 text-emerald-950">Official Cost & Certificate Notes:</strong>
-                  {resource.costDescription}
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* What You Will Learn / Outcomes */}
-          {resource.whatYouWillLearn && resource.whatYouWillLearn.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-600" />
-                <span>What You Will Learn / Learning Outcomes</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                {resource.whatYouWillLearn.map((item, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {learningOutcomes.map((outcome, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-2xl bg-emerald-50/50 border border-emerald-100/80 flex items-start gap-2.5 text-xs text-slate-800 leading-relaxed"
+                  >
                     <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>{item}</span>
+                    <span>{outcome}</span>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* Target Audience Section */}
-          {((resource.whoIsThisFor && resource.whoIsThisFor.length > 0) || resource.targetAudience) && (
+          {/* Who Should Enroll / Target Audience */}
+          {targetAudiences.length > 0 && (
             <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space">Who Should Enroll?</h2>
-              {resource.targetAudience && (
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">{resource.targetAudience}</p>
-              )}
-              {resource.whoIsThisFor && resource.whoIsThisFor.length > 0 && (
-                <ul className="space-y-2">
-                  {resource.whoIsThisFor.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-emerald-700" />
+                <span>Who Should Enroll in This Course?</span>
+              </h2>
+              <ul className="space-y-2 pt-1">
+                {targetAudiences.map((audience, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 shrink-0" />
+                    <span>{audience}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 
-          {/* Ghana Access & Regional Availability */}
-          {(resource.ghanaAccessibility || resource.accessGhanaNotes) && (
-            <section className="bg-emerald-50/60 rounded-3xl border border-emerald-200/80 p-6 sm:p-8 space-y-3 shadow-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-                <h2 className="text-base font-bold text-emerald-950 font-space">
-                  Ghana Accessibility & Online Access Verification
-                </h2>
-              </div>
-              <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
-                {resource.ghanaAccessibility || resource.accessGhanaNotes}
-              </p>
-            </section>
-          )}
-
-          {/* Pricing & Fee Transparency Card */}
-          {!resource.isFree && (
+          {/* Pricing & Fee Transparency Card (if paid or special cost structure) */}
+          {(!resource.isFree || resource.costDescription || resource.paymentNotes) && (
             <section className="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 rounded-3xl border border-amber-200/80 p-6 sm:p-8 space-y-4 shadow-xs">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <h2 className="text-base font-bold text-amber-950 font-space flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-amber-700" />
                   <span>Verified Price &amp; Payment Transparency</span>
                 </h2>
                 <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                  {resource.pricingModel?.replace('-', ' ').toUpperCase() || 'ONE-TIME'}
+                  {resource.costType ? resource.costType.replace(/_/g, ' ').toUpperCase() : 'VERIFIED RATE'}
                 </span>
               </div>
+
+              {resource.costDescription && (
+                <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
+                  {resource.costDescription}
+                </p>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
                   <p className="text-[10px] uppercase font-bold text-slate-400">Published Price</p>
                   <p className="text-base font-black text-slate-900 font-mono mt-0.5">
-                    {resource.currency} {resource.cost.toLocaleString()}
+                    {formattedCost()}
                   </p>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Billing Structure</p>
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Billing Model</p>
                   <p className="text-xs font-bold text-slate-800 mt-1 capitalize">
-                    {resource.pricingModel === 'monthly' ? 'Monthly Subscription' : resource.pricingModel === 'per-course' ? 'Pay-per-course / Tiered' : resource.pricingModel === 'per-exam' ? 'Per Exam Registration' : 'One-Time Voucher / Exam'}
+                    {resource.pricingModel === 'monthly'
+                      ? 'Monthly Subscription'
+                      : resource.pricingModel === 'per-course'
+                      ? 'Pay-per-Course'
+                      : resource.pricingModel === 'per-exam'
+                      ? 'Per-Exam Registration'
+                      : resource.isFree
+                      ? 'Free Access'
+                      : 'One-Time Payment'}
                   </p>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
@@ -422,105 +503,131 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                   <p>{resource.paymentNotes}</p>
                 </div>
               )}
+
+              {resource.financialAidUrl && (
+                <div className="pt-1">
+                  <a
+                    href={resource.financialAidUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                  >
+                    <span>Apply for Provider Financial Aid / Scholarship</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
             </section>
           )}
 
-          {/* Ghana Access & Examination Centers */}
-          {resource.accessGhanaNotes && (
+          {/* Ghana Accessibility & Testing Centers */}
+          {resource.accessGhanaNotes || resource.ghanaAccessibility ? (
             <section className="bg-emerald-50/60 rounded-3xl border border-emerald-200/80 p-6 sm:p-8 space-y-3 shadow-xs">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                <MapPin className="w-5 h-5 text-emerald-700" />
                 <h2 className="text-base font-bold text-emerald-950 font-space">
-                  Access &amp; Testing Information for Ghana
+                  Ghana Accessibility &amp; Examination Notes
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
-                {resource.accessGhanaNotes}
+              <p className="text-xs sm:text-sm text-emerald-950/90 leading-relaxed">
+                {resource.accessGhanaNotes || resource.ghanaAccessibility}
               </p>
+            </section>
+          ) : null}
+
+          {/* Skills You Will Master */}
+          {skillsList.length > 0 && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-700" />
+                <span>Skills You Will Master</span>
+              </h2>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {skillsList.map((skill, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-xs font-semibold rounded-xl transition-colors"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </section>
           )}
 
-          <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-            <h2 className="text-base font-bold text-slate-900 font-space">Skills You Will Master</h2>
-            <div className="flex flex-wrap gap-2">
-              {resource.skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-slate-100 text-slate-800 text-xs font-semibold rounded-lg">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          {resource.prerequisites && (
+          {/* Prerequisites */}
+          {prerequisitesList.length > 0 && (
             <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space">Prerequisites</h2>
-              <ul className="space-y-2">
-                {resource.prerequisites.map((p, i) => (
-                  <li key={i} className="flex items-center gap-2 text-xs sm:text-sm text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-emerald-600" />
+              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+                <span>Eligibility &amp; Prerequisites</span>
+              </h2>
+              <ul className="space-y-2 pt-1">
+                {prerequisitesList.map((p, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{p}</span>
                   </li>
                 ))}
               </ul>
             </section>
           )}
+
+          {/* Languages & Subtitles */}
+          {(resource.language || subtitlesList.length > 0) && (
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                <Languages className="w-5 h-5 text-emerald-700" />
+                <span>Language &amp; Subtitle Options</span>
+              </h2>
+              <div className="text-xs text-slate-700 space-y-1">
+                {resource.language && (
+                  <p>
+                    <strong className="text-slate-900">Instructional Language:</strong> {resource.language}
+                  </p>
+                )}
+                {subtitlesList.length > 0 && (
+                  <p>
+                    <strong className="text-slate-900">Available Subtitles:</strong> {subtitlesList.join(', ')}
+                  </p>
+                )}
+              </div>
+            </section>
+          )}
         </div>
 
-        {/* Sidebar */}
+        {/* Right Sidebar: Direct Enrollment & Provider Details */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-xs">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-xs sticky top-24">
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-space">
-              {resource.isFree ? 'Start Learning' : 'Direct Enrollment'}
+              Direct Enrollment Portal
             </h3>
-            <p className="text-xs text-slate-500">
-              {resource.isFree
-                ? 'Access the full course directly on the official provider portal at zero tuition fee:'
-                : 'Access the official curriculum portal or partner cohort application:'}
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Access the official course registration portal or partner learning management system:
             </p>
-            
-            <a
-              href={resource.enrollmentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-[#006B3F] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
-            >
-              <span>{resource.isFree ? 'Start Free Course' : 'Go to Enrollment Portal'}</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
+
+            {resource.enrollmentUrl && (
+              <a
+                href={resource.enrollmentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
+              >
+                <span>{resource.isFree ? 'Enroll in Free Course' : 'Go to Enrollment Portal'}</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
 
             {resource.officialCourseUrl && resource.officialCourseUrl !== resource.enrollmentUrl && (
               <a
                 href={resource.officialCourseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl shadow-2xs cursor-pointer transition-colors"
               >
-                <span>Official Course Webpage</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                <span>Visit Official Course Page</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
               </a>
-            )}
-
-            {resource.providerWebsiteUrl && (
-              <a
-                href={resource.providerWebsiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 text-slate-500 hover:text-slate-800 text-[11px] font-medium transition-colors"
-              >
-                <span>Visit {resource.providerName || 'Provider'} Website</span>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
-            )}
-
-            {/* Language & Delivery */}
-            {(resource.language || (resource.subtitles && resource.subtitles.length > 0)) && (
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block font-space">Instruction Language</span>
-                <p className="font-semibold text-slate-800">Primary: {resource.language || 'English'}</p>
-                {resource.subtitles && resource.subtitles.length > 0 && (
-                  <p className="text-[11px] text-slate-500">Subtitles: {resource.subtitles.join(', ')}</p>
-                )}
-              </div>
             )}
 
             {/* Verification Box */}
@@ -533,40 +640,46 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                 <VerificationBadge status={resource.verificationStatus || 'verified'} />
               </div>
 
-              {resource.sourceUrl && (
+              {(resource.officialCourseUrl || resource.sourceUrl) && (
                 <div className="pt-1 border-t border-indigo-200/60">
                   <span className="text-indigo-700 font-medium block">Course Syllabus Source:</span>
                   <a
-                    href={resource.sourceUrl}
+                    href={resource.officialCourseUrl || resource.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-800 hover:underline truncate block font-mono font-bold"
                   >
-                    {resource.sourceUrl}
+                    {resource.officialCourseUrl || resource.sourceUrl}
                   </a>
                 </div>
               )}
 
               {resource.lastVerifiedAt && (
                 <div className="text-[10px] text-slate-500 font-mono">
-                  Last checked: {new Date(resource.lastVerifiedAt).toLocaleDateString('en-GB')}
+                  Verified: {new Date(resource.lastVerifiedAt).toLocaleDateString('en-GB')}
                 </div>
               )}
 
               {resource.verificationNotes && (
-                <p className="text-indigo-800 text-[10px] leading-relaxed italic">
+                <p className="text-indigo-900 text-[10px] leading-relaxed italic bg-white/60 p-2 rounded-lg">
                   &ldquo;{resource.verificationNotes}&rdquo;
+                </p>
+              )}
+
+              {resource.accreditationNotes && (
+                <p className="text-slate-600 text-[10px] leading-relaxed">
+                  {resource.accreditationNotes}
                 </p>
               )}
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
               <div className="flex items-center gap-1 font-bold text-slate-800">
                 <Info className="w-3.5 h-3.5 text-slate-500" />
                 <span>Legitimacy Protection</span>
               </div>
               <p>
-                Opportunity Ghana only recommends accredited or industry-recognized learning curricula.
+                Opportunity Ghana audits each learning resource against official university, cloud vendor, and international accreditation standards.
               </p>
             </div>
           </div>
