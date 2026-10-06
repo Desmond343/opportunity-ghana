@@ -21,9 +21,48 @@ import {
 
 const LOCAL_STORAGE_KEY = 'opp_gh_resources_store';
 
+// Legacy ID canonical aliases mapping: maps any historic or variant resource IDs to canonical identifiers
+export const LEGACY_RESOURCE_ID_MAP: Record<string, string> = {
+  'res-cisco-intro-cybersecurity': 'course-cisco-intro-cybersecurity',
+  'res-yale-financial-markets': 'course-yale-financial-markets',
+  'res-aws-cloud-practitioner': 'course-aws-cloud-practitioner',
+  'res-openlearn-leadership': 'course-openlearn-leadership',
+  'res-google-data-analytics': 'res-google-data-analytics-cert',
+  'res-google-cybersecurity': 'res-google-cybersecurity-cert',
+  'res-google-project-management': 'res-google-project-management-cert',
+  'course-google-data-analytics': 'res-google-data-analytics-cert',
+  'course-google-cybersecurity': 'res-google-cybersecurity-cert',
+  'course-google-project-management': 'res-google-project-management-cert'
+};
+
+/**
+ * Deduplicates an array of resources by canonical ID and by canonical slug.
+ * Ensures that no duplicate records or non-unique React keys ever emerge.
+ */
+export function deduplicateResources(items: Resource[]): Resource[] {
+  const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+  const result: Resource[] = [];
+
+  for (const item of items) {
+    if (!item || !item.id) continue;
+    const canonicalId = LEGACY_RESOURCE_ID_MAP[item.id] || item.id;
+    const cleanItem = canonicalId !== item.id ? { ...item, id: canonicalId } : item;
+
+    if (seenIds.has(cleanItem.id)) continue;
+    if (cleanItem.slug && seenSlugs.has(cleanItem.slug)) continue;
+
+    seenIds.add(cleanItem.id);
+    if (cleanItem.slug) seenSlugs.add(cleanItem.slug);
+    result.push(cleanItem);
+  }
+
+  return result;
+}
+
 function getStoredResources(): Resource[] {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    return [...VERIFIED_REAL_RESOURCES];
+    return ensureUniqueCourseImages(deduplicateResources([...VERIFIED_REAL_RESOURCES]));
   }
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -31,13 +70,18 @@ function getStoredResources(): Resource[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        list = parsed.filter(r => 
-          r && 
-          r.id && 
-          !r.id.startsWith('res-demo-') && 
-          !r.title?.includes('[DEMO RECORD]') &&
-          !r.enrollmentUrl?.includes('example.com')
-        );
+        list = parsed
+          .filter(r => 
+            r && 
+            r.id && 
+            !r.id.startsWith('res-demo-') && 
+            !r.title?.includes('[DEMO RECORD]') &&
+            !r.enrollmentUrl?.includes('example.com')
+          )
+          .map(r => {
+            const canonicalId = LEGACY_RESOURCE_ID_MAP[r.id];
+            return canonicalId ? { ...r, id: canonicalId } : r;
+          });
       }
     }
 
@@ -50,14 +94,16 @@ function getStoredResources(): Resource[] {
     }
 
     list = list.map(item => {
-      const verifiedMatch = verifiedIdMap.get(item.id) || (item.slug ? verifiedSlugMap.get(item.slug) : undefined);
+      const canonicalId = LEGACY_RESOURCE_ID_MAP[item.id] || item.id;
+      const verifiedMatch = verifiedIdMap.get(canonicalId) || (item.slug ? verifiedSlugMap.get(item.slug) : undefined);
       if (verifiedMatch) {
         return {
           ...item,
-          ...verifiedMatch
+          ...verifiedMatch,
+          id: verifiedMatch.id
         };
       }
-      return item;
+      return canonicalId !== item.id ? { ...item, id: canonicalId } : item;
     });
 
     // Ensure all curated verified resources are present
@@ -67,9 +113,14 @@ function getStoredResources(): Resource[] {
     for (const verified of VERIFIED_REAL_RESOURCES) {
       if (!existingIds.has(verified.id) && !existingSlugs.has(verified.slug)) {
         list.push(verified);
+        existingIds.add(verified.id);
+        if (verified.slug) existingSlugs.add(verified.slug);
         hasNew = true;
       }
     }
+
+    // Always ensure strict uniqueness
+    list = deduplicateResources(list);
 
     if (hasNew || !raw) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
@@ -78,7 +129,7 @@ function getStoredResources(): Resource[] {
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  return ensureUniqueCourseImages([...VERIFIED_REAL_RESOURCES]);
+  return ensureUniqueCourseImages(deduplicateResources([...VERIFIED_REAL_RESOURCES]));
 }
 
 function saveStoredResources(items: Resource[]) {
@@ -122,14 +173,21 @@ export const ResourcesService = {
           .map((d: any) => ({ id: d.id, ...d.data() } as Resource))
           .filter((r: Resource) => !r.id.startsWith('res-demo-') && !r.title?.includes('[DEMO RECORD]'));
         if (results.length > 0) {
-          const remoteIds = new Set(results.map((r: Resource) => r.id));
-          const merged = [...results];
+          const mappedResults = results.map((r: Resource) => {
+            const canonicalId = LEGACY_RESOURCE_ID_MAP[r.id];
+            return canonicalId ? { ...r, id: canonicalId } : r;
+          });
+          const remoteIds = new Set(mappedResults.map((r: Resource) => r.id));
+          const remoteSlugs = new Set(mappedResults.map((r: Resource) => r.slug).filter(Boolean));
+          const merged = [...mappedResults];
           for (const v of VERIFIED_REAL_RESOURCES) {
-            if (!remoteIds.has(v.id)) {
+            if (!remoteIds.has(v.id) && !remoteSlugs.has(v.slug)) {
               merged.push(v);
+              remoteIds.add(v.id);
+              if (v.slug) remoteSlugs.add(v.slug);
             }
           }
-          items = merged;
+          items = deduplicateResources(merged);
           saveStoredResources(items);
         }
       } catch (e: any) {
@@ -174,13 +232,14 @@ export const ResourcesService = {
       }
     }
 
-    return ensureUniqueCourseImages(items);
+    return ensureUniqueCourseImages(deduplicateResources(items));
   },
 
   async getById(id: string): Promise<Resource | null> {
+    const canonicalId = LEGACY_RESOURCE_ID_MAP[id] || id;
     if (isFirebaseConfigured && db) {
       try {
-        const docSnap = await getDoc(doc(db, 'resources', id));
+        const docSnap = await getDoc(doc(db, 'resources', canonicalId));
         if (docSnap.exists()) {
           const item = { id: docSnap.id, ...docSnap.data() } as Resource;
           if (!item.id.startsWith('res-demo-') && !item.title.includes('[DEMO RECORD]')) {
@@ -192,7 +251,7 @@ export const ResourcesService = {
       }
     }
     const items = getStoredResources();
-    return items.find(r => r.id === id) || null;
+    return items.find(r => r.id === canonicalId || r.id === id) || null;
   },
 
   async getBySlug(slug: string): Promise<Resource | null> {
@@ -201,12 +260,21 @@ export const ResourcesService = {
 
     // Map common legacy IDs to canonical records
     const legacyAliases: Record<string, string> = {
+      ...LEGACY_RESOURCE_ID_MAP,
       'course-google-data-analytics': 'google-data-analytics-professional-certificate',
       'course-google-cybersecurity': 'google-cybersecurity-professional-certificate',
       'course-google-project-management': 'google-project-management-professional-certificate',
       'res-google-data-analytics-cert': 'google-data-analytics-professional-certificate',
       'res-google-cybersecurity-cert': 'google-cybersecurity-professional-certificate',
-      'res-google-project-management-cert': 'google-project-management-professional-certificate'
+      'res-google-project-management-cert': 'google-project-management-professional-certificate',
+      'res-cisco-intro-cybersecurity': 'introduction-to-cybersecurity-cisco-networking-academy',
+      'course-cisco-intro-cybersecurity': 'introduction-to-cybersecurity-cisco-networking-academy',
+      'res-yale-financial-markets': 'financial-markets-yale-university',
+      'course-yale-financial-markets': 'financial-markets-yale-university',
+      'res-aws-cloud-practitioner': 'aws-cloud-practitioner-essentials',
+      'course-aws-cloud-practitioner': 'aws-cloud-practitioner-essentials',
+      'res-openlearn-leadership': 'openlearn-leadership-and-followership',
+      'course-openlearn-leadership': 'openlearn-leadership-and-followership'
     };
 
     const targetSlug = legacyAliases[clean] || clean;

@@ -96,9 +96,19 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
     return ['All', ...Array.from(cats)];
   }, [items]);
 
-  // Filter items by category & search query
+  // Deduplicate and filter items by category & search query
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
+    const seen = new Set<string>();
+    const uniqueList: SavedItem[] = [];
+    for (const item of items) {
+      if (!item || !item.id) continue;
+      if (!seen.has(item.id)) {
+        seen.add(item.id);
+        uniqueList.push(item);
+      }
+    }
+
+    return uniqueList.filter(item => {
       const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
       const matchesSearch =
         !searchQuery.trim() ||
