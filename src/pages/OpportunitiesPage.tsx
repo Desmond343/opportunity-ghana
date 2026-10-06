@@ -170,8 +170,8 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
       {filters.category === 'Scholarships' && !filters.search && featuredScholarshipSlides.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
-            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#006B3F] font-space">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
+            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#006B3F] dark:text-emerald-400 font-space">
               Featured Scholarship Spotlight
             </h2>
           </div>

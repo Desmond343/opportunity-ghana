@@ -123,20 +123,20 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
     if (resource.isFree) {
       if (resource.costType === 'free_to_audit') {
         return (
-          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-300">
+          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/75 text-sky-800 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60">
             Free to Audit
           </span>
         );
       }
       if (resource.costType === 'free_with_paid_certificate') {
         return (
-          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-300">
+          <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/75 text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-700/60">
             Free Course + Paid Certificate
           </span>
         );
       }
       return (
-        <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+        <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/75 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700/60">
           100% Free Tuition
         </span>
       );

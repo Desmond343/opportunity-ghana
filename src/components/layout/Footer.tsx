@@ -25,7 +25,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 />
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight font-space flex items-center gap-1.5">
-                Opportunity <span className="text-[#006B3F]">Ghana</span>
+                Opportunity <span className="text-emerald-400">Ghana</span>
                 <span className="w-2 h-2 rounded-full bg-[#FCD116]" title="Ghana Gold Accent" />
               </span>
             </div>
@@ -34,7 +34,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </p>
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs text-neutral-300">
-                <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>Verification Policy: Only verified source URLs published</span>
               </div>
             </div>

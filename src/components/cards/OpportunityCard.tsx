@@ -115,26 +115,26 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       <div className="p-5 pb-3.5 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-2">
           {/* Organization & Location Header */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
             <div className="flex items-center gap-1.5 truncate max-w-[200px]">
               {opportunity.organizationLogo ? (
                 <img
                   src={opportunity.organizationLogo}
                   alt={opportunity.organizationName || 'Organization'}
-                  className="w-4 h-4 rounded object-contain shrink-0"
+                  className="w-4 h-4 rounded object-contain shrink-0 bg-white/90 dark:bg-slate-800 p-0.5"
                 />
               ) : (
-                <Building className="w-3.5 h-3.5 text-[#006B3F] shrink-0" />
+                <Building className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400 shrink-0" />
               )}
-              <span className="font-semibold text-slate-800 truncate">
+              <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {opportunity.organizationName || 'Verified Partner'}
               </span>
             </div>
 
             {/* Location / Region Badge */}
             {(opportunity.location || opportunity.region || opportunity.country) && (
-              <span className="inline-flex items-center gap-1 text-slate-600 text-[11px] font-medium bg-white/80 backdrop-blur-xs border border-slate-200/80 px-2 py-0.5 rounded-md shadow-2xs">
-                <MapPin className="w-3 h-3 text-[#006B3F] shrink-0" />
+              <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-200 text-[11px] font-medium bg-white/80 dark:bg-slate-800/85 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700/80 px-2 py-0.5 rounded-md shadow-2xs">
+                <MapPin className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />
                 <span className="truncate">
                   {opportunity.location || `${opportunity.region ? opportunity.region + ', ' : ''}${opportunity.country || 'Ghana'}`}
                 </span>
@@ -143,12 +143,12 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </div>
 
           {/* Title */}
-          <h3 className="text-base font-bold text-[#111111] group-hover:text-[#006B3F] transition-colors line-clamp-2 leading-snug font-space">
+          <h3 className="text-base font-bold text-[#111111] dark:text-slate-50 group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug font-space">
             {opportunity.title}
           </h3>
 
           {/* Description */}
-          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
             {opportunity.description}
           </p>
         </div>
@@ -157,7 +157,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         <div className="pt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
           {/* Ghanaian Eligibility Badge */}
           {(opportunity.isGhanaEligible || opportunity.nationality?.toLowerCase().includes('ghana') || opportunity.eligibleCountries?.includes('Ghana')) && (
-            <span className="px-2 py-0.5 rounded-md bg-[#E6F0EB]/90 backdrop-blur-xs text-[#006B3F] font-bold border border-[#006B3F]/20 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-md bg-[#E6F0EB]/90 dark:bg-emerald-950/75 backdrop-blur-xs text-[#006B3F] dark:text-emerald-300 font-bold border border-[#006B3F]/20 dark:border-emerald-500/35 shadow-2xs">
               🇬🇭 Open to Ghanaians
             </span>
           )}
@@ -166,10 +166,10 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           {opportunity.workArrangement && (
             <span className={`px-2 py-0.5 rounded-md font-semibold backdrop-blur-xs shadow-2xs ${
               opportunity.workArrangement.toLowerCase() === 'remote'
-                ? 'bg-sky-50/90 text-sky-800 border border-sky-200/80'
+                ? 'bg-sky-50/90 dark:bg-sky-950/75 text-sky-800 dark:text-sky-300 border border-sky-200/80 dark:border-sky-700/60'
                 : opportunity.workArrangement.toLowerCase() === 'hybrid'
-                ? 'bg-purple-50/90 text-purple-800 border border-purple-200/80'
-                : 'bg-white/80 text-slate-700 border border-slate-200/80'
+                ? 'bg-purple-50/90 dark:bg-purple-950/75 text-purple-800 dark:text-purple-300 border border-purple-200/80 dark:border-purple-700/60'
+                : 'bg-white/80 dark:bg-slate-800/85 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700'
             }`}>
               {opportunity.workArrangement.toLowerCase() === 'remote' ? '🌐 Remote' : opportunity.workArrangement.toLowerCase() === 'hybrid' ? '🔄 Hybrid' : '🏢 On-site'}
             </span>
@@ -177,7 +177,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
           {/* Employment Type for Jobs */}
           {isJob && opportunity.employmentType && (
-            <span className="px-2 py-0.5 rounded-md bg-blue-50/90 backdrop-blur-xs text-blue-800 font-semibold border border-blue-200/80 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-md bg-blue-50/90 dark:bg-blue-950/75 backdrop-blur-xs text-blue-800 dark:text-blue-300 font-semibold border border-blue-200/80 dark:border-blue-700/60 shadow-2xs">
               {opportunity.employmentType}
             </span>
           )}
@@ -186,8 +186,8 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           {isInternship && opportunity.internshipType && (
             <span className={`px-2 py-0.5 rounded-md font-bold backdrop-blur-xs shadow-2xs ${
               opportunity.internshipType.toLowerCase() === 'paid'
-                ? 'bg-emerald-50/90 text-emerald-800 border border-emerald-200/80'
-                : 'bg-white/80 text-slate-700 border border-slate-200/80'
+                ? 'bg-emerald-50/90 dark:bg-emerald-950/75 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60'
+                : 'bg-white/80 dark:bg-slate-800/85 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700'
             }`}>
               {opportunity.internshipType.toLowerCase() === 'paid' ? '💰 Paid Internship' : '📄 Unpaid Internship'}
             </span>
@@ -195,37 +195,37 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
           {/* Duration for Internships */}
           {isInternship && opportunity.duration && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50/90 backdrop-blur-xs text-indigo-800 font-medium border border-indigo-200/80 shadow-2xs">
-              <Clock className="w-3 h-3 text-indigo-600" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50/90 dark:bg-indigo-950/75 backdrop-blur-xs text-indigo-800 dark:text-indigo-300 font-medium border border-indigo-200/80 dark:border-indigo-700/60 shadow-2xs">
+              <Clock className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
               <span>{opportunity.duration}</span>
             </span>
           )}
 
           {/* Salary where officially provided */}
           {opportunity.salary && (
-            <span className="px-2 py-0.5 rounded-md bg-emerald-50/90 backdrop-blur-xs text-[#006B3F] font-bold border border-emerald-200/80 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50/90 dark:bg-emerald-950/75 backdrop-blur-xs text-[#006B3F] dark:text-emerald-300 font-bold border border-emerald-200/80 dark:border-emerald-600/50 shadow-2xs">
               💵 {opportunity.salary}
             </span>
           )}
 
           {/* Funding Type for Scholarships */}
           {!isJob && !isInternship && opportunity.fundingType && (
-            <span className="px-2 py-0.5 rounded-md bg-emerald-50/90 backdrop-blur-xs text-[#006B3F] font-semibold border border-emerald-200/70 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50/90 dark:bg-emerald-950/75 backdrop-blur-xs text-[#006B3F] dark:text-emerald-300 font-semibold border border-emerald-200/70 dark:border-emerald-600/50 shadow-2xs">
               {opportunity.fundingType}
             </span>
           )}
 
           {/* Experience level for Jobs */}
           {opportunity.experienceLevel && (
-            <span className="px-2 py-0.5 rounded-md bg-white/80 backdrop-blur-xs border border-slate-200/80 text-slate-700 font-medium truncate max-w-[150px] shadow-2xs">
+            <span className="px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/85 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium truncate max-w-[150px] shadow-2xs">
               {opportunity.experienceLevel}
             </span>
           )}
 
           {/* Study level / education */}
           {(opportunity.studyLevel || opportunity.educationLevel) && !opportunity.experienceLevel && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 backdrop-blur-xs border border-slate-200/80 text-slate-700 truncate max-w-[150px] shadow-2xs">
-              <GraduationCap className="w-3 h-3 shrink-0 text-slate-500" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/85 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 truncate max-w-[150px] shadow-2xs">
+              <GraduationCap className="w-3 h-3 shrink-0 text-slate-500 dark:text-emerald-400" />
               <span className="truncate">{opportunity.studyLevel || opportunity.educationLevel}</span>
             </span>
           )}
@@ -240,9 +240,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         />
         <div className="flex items-center gap-2">
           <VerificationBadge status={opportunity.verificationStatus} />
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/90 group-hover:bg-[#006B3F] text-slate-700 group-hover:text-white border border-slate-200/80 group-hover:border-[#006B3F] shadow-2xs transition-all">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/90 dark:bg-slate-800/90 group-hover:bg-[#006B3F] dark:group-hover:bg-emerald-600 text-slate-700 dark:text-slate-100 group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-[#006B3F] dark:group-hover:border-emerald-500 shadow-2xs transition-all">
             <span className="hidden sm:inline">View</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#006B3F] group-hover:text-[#FCD116] transition-colors" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400 group-hover:text-[#FCD116] transition-colors" />
           </span>
         </div>
       </div>
