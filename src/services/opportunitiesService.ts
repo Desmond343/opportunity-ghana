@@ -5,6 +5,8 @@ import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from '../data/verifiedJobsAndInternships';
+import { VERIFIED_REAL_COMPETITIONS } from '../data/verifiedCompetitions';
+import { ensureUniqueOpportunityImages } from '../utils/cardBackgrounds';
 import { detectDuplicates } from './duplicateDetection';
 import { 
   collection, 
@@ -22,7 +24,8 @@ const LOCAL_STORAGE_KEY = 'opp_gh_opportunities_store';
 
 export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
-  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
+  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS,
+  ...VERIFIED_REAL_COMPETITIONS
 ];
 
 function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
@@ -75,15 +78,15 @@ function getStoredOpportunities(): Opportunity[] {
         }
 
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
-        return cleaned.map(syncWithDeadlineAutomation);
+        return ensureUniqueOpportunityImages(cleaned.map(syncWithDeadlineAutomation));
       }
     }
   } catch (e) {
     console.error('Failed to load local opportunities storage', e);
   }
 
-  // Initial populate with verified real scholarships, jobs, and internships
-  const initial = ALL_VERIFIED_INITIAL_OPPORTUNITIES.map(syncWithDeadlineAutomation);
+  // Initial populate with verified real scholarships, jobs, internships, and competitions
+  const initial = ensureUniqueOpportunityImages(ALL_VERIFIED_INITIAL_OPPORTUNITIES.map(syncWithDeadlineAutomation));
   saveStoredOpportunities(initial);
   return initial;
 }
@@ -311,7 +314,7 @@ export const OpportunitiesService = {
       }
     }
 
-    return items;
+    return ensureUniqueOpportunityImages(items);
   },
 
   async getById(id: string): Promise<Opportunity | null> {

@@ -7,13 +7,16 @@ import { adminDb, adminAuth, isInitialized } from './server/firebaseAdmin.ts';
 import { verifyUserToken } from './server/authMiddleware.ts';
 import { extractSourceContent } from './server/aiExtraction.ts';
 import { executeScholarshipResearch, recheckScholarshipDeadlines } from './server/scholarshipResearch.ts';
+import { executeCompetitionResearch, recheckCompetitionDeadlines } from './server/competitionResearch.ts';
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
+import { VERIFIED_REAL_COMPETITIONS } from './src/data/verifiedCompetitions.ts';
 import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
-  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS
+  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS,
+  ...VERIFIED_REAL_COMPETITIONS
 ];
 
 const app = express();
@@ -724,6 +727,177 @@ app.post('/api/admin/scholarship-research/publish', verifyAdminAuth, async (req,
   } catch (error: any) {
     console.error('Error publishing scholarship:', error);
     return res.status(500).json({ error: error.message || 'Failed to publish scholarship' });
+  }
+});
+
+// =========================================================================
+// COMPETITION & TALENT DISCOVERY RESEARCH ENDPOINTS
+// =========================================================================
+const competitionRuns: any[] = [];
+
+// 1. Start Competition Research Run (Admin only)
+app.post('/api/admin/competition-research/start', verifyAdminAuth, async (req, res) => {
+  try {
+    const params = req.body || {};
+    const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
+
+    let existingOpps: any[] = [...ALL_VERIFIED_INITIAL];
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('opportunities').get();
+        if (!snap.empty) {
+          existingOpps = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        }
+      } catch (err: any) {
+        console.warn('Error fetching opps for competition dedup:', err.message);
+      }
+    }
+
+    const { run, candidates } = await executeCompetitionResearch(
+      params,
+      { email: user.email || 'admin@opportunityghana.com', name: user.name || user.email || 'Administrator' },
+      existingOpps
+    );
+
+    competitionRuns.unshift(run);
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('competition_research_runs').doc(run.id).set(run);
+      } catch (err: any) {
+        console.warn('Error saving competition run to Firestore:', err.message);
+      }
+    }
+
+    return res.json({ success: true, run, candidates });
+  } catch (error: any) {
+    console.error('Error starting competition research:', error);
+    return res.status(500).json({ error: error.message || 'Failed to execute competition research' });
+  }
+});
+
+// 2. Recheck active competition deadlines (Admin only)
+app.post('/api/admin/competition-research/recheck', verifyAdminAuth, async (req, res) => {
+  try {
+    let opps: any[] = [...ALL_VERIFIED_INITIAL];
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('opportunities').get();
+        if (!snap.empty) {
+          opps = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        }
+      } catch (err: any) {
+        console.warn('Error loading opps for competition recheck:', err.message);
+      }
+    }
+
+    const summary = recheckCompetitionDeadlines(opps);
+
+    if (adminDb && isInitialized && summary.updatedItems.length > 0) {
+      try {
+        const batch = adminDb.batch();
+        for (const item of summary.updatedItems) {
+          const docRef = adminDb.collection('opportunities').doc(item.id);
+          batch.update(docRef, {
+            status: item.newStatus,
+            verificationStatus: 'closed',
+            closedAt: summary.timestamp,
+            updatedAt: summary.timestamp
+          });
+        }
+        await batch.commit();
+      } catch (e: any) {
+        console.warn('Error saving competition recheck updates:', e.message);
+      }
+    }
+
+    return res.json({ success: true, summary });
+  } catch (error: any) {
+    console.error('Error during competition deadline recheck:', error);
+    return res.status(500).json({ error: error.message || 'Failed to recheck competition deadlines' });
+  }
+});
+
+// 3. Past competition research runs (Admin only)
+app.get('/api/admin/competition-research/runs', verifyAdminAuth, async (req, res) => {
+  try {
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('competition_research_runs').orderBy('startedAt', 'desc').limit(20).get();
+        if (!snap.empty) {
+          return res.json(snap.docs.map((d: any) => ({ id: d.id, ...d.data() })));
+        }
+      } catch {}
+    }
+    return res.json(competitionRuns);
+  } catch (error: any) {
+    console.error('Error fetching competition runs:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch competition runs' });
+  }
+});
+
+// 4. Publish discovered competition (Admin only)
+app.post('/api/admin/competition-research/publish', verifyAdminAuth, async (req, res) => {
+  try {
+    const { competition } = req.body || {};
+    if (!competition || !competition.title || (!competition.officialApplicationUrl && !competition.applicationUrl)) {
+      return res.status(400).json({ error: 'Valid competition candidate with application URL is required.' });
+    }
+
+    const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
+    const now = new Date().toISOString();
+    const id = competition.matchedExistingId || competition.id || `opp-comp-${Date.now()}`;
+    const slug = competition.slug || competition.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const publishedOpp = {
+      id,
+      title: competition.title,
+      slug,
+      description: competition.description || '',
+      organizationName: competition.organizerName || competition.organizationName,
+      category: 'Competitions',
+      subcategory: competition.subcategory || 'Competitions',
+      opportunityType: competition.competitionType || 'Competition',
+      location: competition.location || 'Ghana',
+      country: competition.country || 'Ghana',
+      region: competition.region || 'Nationwide',
+      locationType: competition.locationType || 'physical',
+      nationality: competition.nationality || 'Ghanaians',
+      educationLevel: competition.educationLevel || 'Open to All',
+      experienceLevel: competition.experienceLevel || 'Open to All',
+      fundingType: competition.fundingType || 'Cash Prizes & Awards',
+      funding: competition.prize || competition.funding || '',
+      benefits: competition.benefits || [],
+      requirements: competition.requirements || [],
+      documentsRequired: competition.documentsRequired || [],
+      deadline: competition.deadline || '',
+      applicationUrl: competition.officialApplicationUrl || competition.applicationUrl,
+      sourceUrl: competition.sourceUrl || competition.officialApplicationUrl || competition.applicationUrl,
+      sourceName: competition.sourceName || competition.organizerName,
+      imageUrl: competition.imageUrl || '',
+      status: 'published',
+      verificationStatus: 'verified',
+      isDeadlineSpecified: competition.isDeadlineVerified ?? true,
+      lastVerifiedAt: now,
+      publishedAt: now,
+      publishedByEmail: user.email,
+      reviewedBy: user.name || user.email || 'Administrator',
+      reviewedByEmail: user.email,
+      createdAt: competition.createdAt || now,
+      updatedAt: now
+    };
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('opportunities').doc(id).set(publishedOpp, { merge: true });
+      } catch (err: any) {
+        console.warn('Error writing published competition to Firestore:', err.message);
+      }
+    }
+
+    return res.json({ success: true, opportunity: publishedOpp });
+  } catch (error: any) {
+    console.error('Error publishing competition:', error);
+    return res.status(500).json({ error: error.message || 'Failed to publish competition' });
   }
 });
 

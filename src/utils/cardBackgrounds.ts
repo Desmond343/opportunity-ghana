@@ -980,7 +980,7 @@ export interface ResolvedCardMedia {
   /** Whether the image is a vector SVG */
   isSvg: boolean;
   /** Resolution hierarchy level */
-  source: 'uploaded' | 'scholarship' | 'course' | 'gradient';
+  source: 'uploaded' | 'scholarship' | 'course' | 'competition' | 'gradient';
   /** Gradient configuration for background or fallback */
   gradient: CategoryGradientConfig;
 }
@@ -1035,7 +1035,40 @@ export function resolveOpportunityMedia(opp: Partial<Opportunity>): ResolvedCard
     };
   }
 
-  // 3. For any non-scholarship opportunity without an image (Job, Internship, Grant, etc.):
+  // 3. Is this item a competition or talent contest?
+  const isCompetition =
+    categoryLower.includes('competition') ||
+    categoryLower.includes('contest') ||
+    categoryLower.includes('challenge') ||
+    categoryLower.includes('hackathon') ||
+    categoryLower.includes('tournament') ||
+    categoryLower.includes('talent') ||
+    typeLower.includes('competition') ||
+    typeLower.includes('contest') ||
+    typeLower.includes('challenge') ||
+    typeLower.includes('hackathon') ||
+    typeLower.includes('tournament') ||
+    typeLower.includes('talent') ||
+    titleLower.includes('competition') ||
+    titleLower.includes('hackathon') ||
+    titleLower.includes('quiz') ||
+    titleLower.includes('tournament') ||
+    titleLower.includes('talent') ||
+    titleLower.includes('championship');
+
+  if (isCompetition) {
+    const compPhoto = getHumanCenteredCompetitionImage(opp);
+    return {
+      imageUrl: compPhoto.url,
+      imageAlt: compPhoto.alt,
+      imageAttribution: compPhoto.attribution,
+      isSvg: false,
+      source: 'competition',
+      gradient
+    };
+  }
+
+  // 4. For any other opportunity without an image (Job, Internship, Grant, etc.):
   // Automatically provide clean, attractive category-based gradient (no random photo)
   return {
     imageUrl: null,
@@ -2154,3 +2187,512 @@ export function ensureUniqueCourseImages<T extends Partial<Resource>>(courses: T
   });
 }
 
+
+
+export interface CompetitionPhoto {
+  url: string;
+  alt: string;
+  attribution: string;
+}
+
+/**
+ * Curated registry of distinct, authentic African and Ghanaian photographs
+ * representing stage performers, dancers, vocalists, athletes, roboticists,
+ * debaters, hackathon coders, actors, poets, and entrepreneurs.
+ * Every known competition ID and slug has a 1-to-1 unique assignment so that NO two
+ * competition cards ever display the same background image.
+ */
+export const COMPETITION_UNIQUE_PHOTO_REGISTRY: Record<string, CompetitionPhoto> = {
+  'comp-nsmq-ghana-2027': {
+    url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80',
+    alt: 'National Science & Maths Quiz (NSMQ Ghana)',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+  'national-science-and-maths-quiz-nsmq-ghana': {
+      url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80',
+      alt: 'National Science & Maths Quiz (NSMQ Ghana)',
+      attribution: 'Unsplash Academic Photography (Royalty-Free)'
+    },
+  'comp-uba-national-essay-ghana': {
+    url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80',
+    alt: 'UBA Foundation National Essay Competition (NEC Ghana)',
+    attribution: 'Unsplash Writing Photography (Royalty-Free)'
+  },
+  'uba-foundation-national-essay-competition-ghana': {
+      url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80',
+      alt: 'UBA Foundation National Essay Competition (NEC Ghana)',
+      attribution: 'Unsplash Writing Photography (Royalty-Free)'
+    },
+  'comp-spelling-bee-ghana': {
+    url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80',
+    alt: 'The Spelling Bee Ghana (Scripps National Bee Qualifier)',
+    attribution: 'Unsplash Student Photography (Royalty-Free)'
+  },
+  'the-spelling-bee-ghana-national-championship': {
+      url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80',
+      alt: 'The Spelling Bee Ghana (Scripps National Bee Qualifier)',
+      attribution: 'Unsplash Student Photography (Royalty-Free)'
+    },
+  'comp-ghana-national-debate-championship': {
+    url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana National Universities Debate Championship (GNDC)',
+    attribution: 'Unsplash Debate Photography (Royalty-Free)'
+  },
+  'ghana-national-universities-debate-championship': {
+      url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana National Universities Debate Championship (GNDC)',
+      attribution: 'Unsplash Debate Photography (Royalty-Free)'
+    },
+  'comp-tv3-talented-kidz-2027': {
+    url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80',
+    alt: 'TV3 Talented Kidz National Talent Search (Season 16)',
+    attribution: 'Unsplash Performance Photography (Royalty-Free)'
+  },
+  'tv3-talented-kidz-national-auditions-ghana': {
+      url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80',
+      alt: 'TV3 Talented Kidz National Talent Search (Season 16)',
+      attribution: 'Unsplash Performance Photography (Royalty-Free)'
+    },
+  'comp-tv3-mentor-xiii-ghana': {
+    url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=80',
+    alt: 'Mentor XIII Music Reality Contest (TV3 Ghana)',
+    attribution: 'Unsplash Concert & Live Music Photography (Royalty-Free)'
+  },
+  'tv3-mentor-music-reality-competition-ghana': {
+      url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=80',
+      alt: 'Mentor XIII Music Reality Contest (TV3 Ghana)',
+      attribution: 'Unsplash Concert & Live Music Photography (Royalty-Free)'
+    },
+  'comp-voice-factory-season-6': {
+    url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80',
+    alt: 'Voice Factory Music Competition (Channel One TV & Citi FM)',
+    attribution: 'Unsplash Studio & Vocalist Photography (Royalty-Free)'
+  },
+  'voice-factory-music-competition-ghana': {
+      url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80',
+      alt: 'Voice Factory Music Competition (Channel One TV & Citi FM)',
+      attribution: 'Unsplash Studio & Vocalist Photography (Royalty-Free)'
+    },
+  'comp-battle-of-the-year-ghana': {
+    url: 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&auto=format&fit=crop&q=80',
+    alt: 'Battle of the Year Ghana (BOTY National Dance Championship)',
+    attribution: 'Unsplash Street Dance & Hip Hop Photography (Royalty-Free)'
+  },
+  'battle-of-the-year-ghana-national-dance-championship': {
+      url: 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&auto=format&fit=crop&q=80',
+      alt: 'Battle of the Year Ghana (BOTY National Dance Championship)',
+      attribution: 'Unsplash Street Dance & Hip Hop Photography (Royalty-Free)'
+    },
+  'comp-national-theatre-youth-drama': {
+    url: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=800&auto=format&fit=crop&q=80',
+    alt: 'National Youth Drama Festival & Acting Auditions',
+    attribution: 'Unsplash Theatre Stage Photography (Royalty-Free)'
+  },
+  'national-youth-drama-festival-acting-auditions-ghana': {
+      url: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=800&auto=format&fit=crop&q=80',
+      alt: 'National Youth Drama Festival & Acting Auditions',
+      attribution: 'Unsplash Theatre Stage Photography (Royalty-Free)'
+    },
+  'comp-ehalakasa-national-slam': {
+    url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ehalakasa National Poetry Slam & Spoken Word Festival',
+    attribution: 'Unsplash Spoken Word & Microphone Photography (Royalty-Free)'
+  },
+  'ehalakasa-national-poetry-slam-spoken-word-ghana': {
+      url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ehalakasa National Poetry Slam & Spoken Word Festival',
+      attribution: 'Unsplash Spoken Word & Microphone Photography (Royalty-Free)'
+    },
+  'comp-48-hour-film-project-accra': {
+    url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=80',
+    alt: '48 Hour Film Project Accra (Filmmaking Challenge)',
+    attribution: 'Unsplash Film Camera & Cinema Photography (Royalty-Free)'
+  },
+  '48-hour-film-project-accra-filmmaking-challenge': {
+      url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=80',
+      alt: '48 Hour Film Project Accra (Filmmaking Challenge)',
+      attribution: 'Unsplash Film Camera & Cinema Photography (Royalty-Free)'
+    },
+  'comp-gusa-games-ghana-2027': {
+    url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&auto=format&fit=crop&q=80',
+    alt: 'GUSA Games (Ghana Universities Sports Association Championship)',
+    attribution: 'Unsplash Track & Athletics Photography (Royalty-Free)'
+  },
+  'gusa-games-ghana-universities-sports-association-championship': {
+      url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&auto=format&fit=crop&q=80',
+      alt: 'GUSA Games (Ghana Universities Sports Association Championship)',
+      attribution: 'Unsplash Track & Athletics Photography (Royalty-Free)'
+    },
+  'comp-milo-u13-champions-league': {
+    url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
+    alt: 'Nestlé Milo U-13 Champions League (Inter-School Soccer Tournament)',
+    attribution: 'Unsplash Youth Soccer Photography (Royalty-Free)'
+  },
+  'nestle-milo-u13-champions-league-ghana': {
+      url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
+      alt: 'Nestlé Milo U-13 Champions League (Inter-School Soccer Tournament)',
+      attribution: 'Unsplash Youth Soccer Photography (Royalty-Free)'
+    },
+  'comp-accra-international-marathon': {
+    url: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Accra International Marathon & 10K Road Race',
+    attribution: 'Unsplash Marathon & Road Running Photography (Royalty-Free)'
+  },
+  'accra-international-marathon-and-10k-ghana': {
+      url: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&auto=format&fit=crop&q=80',
+      alt: 'Accra International Marathon & 10K Road Race',
+      attribution: 'Unsplash Marathon & Road Running Photography (Royalty-Free)'
+    },
+  'comp-esports-ghana-national-championship': {
+    url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80',
+    alt: 'Esports Association of Ghana National Gaming Championship',
+    attribution: 'Unsplash Esports & Video Gaming Photography (Royalty-Free)'
+  },
+  'esports-association-of-ghana-national-gaming-championship': {
+      url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80',
+      alt: 'Esports Association of Ghana National Gaming Championship',
+      attribution: 'Unsplash Esports & Video Gaming Photography (Royalty-Free)'
+    },
+  'comp-hacklab-foundation-hackathon-2027': {
+    url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80',
+    alt: 'Hacklab Foundation National Hackathon (KNUST Kumasi)',
+    attribution: 'Unsplash Hackathon & Tech Team Photography (Royalty-Free)'
+  },
+  'hacklab-foundation-national-hackathon-ghana': {
+      url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80',
+      alt: 'Hacklab Foundation National Hackathon (KNUST Kumasi)',
+      attribution: 'Unsplash Hackathon & Tech Team Photography (Royalty-Free)'
+    },
+  'comp-mtn-ayoba-developer-hackathon': {
+    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    alt: 'MTN Ayoba Micro-App Developer Challenge Ghana',
+    attribution: 'Unsplash Code & Software Architecture Photography (Royalty-Free)'
+  },
+  'mtn-ayoba-developer-micro-app-challenge-ghana': {
+      url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+      alt: 'MTN Ayoba Micro-App Developer Challenge Ghana',
+      attribution: 'Unsplash Code & Software Architecture Photography (Royalty-Free)'
+    },
+  'comp-cyberx-ghana-ctf-championship': {
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+    alt: 'CyberX Ghana National Cybersecurity Challenge & CTF',
+    attribution: 'Unsplash Network & Security Facility Photography (Royalty-Free)'
+  },
+  'cyberx-ghana-national-cybersecurity-challenge-ctf': {
+      url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+      alt: 'CyberX Ghana National Cybersecurity Challenge & CTF',
+      attribution: 'Unsplash Network & Security Facility Photography (Royalty-Free)'
+    },
+  'comp-mest-africa-challenge-2027': {
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+    alt: 'MEST Africa Challenge (Pan-African Tech Startup Pitch)',
+    attribution: 'Unsplash Entrepreneur Pitch & Venture Photography (Royalty-Free)'
+  },
+  'mest-africa-challenge-startup-pitch-ghana': {
+      url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+      alt: 'MEST Africa Challenge (Pan-African Tech Startup Pitch)',
+      attribution: 'Unsplash Entrepreneur Pitch & Venture Photography (Royalty-Free)'
+    },
+  'comp-totalenergies-startupper-ghana': {
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+    alt: 'TotalEnergies Startupper of the Year Challenge Ghana',
+    attribution: 'Unsplash Business Strategy & Analytics Photography (Royalty-Free)'
+  },
+  'totalenergies-startupper-of-the-year-challenge-ghana': {
+      url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+      alt: 'TotalEnergies Startupper of the Year Challenge Ghana',
+      attribution: 'Unsplash Business Strategy & Analytics Photography (Royalty-Free)'
+    },
+  'comp-mcdan-youth-connect-pitch': {
+    url: 'https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=800&auto=format&fit=crop&q=80',
+    alt: 'McDan Youth Connect Entrepreneurship Pitch Competition',
+    attribution: 'Unsplash Ghanaian Executive & Business Presentation (Royalty-Free)'
+  },
+  'mcdan-youth-connect-entrepreneurship-pitch-ghana': {
+      url: 'https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=800&auto=format&fit=crop&q=80',
+      alt: 'McDan Youth Connect Entrepreneurship Pitch Competition',
+      attribution: 'Unsplash Ghanaian Executive & Business Presentation (Royalty-Free)'
+    },
+  'comp-kic-agritech-challenge-2027': {
+    url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+    alt: 'Kosmos Innovation Center (KIC) AgriTech Challenge Classic',
+    attribution: 'Unsplash Agriculture & Crop Cultivation Photography (Royalty-Free)'
+  },
+  'kic-agritech-challenge-classic-ghana': {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+      alt: 'Kosmos Innovation Center (KIC) AgriTech Challenge Classic',
+      attribution: 'Unsplash Agriculture & Crop Cultivation Photography (Royalty-Free)'
+    },
+  'comp-gstep-ghana-stem-challenge': {
+    url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana Science & Tech Explorer Prize (GSTEP Challenge)',
+    attribution: 'Unsplash STEM & Science Engineering Lab (Royalty-Free)'
+  },
+  'ghana-science-tech-explorer-prize-gstep-challenge': {
+      url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana Science & Tech Explorer Prize (GSTEP Challenge)',
+      attribution: 'Unsplash STEM & Science Engineering Lab (Royalty-Free)'
+    },
+  'comp-miss-ghana-national-pageant': {
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    alt: 'Miss Ghana National Pageant (Beauty With A Purpose)',
+    attribution: 'Unsplash Fashion & Cultural Portrait Photography (Royalty-Free)'
+  },
+  'miss-ghana-national-pageant-beauty-with-a-purpose': {
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+      alt: 'Miss Ghana National Pageant (Beauty With A Purpose)',
+      attribution: 'Unsplash Fashion & Cultural Portrait Photography (Royalty-Free)'
+    },
+  'comp-gfdw-emerging-designer-challenge': {
+    url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana Fashion & Design Week (GFDW) Emerging Designer Contest',
+    attribution: 'Unsplash Runway & Fashion Design Photography (Royalty-Free)'
+  },
+  'ghana-fashion-and-design-week-emerging-designer-contest': {
+      url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana Fashion & Design Week (GFDW) Emerging Designer Contest',
+      attribution: 'Unsplash Runway & Fashion Design Photography (Royalty-Free)'
+    },
+  'comp-yali-west-africa-social-pitch': {
+    url: 'https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?w=800&auto=format&fit=crop&q=80',
+    alt: 'YALI RLC West Africa Social Venture Challenge',
+    attribution: 'Unsplash African Youth Leadership & Community Photography (Royalty-Free)'
+  },
+  'yali-west-africa-social-venture-pitch-ghana': {
+      url: 'https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?w=800&auto=format&fit=crop&q=80',
+      alt: 'YALI RLC West Africa Social Venture Challenge',
+      attribution: 'Unsplash African Youth Leadership & Community Photography (Royalty-Free)'
+    },
+  'comp-ghana-gospel-talent-quest': {
+    url: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana National Gospel Music Talent Quest',
+    attribution: 'Unsplash Gospel Vocalist & Choir Photography (Royalty-Free)'
+  },
+  'ghana-national-gospel-music-talent-quest': {
+      url: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana National Gospel Music Talent Quest',
+      attribution: 'Unsplash Gospel Vocalist & Choir Photography (Royalty-Free)'
+    },
+  'comp-ghana-freestyle-rap-battle': {
+    url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=80',
+    alt: 'YFM National Rap & Freestyle Battle Championship',
+    attribution: 'Unsplash Hip Hop & Microphone Photography (Royalty-Free)'
+  },
+  'yfm-national-rap-freestyle-battle-championship-ghana': {
+      url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=80',
+      alt: 'YFM National Rap & Freestyle Battle Championship',
+      attribution: 'Unsplash Hip Hop & Microphone Photography (Royalty-Free)'
+    },
+  'comp-red-bull-dance-your-style-ghana': {
+    url: 'https://images.unsplash.com/photo-1535525153412-5a42439a210d?w=800&auto=format&fit=crop&q=80',
+    alt: 'Red Bull Dance Your Style Ghana National Qualifier',
+    attribution: 'Unsplash Contemporary & Urban Dance Photography (Royalty-Free)'
+  },
+  'red-bull-dance-your-style-ghana-national-qualifier': {
+      url: 'https://images.unsplash.com/photo-1535525153412-5a42439a210d?w=800&auto=format&fit=crop&q=80',
+      alt: 'Red Bull Dance Your Style Ghana National Qualifier',
+      attribution: 'Unsplash Contemporary & Urban Dance Photography (Royalty-Free)'
+    },
+  'comp-unimac-monologue-challenge': {
+    url: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana National Monologue & Screen Acting Challenge',
+    attribution: 'Unsplash Dramatic Acting & Character Photography (Royalty-Free)'
+  },
+  'ghana-national-monologue-screen-acting-challenge': {
+      url: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana National Monologue & Screen Acting Challenge',
+      attribution: 'Unsplash Dramatic Acting & Character Photography (Royalty-Free)'
+    },
+  'comp-comedy-knights-standup': {
+    url: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana Comedy Knights National Stand-Up Competition',
+    attribution: 'Unsplash Standup Comedy & Stage Spotlight Photography (Royalty-Free)'
+  },
+  'ghana-comedy-knights-national-stand-up-competition': {
+      url: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana Comedy Knights National Stand-Up Competition',
+      attribution: 'Unsplash Standup Comedy & Stage Spotlight Photography (Royalty-Free)'
+    },
+  'comp-national-photo-arts-contest': {
+    url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghana National Photography & Visual Arts Challenge',
+    attribution: 'Unsplash Photography Studio & Fine Art Capture (Royalty-Free)'
+  },
+  'ghana-national-photography-visual-arts-challenge': {
+      url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ghana National Photography & Visual Arts Challenge',
+      attribution: 'Unsplash Photography Studio & Fine Art Capture (Royalty-Free)'
+    },
+  'comp-accra-brand-identity-challenge': {
+    url: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+    alt: 'Accra Graphic Design & Brand Identity Challenge',
+    attribution: 'Unsplash UI/UX & Graphic Design Studio Photography (Royalty-Free)'
+  },
+  'accra-graphic-design-brand-identity-challenge': {
+      url: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+      alt: 'Accra Graphic Design & Brand Identity Challenge',
+      attribution: 'Unsplash UI/UX & Graphic Design Studio Photography (Royalty-Free)'
+    },
+  'comp-super-zonals-ashanti': {
+    url: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ashanti Regional Inter-Colleges Athletic Championship (Super-Zonals)',
+    attribution: 'Unsplash Sprinting & High School Stadium Athletics (Royalty-Free)'
+  },
+  'ashanti-regional-inter-colleges-athletic-championship-super-zonals': {
+      url: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&auto=format&fit=crop&q=80',
+      alt: 'Ashanti Regional Inter-Colleges Athletic Championship (Super-Zonals)',
+      attribution: 'Unsplash Sprinting & High School Stadium Athletics (Royalty-Free)'
+    },
+  'comp-knust-engineering-innovation': {
+    url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
+    alt: 'KNUST College of Engineering Renewable Energy & Innovation Challenge',
+    attribution: 'Unsplash Solar Energy & Engineering Infrastructure Photography (Royalty-Free)'
+  },
+  'knust-engineering-renewable-energy-innovation-challenge': {
+      url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
+      alt: 'KNUST College of Engineering Renewable Energy & Innovation Challenge',
+      attribution: 'Unsplash Solar Energy & Engineering Infrastructure Photography (Royalty-Free)'
+    },
+  'comp-mofa-national-young-farmer': {
+    url: 'https://images.unsplash.com/photo-1590682680695-43b964a3ae17?w=800&auto=format&fit=crop&q=80',
+    alt: 'National Best Young Farmer & Agribusiness Contest (MoFA Ghana)',
+    attribution: 'Unsplash African Agriculture & Harvest Photography (Royalty-Free)'
+  },
+  'national-best-young-farmer-agribusiness-contest-ghana': {
+      url: 'https://images.unsplash.com/photo-1590682680695-43b964a3ae17?w=800&auto=format&fit=crop&q=80',
+      alt: 'National Best Young Farmer & Agribusiness Contest (MoFA Ghana)',
+      attribution: 'Unsplash African Agriculture & Harvest Photography (Royalty-Free)'
+    },
+};
+
+/**
+ * Variety pool of verified African and Ghanaian competition photographs
+ * rotated deterministically for any dynamically submitted competition listings.
+ */
+export const COMPETITION_VARIETY_POOL: CompetitionPhoto[] = [
+  {
+    url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=80',
+    alt: 'African live stage concert lighting and vocal performance',
+    attribution: 'Unsplash Performance Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software developers and engineers coding at hackathon',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&auto=format&fit=crop&q=80',
+    alt: 'African athletes sprinting on university championship track',
+    attribution: 'Unsplash Sports Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80',
+    alt: 'African youth talent performance showcase',
+    attribution: 'Unsplash Arts Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghanaian science and mathematics student quiz contest',
+    attribution: 'Unsplash Academic Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&auto=format&fit=crop&q=80',
+    alt: 'African street dance and breakdance battle',
+    attribution: 'Unsplash Dance Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+    alt: 'African startup founder delivering venture pitch',
+    attribution: 'Unsplash Business Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African esports and console gaming championship',
+    attribution: 'Unsplash Gaming Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=80',
+    alt: 'Cinema camera recording short film competition',
+    attribution: 'Unsplash Film Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
+    alt: 'African fashion designer runway showcase',
+    attribution: 'Unsplash Fashion Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
+    alt: 'Youth soccer tournament championship in Ghana',
+    attribution: 'Unsplash Sports Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghanaian young agripreneur farm enterprise',
+    attribution: 'Unsplash Agriculture Photography'
+  }
+];
+
+export function getHumanCenteredCompetitionImage(opp: Partial<Opportunity>): CompetitionPhoto {
+  const id = opp.id || '';
+  const slug = opp.slug || '';
+
+  // 1. Direct registry lookup by ID
+  if (id && COMPETITION_UNIQUE_PHOTO_REGISTRY[id]) {
+    return COMPETITION_UNIQUE_PHOTO_REGISTRY[id];
+  }
+
+  // 2. Direct registry lookup by slug
+  if (slug && COMPETITION_UNIQUE_PHOTO_REGISTRY[slug]) {
+    return COMPETITION_UNIQUE_PHOTO_REGISTRY[slug];
+  }
+
+  // 3. Normalized slug lookup
+  const cleanSlug = slug.toLowerCase().trim();
+  if (cleanSlug && COMPETITION_UNIQUE_PHOTO_REGISTRY[cleanSlug]) {
+    return COMPETITION_UNIQUE_PHOTO_REGISTRY[cleanSlug];
+  }
+
+  // 4. Deterministic variety pool hashing based on stable identifier
+  const seed = `${id}-${slug}-${opp.title || 'competition'}`;
+  const idx = hashString(seed) % COMPETITION_VARIETY_POOL.length;
+  return COMPETITION_VARIETY_POOL[idx];
+}
+
+/**
+ * Validates and ensures that an array of opportunities displayed together
+ * never renders duplicate background images.
+ */
+export function ensureUniqueOpportunityImages<T extends Partial<Opportunity>>(opportunities: T[]): T[] {
+  const seenUrls = new Set<string>();
+  let poolCursor = 0;
+
+  return opportunities.map(opp => {
+    const media = resolveOpportunityMedia(opp);
+    let assignedUrl = media.imageUrl;
+
+    if (assignedUrl && seenUrls.has(assignedUrl)) {
+      // Find the next unused photo from the competition pool or variety pool
+      for (let i = 0; i < COMPETITION_VARIETY_POOL.length; i++) {
+        const candidate = COMPETITION_VARIETY_POOL[(poolCursor + i) % COMPETITION_VARIETY_POOL.length].url;
+        if (!seenUrls.has(candidate)) {
+          assignedUrl = candidate;
+          poolCursor = (poolCursor + i + 1) % COMPETITION_VARIETY_POOL.length;
+          break;
+        }
+      }
+    }
+
+    if (assignedUrl) {
+      seenUrls.add(assignedUrl);
+    }
+
+    if (assignedUrl && assignedUrl !== opp.imageUrl) {
+      return {
+        ...opp,
+        imageUrl: assignedUrl
+      };
+    }
+
+    return opp;
+  });
+}
