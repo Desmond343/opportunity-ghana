@@ -15,7 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = 'og_theme';
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return 'light';
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === 'light' || saved === 'dark' || saved === 'system') {
@@ -24,7 +24,7 @@ function getInitialTheme(): Theme {
   } catch (e) {
     // LocalStorage access might fail in restricted sandboxes
   }
-  return 'system';
+  return 'light';
 }
 
 function getSystemTheme(): ResolvedTheme {
@@ -107,7 +107,18 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    return {
+      theme: 'light',
+      resolvedTheme: 'light',
+      setTheme: (newTheme: Theme) => {
+        const resolved = newTheme === 'system' ? getSystemTheme() : newTheme;
+        applyThemeToDOM(resolved);
+      },
+      toggleTheme: () => {
+        const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+        applyThemeToDOM(isDark ? 'light' : 'dark');
+      }
+    };
   }
   return context;
 };

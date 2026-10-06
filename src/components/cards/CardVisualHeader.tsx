@@ -164,9 +164,18 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
   heightClass = 'h-40 sm:h-44',
   hoverScale = true
 }) => {
+  const [usedFallback, setUsedFallback] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const shouldRenderImage = Boolean(media.imageUrl) && !imageError;
+  const fallbackLocalUrl =
+    media.gradient.id === 'scholarships' || media.gradient.id === 'education' || media.gradient.id === 'study abroad'
+      ? '/images/ghana_student_workspace.jpg'
+      : media.gradient.id === 'jobs' || media.gradient.id === 'business' || media.gradient.id === 'finance'
+      ? '/images/ghana_hero_professionals.jpg'
+      : '/images/institutions/ug_students_seminar.jpg';
+
+  const activeImageUrl = usedFallback ? fallbackLocalUrl : media.imageUrl;
+  const shouldRenderImage = Boolean(activeImageUrl) && !imageError;
   const gradient = media.gradient;
   const IconComponent = ICON_MAP[gradient.iconName] || Sparkles;
 
@@ -181,10 +190,16 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
         <>
           {/* Main Visual Image - Vibrant & Unobscured */}
           <img
-            src={media.imageUrl!}
+            src={activeImageUrl!}
             alt={media.imageAlt || alt}
-            onError={() => setImageError(true)}
-            className={`w-full h-full object-cover object-[center_25%] transition-transform duration-700 ease-out contrast-[1.03] saturate-[1.05] ${
+            onError={() => {
+              if (!usedFallback && activeImageUrl !== fallbackLocalUrl) {
+                setUsedFallback(true);
+              } else {
+                setImageError(true);
+              }
+            }}
+            className={`w-full h-full object-cover object-[center_25%] transition-transform duration-700 ease-out contrast-[1.05] saturate-[1.06] ${
               hoverScale ? 'group-hover:scale-105' : ''
             }`}
             loading="lazy"

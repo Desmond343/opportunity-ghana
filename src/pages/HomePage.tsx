@@ -540,46 +540,51 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 tabIndex={0}
                 role="button"
                 aria-label={`Explore ${track.label}`}
-                className="specular-rim-highlight group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-5 border border-white/30 hover:border-emerald-400/70 shadow-[0_14px_30px_-6px_rgba(15,23,42,0.22),0_4px_10px_-2px_rgba(15,23,42,0.12),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_24px_48px_-8px_rgba(0,107,63,0.32),inset_0_1.5px_2px_rgba(255,255,255,0.6)] transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2 bg-slate-900"
+                className="floating-glass-hero-3d specular-rim-highlight group relative overflow-hidden w-72 sm:w-80 min-h-[260px] shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-3.5 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2"
               >
-                {/* Visual Image Background: Sharp, Vivid & Properly Exposed with Smart Directional Gradient */}
+                {/* Layer 1: Sharp, Vivid Background Photograph (Zero blur, 100% opacity) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
                   <img
                     src={track.backgroundImage}
                     alt=""
                     loading="lazy"
-                    className="w-full h-full object-cover object-center transform group-hover:scale-106 transition-all duration-500 ease-out brightness-[0.96] contrast-[1.08] saturate-[1.10] group-hover:brightness-[1.02] group-hover:saturate-[1.18]"
+                    className="w-full h-full object-cover object-[center_20%] transform group-hover:scale-106 transition-all duration-500 ease-out brightness-[0.99] contrast-[1.06] saturate-[1.08]"
                   />
-                  {/* Directional Smart Gradient: Light at top to showcase the photograph, gentle darkening at bottom for text contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/35 to-black/82 transition-opacity duration-300 group-hover:opacity-90" />
-                  {/* Subtle Ghanaian-Brand Tint */}
-                  <div className={`absolute inset-0 bg-gradient-to-b ${track.brandTint} transition-opacity duration-300 mix-blend-multiply opacity-75 group-hover:opacity-65`} />
+                  {/* Layer 2: Controlled Directional Contrast Gradient (Clear at top to showcase image, rich dark contrast at bottom) */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'linear-gradient(180deg, rgba(2, 10, 18, 0.10) 0%, rgba(2, 12, 18, 0.24) 42%, rgba(2, 16, 12, 0.80) 76%, rgba(2, 12, 10, 0.94) 100%)'
+                    }}
+                  />
                 </div>
 
-                {/* Foreground Card Content */}
-                <div className="relative z-10 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md text-[#006B3F] border border-white/80 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md ${track.tagColor}`}>
-                      {track.tag}
-                    </span>
+                {/* Top Floating Badges (Leaves upper photography open & recognizable) */}
+                <div className="relative z-10 flex items-center justify-between p-1">
+                  <div className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md text-[#006B3F] border border-white/90 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                    <Icon className="w-5 h-5" />
                   </div>
+                  <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md ${track.tagColor}`}>
+                    {track.tag}
+                  </span>
+                </div>
 
+                {/* Layer 3 & 4: Floating Glass Content Panel + High-Contrast Text & CTA */}
+                <div className="relative z-10 mt-14 p-4 rounded-xl glass-hero-content-panel space-y-2.5">
                   <div>
-                    <h3 className="text-base font-extrabold text-white group-hover:text-[#FCD116] transition-colors font-space tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                    <h3 className="text-base font-extrabold text-white group-hover:text-[#FCD116] transition-colors font-space tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
                       {track.label}
                     </h3>
-                    <p className="text-xs text-white/90 font-medium mt-1 line-clamp-2 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    <p className="text-xs text-slate-100/95 font-normal mt-1 line-clamp-2 leading-relaxed">
                       {track.subtitle}
                     </p>
                   </div>
-                </div>
 
-                <div className="relative z-10 mt-4 px-3.5 py-2 rounded-xl bg-white/12 backdrop-blur-md border border-white/20 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:bg-white/20 group-hover:text-white transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]">
-                  <span>{track.ctaText || 'Explore opportunities'}</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 text-[#FCD116] group-hover:text-white" />
+                  <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-[#FCD116] group-hover:text-white transition-colors">
+                    <span>{track.ctaText || 'Explore opportunities'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 text-[#FCD116] group-hover:text-white" />
+                  </div>
                 </div>
               </div>
             );
@@ -604,30 +609,48 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
-          {/* Track 1: Students & Undergraduates */}
+          {/* Track 1: Students & Undergraduates (Featured Scholarship Pathway) */}
           <div
             onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-white/40 bg-slate-900 shadow-[0_16px_36px_-8px_rgba(15,23,42,0.2),0_4px_10px_-2px_rgba(15,23,42,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.28)] transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[310px]"
+            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px]"
           >
+            {/* Layer 1: Sharp, Full-Opacity Scholarship Background Image (No blur, no opacity reduction) */}
             <img
               src="/images/ghana_student_workspace.jpg"
               alt="Young Ghanaian student studying in modern university commons"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-65"
+              className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700 ease-out contrast-[1.06] saturate-[1.08]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent" />
-            <div className="relative m-3.5 p-5 rounded-2xl bg-slate-950/55 backdrop-blur-md border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] space-y-2 text-white">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#FCD116] text-[#111111] inline-block">
-                Students & Graduates
+            {/* Layer 2: Controlled Directional Dark/Emerald Contrast Gradient (Clear at top, protective dark contrast at bottom) */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 12, 0.22) 38%, rgba(2, 18, 13, 0.78) 72%, rgba(2, 14, 10, 0.94) 100%)'
+              }}
+            />
+
+            {/* Top Floating Badge */}
+            <div className="relative z-10 p-4 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-xl bg-[#FCD116] text-[#0A0F0D] shadow-md font-space">
+                Students &amp; Graduates
               </span>
-              <h3 className="text-lg font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
-                Scholarships & University Fellowships
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full glass-hero-badge-card text-[10px] font-bold text-white">
+                <GraduationCap className="w-3 h-3 text-[#FCD116]" />
+                Full Funding
+              </span>
+            </div>
+
+            {/* Layer 3 & 4: Floating Glass Content Layer + High-Contrast Text & CTA */}
+            <div className="relative z-10 m-3.5 mt-auto p-5 rounded-2xl glass-hero-content-panel space-y-2.5 text-white">
+              <h3 className="text-lg font-extrabold font-space text-white group-hover:text-[#FCD116] transition-colors leading-snug drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+                Scholarships &amp; University Fellowships
               </h3>
-              <p className="text-xs text-slate-200/95 leading-relaxed">
+              <p className="text-xs text-slate-100/95 leading-relaxed font-normal">
                 Full tuition waivers, Mastercard Foundation awards, and international graduate programs for Ghanaian students.
               </p>
-              <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
+              <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-[#FCD116] group-hover:text-white transition-colors">
                 <span>Discover Scholarships</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </div>
@@ -635,27 +658,45 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 2: Early Career Professionals */}
           <div
             onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-white/40 bg-slate-900 shadow-[0_16px_36px_-8px_rgba(15,23,42,0.2),0_4px_10px_-2px_rgba(15,23,42,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.28)] transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[310px]"
+            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px]"
           >
+            {/* Layer 1: Sharp, Full-Opacity Career Background Image */}
             <img
               src="/images/ghana_hero_professionals.jpg"
               alt="Young Ghanaian professionals in modern workplace"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-65"
+              className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700 ease-out contrast-[1.06] saturate-[1.08]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent" />
-            <div className="relative m-3.5 p-5 rounded-2xl bg-slate-950/55 backdrop-blur-md border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] space-y-2 text-white">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-500 text-white inline-block">
-                Early Career & NSS
+            {/* Layer 2: Controlled Directional Contrast Gradient */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 24, 0.22) 38%, rgba(2, 14, 24, 0.78) 72%, rgba(2, 10, 20, 0.94) 100%)'
+              }}
+            />
+
+            {/* Top Floating Badge */}
+            <div className="relative z-10 p-4 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 shadow-md font-space">
+                Early Career &amp; NSS
               </span>
-              <h3 className="text-lg font-bold font-space text-white group-hover:text-emerald-300 transition-colors">
-                Jobs, Internships & Graduate Schemes
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full glass-hero-badge-card text-[10px] font-bold text-white">
+                <Briefcase className="w-3 h-3 text-emerald-300" />
+                Verified Roles
+              </span>
+            </div>
+
+            {/* Layer 3 & 4: Floating Glass Content Layer + High-Contrast Text & CTA */}
+            <div className="relative z-10 m-3.5 mt-auto p-5 rounded-2xl glass-hero-content-panel space-y-2.5 text-white">
+              <h3 className="text-lg font-extrabold font-space text-white group-hover:text-emerald-300 transition-colors leading-snug drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+                Jobs, Internships &amp; Graduate Schemes
               </h3>
-              <p className="text-xs text-slate-200/95 leading-relaxed">
+              <p className="text-xs text-slate-100/95 leading-relaxed font-normal">
                 Verified entry-level vacancies, management trainee programs, and paid corporate attachments across Ghana.
               </p>
-              <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-emerald-300">
+              <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-emerald-300 group-hover:text-white transition-colors">
                 <span>View Open Vacancies</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-emerald-300 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </div>
@@ -663,7 +704,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
             onClick={() => onNavigate('/resources?paid=true')}
-            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-emerald-400/30 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[310px] text-white shadow-[0_16px_36px_-8px_rgba(0,107,63,0.26),0_4px_10px_-2px_rgba(15,23,42,0.12),inset_0_1.5px_1px_rgba(255,255,255,0.35)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.35)] transition-all duration-300 cursor-pointer"
+            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[340px] text-white cursor-pointer"
           >
             <div className="space-y-2">
               <div className="flex items-center gap-2">

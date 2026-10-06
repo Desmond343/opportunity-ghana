@@ -3,6 +3,7 @@ import { Opportunity } from '../types/database';
 import { OpportunitiesService, OpportunityFilters } from '../services/opportunitiesService';
 import { calculateDeadlineInfo } from '../services/deadlineService';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
+import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { SearchBar } from '../components/common/SearchBar';
 import { FilterPanel } from '../components/common/FilterPanel';
 import { Pagination, EmptyState, OpportunitySkeleton } from '../components/common/CommonUI';
@@ -103,6 +104,9 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
 
   const totalPages = Math.ceil(opportunities.length / itemsPerPage);
   const displayedItems = opportunities.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const featuredScholarshipSlides = opportunities
+    .filter((o) => o.category === 'Scholarships' && (o.featuredInSlideshow || o.featured))
+    .slice(0, 6);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -161,6 +165,23 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Featured Scholarships Hero Showcase (when viewing Scholarships without active search filter) */}
+      {filters.category === 'Scholarships' && !filters.search && featuredScholarshipSlides.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
+            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#006B3F] font-space">
+              Featured Scholarship Spotlight
+            </h2>
+          </div>
+          <OpportunitySlideshow
+            opportunities={featuredScholarshipSlides}
+            onNavigate={onNavigate}
+            loading={loading}
+          />
+        </div>
+      )}
 
       {/* Search Bar Bar */}
       <SearchBar
