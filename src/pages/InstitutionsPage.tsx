@@ -97,10 +97,10 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
   const closingSoonCount = institutions.filter((i) => i.overallAdmissionStatus === 'CLOSING_SOON').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-150">
       <div className="max-w-7xl mx-auto">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 rounded-2xl p-6 sm:p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 dark:from-[#0B0F17] dark:via-emerald-950/80 dark:to-[#0B0F17] rounded-2xl p-6 sm:p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden border border-emerald-800/30 dark:border-emerald-500/20">
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold uppercase tracking-wider mb-4">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -134,30 +134,30 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
         </div>
 
         {/* Regulatory Master Source Notice */}
-        <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-          <Info className="w-5 h-5 text-sky-700 shrink-0 mt-0.5" />
-          <div className="text-xs sm:text-sm text-sky-900 leading-relaxed">
+        <div className="bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <Info className="w-5 h-5 text-sky-700 dark:text-sky-400 shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm text-sky-900 dark:text-sky-200 leading-relaxed">
             <span className="font-bold">Official Regulatory Standards:</span> All institutions in this directory are verified against the Ghana Tertiary Education Commission (GTEC) register established under the Education Regulatory Bodies Act, 2020 (Act 1023). Admission deadlines and countdowns are dynamically updated. Never pay fees to unverified individuals; purchase e-vouchers only via authorized banks or official USSD short codes.
           </div>
         </div>
 
         {/* Search & Filter Controls */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 mb-8 space-y-4">
+        <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-5 mb-8 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             {/* Search Input */}
             <div className="md:col-span-5 relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search institution name, acronym (e.g. UG, KNUST), city, or programme..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full pl-9 pr-8 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-[#1E232B] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -169,7 +169,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-[#1E232B] text-slate-800 dark:text-slate-200"
               >
                 {INSTITUTION_TYPES.map((type) => (
                   <option key={type} value={type}>
@@ -184,7 +184,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
               <select
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-[#1E232B] text-slate-800 dark:text-slate-200"
               >
                 {GHANA_REGIONS.map((reg) => (
                   <option key={reg} value={reg}>
@@ -199,7 +199,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
               <select
                 value={admissionStatusFilter}
                 onChange={(e) => setAdmissionStatusFilter(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white font-medium"
+                className="w-full py-2.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-[#1E232B] text-slate-800 dark:text-slate-200 font-medium"
               >
                 <option value="All">All Admissions</option>
                 <option value="OPEN">Admissions Open</option>
@@ -210,9 +210,9 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
           </div>
 
           {/* Quick Filter Badges */}
-          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100 text-xs">
+          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-slate-500 font-medium mr-1">Quick Select:</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium mr-1">Quick Select:</span>
               <button
                 onClick={() => {
                   setSelectedType('Public Traditional University');
@@ -222,7 +222,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedType === 'Public Traditional University'
                     ? 'bg-emerald-600 text-white font-medium'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-100 dark:bg-[#1E232B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 Public Universities
@@ -236,7 +236,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedType === 'Public Technical University'
                     ? 'bg-emerald-600 text-white font-medium'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-100 dark:bg-[#1E232B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 Technical Universities
@@ -250,7 +250,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedType === 'Chartered Private University'
                     ? 'bg-emerald-600 text-white font-medium'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-100 dark:bg-[#1E232B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 Chartered Private
@@ -264,7 +264,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedType === 'Public College of Education'
                     ? 'bg-emerald-600 text-white font-medium'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-100 dark:bg-[#1E232B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 Colleges of Education (PRINCOF)
@@ -278,7 +278,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedType === 'Public Nursing & Health Training College'
                     ? 'bg-emerald-600 text-white font-medium'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-100 dark:bg-[#1E232B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 Nursing & Midwifery (MOH)
@@ -296,7 +296,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
                   setAdmissionStatusFilter('All');
                   setSearchQuery('');
                 }}
-                className="text-xs text-rose-600 hover:text-rose-700 font-medium"
+                className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-medium"
               >
                 Reset Filters
               </button>
@@ -306,7 +306,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
 
         {/* Results Counter */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-slate-700">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
             Showing {filteredInstitutions.length} of {institutions.length} tertiary institutions
           </p>
         </div>
@@ -325,10 +325,10 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center max-w-md mx-auto">
-            <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-800 mb-1">No institutions match your search</h3>
-            <p className="text-xs text-slate-500 mb-4">
+          <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto">
+            <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">No institutions match your search</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               Try adjusting your query, region, or institution type filter to discover more verified options.
             </p>
             <button

@@ -11,13 +11,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { isEditorOrAdmin } = useAuth();
 
   return (
-    <footer className="bg-[#111111] text-neutral-300 border-t border-neutral-800 pt-14 pb-12">
+    <footer className="bg-[#111111] dark:bg-[#070A10] text-neutral-300 dark:text-slate-400 border-t border-neutral-800 dark:border-slate-800/80 pt-14 pb-12 transition-colors duration-150">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand & Purpose */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-white p-0.5 flex items-center justify-center text-white shadow-md">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#131926] p-0.5 flex items-center justify-center text-white shadow-md border border-transparent dark:border-slate-700/60">
                 <img
                   src="/icon-192.png"
                   alt="Opportunity Ghana"
@@ -25,16 +25,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 />
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight font-space flex items-center gap-1.5">
-                Opportunity <span className="text-[#006B3F]">Ghana</span>
+                Opportunity <span className="text-[#006B3F] dark:text-emerald-400">Ghana</span>
                 <span className="w-2 h-2 rounded-full bg-[#FCD116]" title="Ghana Gold Accent" />
               </span>
             </div>
-            <p className="text-xs text-neutral-400 leading-relaxed max-w-sm">
+            <p className="text-xs text-neutral-400 dark:text-slate-400 leading-relaxed max-w-sm">
               Opportunity Ghana connects Ghanaian youth, students, and professionals with verified jobs, scholarships, grants, and practical upskilling pathways.
             </p>
             <div className="pt-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs text-neutral-300">
-                <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900 dark:bg-[#131926] border border-neutral-800 dark:border-slate-800 text-xs text-neutral-300 dark:text-slate-300">
+                <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
                 <span>Verification Policy: Only verified source URLs published</span>
               </div>
             </div>
@@ -43,14 +43,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Quick Links */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-1.5">
-              <span className="w-1 h-3 rounded-full bg-[#006B3F]" />
+              <span className="w-1 h-3 rounded-full bg-[#006B3F] dark:bg-emerald-500" />
               Explore Platform
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
                   onClick={() => onNavigate('/opportunities')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   All Opportunities
                 </button>
@@ -58,15 +58,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   onClick={() => onNavigate('/institutions')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   Institutions & Admissions
                 </button>
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate('/courses')}
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                >
+                  Free Online Courses
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate('/resources')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   Courses & Bootcamps
                 </button>
@@ -74,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   onClick={() => onNavigate('/careers')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   Career Tracks & Skills
                 </button>
@@ -82,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   onClick={() => onNavigate('/tools')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   CV & Career Tools
                 </button>
@@ -90,7 +98,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   onClick={() => onNavigate('/alerts')}
-                  className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                  className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   Deadline Alerts
                 </button>
@@ -109,7 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <li key={cat.id}>
                   <button
                     onClick={() => onNavigate(`/opportunities?category=${cat.id}`)}
-                    className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                    className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                   >
                     {cat.name}
                   </button>
@@ -121,10 +129,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Platform Trust / Admin Section */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-1.5">
-              <span className="w-1 h-3 rounded-full bg-[#006B3F]" />
+              <span className="w-1 h-3 rounded-full bg-[#006B3F] dark:bg-emerald-500" />
               {isEditorOrAdmin ? 'Administration' : 'Account & Alerts'}
             </h4>
-            <ul className="space-y-2 text-xs text-neutral-400">
+            <ul className="space-y-2 text-xs text-neutral-400 dark:text-slate-400">
               {isEditorOrAdmin ? (
                 <>
                   <li>
@@ -139,7 +147,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/admin/opportunities')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       Manage Listings
                     </button>
@@ -147,7 +155,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/admin/resources')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       Manage Resources
                     </button>
@@ -155,7 +163,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/admin/settings')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       System Diagnostics
                     </button>
@@ -166,7 +174,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/saved')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       Saved Opportunities
                     </button>
@@ -174,7 +182,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/alerts')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       Opportunity Notifications
                     </button>
@@ -182,7 +190,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <li>
                     <button
                       onClick={() => onNavigate('/login')}
-                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                      className="hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
                     >
                       Sign In / Register
                     </button>
@@ -194,13 +202,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <div className="pt-8 border-t border-neutral-800 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 dark:text-slate-500">
           <p>© {new Date().getFullYear()} Opportunity Ghana. Connecting ambition with real opportunities.</p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#CE1126]" title="Ghana Red" />
             <span className="w-2 h-2 rounded-full bg-[#FCD116]" title="Ghana Gold" />
             <span className="w-2 h-2 rounded-full bg-[#006B3F]" title="Ghana Green" />
-            <span className="text-neutral-400 ml-1">Verified National Opportunity Platform</span>
+            <span className="text-neutral-400 dark:text-slate-400 ml-1">Verified National Opportunity Platform</span>
           </div>
         </div>
       </div>
