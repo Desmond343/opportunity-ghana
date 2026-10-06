@@ -199,7 +199,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="space-y-16 sm:space-y-20 pb-20 bg-white">
+    <div className="space-y-16 sm:space-y-20 pb-20 stage-ambient-surface">
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
@@ -523,7 +523,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         {/* Horizontal Scrollable Row */}
         <div
           ref={availableScrollRef}
-          className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-4 pt-1 snap-x scrollbar-none"
+          className="flex items-stretch gap-5 sm:gap-6 overflow-x-auto pb-6 pt-2 px-1 snap-x scrollbar-none"
         >
           {availableTracks.map((track) => {
             const Icon = track.icon;
@@ -540,7 +540,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 tabIndex={0}
                 role="button"
                 aria-label={`Explore ${track.label}`}
-                className="group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl p-5 border border-slate-700/30 hover:border-[#006B3F] hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2 bg-slate-900"
+                className="specular-rim-highlight group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-5 border border-white/30 hover:border-emerald-400/70 shadow-[0_14px_30px_-6px_rgba(15,23,42,0.22),0_4px_10px_-2px_rgba(15,23,42,0.12),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_24px_48px_-8px_rgba(0,107,63,0.32),inset_0_1.5px_2px_rgba(255,255,255,0.6)] transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2 bg-slate-900"
               >
                 {/* Visual Image Background: Sharp, Vivid & Properly Exposed with Smart Directional Gradient */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -559,10 +559,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 {/* Foreground Card Content */}
                 <div className="relative z-10 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white text-[#006B3F] flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md text-[#006B3F] border border-white/80 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-xs ${track.tagColor}`}>
+                    <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md ${track.tagColor}`}>
                       {track.tag}
                     </span>
                   </div>
@@ -577,7 +577,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                <div className="relative z-10 pt-4 mt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
+                <div className="relative z-10 mt-4 px-3.5 py-2 rounded-xl bg-white/12 backdrop-blur-md border border-white/20 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:bg-white/20 group-hover:text-white transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]">
                   <span>{track.ctaText || 'Explore opportunities'}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 text-[#FCD116] group-hover:text-white" />
                 </div>
@@ -603,26 +603,26 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
           {/* Track 1: Students & Undergraduates */}
           <div
             onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-white/40 bg-slate-900 shadow-[0_16px_36px_-8px_rgba(15,23,42,0.2),0_4px_10px_-2px_rgba(15,23,42,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.28)] transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[310px]"
           >
             <img
               src="/images/ghana_student_workspace.jpg"
               alt="Young Ghanaian student studying in modern university commons"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-60"
+              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-65"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-            <div className="relative p-6 space-y-2 text-white">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111]">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent" />
+            <div className="relative m-3.5 p-5 rounded-2xl bg-slate-950/55 backdrop-blur-md border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] space-y-2 text-white">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#FCD116] text-[#111111] inline-block">
                 Students & Graduates
               </span>
               <h3 className="text-lg font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
                 Scholarships & University Fellowships
               </h3>
-              <p className="text-xs text-slate-200/90 leading-relaxed">
+              <p className="text-xs text-slate-200/95 leading-relaxed">
                 Full tuition waivers, Mastercard Foundation awards, and international graduate programs for Ghanaian students.
               </p>
               <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
@@ -635,22 +635,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 2: Early Career Professionals */}
           <div
             onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-white/40 bg-slate-900 shadow-[0_16px_36px_-8px_rgba(15,23,42,0.2),0_4px_10px_-2px_rgba(15,23,42,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.28)] transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[310px]"
           >
             <img
               src="/images/ghana_hero_professionals.jpg"
               alt="Young Ghanaian professionals in modern workplace"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-60"
+              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-65"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-            <div className="relative p-6 space-y-2 text-white">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500 text-white">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent" />
+            <div className="relative m-3.5 p-5 rounded-2xl bg-slate-950/55 backdrop-blur-md border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] space-y-2 text-white">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-500 text-white inline-block">
                 Early Career & NSS
               </span>
               <h3 className="text-lg font-bold font-space text-white group-hover:text-emerald-300 transition-colors">
                 Jobs, Internships & Graduate Schemes
               </h3>
-              <p className="text-xs text-slate-200/90 leading-relaxed">
+              <p className="text-xs text-slate-200/95 leading-relaxed">
                 Verified entry-level vacancies, management trainee programs, and paid corporate attachments across Ghana.
               </p>
               <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-emerald-300">
@@ -663,7 +663,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
             onClick={() => onNavigate('/resources?paid=true')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
+            className="specular-rim-highlight group relative rounded-3xl overflow-hidden border border-emerald-400/30 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[310px] text-white shadow-[0_16px_36px_-8px_rgba(0,107,63,0.26),0_4px_10px_-2px_rgba(15,23,42,0.12),inset_0_1.5px_1px_rgba(255,255,255,0.35)] hover:-translate-y-1.5 hover:shadow-[0_28px_56px_-10px_rgba(0,107,63,0.35)] transition-all duration-300 cursor-pointer"
           >
             <div className="space-y-2">
               <div className="flex items-center gap-2">

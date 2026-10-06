@@ -242,7 +242,7 @@ export function AppContent() {
   const isAdminRoute = currentPath.startsWith('/admin');
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white font-sans">
+    <div className="min-h-screen flex flex-col stage-ambient-surface text-slate-900 selection:bg-emerald-600 selection:text-white font-sans">
       {/* Offline Status Warning */}
       <OfflineIndicator />
 

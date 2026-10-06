@@ -126,7 +126,7 @@ export const UserSubmissionsList: React.FC<UserSubmissionsListProps> = ({
             return (
               <div
                 key={sub.id}
-                className="p-4 sm:p-5 rounded-2xl border border-slate-200/90 bg-[#F7F8FA] hover:bg-white hover:border-[#006B3F]/40 transition-all space-y-3"
+                className="floating-glass-tablet specular-rim-highlight p-4 sm:p-5 rounded-2xl space-y-3"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="space-y-1 flex-1 min-w-0">

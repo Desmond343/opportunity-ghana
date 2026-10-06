@@ -14,19 +14,19 @@ export const LoadingState: React.FC<{ message?: string }> = ({
 
 export const OpportunitySkeleton: React.FC = () => {
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs animate-pulse flex flex-col gap-3">
+    <div className="floating-glass-tablet specular-rim-highlight rounded-2xl p-5 animate-pulse flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+        <div className="w-10 h-10 bg-slate-200/80 rounded-xl" />
         <div className="flex-1 space-y-1.5">
-          <div className="h-4 bg-slate-200 rounded w-1/3" />
+          <div className="h-4 bg-slate-200/80 rounded w-1/3" />
           <div className="h-3 bg-slate-100 rounded w-1/4" />
         </div>
       </div>
-      <div className="h-5 bg-slate-200 rounded w-3/4" />
-      <div className="h-12 bg-slate-100 rounded w-full" />
+      <div className="h-5 bg-slate-200/80 rounded w-3/4" />
+      <div className="h-12 bg-slate-100 rounded-xl w-full" />
       <div className="flex gap-2 pt-2 border-t border-slate-100">
-        <div className="h-5 bg-slate-200 rounded-full w-20" />
-        <div className="h-5 bg-slate-200 rounded-full w-24" />
+        <div className="h-5 bg-slate-200/80 rounded-full w-20" />
+        <div className="h-5 bg-slate-200/80 rounded-full w-24" />
       </div>
     </div>
   );

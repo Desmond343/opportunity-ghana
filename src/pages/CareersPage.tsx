@@ -27,35 +27,35 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
         {skills.map((skill) => (
           <article
             key={skill.id}
-            className="floating-glass-tablet group relative rounded-2xl sm:rounded-3xl p-6 flex flex-col justify-between overflow-hidden"
+            className="floating-glass-tablet specular-rim-highlight group relative rounded-2xl sm:rounded-[22px] p-6 pb-4 flex flex-col justify-between overflow-hidden"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Badge variant="emerald">{skill.category}</Badge>
-                <span className="text-[11px] font-bold text-[#006B3F] dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/60 border border-[#006B3F]/20 dark:border-emerald-500/30 px-2.5 py-0.5 rounded-lg backdrop-blur-xs shadow-2xs">
+                <span className="text-[11px] font-bold text-[#006B3F] bg-emerald-50/90 border border-[#006B3F]/20 px-2.5 py-0.5 rounded-lg backdrop-blur-xs shadow-2xs">
                   {skill.demandLevel} Demand
                 </span>
               </div>
 
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-space">{skill.name}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#006B3F] transition-colors font-space">{skill.name}</h3>
 
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{skill.description}</p>
+              <p className="text-xs text-slate-600 leading-relaxed">{skill.description}</p>
 
               <div>
-                <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 font-space">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 font-space">
                   Top Associated Careers:
                 </p>
                 <div className="space-y-1.5">
                   {skill.topCareers?.map((career, i) => (
                     <div
                       key={i}
-                      className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 p-2 bg-slate-100/80 dark:bg-white/[0.05] rounded-xl border border-slate-200/60 dark:border-white/10"
+                      className="text-xs font-semibold text-slate-800 flex items-center gap-2 p-2 bg-white/85 backdrop-blur-xs rounded-xl border border-slate-200/80 shadow-2xs"
                     >
-                      <Briefcase className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400 shrink-0" />
+                      <Briefcase className="w-3.5 h-3.5 text-[#006B3F] shrink-0" />
                       <span>{career}</span>
                     </div>
                   ))}
@@ -63,14 +63,14 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
               </div>
 
               <div>
-                <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-space">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5 font-space">
                   Related Competencies:
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {skill.relatedSkills.map((sub, i) => (
                     <span
                       key={i}
-                      className="text-[11px] font-medium bg-slate-100/80 dark:bg-white/[0.05] text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 px-2.5 py-0.5 rounded-lg shadow-2xs"
+                      className="text-[11px] font-medium bg-white/85 backdrop-blur-xs text-slate-700 border border-slate-200/80 px-2.5 py-0.5 rounded-lg shadow-2xs"
                     >
                       {sub}
                     </span>
@@ -80,17 +80,17 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
             </div>
 
             {/* Internal Frosted Shelf Footer */}
-            <div className="glass-subpanel mt-5 p-3 rounded-xl sm:rounded-2xl flex items-center justify-between">
+            <div className="glass-subpanel mt-5 -mx-2 px-4 py-2.5 rounded-xl flex items-center justify-between">
               <button
                 onClick={() => onNavigate(`/opportunities?search=${encodeURIComponent(skill.name)}`)}
-                className="text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:text-[#005530] flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#006B3F] hover:text-[#005530] flex items-center gap-1 cursor-pointer"
               >
                 <span>Find Related Jobs</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => onNavigate(`/resources?search=${encodeURIComponent(skill.name)}`)}
-                className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer"
               >
                 Find Courses
               </button>

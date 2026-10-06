@@ -97,7 +97,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
   const closingSoonCount = institutions.filter((i) => i.overallAdmissionStatus === 'CLOSING_SOON').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen stage-ambient-surface py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 rounded-2xl p-6 sm:p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden">

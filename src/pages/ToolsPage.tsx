@@ -27,14 +27,14 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
         {/* Tool 1: Eligibility Estimator */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between">
+        <div className="floating-glass-tablet specular-rim-highlight rounded-2xl sm:rounded-[22px] p-6 flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center shadow-2xs">
               <Calculator className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">Scholarship Eligibility Checker</h3>
+            <h3 className="text-base font-bold text-slate-900 font-space">Scholarship Eligibility Checker</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Estimate your qualification index for competitive undergraduate and postgraduate scholarships based on academic standing.
             </p>
@@ -47,7 +47,7 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
                 <select
                   value={targetType}
                   onChange={(e) => setTargetType(e.target.value)}
-                  className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-slate-50"
+                  className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-white/90 backdrop-blur-xs"
                 >
                   <option value="scholarship">Mastercard / Ashesi Full Tuition</option>
                   <option value="grant">Youth Agribusiness Seed Grant</option>
@@ -65,20 +65,20 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
                   max="8"
                   value={credits}
                   onChange={(e) => setCredits(e.target.value)}
-                  className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-slate-50"
+                  className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-white/90 backdrop-blur-xs"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                className="w-full py-2.5 bg-[#006B3F] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer shadow-xs"
               >
                 Estimate Match
               </button>
             </form>
 
             {wScore !== null && (
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
+              <div className="glass-subpanel p-3 rounded-xl text-emerald-900 text-xs space-y-1">
                 <span className="font-bold">Match Readiness Score: {wScore}%</span>
                 <p className="text-[11px] text-emerald-800">
                   Your academic profile satisfies core eligibility criteria for this category.
@@ -89,39 +89,39 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
         </div>
 
         {/* Tool 2: CV & Document Checklist */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between">
+        <div className="floating-glass-tablet specular-rim-highlight rounded-2xl sm:rounded-[22px] p-6 pb-4 flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200/70 text-blue-700 flex items-center justify-center shadow-2xs">
               <FileCheck className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">Application Document Checklist</h3>
+            <h3 className="text-base font-bold text-slate-900 font-space">Application Document Checklist</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Standard Ghana application packet checklist to ensure no required documents are missing before submission.
             </p>
             <ul className="space-y-2 text-xs text-slate-700">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Ghana Card (NIA) front & back certified copy</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Official Transcript / WASSCE scratch card serials</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>2 Academic or Community Recommendation Letters</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>One-page tailored Curriculum Vitae (PDF)</span>
               </li>
             </ul>
           </div>
 
-          <div className="pt-4 border-t border-slate-100">
+          <div className="glass-subpanel mt-5 -mx-2 px-4 py-2.5 rounded-xl">
             <button
               onClick={() => onNavigate('/opportunities')}
-              className="text-xs font-bold text-blue-700 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-blue-700 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>Explore matching opportunities</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -130,26 +130,26 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
         </div>
 
         {/* Tool 3: Deadline Radar */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between">
+        <div className="floating-glass-tablet specular-rim-highlight rounded-2xl sm:rounded-[22px] p-6 pb-4 flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200/70 text-amber-700 flex items-center justify-center shadow-2xs">
               <Calendar className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">Ghana Opportunity Radar</h3>
+            <h3 className="text-base font-bold text-slate-900 font-space">Ghana Opportunity Radar</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Real-time countdown tracker for national scholarship windows (Government Scholarship Secretariat, GNPC, GETFund, Ashesi).
             </p>
-            <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+            <div className="glass-subpanel p-3.5 rounded-xl text-xs text-amber-950 space-y-1">
               <p className="font-bold">Next Major Window:</p>
-              <p className="text-[11px]">Mastercard Foundation Scholars Program</p>
-              <p className="text-[11px] font-semibold text-rose-700">Closes in approx 16 days</p>
+              <p className="text-[11px] font-medium">Mastercard Foundation Scholars Program</p>
+              <p className="text-[11px] font-bold text-rose-700">Closes in approx 16 days</p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100">
+          <div className="glass-subpanel mt-5 -mx-2 px-4 py-2.5 rounded-xl">
             <button
               onClick={() => onNavigate('/alerts')}
-              className="text-xs font-bold text-amber-800 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-amber-800 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>Configure deadline alert pings</span>
               <ArrowRight className="w-3.5 h-3.5" />

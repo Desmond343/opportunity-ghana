@@ -260,35 +260,35 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 return (
                   <div
                     key={cycle.id}
-                    className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between"
+                    className="floating-glass-tablet specular-rim-highlight rounded-2xl p-6 flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded">
+                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50/90 border border-emerald-200/80 px-2.5 py-1 rounded-lg">
                           {cycle.category}
                         </span>
                         {cycle.status === 'OPEN' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-100/90 text-emerald-800 border border-emerald-200">
                             Open
                           </span>
                         )}
                         {cycle.status === 'CLOSING_SOON' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-amber-100 text-amber-800">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-800 border border-amber-200">
                             Closing Soon
                           </span>
                         )}
                         {cycle.status === 'CLOSED' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-600">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
                             Closed
                           </span>
                         )}
                       </div>
 
-                      <h3 className="text-base font-bold text-slate-900 mb-2">{cycle.title}</h3>
+                      <h3 className="text-base font-bold text-slate-900 mb-2 font-space">{cycle.title}</h3>
                       <p className="text-xs text-slate-600 mb-4">{cycle.description}</p>
 
                       {/* Deadline Box */}
-                      <div className="bg-slate-50 rounded-lg p-3.5 border border-slate-200/80 mb-4 space-y-2">
+                      <div className="glass-subpanel rounded-xl p-3.5 mb-4 space-y-2">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-slate-500">Academic Year:</span>
                           <span className="font-semibold text-slate-800">{cycle.academicYear}</span>
@@ -436,7 +436,7 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {institution.programmesSummary.featuredProgrammes.map((prog, idx) => (
-                  <div key={idx} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <div key={idx} className="glass-subpanel p-3.5 rounded-xl hover:-translate-y-0.5 transition-transform">
                     <span className="text-[11px] font-bold text-emerald-700 uppercase block mb-1">
                       {prog.level} • {prog.durationYears} Years
                     </span>
