@@ -64,7 +64,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
 
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { label: 'Opportunity Research', path: '/admin/scholarship-research', icon: Sparkles },
+    { label: 'Scholarship Research', path: '/admin/scholarship-research', icon: GraduationCap },
     { label: 'AI Content Assistant', path: '/admin/ai-assistant', icon: Sparkles },
     { label: 'Opportunities', path: '/admin/opportunities', icon: Compass },
     { label: 'Resources', path: '/admin/resources', icon: BookOpen },

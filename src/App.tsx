@@ -220,7 +220,7 @@ export function AppContent() {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
           {currentPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
-          {(currentPath === '/admin/scholarship-research' || currentPath === '/admin/opportunity-research') && <AdminScholarshipResearch onNavigate={navigate} />}
+          {currentPath === '/admin/scholarship-research' && <AdminScholarshipResearch onNavigate={navigate} />}
           {currentPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
           {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
           {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}

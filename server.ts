@@ -84,17 +84,6 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
     return res.status(401).json({ error: 'Unauthorized: Empty token provided.' });
   }
 
-  // Handle local development admin bypass or tokens
-  if (token === 'admin-bypass' || token === 'demo-admin-token') {
-    (req as any).user = {
-      uid: 'admin-local',
-      email: 'admin@opportunityghana.com',
-      name: 'Administrator',
-      role: 'admin'
-    };
-    return next();
-  }
-
   if (adminAuth) {
     try {
       const decoded = await adminAuth.verifyIdToken(token);
@@ -245,102 +234,52 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// In-memory & disk storage for server-published opportunities
-const PUBLISHED_OPPS_FILE = path.resolve(process.cwd(), 'data', 'published_opportunities.json');
-
-function loadServerPublishedOpportunities(): Map<string, any> {
-  const map = new Map<string, any>();
-  try {
-    if (!fs.existsSync(path.dirname(PUBLISHED_OPPS_FILE))) {
-      fs.mkdirSync(path.dirname(PUBLISHED_OPPS_FILE), { recursive: true });
-    }
-    if (fs.existsSync(PUBLISHED_OPPS_FILE)) {
-      const raw = fs.readFileSync(PUBLISHED_OPPS_FILE, 'utf8');
-      const list = JSON.parse(raw);
-      if (Array.isArray(list)) {
-        for (const item of list) {
-          if (item && item.id) map.set(item.id, item);
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Error loading published opportunities from disk:', err);
-  }
-  return map;
-}
-
-const serverPublishedOppsMap = loadServerPublishedOpportunities();
-
-function saveServerPublishedOpportunity(opp: any) {
-  if (!opp || !opp.id) return;
-  serverPublishedOppsMap.set(opp.id, opp);
-  try {
-    if (!fs.existsSync(path.dirname(PUBLISHED_OPPS_FILE))) {
-      fs.mkdirSync(path.dirname(PUBLISHED_OPPS_FILE), { recursive: true });
-    }
-    const list = Array.from(serverPublishedOppsMap.values());
-    fs.writeFileSync(PUBLISHED_OPPS_FILE, JSON.stringify(list, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('Error saving published opp to disk:', err);
-  }
-}
-
-function deleteServerPublishedOpportunity(id: string) {
-  serverPublishedOppsMap.delete(id);
-  try {
-    const list = Array.from(serverPublishedOppsMap.values());
-    fs.writeFileSync(PUBLISHED_OPPS_FILE, JSON.stringify(list, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('Error deleting published opp from disk:', err);
-  }
-}
-
 // Get opportunities
 app.get('/api/opportunities', async (req, res) => {
   const includeUnpublished = req.query.includeUnpublished === 'true';
 
-  let firestoreItems: any[] = [];
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('opportunities').get();
       if (!snapshot.empty) {
-        firestoreItems = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        // Merge with verified real opportunities (scholarships, jobs, internships)
+        const merged = [...items];
+        for (const verified of ALL_VERIFIED_INITIAL) {
+          const exists = merged.some(m => 
+            m.id === verified.id || 
+            m.slug === verified.slug || 
+            (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+          );
+          if (!exists) {
+            merged.push(verified);
+          }
+        }
+
+        if (!includeUnpublished) {
+          items = merged.filter((o: any) => 
+            (o.status === 'published' || o.status === 'closed') &&
+            o.status !== 'pending' &&
+            o.status !== 'rejected' &&
+            o.submissionStatus !== 'pending' &&
+            o.submissionStatus !== 'rejected'
+          );
+        } else {
+          items = merged;
+        }
+
+        return res.json(items);
       }
     } catch (e) {
       console.warn('Admin Firestore read error:', e);
     }
   }
 
-  // Merge in Firestore items, disk-persisted published items, and verified initial opportunities
-  const merged = [...firestoreItems];
-  for (const diskOpp of serverPublishedOppsMap.values()) {
-    if (!merged.some(m => m.id === diskOpp.id || m.slug === diskOpp.slug)) {
-      merged.push(diskOpp);
-    }
-  }
-  for (const verified of ALL_VERIFIED_INITIAL) {
-    const exists = merged.some(m => 
-      m.id === verified.id || 
-      m.slug === verified.slug || 
-      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
-    );
-    if (!exists) {
-      merged.push(verified);
-    }
-  }
-
-  let results = merged;
+  let fallback = [...ALL_VERIFIED_INITIAL];
   if (!includeUnpublished) {
-    results = merged.filter((o: any) => 
-      (o.status === 'published' || o.status === 'closed') &&
-      o.status !== 'pending' &&
-      o.status !== 'rejected' &&
-      o.submissionStatus !== 'pending' &&
-      o.submissionStatus !== 'rejected'
-    );
+    fallback = fallback.filter((o: any) => o.status === 'published' || o.status === 'closed');
   }
-
-  res.json(results);
+  res.json(fallback);
 });
 
 // User Opportunity Submission Endpoint (Enforces pending status server-side)
@@ -460,8 +399,6 @@ app.post('/api/opportunities', verifyAdminAuth, async (req, res) => {
     return res.status(400).json({ error: 'Opportunity object with id is required' });
   }
 
-  saveServerPublishedOpportunity(item);
-
   if (adminDb && isInitialized) {
     try {
       await adminDb.collection('opportunities').doc(item.id).set(item, { merge: true });
@@ -476,7 +413,6 @@ app.post('/api/opportunities', verifyAdminAuth, async (req, res) => {
 // Delete opportunity (Admin only)
 app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
   const { id } = req.params;
-  deleteServerPublishedOpportunity(id);
   if (adminDb && isInitialized) {
     try {
       await adminDb.collection('opportunities').doc(id).delete();
@@ -722,87 +658,74 @@ app.get('/api/admin/scholarship-research/runs', verifyAdminAuth, async (req, res
   }
 });
 
-// 4. Publish discovered opportunity (Admin only)
-const publishOpportunityHandler = async (req: express.Request, res: express.Response) => {
+// 4. Publish discovered scholarship (Admin only)
+app.post('/api/admin/scholarship-research/publish', verifyAdminAuth, async (req, res) => {
   try {
-    const { scholarship, opportunity } = req.body || {};
-    const candidate = scholarship || opportunity;
-    if (!candidate || !candidate.title || (!candidate.officialApplicationUrl && !candidate.applicationUrl)) {
-      return res.status(400).json({ error: 'Valid opportunity candidate is required.' });
+    const { scholarship } = req.body || {};
+    if (!scholarship || !scholarship.title || !scholarship.officialApplicationUrl) {
+      return res.status(400).json({ error: 'Valid scholarship candidate is required.' });
     }
 
     const user = (req as any).user || { email: 'admin@opportunityghana.com', name: 'Administrator' };
     const now = new Date().toISOString();
-    const id = candidate.matchedExistingId || candidate.id || `opp-${Date.now()}`;
-    const slug = candidate.slug || candidate.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const id = scholarship.matchedExistingId || scholarship.id || `opp-sch-${Date.now()}`;
+    const slug = scholarship.slug || scholarship.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     const publishedOpp = {
-      ...(opportunity || {}),
       id,
-      title: candidate.title,
+      title: scholarship.title,
       slug,
-      description: candidate.description || '',
-      organizationName: candidate.providerName || candidate.organizationName || 'Official Provider',
-      category: candidate.category || 'Scholarships',
-      subcategory: candidate.subcategory || candidate.studyLevel || candidate.category || 'General',
-      opportunityType: candidate.fundingType || candidate.opportunityType || 'Verified Opportunity',
-      location: candidate.location || 'Ghana',
-      country: candidate.country || 'Ghana',
-      destinationCountry: candidate.destinationCountry || '',
-      region: candidate.region || 'Greater Accra',
-      nationality: candidate.nationality || 'Ghanaian citizens eligible',
-      educationLevel: candidate.studyLevel || candidate.educationLevel || 'All Levels',
-      fieldOfStudy: candidate.fieldOfStudy || 'Open to All Fields',
-      fundingType: candidate.fundingType || 'Fully Funded',
-      funding: candidate.fundingDetails || candidate.funding || '',
-      fundingAmount: candidate.fundingAmount || '',
-      tuition: candidate.tuition || '',
-      stipend: candidate.stipend || '',
-      travel: candidate.travel || '',
-      accommodation: candidate.accommodation || '',
-      benefits: candidate.benefits || [],
-      requirements: candidate.requirements || candidate.academicRequirements || [],
-      documentsRequired: candidate.documentsRequired || [],
-      deadline: candidate.deadline || '',
-      applicationUrl: candidate.officialApplicationUrl || candidate.applicationUrl,
-      officialApplicationUrl: candidate.officialApplicationUrl || candidate.applicationUrl,
-      sourceUrl: candidate.sourceUrl || candidate.officialApplicationUrl || candidate.applicationUrl,
-      sourceName: candidate.sourceName || candidate.providerName || 'Official Source',
-      imageUrl: candidate.imageUrl || '',
+      description: scholarship.description || '',
+      organizationName: scholarship.providerName,
+      category: 'Scholarships',
+      subcategory: scholarship.studyLevel || 'Scholarships',
+      opportunityType: scholarship.fundingType || 'Fully Funded',
+      location: scholarship.location || 'Ghana',
+      country: scholarship.country || 'Ghana',
+      nationality: scholarship.nationality || 'Ghanaian citizens only',
+      educationLevel: scholarship.studyLevel || 'Undergraduate',
+      fieldOfStudy: scholarship.fieldOfStudy || 'Open to All Fields',
+      fundingType: scholarship.fundingType || 'Fully Funded',
+      funding: scholarship.fundingDetails || '',
+      tuition: scholarship.tuition || '',
+      stipend: scholarship.stipend || '',
+      travel: scholarship.travel || '',
+      accommodation: scholarship.accommodation || '',
+      benefits: scholarship.benefits || [],
+      requirements: scholarship.academicRequirements || [],
+      documentsRequired: scholarship.documentsRequired || [],
+      deadline: scholarship.deadline || '',
+      applicationUrl: scholarship.officialApplicationUrl,
+      sourceUrl: scholarship.sourceUrl || scholarship.officialApplicationUrl,
+      sourceName: scholarship.sourceName,
+      imageUrl: scholarship.imageUrl || '',
       status: 'published',
       verificationStatus: 'verified',
-      academicYear: candidate.academicYear || '2026/2027',
-      isDeadlineVerified: candidate.isDeadlineVerified ?? true,
-      isGhanaEligible: candidate.ghanaEligibilityConfirmed ?? true,
+      academicYear: scholarship.academicYear || '2026/2027',
+      isDeadlineVerified: scholarship.isDeadlineVerified ?? true,
       lastVerifiedAt: now,
       publishedAt: now,
       publishedByEmail: user.email,
       reviewedBy: user.name || user.email || 'Administrator',
       reviewedByEmail: user.email,
-      createdAt: candidate.createdAt || now,
+      createdAt: scholarship.createdAt || now,
       updatedAt: now
     };
-
-    // Save to server-side disk and memory store
-    saveServerPublishedOpportunity(publishedOpp);
 
     if (adminDb && isInitialized) {
       try {
         await adminDb.collection('opportunities').doc(id).set(publishedOpp, { merge: true });
       } catch (err: any) {
-        console.warn('Error writing published opportunity to Firestore:', err.message);
+        console.warn('Error writing published scholarship to Firestore:', err.message);
       }
     }
 
     return res.json({ success: true, opportunity: publishedOpp });
   } catch (error: any) {
-    console.error('Error publishing opportunity:', error);
-    return res.status(500).json({ error: error.message || 'Failed to publish opportunity' });
+    console.error('Error publishing scholarship:', error);
+    return res.status(500).json({ error: error.message || 'Failed to publish scholarship' });
   }
-};
-
-app.post('/api/admin/scholarship-research/publish', verifyAdminAuth, publishOpportunityHandler);
-app.post('/api/admin/opportunity-research/publish', verifyAdminAuth, publishOpportunityHandler);
+});
 
 // PWA Service Worker specific headers and direct serving
 app.get('/sw.js', (req, res, next) => {
