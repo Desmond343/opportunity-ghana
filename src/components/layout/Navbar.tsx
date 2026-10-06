@@ -14,7 +14,6 @@ import {
   Sparkles
 } from 'lucide-react';
 import { InstallAppPrompt } from '../pwa/InstallAppPrompt';
-import { ThemeToggle } from '../common/ThemeToggle';
 
 interface NavbarProps {
   currentPath: string;
@@ -55,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs transition-colors duration-150">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18">
           {/* LEFT: Official Logo & Brand */}
@@ -64,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               onClick={() => handleNavClick('/')}
               className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
             >
-              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-700/80 p-0.5 shadow-2xs group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 p-0.5 shadow-2xs group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
                 <img
                   src="/icon-192.png"
                   alt="Opportunity Ghana Logo"
@@ -72,11 +71,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 />
               </div>
               <div>
-                <span className="text-lg font-black text-[#111111] dark:text-white tracking-tight flex items-center gap-1 font-space">
-                  Opportunity <span className="text-[#006B3F] dark:text-emerald-400">Ghana</span>
+                <span className="text-lg font-black text-[#111111] tracking-tight flex items-center gap-1 font-space">
+                  Opportunity <span className="text-[#006B3F]">Ghana</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116] inline-block mb-1" title="Ghana Gold Accent" />
                 </span>
-                <span className="hidden sm:block text-[10px] text-slate-500 dark:text-slate-400 font-medium -mt-1 tracking-wide">
+                <span className="hidden sm:block text-[10px] text-slate-500 font-medium -mt-1 tracking-wide">
                   Find Opportunities • Build Your Future
                 </span>
               </div>
@@ -95,8 +94,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                     onClick={() => handleNavClick(link.path)}
                     className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'text-[#006B3F] dark:text-emerald-400 bg-[#E8F5EF] dark:bg-emerald-950/60 font-bold shadow-2xs'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
+                        ? 'text-[#006B3F] bg-[#E8F5EF] font-bold shadow-2xs'
+                        : 'text-slate-600 hover:text-[#111111] hover:bg-slate-100/70'
                     }`}
                   >
                     {link.label}
@@ -106,8 +105,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             </nav>
           </div>
 
-          {/* RIGHT: Search, Saved, Admin (if auth), Theme Toggle, Login/Profile */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* RIGHT: Search, Saved, Admin (if auth), Login/Profile */}
+          <div className="hidden md:flex items-center gap-2.5">
             <InstallAppPrompt variant="navbar" />
 
             {/* Quick Search trigger */}
@@ -115,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               <button
                 onClick={onOpenSearch}
                 aria-label="Search opportunities"
-                className="p-2.5 text-slate-500 dark:text-slate-400 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl transition-colors cursor-pointer"
+                className="p-2.5 text-slate-500 hover:text-[#111111] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 title="Search Opportunities"
               >
                 <Search className="w-4 h-4" />
@@ -129,8 +128,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               title="Saved Opportunities"
               className={`relative p-2.5 rounded-xl transition-colors cursor-pointer ${
                 currentPath === '/saved'
-                  ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
+                  ? 'bg-[#E8F5EF] text-[#006B3F]'
+                  : 'text-slate-500 hover:text-[#111111] hover:bg-slate-100'
               }`}
             >
               <Bookmark className="w-4 h-4" />
@@ -141,9 +140,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               )}
             </button>
 
-            {/* Global Theme Toggle */}
-            <ThemeToggle variant="dropdown" />
-
             {/* Admin CMS Direct Shortcut - Displayed only for verified custom claim admins/editors */}
             {isEditorOrAdmin && (
               <button
@@ -151,18 +147,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                   currentPath.startsWith('/admin')
                     ? 'bg-[#006B3F] text-white shadow-xs'
-                    : 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 hover:bg-[#d6e7df] dark:hover:bg-emerald-900/60'
+                    : 'bg-[#E8F5EF] text-[#006B3F] hover:bg-[#d6e7df]'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
-                Admin
+                <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
+                Admin Dashboard
               </button>
             )}
 
             {/* Primary Action Button */}
             <button
               onClick={() => handleNavClick('/opportunities')}
-              className="inline-flex items-center justify-center px-3.5 py-2 text-xs font-bold text-white bg-[#006B3F] hover:bg-[#005530] dark:bg-emerald-600 dark:hover:bg-emerald-500 rounded-xl transition-all shadow-xs cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-[#006B3F] hover:bg-[#005530] rounded-xl transition-all shadow-xs cursor-pointer active:scale-98"
             >
               Find Opportunities
             </button>
@@ -172,9 +168,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors border border-slate-200/80 dark:border-slate-700/80 cursor-pointer"
+                  className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 transition-colors border border-slate-200/80 cursor-pointer"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-[#E8F5EF] dark:bg-emerald-950/80 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center text-xs font-bold">
+                  <div className="w-7 h-7 rounded-lg bg-[#E8F5EF] text-[#006B3F] flex items-center justify-center text-xs font-bold">
                     {currentUser.photoURL ? (
                       <img
                         src={currentUser.photoURL}
@@ -185,48 +181,48 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                       currentUser.name.charAt(0).toUpperCase()
                     )}
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#131926] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700/80 py-2 z-50 animate-in fade-in zoom-in-95">
-                    <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{currentUser.name}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{currentUser.email}</p>
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{currentUser.email}</p>
                     </div>
 
                     <div className="py-1">
                       <button
                         onClick={() => handleNavClick('/profile')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
                       >
                         <User className="w-3.5 h-3.5 text-slate-400" />
                         My Profile & Applications
                       </button>
                       <button
                         onClick={() => handleNavClick('/opportunities/submit')}
-                        className="w-full px-4 py-2 text-xs text-[#006B3F] dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer font-bold"
+                        className="w-full px-4 py-2 text-xs text-[#006B3F] hover:bg-emerald-50 flex items-center gap-2 cursor-pointer font-bold"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-[#006B3F]" />
                         Submit an Opportunity
                       </button>
                       <button
                         onClick={() => handleNavClick('/resources/submit')}
-                        className="w-full px-4 py-2 text-xs text-emerald-800 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer font-medium"
+                        className="w-full px-4 py-2 text-xs text-emerald-800 hover:bg-emerald-50 flex items-center gap-2 cursor-pointer font-medium"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                         Submit a Resource
                       </button>
                       <button
                         onClick={() => handleNavClick('/saved')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
                       >
                         <Bookmark className="w-3.5 h-3.5 text-slate-400" />
                         Saved Opportunities
                       </button>
                       <button
                         onClick={() => handleNavClick('/alerts')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
                       >
                         <Bell className="w-3.5 h-3.5 text-slate-400" />
                         Opportunity Alerts
@@ -235,21 +231,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                       {isEditorOrAdmin && (
                         <button
                           onClick={() => handleNavClick('/admin')}
-                          className="w-full px-4 py-2 text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer"
+                          className="w-full px-4 py-2 text-xs font-bold text-[#006B3F] hover:bg-emerald-50 flex items-center gap-2 cursor-pointer"
                         >
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
                           Admin CMS Console
                         </button>
                       )}
                     </div>
 
-                    <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+                    <div className="pt-1 border-t border-slate-100">
                       <button
                         onClick={() => {
                           logout();
                           setUserMenuOpen(false);
                         }}
-                        className="w-full px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         Sign Out
@@ -262,13 +258,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleNavClick('/login')}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-[#006B3F] transition-colors cursor-pointer"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => handleNavClick('/signup')}
-                  className="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors shadow-2xs cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 text-slate-800 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                 >
                   Register
                 </button>
@@ -277,14 +273,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
           </div>
 
           {/* Mobile Menu & Search Actions */}
-          <div className="flex items-center gap-1.5 md:hidden">
-            <ThemeToggle variant="icon" />
-
+          <div className="flex items-center gap-2 md:hidden">
             {onOpenSearch && (
               <button
                 onClick={onOpenSearch}
                 aria-label="Search"
-                className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl"
+                className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -293,7 +287,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
-              className="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl"
+              className="p-2 text-slate-700 hover:bg-slate-100 rounded-xl"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -303,13 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] px-4 pt-3 pb-6 space-y-4 shadow-xl animate-in slide-in-from-top-2">
-          {/* Mobile Theme Selector */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Theme</span>
-            <ThemeToggle variant="segmented" />
-          </div>
-
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-4 shadow-xl">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <button
@@ -317,8 +305,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 onClick={() => handleNavClick(link.path)}
                 className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                   currentPath === link.path.split('?')[0]
-                    ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 font-bold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                    ? 'bg-[#E8F5EF] text-[#006B3F] font-bold'
+                    : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 {link.label}
@@ -331,22 +319,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                   onClick={() => handleNavClick('/opportunities/submit')}
                   className={`text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 ${
                     currentPath === '/opportunities/submit'
-                      ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400'
-                      : 'text-emerald-800 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100'
+                      ? 'bg-[#E8F5EF] text-[#006B3F]'
+                      : 'text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100'
                   }`}
                 >
-                  <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+                  <Sparkles className="w-4 h-4 text-[#006B3F]" />
                   Submit an Opportunity
                 </button>
                 <button
                   onClick={() => handleNavClick('/resources/submit')}
                   className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 ${
                     currentPath === '/resources/submit'
-                      ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 font-bold'
-                      : 'text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30 hover:bg-emerald-50'
+                      ? 'bg-[#E8F5EF] text-[#006B3F] font-bold'
+                      : 'text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50'
                   }`}
                 >
-                  <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+                  <Sparkles className="w-4 h-4 text-[#006B3F]" />
                   Submit a Resource
                 </button>
               </>
@@ -355,33 +343,33 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
             {isEditorOrAdmin && (
               <button
                 onClick={() => handleNavClick('/admin')}
-                className="text-left px-4 py-2.5 rounded-xl text-sm font-bold text-[#006B3F] dark:text-emerald-400 bg-[#E8F5EF] dark:bg-emerald-950/60 flex items-center gap-2"
+                className="text-left px-4 py-2.5 rounded-xl text-sm font-bold text-[#006B3F] bg-[#E8F5EF] flex items-center gap-2"
               >
-                <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+                <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
                 Admin CMS Console
               </button>
             )}
           </nav>
 
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
             {currentUser ? (
               <>
                 <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px]">{currentUser.name}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                  <p className="text-xs font-bold text-slate-900 truncate max-w-[150px]">{currentUser.name}</p>
+                  <p className="text-[11px] text-slate-500 uppercase font-semibold">
                     {currentUser.role}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => handleNavClick('/profile')}
-                    className="text-xs font-semibold text-[#006B3F] dark:text-emerald-400 hover:underline"
+                    className="text-xs font-semibold text-[#006B3F] hover:underline"
                   >
                     Profile
                   </button>
                   <button
                     onClick={() => logout()}
-                    className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                    className="text-xs font-semibold text-rose-600 hover:underline"
                   >
                     Sign Out
                   </button>
@@ -397,7 +385,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 </button>
                 <button
                   onClick={() => handleNavClick('/signup')}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-200 dark:border-slate-700"
+                  className="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold text-xs text-center border border-slate-200"
                 >
                   Register
                 </button>

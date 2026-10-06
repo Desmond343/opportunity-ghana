@@ -199,39 +199,39 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="space-y-16 sm:space-y-20 pb-20 bg-white dark:bg-[#0F1115] transition-colors duration-150">
+    <div className="space-y-16 sm:space-y-20 pb-20 bg-white">
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F2F7F4] via-[#F8FAF9] to-white dark:from-[#131926] dark:via-[#0F1115] dark:to-[#0F1115] pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 lg:pb-20 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-150">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F2F7F4] via-[#F8FAF9] to-white pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 lg:pb-20 border-b border-slate-200/80">
         {/* Subtle decorative Ghanaian ambient glow */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#006B3F] to-[#FCD116]" />
-        <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#006B3F]/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-12 right-10 w-96 h-96 bg-[#FCD116]/10 dark:bg-[#FCD116]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#006B3F]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 right-10 w-96 h-96 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* HERO LEFT: Brand Messaging & CTAs */}
             <div className="lg:col-span-7 space-y-6 text-left">
               {/* Ghanaian Platform Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white dark:bg-[#171A21] border border-[#006B3F]/25 dark:border-emerald-500/40 shadow-xs text-xs font-bold text-[#006B3F] dark:text-emerald-400 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-[#006B3F]/25 shadow-xs text-xs font-bold text-[#006B3F] backdrop-blur-md">
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B3F] dark:bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B3F] dark:bg-emerald-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B3F] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B3F]" />
                 </span>
                 <span className="tracking-wide">The Modern Ghanaian Opportunity Portal</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
               </div>
 
               {/* Large Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] dark:text-[#F5F7FA] tracking-tight leading-[1.08] font-space">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] tracking-tight leading-[1.08] font-space">
                 Discover Opportunities.
-                <span className="text-[#006B3F] dark:text-emerald-400 block mt-1.5 sm:mt-2">Build Your Future.</span>
+                <span className="text-[#006B3F] block mt-1.5 sm:mt-2">Build Your Future.</span>
               </h1>
 
               {/* Supporting Text */}
-              <p className="text-base sm:text-lg text-slate-600 dark:text-[#AEB6C2] max-w-xl leading-relaxed font-normal">
-                Find <span className="font-semibold text-slate-900 dark:text-slate-100">scholarships</span>, <span className="font-semibold text-slate-900 dark:text-slate-100">jobs</span>, <span className="font-semibold text-slate-900 dark:text-slate-100">internships</span>, <span className="font-semibold text-slate-900 dark:text-slate-100">fellowships</span>, <span className="font-semibold text-slate-900 dark:text-slate-100">grants</span>, training programs and more — all in one verified place.
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed font-normal">
+                Find <span className="font-semibold text-slate-900">scholarships</span>, <span className="font-semibold text-slate-900">jobs</span>, <span className="font-semibold text-slate-900">internships</span>, <span className="font-semibold text-slate-900">fellowships</span>, <span className="font-semibold text-slate-900">grants</span>, training programs and more — all in one verified place.
               </p>
 
               {/* Hero Action Buttons */}
@@ -245,27 +245,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </button>
                 <button
                   onClick={() => onNavigate('/resources')}
-                  className="px-6 py-4 rounded-xl bg-white dark:bg-[#171A21] hover:bg-slate-50 dark:hover:bg-[#1E232B] border border-slate-300 dark:border-[#2A303A] text-slate-800 dark:text-[#F5F7FA] text-xs sm:text-sm font-bold transition-all duration-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+                  className="px-6 py-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-800 text-xs sm:text-sm font-bold transition-all duration-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
                 >
                   Browse Resources
                 </button>
               </div>
 
               {/* Micro Trust Indicators */}
-              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-600 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800">
+              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-600 border-t border-slate-200/80">
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#E8F5EF] dark:bg-emerald-950/60 flex items-center justify-center">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
+                  <div className="w-5 h-5 rounded-full bg-[#E8F5EF] flex items-center justify-center">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F]" />
                   </div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">100% Verified Sources</span>
+                  <span className="font-bold text-slate-800">100% Verified Sources</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FCD116] ring-4 ring-[#FFF8D6] dark:ring-amber-950/50" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">All 16 Regions of Ghana</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FCD116] ring-4 ring-[#FFF8D6]" />
+                  <span className="font-bold text-slate-800">All 16 Regions of Ghana</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] ring-4 ring-[#E8F5EF] dark:ring-emerald-950/50" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Zero Application Fees Policy</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] ring-4 ring-[#E8F5EF]" />
+                  <span className="font-bold text-slate-800">Zero Application Fees Policy</span>
                 </div>
               </div>
             </div>
@@ -275,7 +275,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               {/* Subtle ambient decorative glow behind image */}
               <div className="absolute -inset-2 bg-gradient-to-tr from-[#006B3F]/20 via-[#FCD116]/15 to-transparent rounded-3xl blur-xl opacity-75 pointer-events-none" />
 
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 bg-slate-100 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
                 <img
                   src="/images/ghana_hero_professionals.jpg"
                   alt="Young Ghanaian professionals and university students collaborating"
@@ -287,19 +287,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
 
                 {/* Floating Information Card on Image */}
-                <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-white/95 dark:bg-[#171A21]/95 backdrop-blur-md rounded-2xl p-4 border border-white/50 dark:border-slate-700/60 shadow-2xl flex items-center justify-between gap-3">
+                <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-white/50 shadow-2xl flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-xl bg-[#E8F5EF] dark:bg-emerald-950/60 border border-[#006B3F]/20 dark:border-emerald-500/30 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 shadow-xs">
+                    <div className="w-11 h-11 rounded-xl bg-[#E8F5EF] border border-[#006B3F]/20 text-[#006B3F] flex items-center justify-center font-bold shrink-0 shadow-xs">
                       <GraduationCap className="w-6 h-6" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#006B3F] dark:bg-emerald-400 animate-pulse" />
-                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100 font-space truncate">
+                        <span className="w-2 h-2 rounded-full bg-[#006B3F] animate-pulse" />
+                        <p className="text-xs font-bold text-slate-900 font-space truncate">
                           Verified Opportunities Active
                         </p>
                       </div>
-                      <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5 truncate">
                         {totalCount > 0 ? `${totalCount} Nationwide Listings` : 'Nationwide Listings'}
                       </p>
                     </div>
@@ -322,23 +322,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div className="mt-10 sm:mt-14 max-w-5xl mx-auto">
             <form
               onSubmit={handleSearchSubmit}
-              className="bg-white dark:bg-[#171A21] rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200/90 dark:border-[#2A303A] flex flex-col md:flex-row items-center gap-2 transition-colors"
+              className="bg-white rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200/90 flex flex-col md:flex-row items-center gap-2"
             >
               {/* Keyword Search Field */}
               <div className="relative flex-1 w-full flex items-center pl-3">
-                <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                <Search className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Job title, scholarship name, field of study..."
-                  className="w-full pl-2.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none bg-transparent"
+                  className="w-full pl-2.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
                 {searchTerm && (
                   <button
                     type="button"
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-2 p-1 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 rounded-md"
+                    className="absolute right-2 p-1 text-slate-400 hover:text-slate-600 rounded-md"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -346,12 +346,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </div>
 
               {/* Location Selector */}
-              <div className="w-full md:w-56 border-t md:border-t-0 md:border-l border-slate-200 dark:border-[#2A303A] pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+              <div className="w-full md:w-56 border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                 <select
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 py-2 focus:outline-none cursor-pointer"
                 >
                   <option value="All Regions">All Locations / Ghana</option>
                   <option value="Remote">Remote / Online</option>
@@ -364,11 +364,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </div>
 
               {/* Category Selector */}
-              <div className="w-full md:w-52 border-t md:border-t-0 md:border-l border-slate-200 dark:border-[#2A303A] pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
+              <div className="w-full md:w-52 border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-3 flex items-center gap-2">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 py-2 focus:outline-none cursor-pointer"
                 >
                   <option value="All">All Categories</option>
                   <option value="Scholarships">Scholarships</option>
@@ -399,14 +399,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#111111] dark:text-[#F5F7FA] font-space tracking-tight">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#111111] font-space tracking-tight">
               Featured Opportunities Carousel
             </h2>
           </div>
           <button
             onClick={() => onNavigate('/opportunities')}
-            className="text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-bold text-[#006B3F] hover:underline flex items-center gap-1 cursor-pointer"
           >
             <span>View all listings</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -424,7 +424,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           ACCREDITED TERTIARY INSTITUTIONS & ADMISSIONS DIRECTORY
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 dark:from-[#0B0F17] dark:via-emerald-950/80 dark:to-[#0B0F17] rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden border border-emerald-900/30 dark:border-emerald-500/20">
+        <div className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider">
@@ -434,7 +434,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-space tracking-tight text-white">
                 Accredited Tertiary Institutions & Admissions
               </h2>
-              <p className="text-slate-300 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Explore verified accreditation, cut-off points, application voucher fees, dynamic deadline countdowns, and official application portals for universities, technical universities, and colleges across Ghana.
               </p>
               <div className="pt-2 flex flex-wrap gap-2 text-xs">
@@ -489,15 +489,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           3. "WHAT'S AVAILABLE RIGHT NOW?" SECTION (Jobberman-inspired horizontal cards)
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] font-space">
               Live Category Tracks
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] font-space tracking-tight mt-0.5">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight mt-0.5">
               What&apos;s Available Right Now?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Browse major opportunity pathways curated for Ghanaian youth, students, and professionals.
             </p>
           </div>
@@ -506,14 +506,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <button
               onClick={() => scrollAvailable('left')}
               aria-label="Scroll left"
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#171A21] hover:bg-slate-50 dark:hover:bg-[#1E232B] text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shadow-2xs"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer shadow-2xs"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => scrollAvailable('right')}
               aria-label="Scroll right"
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#171A21] hover:bg-slate-50 dark:hover:bg-[#1E232B] text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shadow-2xs"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer shadow-2xs"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -540,7 +540,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 tabIndex={0}
                 role="button"
                 aria-label={`Explore ${track.label}`}
-                className="group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl p-5 border border-slate-700/30 dark:border-slate-800 hover:border-[#006B3F] dark:hover:border-emerald-500 hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2 bg-slate-900"
+                className="group relative overflow-hidden w-72 sm:w-80 shrink-0 snap-start rounded-2xl p-5 border border-slate-700/30 hover:border-[#006B3F] hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2 bg-slate-900"
               >
                 {/* Visual Image Background: Sharp, Vivid & Properly Exposed with Smart Directional Gradient */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -559,7 +559,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 {/* Foreground Card Content */}
                 <div className="relative z-10 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#171A21] text-[#006B3F] dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-white text-[#006B3F] flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-xs ${track.tagColor}`}>
@@ -592,13 +592,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] font-space">
             Tailored Journeys
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] font-space tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
             Opportunities for Your Next Step
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-600">
             Whether you are completing SHS, graduating university, or seeking funding for a Ghanaian enterprise.
           </p>
         </div>
@@ -607,7 +607,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 1: Students & Undergraduates */}
           <div
             onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
           >
             <img
               src="/images/ghana_student_workspace.jpg"
@@ -635,7 +635,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 2: Early Career Professionals */}
           <div
             onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-end min-h-[300px]"
           >
             <img
               src="/images/ghana_hero_professionals.jpg"
@@ -663,7 +663,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
             onClick={() => onNavigate('/resources?paid=true')}
-            className="group relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
+            className="group relative rounded-3xl overflow-hidden border border-slate-200 bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[300px] text-white shadow-sm hover:shadow-lg transition-all cursor-pointer"
           >
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -717,21 +717,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           5. FEATURED OPPORTUNITIES GRID (3 columns desktop, 2 tablet, 1 mobile)
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] tracking-tight font-space">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight font-space">
                 Featured Opportunities
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Handpicked, verified notices actively open for application.
             </p>
           </div>
           <button
             onClick={() => onNavigate('/opportunities')}
-            className="text-xs sm:text-sm font-bold text-[#006B3F] dark:text-emerald-400 hover:text-[#005530] dark:hover:text-emerald-300 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer group"
+            className="text-xs sm:text-sm font-bold text-[#006B3F] hover:text-[#005530] flex items-center gap-1.5 self-start sm:self-auto cursor-pointer group"
           >
             <span>View all opportunities</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -756,17 +756,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             ))}
           </div>
         ) : (
-          <div className="bg-slate-50 dark:bg-[#171A21] border border-slate-200 dark:border-slate-800 rounded-3xl p-10 text-center space-y-3">
-            <Compass className="w-10 h-10 text-[#006B3F] dark:text-emerald-400 mx-auto" />
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-10 text-center space-y-3">
+            <Compass className="w-10 h-10 text-[#006B3F] mx-auto" />
+            <h3 className="text-base font-bold text-slate-900 font-space">
               No Opportunities Available Yet
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
               Check back soon for new opportunities or set free alerts to be notified immediately.
             </p>
             <button
               onClick={() => onNavigate('/alerts')}
-              className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B3F] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               Set Opportunity Alerts
             </button>
@@ -779,21 +779,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
          ================================================== */}
       {closingSoon.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#CE1126] animate-ping" />
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] tracking-tight font-space">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight font-space">
                   Closing Soon
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
                 Urgent application windows closing in the near future.
               </p>
             </div>
             <button
               onClick={() => onNavigate('/opportunities')}
-              className="text-xs sm:text-sm font-bold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>View all urgent deadlines</span>
               <ArrowRight className="w-4 h-4" />
@@ -816,35 +816,35 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           7. SUCCESS STORIES (Verified Stories Only / Professional Empty State)
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="border-b border-slate-200 pb-4">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] font-space tracking-tight">
+            <Award className="w-5 h-5 text-[#006B3F]" />
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
               Success Stories
             </h2>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Real people. Real opportunities. Real journeys.
           </p>
         </div>
 
-        {/* Professional Empty State */}
-        <div className="bg-[#F7F8FA] dark:bg-[#171A21] border border-slate-200/90 dark:border-slate-800 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-3xl mx-auto">
-          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#1E232B] border border-slate-200 dark:border-slate-700 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center mx-auto shadow-2xs">
+        {/* Note: Section 10 strictly requires: "If there are no verified stories, DO NOT create fake people. Instead show a beautiful empty state" */}
+        <div className="bg-[#F7F8FA] border border-slate-200/90 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-3xl mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-[#006B3F] flex items-center justify-center mx-auto shadow-2xs">
             <Users className="w-6 h-6" />
           </div>
           <div className="space-y-1.5">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 font-space">
               Success Stories are Coming Soon
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-lg mx-auto">
               We exclusively publish authenticated, verified alumnus journeys. Benefited from an opportunity discovered through Opportunity Ghana?
             </p>
           </div>
           <div className="pt-2">
             <button
               onClick={() => onNavigate('/alerts')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-[#1E232B] border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
             >
               Share Your Journey
             </button>
@@ -857,21 +857,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
          ================================================== */}
       {freeCourses.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-[#F5F7FA] font-space tracking-tight">
+                <BookOpen className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-space tracking-tight">
                   Featured Learning Resources
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
                 Courses, bootcamps, and verified credentials to build high-demand skills in Ghana.
               </p>
             </div>
             <button
               onClick={() => onNavigate('/resources')}
-              className="text-xs sm:text-sm font-bold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#006B3F] hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>View all resources</span>
               <ArrowRight className="w-4 h-4" />
@@ -894,7 +894,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           9. CALL TO ACTION (Your next opportunity could be here)
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-[#003822] via-[#006B3F] to-slate-950 dark:from-[#002416] dark:via-[#00482B] dark:to-[#0B0F17] rounded-3xl p-8 sm:p-12 text-white text-center space-y-6 shadow-xl relative overflow-hidden border border-emerald-800/30 dark:border-emerald-500/20">
+        <div className="bg-gradient-to-br from-[#003822] via-[#006B3F] to-slate-950 rounded-3xl p-8 sm:p-12 text-white text-center space-y-6 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:20px_20px]" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-4">
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#FCD116] font-space">
@@ -919,7 +919,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   placeholder="Enter your email for free alerts"
                   value={alertEmail}
                   onChange={(e) => setAlertEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-[#171A21] text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent dark:border-emerald-500/30 focus:outline-none"
+                  className="flex-1 px-4 py-3 rounded-xl bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
                 <button
                   type="submit"

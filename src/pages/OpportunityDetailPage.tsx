@@ -202,39 +202,39 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
       />
 
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 overflow-x-auto whitespace-nowrap pb-1">
-        <button onClick={() => onNavigate('/')} className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+      <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto whitespace-nowrap pb-1">
+        <button onClick={() => onNavigate('/')} className="hover:text-emerald-700 cursor-pointer">
           Home
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-        <button onClick={() => onNavigate('/opportunities')} className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        <button onClick={() => onNavigate('/opportunities')} className="hover:text-emerald-700 cursor-pointer">
           Opportunities
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
         <button
           onClick={() => onNavigate(`/opportunities?category=${opportunity.category}`)}
-          className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer"
+          className="hover:text-emerald-700 cursor-pointer"
         >
           {opportunity.category}
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-        <span className="text-slate-800 dark:text-slate-200 font-semibold truncate max-w-[200px]">
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        <span className="text-slate-800 font-semibold truncate max-w-[200px]">
           {opportunity.title}
         </span>
       </nav>
 
       {/* CLOSED BANNER - Section 7 requirement */}
       {isClosed && (
-        <div className="p-5 rounded-3xl bg-slate-900 dark:bg-[#131926] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-800 dark:border-slate-700 shadow-md">
+        <div className="p-5 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-800 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-800 dark:bg-[#1E232B] text-amber-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center shrink-0">
               <Archive className="w-5 h-5 text-amber-400" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white font-space">
                 This opportunity has closed.
               </h3>
-              <p className="text-xs text-slate-300 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Applications are no longer being accepted for this cohort. We retain this page for eligibility requirements and past stipend reference.
               </p>
             </div>
@@ -254,7 +254,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         return (
           <div className="space-y-1.5">
             <div
-              className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-xs relative bg-slate-950"
+              className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs relative bg-slate-950"
               style={{ background: media.gradient.cssGradient }}
             >
               {media.imageUrl ? (
@@ -297,12 +297,12 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                     href={opportunity.imageSourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 underline font-medium"
+                    className="text-slate-500 hover:text-emerald-700 underline font-medium"
                   >
                     {opportunity.imageSourceName}
                   </a>
                 ) : (
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500">
                     {opportunity.imageSourceName || media.imageAttribution}
                   </span>
                 )}
@@ -313,18 +313,18 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
       })()}
 
       {/* Hero Header */}
-      <div className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
           <div className="flex items-start gap-4">
             {opportunity.organizationLogo ? (
               <img
                 src={opportunity.organizationLogo}
                 alt={opportunity.organizationName || 'Organization'}
-                className="w-16 h-16 rounded-2xl object-cover border border-slate-100 dark:border-slate-700 shadow-2xs"
+                className="w-16 h-16 rounded-2xl object-cover border border-slate-100 shadow-2xs"
               />
             ) : (
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
-                <Building className="w-8 h-8 text-emerald-700 dark:text-emerald-400" />
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                <Building className="w-8 h-8 text-emerald-700" />
               </div>
             )}
             <div>
@@ -333,14 +333,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 <Badge variant="blue">{opportunity.opportunityType}</Badge>
                 <VerificationBadge status={opportunity.verificationStatus} />
               </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-snug font-space">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug font-space">
                 {opportunity.title}
               </h1>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1.5">
-                <Building className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                <span className="text-slate-800 dark:text-slate-200">{opportunity.organizationName}</span>
-                <span className="text-slate-300 dark:text-slate-600">•</span>
-                <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <p className="text-sm font-semibold text-slate-600 mt-1 flex items-center gap-1.5">
+                <Building className="w-4 h-4 text-slate-400" />
+                <span>{opportunity.organizationName}</span>
+                <span className="text-slate-300">•</span>
+                <MapPin className="w-4 h-4 text-slate-400" />
                 <span>{opportunity.location}</span>
               </p>
             </div>
@@ -353,20 +353,20 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               disabled={isSaving}
               className={`px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
                 isSaved
-                  ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 shadow-2xs'
-                  : 'bg-white dark:bg-[#1E232B] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-2xs'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
               title={isSaved ? 'Remove from bookmarks' : 'Bookmark opportunity'}
               aria-label={isSaved ? 'Remove from bookmarks' : 'Bookmark opportunity'}
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700 dark:fill-emerald-400 text-emerald-700 dark:text-emerald-400' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700 text-emerald-700' : ''}`} />
               <span className="text-xs font-semibold">
                 {isSaved ? 'Saved' : 'Save'}
               </span>
             </button>
             <button
               onClick={handleShare}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E232B] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               title="Copy share link"
             >
               <Share2 className="w-4 h-4" />
@@ -385,7 +385,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             ) : (
               <button
                 disabled
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-xl cursor-not-allowed"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold text-slate-400 bg-slate-100 rounded-xl cursor-not-allowed"
               >
                 <span>Application Closed</span>
               </button>
@@ -394,15 +394,15 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         </div>
 
         {copied && (
-          <div className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-xl font-bold inline-block border border-emerald-200 dark:border-emerald-800">
+          <div className="text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl font-bold inline-block">
             ✓ Link copied to clipboard!
           </div>
         )}
 
         {/* Highlight Grid Specs */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
-            <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">Deadline</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+          <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Deadline</p>
             <div className="mt-1">
               <DeadlineBadge
                 deadline={opportunity.deadline}
@@ -413,30 +413,30 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {opportunity.category === 'Jobs' ? (
             <>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Arrangement</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.workArrangement ? `${opportunity.workArrangement === 'Remote' ? '🌐' : opportunity.workArrangement === 'Hybrid' ? '🔄' : '🏢'} ${opportunity.workArrangement}` : '🏢 On-site'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Employment Type</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.employmentType || 'Full-time'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Salary / Compensation</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate" title={opportunity.salary || 'Salary not disclosed by employer'}>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate" title={opportunity.salary || 'Salary not disclosed by employer'}>
                   {opportunity.salary || 'Salary not disclosed'}
                 </p>
               </div>
             </>
           ) : opportunity.category === 'Internships' ? (
             <>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Compensation</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate" title={opportunity.stipend || opportunity.internshipType || 'Stipend provided'}>
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate" title={opportunity.stipend || opportunity.internshipType || 'Stipend provided'}>
                   {opportunity.internshipType === 'Paid'
                     ? (opportunity.stipend ? `💰 ${opportunity.stipend}` : '💰 Paid Internship')
                     : opportunity.internshipType === 'Unpaid'
@@ -444,36 +444,36 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                     : 'Compensation not specified'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duration</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.duration || 'Standard Placement'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Arrangement</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.workArrangement ? `${opportunity.workArrangement === 'Remote' ? '🌐' : opportunity.workArrangement === 'Hybrid' ? '🔄' : '🏢'} ${opportunity.workArrangement}` : '🏢 On-site'}
                 </p>
               </div>
             </>
           ) : (
             <>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Funding / Pay</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.fundingType || 'Fully Funded / Stipend'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Education Level</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.educationLevel || 'All Qualifications'}
                 </p>
               </div>
-              <div className="p-3 bg-slate-50/80 dark:bg-[#171A21] rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Nationality</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1 truncate">
+                <p className="text-xs font-bold text-slate-900 mt-1 truncate">
                   {opportunity.nationality || 'Ghanaian Citizens'}
                 </p>
               </div>
@@ -487,28 +487,28 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         {/* Left Column: Full Description & Requirements */}
         <div className="lg:col-span-2 space-y-8">
           {/* Detailed Overview */}
-          <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+          <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+            <h2 className="text-lg font-bold text-slate-900 font-space">
               {opportunity.category === 'Jobs' ? 'Position Overview' : opportunity.category === 'Internships' ? 'Internship Overview' : 'About This Opportunity'}
             </h2>
-            <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed space-y-3">
+            <div className="text-sm text-slate-700 leading-relaxed space-y-3">
               <p>{opportunity.description}</p>
             </div>
           </section>
 
           {/* Key Responsibilities */}
           {opportunity.responsibilities && opportunity.responsibilities.length > 0 && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <Briefcase className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
                   Key Responsibilities & Duties
                 </h2>
               </div>
               <ul className="space-y-2.5">
                 {opportunity.responsibilities.map((resp, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-[#006B3F] dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+                    <CheckCircle className="w-4 h-4 text-[#006B3F] shrink-0 mt-0.5" />
                     <span>{resp}</span>
                   </li>
                 ))}
@@ -518,10 +518,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {/* Skills Required */}
           {opportunity.skills && opportunity.skills.length > 0 && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
                   Required Skills & Competencies
                 </h2>
               </div>
@@ -529,7 +529,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 {opportunity.skills.map((skill, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1E232B] text-slate-800 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs hover:bg-[#E8F5EF] dark:hover:bg-emerald-950/60 hover:text-[#006B3F] dark:hover:text-emerald-300 transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200 shadow-2xs hover:bg-[#E8F5EF] hover:text-[#006B3F] transition-colors"
                   >
                     {skill}
                   </span>
@@ -540,17 +540,17 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {/* Benefits */}
           {opportunity.benefits && opportunity.benefits.length > 0 && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <Award className="w-5 h-5 text-emerald-600" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
                   {opportunity.category === 'Jobs' ? 'Compensation & Benefits' : opportunity.category === 'Internships' ? 'Internship Benefits & Learning Outcomes' : 'Benefits & Entitlements'}
                 </h2>
               </div>
               <ul className="space-y-2.5">
                 {opportunity.benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -559,28 +559,28 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           )}
 
           {/* Eligibility & Requirements */}
-          <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+          <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-[#111111] dark:text-[#F5F7FA] font-space">
+                <GraduationCap className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-[#111111] font-space">
                   Who Can Apply (Eligibility)
                 </h2>
               </div>
-              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-500/30">
+              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#E6F0EB] text-[#006B3F] border border-[#006B3F]/20">
                 ✓ Ghana Eligible
               </span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F7F9F8] dark:bg-[#171A21] border border-[#E5E7EB] dark:border-slate-800 space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
-              <p className="font-bold text-[#111111] dark:text-slate-100">
+            <div className="p-4 rounded-2xl bg-[#F7F9F8] border border-[#E5E7EB] space-y-1.5 text-xs text-slate-700">
+              <p className="font-bold text-[#111111]">
                 Target Nationality & Citizenship:
               </p>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600">
                 {opportunity.nationality || 'Ghanaian citizens and permanent residents in Ghana.'}
               </p>
               {opportunity.academicYear && (
-                <p className="pt-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                <p className="pt-1 text-[11px] text-slate-500 font-mono">
                   Official Academic Cycle: <strong>{opportunity.academicYear}</strong>
                 </p>
               )}
@@ -589,8 +589,8 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             {opportunity.requirements && opportunity.requirements.length > 0 && (
               <ul className="space-y-2.5 pt-2">
                 {opportunity.requirements.map((req, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 shrink-0 mt-2" />
+                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] shrink-0 mt-2" />
                     <span>{req}</span>
                   </li>
                 ))}
@@ -600,14 +600,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {/* How to Apply */}
           {opportunity.applicationInstructions && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-[#111111] dark:text-[#F5F7FA] font-space">
+                <FileText className="w-5 h-5 text-[#006B3F]" />
+                <h2 className="text-lg font-bold text-[#111111] font-space">
                   How to Apply (Official Guidelines)
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-[#F7F9F8] dark:bg-[#171A21] p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-[#F7F9F8] p-4 rounded-2xl border border-slate-200/70">
                 {opportunity.applicationInstructions}
               </p>
             </section>
@@ -615,17 +615,17 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {/* Documents Required */}
           {opportunity.documentsRequired && opportunity.documentsRequired.length > 0 && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <FileText className="w-5 h-5 text-amber-600" />
+                <h2 className="text-lg font-bold text-slate-900 font-space">
                   Required Application Documents
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {opportunity.documentsRequired.map((doc, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-[#171A21] border border-slate-200/70 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs font-semibold text-slate-800 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-slate-400" />
                     <span>{doc}</span>
                   </div>
                 ))}
@@ -635,20 +635,20 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
           {/* RECOMMENDED ACTIVE ALTERNATIVES (Section 7 requirement) */}
           {isClosed && alternatives.length > 0 && (
-            <section className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-600" />
                     <span>Recommended Active Alternatives</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Open {opportunity.category} opportunities currently accepting applications.
                   </p>
                 </div>
                 <button
                   onClick={() => onNavigate(`/opportunities?category=${opportunity.category}`)}
-                  className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
+                  className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
                 >
                   View All →
                 </button>
@@ -659,13 +659,13 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                   <div
                     key={alt.id}
                     onClick={() => onNavigate(`/opportunities/${alt.slug || alt.id}`)}
-                    className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-emerald-50/20 dark:hover:bg-slate-800/40 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
+                    className="p-4 rounded-2xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
                   >
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 transition-colors">
+                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition-colors">
                         {alt.title}
                       </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
+                      <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
                         <span>{alt.organizationName}</span>
                         <span>•</span>
                         <span>{alt.location}</span>
@@ -674,7 +674,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
 
                     <div className="flex items-center gap-2 shrink-0">
                       <DeadlineBadge deadline={alt.deadline} compact />
-                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" />
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-700 transition-colors" />
                     </div>
                   </div>
                 ))}
@@ -686,14 +686,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         {/* Right Sidebar */}
         <div className="space-y-6">
           {/* Action Box */}
-          <div className="bg-white dark:bg-[#131926] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-space">
               Application Details
             </h3>
-            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+            <div className="space-y-3 text-xs text-slate-600">
               <div>
-                <span className="text-slate-400 dark:text-slate-400 font-medium block">Application Deadline:</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
+                <span className="text-slate-400 font-medium block">Application Deadline:</span>
+                <span className="font-semibold text-slate-900 font-mono block">
                   {opportunity.isDeadlineSpecified === false ? 'Not specified by employer' : deadlineInfo.formattedDeadline}
                 </span>
                 <div className="mt-1">
@@ -705,20 +705,20 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               </div>
               {opportunity.workArrangement && (
                 <div>
-                  <span className="text-slate-400 dark:text-slate-400 font-medium block">Work Arrangement:</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="text-slate-400 font-medium block">Work Arrangement:</span>
+                  <span className="font-semibold text-slate-800">
                     {opportunity.workArrangement === 'Remote' ? '🌐 Fully Remote' : opportunity.workArrangement === 'Hybrid' ? '🔄 Hybrid (Office & Remote)' : '🏢 On-site'}
                   </span>
                 </div>
               )}
               {opportunity.employerWebsite && (
                 <div>
-                  <span className="text-slate-400 dark:text-slate-400 font-medium block">Employer Website:</span>
+                  <span className="text-slate-400 font-medium block">Employer Website:</span>
                   <a
                     href={opportunity.employerWebsite}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1 mt-0.5 truncate"
+                    className="font-semibold text-[#006B3F] hover:underline flex items-center gap-1 mt-0.5 truncate"
                   >
                     <span className="truncate">{opportunity.employerWebsite.replace(/^https?:\/\//, '')}</span>
                     <ExternalLink className="w-3 h-3 shrink-0" />
@@ -726,18 +726,18 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 </div>
               )}
               <div>
-                <span className="text-slate-400 dark:text-slate-400 font-medium block">Method:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200 capitalize">
+                <span className="text-slate-400 font-medium block">Method:</span>
+                <span className="font-semibold text-slate-800 capitalize">
                   {opportunity.applicationMethod.replace('_', ' ')}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 dark:text-slate-400 font-medium block">Region:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">{opportunity.region}</span>
+                <span className="text-slate-400 font-medium block">Region:</span>
+                <span className="font-semibold text-slate-800">{opportunity.region}</span>
               </div>
               <div>
-                <span className="text-slate-400 dark:text-slate-400 font-medium block">Last Verified:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">
+                <span className="text-slate-400 font-medium block">Last Verified:</span>
+                <span className="font-semibold text-slate-800 font-mono">
                   {opportunity.lastVerifiedAt
                     ? new Date(opportunity.lastVerifiedAt).toLocaleDateString('en-GB')
                     : 'Recently'}
@@ -756,39 +756,39 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                   <span>Apply on Official Portal</span>
                   <ExternalLink className="w-4 h-4" />
                 </a>
-                <p className="text-[10px] text-center text-slate-500 dark:text-slate-400">
+                <p className="text-[10px] text-center text-slate-500">
                   Applications are completed directly through the official provider portal.
                 </p>
               </div>
             ) : (
-              <div className="p-3 bg-slate-100 dark:bg-[#1E232B] rounded-xl text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+              <div className="p-3 bg-slate-100 rounded-xl text-center text-xs font-bold text-slate-500">
                 Application Period Ended
               </div>
             )}
 
             {/* Official Source Reference - Sections 10 & 28 */}
-            <div className="p-3.5 rounded-2xl bg-[#E6F0EB] dark:bg-emerald-950/40 border border-[#006B3F]/25 dark:border-emerald-500/30 text-[11px] text-[#006B3F] dark:text-emerald-300 space-y-2.5">
+            <div className="p-3.5 rounded-2xl bg-[#E6F0EB] border border-[#006B3F]/25 text-[11px] text-[#006B3F] space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-1.5 text-[#006B3F] dark:text-emerald-400">
-                  <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+                <span className="font-bold flex items-center gap-1.5 text-[#006B3F]">
+                  <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
                   Official Source Reference
                 </span>
                 <VerificationBadge status={opportunity.verificationStatus} />
               </div>
 
               <div>
-                <span className="text-slate-600 dark:text-slate-400 block text-[10px] font-medium">Provider / Host Authority:</span>
-                <span className="font-bold text-[#111111] dark:text-slate-100">{opportunity.sourceName || opportunity.organizationName || 'Official Institutional Source'}</span>
+                <span className="text-slate-600 block text-[10px] font-medium">Provider / Host Authority:</span>
+                <span className="font-bold text-[#111111]">{opportunity.sourceName || opportunity.organizationName || 'Official Institutional Source'}</span>
               </div>
 
               {opportunity.sourceUrl && (
-                <div className="pt-1.5 border-t border-[#006B3F]/20 dark:border-emerald-500/20">
-                  <span className="text-slate-600 dark:text-slate-400 block text-[10px] font-medium">Official Notice:</span>
+                <div className="pt-1.5 border-t border-[#006B3F]/20">
+                  <span className="text-slate-600 block text-[10px] font-medium">Official Notice:</span>
                   <a
                     href={opportunity.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#006B3F] dark:text-emerald-400 hover:underline truncate block font-mono font-bold text-[10px]"
+                    className="text-[#006B3F] hover:underline truncate block font-mono font-bold text-[10px]"
                   >
                     {opportunity.sourceUrl}
                   </a>
@@ -796,28 +796,28 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
               )}
 
               {opportunity.lastVerifiedAt && (
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                  Last verified: <strong className="text-slate-800 dark:text-slate-200">{new Date(opportunity.lastVerifiedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                <div className="text-[10px] text-slate-500 font-medium">
+                  Last verified: <strong className="text-slate-800">{new Date(opportunity.lastVerifiedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
                 </div>
               )}
 
               {opportunity.imageSourceName && (
-                <div className="text-[10px] text-slate-400 pt-1 border-t border-[#006B3F]/15 dark:border-emerald-500/20">
-                  Media Source: <span className="text-slate-600 dark:text-slate-400">{opportunity.imageSourceName}</span> {opportunity.imageLicense && `(${opportunity.imageLicense})`}
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-[#006B3F]/15">
+                  Media Source: <span className="text-slate-600">{opportunity.imageSourceName}</span> {opportunity.imageLicense && `(${opportunity.imageLicense})`}
                 </div>
               )}
 
               {opportunity.verificationNotes && (
-                <p className="text-[#006B3F] dark:text-emerald-400 text-[10px] leading-relaxed italic pt-1 border-t border-[#006B3F]/15 dark:border-emerald-500/20">
+                <p className="text-[#006B3F] text-[10px] leading-relaxed italic pt-1 border-t border-[#006B3F]/15">
                   &ldquo;{opportunity.verificationNotes}&rdquo;
                 </p>
               )}
             </div>
 
             {/* Zero fee scam warning */}
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#171A21] border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-1">
-              <div className="flex items-center gap-1 font-bold text-slate-800 dark:text-slate-200">
-                <Info className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+              <div className="flex items-center gap-1 font-bold text-slate-800">
+                <Info className="w-3.5 h-3.5 text-slate-500" />
                 <span>Legitimacy Protection</span>
               </div>
               <p>
@@ -827,11 +827,11 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
           </div>
 
           {/* Report an issue */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 text-center space-y-2">
-            <p className="text-xs text-slate-500 dark:text-slate-400">Notice incorrect info or a broken link?</p>
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 text-center space-y-2">
+            <p className="text-xs text-slate-500">Notice incorrect info or a broken link?</p>
             <button
               onClick={() => onNavigate('/admin/reports')}
-              className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors inline-flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-slate-700 hover:text-rose-600 transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               Report Issue to Editors

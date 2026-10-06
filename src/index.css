@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   --color-ghana-green: #006B3F;
   --color-ghana-green-hover: #005632;
@@ -42,42 +40,9 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
-  .dark, [data-theme="dark"] {
-    color-scheme: dark;
-    --background: #171A21;
-    --background-secondary: #0F1115;
-    --border: #2A303A;
-    --text-primary: #F5F7FA;
-    --text-secondary: #AEB6C2;
-    --text-muted: #64748B;
-    --ghana-green-light: #064E3B;
-    --ghana-gold-light: #3D2900;
-    --ghana-red-light: #3B0D11;
-  }
-
   body {
     background-color: var(--background-secondary);
     color: var(--text-primary);
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  /* Form controls default dark styling for seamless compatibility */
-  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"]),
-  .dark select,
-  .dark textarea {
-    background-color: #171A21;
-    color: #F5F7FA;
-    border-color: #2A303A;
-  }
-
-  .dark input::placeholder,
-  .dark textarea::placeholder {
-    color: #64748B;
-  }
-
-  .dark option {
-    background-color: #171A21;
-    color: #F5F7FA;
   }
 }
 
@@ -107,16 +72,6 @@
 }
 .btn-ghana-secondary:hover {
   background-color: #E6F0EB;
-}
-
-.dark .btn-ghana-secondary {
-  background-color: #131926;
-  color: #34D399;
-  border: 1.5px solid #059669;
-}
-.dark .btn-ghana-secondary:hover {
-  background-color: #064E3B;
-  color: #6EE7B7;
 }
 
 .btn-ghana-accent {

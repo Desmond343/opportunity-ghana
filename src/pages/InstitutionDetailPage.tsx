@@ -39,11 +39,11 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
 
   if (!institution) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#131926] p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center max-w-md">
-          <Building2 className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Institution Not Found</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl border border-slate-200 text-center max-w-md">
+          <Building2 className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Institution Not Found</h2>
+          <p className="text-sm text-slate-500 mb-6">
             The requested tertiary institution could not be located in the verified directory.
           </p>
           <button
@@ -71,13 +71,13 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-150">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between gap-4 mb-6">
           <button
             onClick={() => onNavigate('/institutions')}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-emerald-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to All Institutions
@@ -86,9 +86,9 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors"
             >
-              <Share2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <Share2 className="w-3.5 h-3.5 text-slate-500" />
               {copiedLink ? 'Copied Link!' : 'Share'}
             </button>
 
@@ -96,18 +96,18 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
               onClick={handleToggleSave}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                 isSaved
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800'
-                  : 'bg-white dark:bg-[#131926] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-emerald-700 dark:fill-emerald-400' : ''}`} />
+              <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-emerald-700' : ''}`} />
               {isSaved ? 'Saved' : 'Save'}
             </button>
           </div>
         </div>
 
         {/* Hero Card */}
-        <div className="relative bg-white dark:bg-[#131926] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8 mb-8 overflow-hidden">
+        <div className="relative bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8 overflow-hidden">
           {media && (
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
               <img
@@ -124,37 +124,41 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 }}
               />
               <div
-                className="absolute inset-0 bg-white/90 dark:bg-[#131926]/90"
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.95) 100%)',
+                }}
               />
             </div>
           )}
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-                  <Building2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+                  <Building2 className="w-3.5 h-3.5 text-slate-600" />
                   {institution.institutionType}
                 </span>
 
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                  <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
                   GTEC Verified & Accredited
                 </span>
 
                 {institution.isChartered && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                    <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                    <Award className="w-3.5 h-3.5 text-amber-600" />
                     Presidential Charter
                   </span>
                 )}
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
                   {institution.name} ({institution.shortName})
                 </h1>
-                <p className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mt-2">
-                  <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                <p className="flex items-center gap-2 text-sm text-slate-500 mt-2">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                   <span>
                     {institution.location.campus} • {institution.location.city},{' '}
                     {institution.location.region} Region
@@ -162,7 +166,7 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
                 {institution.accreditationDetails}
               </p>
             </div>
@@ -183,9 +187,9 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 href={institution.officialWebsiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors text-center"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-colors text-center"
               >
-                <Globe className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                <Globe className="w-3.5 h-3.5 text-slate-600" />
                 Official Website
               </a>
             </div>
@@ -194,9 +198,9 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
 
         {/* Warning Notice if published */}
         {institution.highlightNotice && (
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-xl p-4 mb-8 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
-            <div className="text-xs sm:text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="text-xs sm:text-sm text-amber-900 leading-relaxed">
               <span className="font-bold">Applicant Notice: </span>
               {institution.highlightNotice}
             </div>
@@ -204,13 +208,13 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 gap-2 sm:gap-4 overflow-x-auto text-sm font-semibold">
+        <div className="flex border-b border-slate-200 mb-6 gap-2 sm:gap-4 overflow-x-auto text-sm font-semibold">
           <button
             onClick={() => setActiveTab('admissions')}
             className={`pb-3 px-2 sm:px-3 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'admissions'
-                ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             Admissions & Deadlines ({institution.admissionCycles.length})
@@ -219,8 +223,8 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
             onClick={() => setActiveTab('programmes')}
             className={`pb-3 px-2 sm:px-3 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'programmes'
-                ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             Programmes & Cut-Offs
@@ -229,8 +233,8 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
             onClick={() => setActiveTab('requirements')}
             className={`pb-3 px-2 sm:px-3 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'requirements'
-                ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             Entry Requirements
@@ -239,8 +243,8 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
             onClick={() => setActiveTab('application')}
             className={`pb-3 px-2 sm:px-3 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'application'
-                ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             How to Apply & Fees
@@ -256,75 +260,75 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 return (
                   <div
                     key={cycle.id}
-                    className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs flex flex-col justify-between"
+                    className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded">
+                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded">
                           {cycle.category}
                         </span>
                         {cycle.status === 'OPEN' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
                             Open
                           </span>
                         )}
                         {cycle.status === 'CLOSING_SOON' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-amber-100 text-amber-800">
                             Closing Soon
                           </span>
                         )}
                         {cycle.status === 'CLOSED' && (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-600">
                             Closed
                           </span>
                         )}
                       </div>
 
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{cycle.title}</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">{cycle.description}</p>
+                      <h3 className="text-base font-bold text-slate-900 mb-2">{cycle.title}</h3>
+                      <p className="text-xs text-slate-600 mb-4">{cycle.description}</p>
 
                       {/* Deadline Box */}
-                      <div className="bg-slate-50 dark:bg-[#0B0F17] rounded-lg p-3.5 border border-slate-200/80 dark:border-slate-800 mb-4 space-y-2">
+                      <div className="bg-slate-50 rounded-lg p-3.5 border border-slate-200/80 mb-4 space-y-2">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500 dark:text-slate-400">Academic Year:</span>
-                          <span className="font-semibold text-slate-800 dark:text-slate-200">{cycle.academicYear}</span>
+                          <span className="text-slate-500">Academic Year:</span>
+                          <span className="font-semibold text-slate-800">{cycle.academicYear}</span>
                         </div>
 
                         {cycle.applicationOpenDate && (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400">Applications Opened:</span>
-                            <span className="font-medium text-slate-700 dark:text-slate-300">{cycle.applicationOpenDate}</span>
+                            <span className="text-slate-500">Applications Opened:</span>
+                            <span className="font-medium text-slate-700">{cycle.applicationOpenDate}</span>
                           </div>
                         )}
 
                         {cycle.applicationCloseDate && (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400">
+                            <span className="text-slate-500">
                               {cycle.isExtended ? 'Extended Deadline:' : 'Application Deadline:'}
                             </span>
-                            <span className="font-bold text-slate-900 dark:text-white">
+                            <span className="font-bold text-slate-900">
                               {cycle.extendedDeadline || cycle.applicationCloseDate}
                             </span>
                           </div>
                         )}
 
                         {cycle.originalDeadline && cycle.isExtended && (
-                          <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+                          <div className="flex items-center justify-between text-xs text-slate-400">
                             <span>Original Deadline:</span>
                             <span className="line-through">{cycle.originalDeadline}</span>
                           </div>
                         )}
 
                         {deadlineInfo && (
-                          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-                            <span className="text-slate-600 dark:text-slate-400 font-medium">Time Remaining:</span>
+                          <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+                            <span className="text-slate-600 font-medium">Time Remaining:</span>
                             <span
                               className={`font-bold ${
                                 deadlineInfo.isClosingSoon
-                                  ? 'text-amber-700 dark:text-amber-400'
+                                  ? 'text-amber-700'
                                   : deadlineInfo.isClosed
-                                  ? 'text-slate-500 dark:text-slate-400'
-                                  : 'text-emerald-700 dark:text-emerald-400'
+                                  ? 'text-slate-500'
+                                  : 'text-emerald-700'
                               }`}
                             >
                               {deadlineInfo.label}
@@ -335,9 +339,9 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
 
                       {/* Voucher Fee */}
                       {cycle.feeInfo && (
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-4 space-y-1">
-                          <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200">
-                            <CreditCard className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                        <div className="text-xs text-slate-600 mb-4 space-y-1">
+                          <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                            <CreditCard className="w-3.5 h-3.5 text-slate-500" />
                             <span>
                               Application Fee:{' '}
                               {cycle.feeInfo.amountGHS
@@ -346,7 +350,7 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                               {cycle.feeInfo.amountUSD ? ` / US$${cycle.feeInfo.amountUSD}` : ''}
                             </span>
                           </div>
-                          <p className="text-slate-500 dark:text-slate-400">{cycle.feeInfo.voucherVendor}</p>
+                          <p className="text-slate-500">{cycle.feeInfo.voucherVendor}</p>
                         </div>
                       )}
                     </div>
@@ -372,17 +376,17 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
           <div className="space-y-8">
             {/* Cut-Off Points Table */}
             {institution.publishedCutOffs.length > 0 && (
-              <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+              <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-base font-bold text-slate-900">
                       Officially Published Cut-Off Points
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-500">
                       Authoritative minimum aggregate cut-offs based on recent admissions
                     </p>
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700">
                     Academic Year {institution.publishedCutOffs[0]?.academicYear}
                   </span>
                 </div>
@@ -390,20 +394,20 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F17] text-slate-600 dark:text-slate-300 uppercase text-[11px] tracking-wider">
+                      <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider">
                         <th className="py-2.5 px-3">Programme</th>
                         <th className="py-2.5 px-3">Faculty / College</th>
                         <th className="py-2.5 px-3">Degree</th>
-                        <th className="py-2.5 px-3 font-bold text-emerald-800 dark:text-emerald-400">Cut-Off Aggregate</th>
+                        <th className="py-2.5 px-3 font-bold text-emerald-800">Cut-Off Aggregate</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-100">
                       {institution.publishedCutOffs.map((cut, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
-                          <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">{cut.programme}</td>
-                          <td className="py-3 px-3 text-slate-600 dark:text-slate-300">{cut.faculty}</td>
-                          <td className="py-3 px-3 text-slate-500 dark:text-slate-400">{cut.degreeType}</td>
-                          <td className="py-3 px-3 font-bold text-emerald-700 dark:text-emerald-400">
+                        <tr key={idx} className="hover:bg-slate-50/70">
+                          <td className="py-3 px-3 font-semibold text-slate-900">{cut.programme}</td>
+                          <td className="py-3 px-3 text-slate-600">{cut.faculty}</td>
+                          <td className="py-3 px-3 text-slate-500">{cut.degreeType}</td>
+                          <td className="py-3 px-3 font-bold text-emerald-700">
                             Aggregate {cut.cutOffPoint}
                           </td>
                         </tr>
@@ -415,15 +419,15 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
             )}
 
             {/* Featured Programmes */}
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">Featured Programmes</h3>
+                <h3 className="text-base font-bold text-slate-900">Featured Programmes</h3>
                 {institution.programmesCatalogueUrl && (
                   <a
                     href={institution.programmesCatalogueUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
                   >
                     View Official Full Programme List <ExternalLink className="w-3 h-3" />
                   </a>
@@ -432,24 +436,24 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {institution.programmesSummary.featuredProgrammes.map((prog, idx) => (
-                  <div key={idx} className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F17]">
-                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase block mb-1">
+                  <div key={idx} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <span className="text-[11px] font-bold text-emerald-700 uppercase block mb-1">
                       {prog.level} • {prog.durationYears} Years
                     </span>
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mb-1">{prog.name}</h4>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block">{prog.faculty}</span>
+                    <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-1">{prog.name}</h4>
+                    <span className="text-[11px] text-slate-500 block">{prog.faculty}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Faculties */}
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">Colleges & Faculties</h3>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+              <h3 className="text-base font-bold text-slate-900 mb-3">Colleges & Faculties</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700">
                 {institution.programmesSummary.faculties.map((fac, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{fac}</span>
                   </li>
                 ))}
@@ -461,54 +465,54 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
         {/* Tab 3: Entry Requirements */}
         {activeTab === 'requirements' && (
           <div className="space-y-6">
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-5">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                <h3 className="text-base font-bold text-slate-900 mb-1">
                   WASSCE & SSSCE General Entry Requirements
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                <p className="text-xs text-slate-500 mb-3">
                   Credits in 3 core subjects plus 3 elective subjects
                 </p>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
                   {institution.entryRequirements.generalWassce.map((req, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{req}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Mature Applicants (25+ Years)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <div className="pt-4 border-t border-slate-100">
+                <h4 className="text-sm font-bold text-slate-900 mb-2">Mature Applicants (25+ Years)</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
                   {institution.entryRequirements.matureApplicants.map((req, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{req}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Diploma & HND Top-Up Holders</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <div className="pt-4 border-t border-slate-100">
+                <h4 className="text-sm font-bold text-slate-900 mb-2">Diploma & HND Top-Up Holders</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
                   {institution.entryRequirements.diplomaHndHolders.map((req, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{req}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">International Candidates</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <div className="pt-4 border-t border-slate-100">
+                <h4 className="text-sm font-bold text-slate-900 mb-2">International Candidates</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
                   {institution.entryRequirements.internationalApplicants.map((req, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{req}</span>
                     </li>
                   ))}
@@ -522,8 +526,8 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
         {activeTab === 'application' && (
           <div className="space-y-6">
             {/* Step by Step */}
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+              <h3 className="text-base font-bold text-slate-900 mb-4">
                 Step-by-Step Application Instructions
               </h3>
               <ol className="space-y-4">
@@ -532,19 +536,19 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{step}</span>
+                    <span className="text-xs sm:text-sm text-slate-700 leading-relaxed">{step}</span>
                   </li>
                 ))}
               </ol>
             </div>
 
             {/* Required Documents */}
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">Required Documents</h3>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+              <h3 className="text-base font-bold text-slate-900 mb-3">Required Documents</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-slate-700">
                 {institution.requiredDocuments.map((doc, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <FileText className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{doc}</span>
                   </li>
                 ))}
@@ -552,17 +556,17 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
             </div>
 
             {/* Contact & Verification */}
-            <div className="bg-white dark:bg-[#131926] rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">Official Institution Contacts</h3>
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+              <h3 className="text-base font-bold text-slate-900 mb-3">Official Institution Contacts</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                 <div>
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] uppercase tracking-wider mb-1">
+                  <span className="text-slate-400 block text-[11px] uppercase tracking-wider mb-1">
                     Admissions Phone
                   </span>
                   <div className="space-y-1">
                     {institution.contact.admissionsPhone.map((ph, idx) => (
-                      <p key={idx} className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                      <p key={idx} className="font-semibold text-slate-800 flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
                         {ph}
                       </p>
                     ))}
@@ -570,13 +574,13 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 </div>
 
                 <div>
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] uppercase tracking-wider mb-1">
+                  <span className="text-slate-400 block text-[11px] uppercase tracking-wider mb-1">
                     Admissions Email
                   </span>
                   <div className="space-y-1">
                     {institution.contact.admissionsEmail.map((em, idx) => (
-                      <p key={idx} className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                      <p key={idx} className="font-semibold text-slate-800 flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-slate-400" />
                         {em}
                       </p>
                     ))}
@@ -584,7 +588,7 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 flex-wrap gap-2">
+              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 flex-wrap gap-2">
                 <span>Verified by: {institution.verifiedBy}</span>
                 <span>Last Updated: {institution.lastUpdated}</span>
               </div>

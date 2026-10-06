@@ -113,16 +113,16 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
       {/* Guest Mode Notice Banner */}
       {!currentUser && !authLoading && (
-        <div className="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/90 dark:border-amber-900/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+        <div className="bg-amber-50/90 border border-amber-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
-              <Bookmark className="w-5 h-5 fill-amber-700 dark:fill-amber-400" />
+            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+              <Bookmark className="w-5 h-5 fill-amber-700" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-950 dark:text-amber-200 font-space">
+              <h4 className="text-sm font-bold text-amber-950 font-space">
                 You are viewing device-stored bookmarks
               </h4>
-              <p className="text-xs text-amber-800/90 dark:text-amber-300/80 mt-0.5 leading-relaxed">
+              <p className="text-xs text-amber-800/90 mt-0.5 leading-relaxed">
                 Sign in or create a free Opportunity Ghana account to automatically sync your saved scholarships, jobs, and deadlines across all your devices.
               </p>
             </div>
@@ -137,7 +137,7 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
             </button>
             <button
               onClick={() => onNavigate('/signup')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-[#1E232B] hover:bg-amber-100/60 dark:hover:bg-slate-800 border border-amber-300 dark:border-amber-800/70 text-amber-900 dark:text-amber-300 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-amber-100/60 border border-amber-300 text-amber-900 text-xs font-bold rounded-xl transition-colors cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>Register</span>
@@ -147,16 +147,16 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold mb-2">
-            <Bookmark className="w-3.5 h-3.5 fill-emerald-700 dark:fill-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-2">
+            <Bookmark className="w-3.5 h-3.5 fill-emerald-700" />
             <span>Authoritative Bookmarks</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-space">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
             Saved Opportunities &amp; Bookmarks
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             Keep track of deadlines, scholarships, grants, and internships you want to apply for.
           </p>
         </div>
@@ -166,35 +166,35 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
             onClick={() => loadSavedData(true)}
             disabled={isLoading}
             title="Refresh saved items from cloud"
-            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             <span className="hidden sm:inline">Sync</span>
           </button>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl shadow-2xs">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
             <span>Total Saved:</span>
-            <span className="font-extrabold text-emerald-700 dark:text-emerald-400 text-sm">{items.length}</span>
+            <span className="font-extrabold text-emerald-700 text-sm">{items.length}</span>
           </div>
         </div>
       </div>
 
       {/* Filters and Search Bar (only show if items exist) */}
       {items.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#131926] p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search your saved opportunities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0B0F17] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#1E232B] focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
             />
           </div>
 
           {availableCategories.length > 2 && (
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-              <Filter className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0 ml-1" />
+              <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
               {availableCategories.map((cat) => (
                 <button
                   key={cat}
@@ -202,7 +202,7 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                     selectedCategory === cat
                       ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
                   {cat}
@@ -219,30 +219,30 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
           {[1, 2, 3].map((idx) => (
             <div
               key={idx}
-              className="bg-white dark:bg-[#131926] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-4 animate-pulse"
+              className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4 animate-pulse"
             >
               <div className="flex items-center justify-between">
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-28" />
-                <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                <div className="h-4 bg-slate-200 rounded w-28" />
+                <div className="w-6 h-6 bg-slate-200 rounded-lg" />
               </div>
-              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-lg w-5/6" />
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20" />
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24" />
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16" />
+              <div className="h-6 bg-slate-200 rounded-lg w-5/6" />
+              <div className="h-4 bg-slate-200 rounded w-20" />
+              <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
+                <div className="h-4 bg-slate-200 rounded w-24" />
+                <div className="h-4 bg-slate-200 rounded w-16" />
               </div>
             </div>
           ))}
         </div>
       ) : items.length === 0 ? (
         /* Empty State */
-        <div className="text-center py-16 px-4 bg-white dark:bg-[#131926] rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-2xs space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-xs">
+        <div className="text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-slate-200 shadow-2xs space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
             <Bookmark className="w-8 h-8" />
           </div>
           <div className="max-w-md mx-auto space-y-1">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white font-space">No saved opportunities yet</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <h3 className="text-lg font-bold text-slate-900 font-space">No saved opportunities yet</h3>
+            <p className="text-xs text-slate-500">
               When browsing scholarships, jobs, or programs, tap the bookmark icon on any card to save it here for fast tracking, deadline reminders, and offline access.
             </p>
           </div>
@@ -256,10 +256,10 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
         </div>
       ) : filteredItems.length === 0 ? (
         /* No Search Match State */
-        <div className="text-center py-12 px-4 bg-white dark:bg-[#131926] rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-          <Compass className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto" />
-          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No matching bookmarks found</h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 space-y-3">
+          <Compass className="w-8 h-8 text-slate-400 mx-auto" />
+          <h4 className="text-sm font-bold text-slate-800">No matching bookmarks found</h4>
+          <p className="text-xs text-slate-500">
             No saved opportunities match your search query &ldquo;{searchQuery}&rdquo;.
           </p>
           <button
@@ -267,7 +267,7 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
               setSearchQuery('');
               setSelectedCategory('All');
             }}
-            className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 underline cursor-pointer"
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
           >
             Reset Filters
           </button>
@@ -279,12 +279,12 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
             <div
               key={item.id}
               onClick={() => onNavigate(`/opportunities/${item.slug}`)}
-              className="group bg-white dark:bg-[#131926] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-500/40 transition-all cursor-pointer flex flex-col justify-between"
+              className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md hover:border-emerald-500/40 transition-all cursor-pointer flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    <Building className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                    <Building className="w-3.5 h-3.5 text-slate-400" />
                     <span className="truncate max-w-[180px]">{item.organizationName || 'Verified Partner'}</span>
                   </div>
                   <button
@@ -292,33 +292,33 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
                     disabled={removingId === item.id}
                     title="Remove from saved"
                     aria-label="Remove from saved"
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 font-space">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 font-space">
                   {item.title}
                 </h3>
 
                 <div className="flex flex-wrap items-center gap-1.5">
                   {item.category && (
-                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 text-[11px] font-bold">
+                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold">
                       {item.category}
                     </span>
                   )}
                   {item.type && (
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-medium">
+                    <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">
                       {item.type}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
                 <DeadlineBadge deadline={item.deadline} compact />
-                <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span className="font-bold text-emerald-700 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                   View <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>
