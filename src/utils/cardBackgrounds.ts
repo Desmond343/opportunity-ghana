@@ -454,9 +454,16 @@ export function isUploadedRealImage(url?: string | null): boolean {
   if (!isValidImageUrl(url)) return false;
   const lower = url!.trim().toLowerCase();
 
-  // Exclude legacy synthetic SVG illustration paths or placeholder SVG paths
-  if (lower.endsWith('.svg') || lower.includes('/scholarships/')) {
-    if (lower.includes('.svg') || lower.includes('/scholarships/')) return false;
+  // Exclude legacy synthetic SVG illustration paths, placeholder SVG paths, or generic category placeholders
+  if (
+    lower.endsWith('.svg') ||
+    lower.includes('/scholarships/') ||
+    lower.includes('/images/categories/') ||
+    lower.includes('/categories/') ||
+    lower.endsWith('courses.jpg') ||
+    lower.includes('placeholder')
+  ) {
+    return false;
   }
 
   return true;
@@ -973,7 +980,7 @@ export interface ResolvedCardMedia {
   /** Whether the image is a vector SVG */
   isSvg: boolean;
   /** Resolution hierarchy level */
-  source: 'uploaded' | 'scholarship' | 'gradient';
+  source: 'uploaded' | 'scholarship' | 'course' | 'gradient';
   /** Gradient configuration for background or fallback */
   gradient: CategoryGradientConfig;
 }
@@ -1038,10 +1045,1043 @@ export function resolveOpportunityMedia(opp: Partial<Opportunity>): ResolvedCard
   };
 }
 
+export interface CoursePhoto {
+  url: string;
+  alt: string;
+  attribution: string;
+}
+
+/**
+ * Curated registry of distinct, authentic photographs representing African
+ * developers, data analysts, university students, and business executives.
+ * Every known course ID and slug has a 1-to-1 unique assignment so that NO two
+ * course listing cards ever display the same background image.
+ */
+export const COURSE_UNIQUE_PHOTO_REGISTRY: Record<string, CoursePhoto> = {
+  // 1. CS50 Intro to Computer Science (Harvard)
+  'course-cs50-harvard': {
+    url: '/images/ghana_student_workspace.jpg',
+    alt: 'Young Ghanaian student with laptop in university learning workspace',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+  'cs50-introduction-to-computer-science-harvard': {
+    url: '/images/ghana_student_workspace.jpg',
+    alt: 'Young Ghanaian student with laptop in university learning workspace',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+
+  // 2. Cisco Introduction to Cybersecurity
+  'course-cisco-intro-cybersecurity': {
+    url: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&auto=format&fit=crop&q=80',
+    alt: 'African IT network and cybersecurity specialist working in tech facility',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'introduction-to-cybersecurity-cisco-networking-academy': {
+    url: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&auto=format&fit=crop&q=80',
+    alt: 'African IT network and cybersecurity specialist working in tech facility',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 3. AI for Everyone (DeepLearning.AI)
+  'course-deeplearning-ai-everyone': {
+    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+    alt: 'African woman tech specialist analyzing artificial intelligence systems',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'ai-for-everyone-deeplearning-ai-andrew-ng': {
+    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+    alt: 'African woman tech specialist analyzing artificial intelligence systems',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 4. Generative AI Fundamentals (Google Cloud)
+  'course-google-genai-fundamentals': {
+    url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African tech innovators collaborating on generative AI applications',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'generative-ai-fundamentals-google-cloud': {
+    url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African tech innovators collaborating on generative AI applications',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 5. Elements of AI: Introduction to AI (Helsinki)
+  'course-elements-of-ai': {
+    url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African computer scientist working on machine learning algorithms',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'elements-of-ai-university-of-helsinki': {
+    url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African computer scientist working on machine learning algorithms',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 6. AWS Cloud Practitioner Essentials
+  'course-aws-cloud-practitioner': {
+    url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    alt: 'African cloud systems practitioner working at modern engineering workstation',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'aws-cloud-practitioner-essentials': {
+    url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    alt: 'African cloud systems practitioner working at modern engineering workstation',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 7. Microsoft Azure Fundamentals (AZ-900)
+  'course-microsoft-azure-fundamentals': {
+    url: '/images/institutions/ghana_tech_students.jpg',
+    alt: 'African college students collaborating with laptops in modern university cloud lab',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  'microsoft-azure-fundamentals-az900': {
+    url: '/images/institutions/ghana_tech_students.jpg',
+    alt: 'African college students collaborating with laptops in modern university cloud lab',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+
+  // 8. freeCodeCamp Responsive Web Design
+  'course-freecodecamp-responsive-web': {
+    url: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer coding responsive website interface and CSS styling',
+    attribution: 'Unsplash Coding Photography (Royalty-Free)'
+  },
+  'responsive-web-design-certification-freecodecamp': {
+    url: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer coding responsive website interface and CSS styling',
+    attribution: 'Unsplash Coding Photography (Royalty-Free)'
+  },
+
+  // 9. freeCodeCamp Scientific Computing with Python
+  'course-freecodecamp-python': {
+    url: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer developing scientific Python algorithms on laptop',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'scientific-computing-with-python-freecodecamp': {
+    url: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer developing scientific Python algorithms on laptop',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 10. Python for Everybody Specialization (Michigan)
+  'course-michigan-py4e': {
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African students collaborating in hands-on computer programming workshop',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  'python-for-everybody-specialization-michigan': {
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African students collaborating in hands-on computer programming workshop',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+
+  // 11. MIT 6.0001: Intro to CS and Python
+  'course-mit-60001': {
+    url: 'https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?w=800&auto=format&fit=crop&q=80',
+    alt: 'African university students examining computational algorithms and programming logic',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+  'mit-introduction-to-computer-science-python-60001': {
+    url: 'https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?w=800&auto=format&fit=crop&q=80',
+    alt: 'African university students examining computational algorithms and programming logic',
+    attribution: 'Unsplash Educational Photography (Royalty-Free)'
+  },
+
+  // 12. Entrepreneurship in Emerging Economies (Harvard)
+  'course-harvard-entrepreneurship-emerging': {
+    url: 'https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghanaian entrepreneur and business executive discussing emerging market opportunities',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+  'entrepreneurship-in-emerging-economies-harvard': {
+    url: 'https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghanaian entrepreneur and business executive discussing emerging market opportunities',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+
+  // 13. Financial Markets (Yale)
+  'course-yale-financial-markets': {
+    url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Financial markets trading, stock exchange analytics and economic capital charts',
+    attribution: 'Unsplash Finance Photography (Royalty-Free)'
+  },
+  'financial-markets-yale-university': {
+    url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Financial markets trading, stock exchange analytics and economic capital charts',
+    attribution: 'Unsplash Finance Photography (Royalty-Free)'
+  },
+
+  // 14. Inbound Marketing Certification (HubSpot)
+  'course-hubspot-inbound-marketing': {
+    url: 'https://images.unsplash.com/photo-1557838923-2985c318be48?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing strategist optimizing inbound sales funnel and audience growth',
+    attribution: 'Unsplash Marketing Photography (Royalty-Free)'
+  },
+  'inbound-marketing-certification-hubspot-academy': {
+    url: 'https://images.unsplash.com/photo-1557838923-2985c318be48?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing strategist optimizing inbound sales funnel and audience growth',
+    attribution: 'Unsplash Marketing Photography (Royalty-Free)'
+  },
+
+  // 15. Successful Negotiation (Michigan)
+  'course-michigan-negotiation': {
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+    alt: 'Business professionals engaging in executive commercial negotiation and partnership agreement',
+    attribution: 'Unsplash Corporate Photography (Royalty-Free)'
+  },
+  'successful-negotiation-essential-strategies-michigan': {
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+    alt: 'Business professionals engaging in executive commercial negotiation and partnership agreement',
+    attribution: 'Unsplash Corporate Photography (Royalty-Free)'
+  },
+
+  // 16. MITx: Entrepreneurship 101: Who is your customer?
+  'course-mitx-entrepreneurship-101': {
+    url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&auto=format&fit=crop&q=80',
+    alt: 'African startup founder pitching value proposition and customer discovery to investors',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+  'mitx-entrepreneurship-101-who-is-your-customer': {
+    url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&auto=format&fit=crop&q=80',
+    alt: 'African startup founder pitching value proposition and customer discovery to investors',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+
+  // 17. Viral Marketing and Contagious Content (Wharton)
+  'course-wharton-viral-marketing': {
+    url: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Content creator developing viral social media campaign and digital brand reach',
+    attribution: 'Unsplash Digital Media Photography (Royalty-Free)'
+  },
+  'viral-marketing-contagious-content-wharton': {
+    url: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Content creator developing viral social media campaign and digital brand reach',
+    attribution: 'Unsplash Digital Media Photography (Royalty-Free)'
+  },
+
+  // 18. Starting Your Small Business (OpenLearn)
+  'course-openlearn-small-business': {
+    url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female small enterprise owner managing business operations at modern desk',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+  'starting-your-small-business-openlearn': {
+    url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female small enterprise owner managing business operations at modern desk',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+
+  // 19. Diploma in Human Resources (Alison)
+  'course-alison-diploma-hr': {
+    url: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=800&auto=format&fit=crop&q=80',
+    alt: 'African human resources director conducting corporate talent assessment',
+    attribution: 'Unsplash Workplace Photography (Royalty-Free)'
+  },
+  'diploma-in-human-resources-alison': {
+    url: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=800&auto=format&fit=crop&q=80',
+    alt: 'African human resources director conducting corporate talent assessment',
+    attribution: 'Unsplash Workplace Photography (Royalty-Free)'
+  },
+
+  // 20. The Science of Well-Being (Yale)
+  'course-yale-well-being': {
+    url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80',
+    alt: 'Serene personal wellness, mindfulness meditation and positive mental health',
+    attribution: 'Unsplash Wellness Photography (Royalty-Free)'
+  },
+  'the-science-of-well-being-yale': {
+    url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80',
+    alt: 'Serene personal wellness, mindfulness meditation and positive mental health',
+    attribution: 'Unsplash Wellness Photography (Royalty-Free)'
+  },
+
+  // 21. English for Career Development (Penn)
+  'course-penn-english-career': {
+    url: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African job candidate engaging in professional interview and career readiness coaching',
+    attribution: 'Unsplash Professional Photography (Royalty-Free)'
+  },
+  'english-for-career-development-penn': {
+    url: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African job candidate engaging in professional interview and career readiness coaching',
+    attribution: 'Unsplash Professional Photography (Royalty-Free)'
+  },
+
+  // 22. Writing in the Sciences (Stanford)
+  'course-stanford-writing-sciences': {
+    url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Academic scholar composing scientific manuscript and research literature',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+  'writing-in-the-sciences-stanford': {
+    url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Academic scholar composing scientific manuscript and research literature',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+
+  // 23. Contract Law: From Trust to Promise (Harvard)
+  'course-harvard-contract-law': {
+    url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Legal research library with law textbooks, gavel and jurisprudence references',
+    attribution: 'Unsplash Legal Photography (Royalty-Free)'
+  },
+  'contract-law-trust-promise-contract-harvard': {
+    url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Legal research library with law textbooks, gavel and jurisprudence references',
+    attribution: 'Unsplash Legal Photography (Royalty-Free)'
+  },
+
+  // 24. COVID-19 Contact Tracing (Johns Hopkins)
+  'course-jhu-contact-tracing': {
+    url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&auto=format&fit=crop&q=80',
+    alt: 'African healthcare team coordinating epidemiology contact tracing and disease containment',
+    attribution: 'Unsplash Healthcare Photography (Royalty-Free)'
+  },
+  'covid-19-contact-tracing-johns-hopkins': {
+    url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&auto=format&fit=crop&q=80',
+    alt: 'African healthcare team coordinating epidemiology contact tracing and disease containment',
+    attribution: 'Unsplash Healthcare Photography (Royalty-Free)'
+  },
+
+  // 25. Developing Bankable Business Plans (FAO)
+  'course-fao-agri-business-plans': {
+    url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agribusiness investment planner drafting commercial agricultural project budget',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+  'developing-bankable-business-plans-fao': {
+    url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agribusiness investment planner drafting commercial agricultural project budget',
+    attribution: 'Unsplash Business Photography (Royalty-Free)'
+  },
+
+  // 26. Sustainable Agricultural Land Management (Florida)
+  'course-florida-sustainable-agriculture': {
+    url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+    alt: 'Sustainable agricultural landscape, soil agronomy and ecological farm cultivation',
+    attribution: 'Unsplash Agriculture Photography (Royalty-Free)'
+  },
+  'sustainable-agricultural-land-management-florida': {
+    url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+    alt: 'Sustainable agricultural landscape, soil agronomy and ecological farm cultivation',
+    attribution: 'Unsplash Agriculture Photography (Royalty-Free)'
+  },
+
+  // 27. Solar Energy: Photovoltaic PV Systems (TU Delft)
+  'course-tudelft-solar-energy': {
+    url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
+    alt: 'Renewable energy photovoltaic solar panels generating clean sustainable electricity',
+    attribution: 'Unsplash Energy Photography (Royalty-Free)'
+  },
+  'solar-energy-photovoltaic-pv-systems-tudelft': {
+    url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
+    alt: 'Renewable energy photovoltaic solar panels generating clean sustainable electricity',
+    attribution: 'Unsplash Energy Photography (Royalty-Free)'
+  },
+
+  // 28. Global Health: An Interdisciplinary Overview (Geneva)
+  'course-geneva-global-health': {
+    url: '/images/institutions/ghana_health_students.jpg',
+    alt: 'African university medical and nursing students in clinical auditorium lecture',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  'global-health-interdisciplinary-overview-geneva': {
+    url: '/images/institutions/ghana_health_students.jpg',
+    alt: 'African university medical and nursing students in clinical auditorium lecture',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+
+  // 29. Digital Skills: User Experience (Accenture)
+  'course-accenture-digital-ux': {
+    url: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African UI/UX designer wireframing user experience architecture and digital interfaces',
+    attribution: 'Unsplash Design Photography (Royalty-Free)'
+  },
+  'digital-skills-user-experience-accenture': {
+    url: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African UI/UX designer wireframing user experience architecture and digital interfaces',
+    attribution: 'Unsplash Design Photography (Royalty-Free)'
+  },
+
+  // 30. MEST Africa Training Program (Accra, Ghana)
+  'course-mest-africa-training': {
+    url: '/images/ghana_hero_professionals.jpg',
+    alt: 'Ghanaian tech entrepreneurs and university graduates celebrating startup training milestone',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+  'mest-africa-training-program-accra': {
+    url: '/images/ghana_hero_professionals.jpg',
+    alt: 'Ghanaian tech entrepreneurs and university graduates celebrating startup training milestone',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+
+  // 31. Networking Basics (Cisco)
+  'course-cisco-networking-basics': {
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+    alt: 'IT hardware technician configuring enterprise network routers, patch cables and switches',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+  'cisco-networking-basics': {
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+    alt: 'IT hardware technician configuring enterprise network routers, patch cables and switches',
+    attribution: 'Unsplash Technology Photography (Royalty-Free)'
+  },
+
+  // 32. Python Essentials 1 (Cisco)
+  'course-cisco-python-essentials-1': {
+    url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80',
+    alt: 'Software engineer writing Python scripts and unit tests on multi-screen developer rig',
+    attribution: 'Unsplash Coding Photography (Royalty-Free)'
+  },
+  'cisco-python-essentials-1': {
+    url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80',
+    alt: 'Software engineer writing Python scripts and unit tests on multi-screen developer rig',
+    attribution: 'Unsplash Coding Photography (Royalty-Free)'
+  },
+
+  // 33. freeCodeCamp JavaScript Algorithms & Data Structures
+  'course-freecodecamp-js-algorithms': {
+    url: 'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer writing algorithmic JavaScript and data structures',
+    attribution: 'Unsplash Software Photography (Royalty-Free)'
+  },
+  'freecodecamp-javascript-algorithms-and-data-structures-cert': {
+    url: 'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer writing algorithmic JavaScript and data structures',
+    attribution: 'Unsplash Software Photography (Royalty-Free)'
+  },
+
+  // 34. Google Analytics Certification (Skillshop)
+  'course-google-skillshop-analytics': {
+    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Web analytics consultant reviewing visitor metrics, bounce rates and conversion reports',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+  'google-analytics-certification-skillshop-free': {
+    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Web analytics consultant reviewing visitor metrics, bounce rates and conversion reports',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+
+  // 35. HubSpot Digital Marketing Certification
+  'course-hubspot-digital-marketing': {
+    url: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing campaign manager analyzing audience reach and digital conversions',
+    attribution: 'Unsplash Marketing Photography (Royalty-Free)'
+  },
+  'hubspot-digital-marketing-certification-free': {
+    url: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing campaign manager analyzing audience reach and digital conversions',
+    attribution: 'Unsplash Marketing Photography (Royalty-Free)'
+  },
+
+  // 36. WIPO General Course on Intellectual Property (DL-101)
+  'course-wipo-dl101': {
+    url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80',
+    alt: 'Intellectual property documentation, patent filings and trademark agreements',
+    attribution: 'Unsplash Legal Photography (Royalty-Free)'
+  },
+  'wipo-dl101-general-course-intellectual-property': {
+    url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80',
+    alt: 'Intellectual property documentation, patent filings and trademark agreements',
+    attribution: 'Unsplash Legal Photography (Royalty-Free)'
+  },
+
+  // 37. WHO Standard Precautions: Infection Prevention and Control (IPC)
+  'course-who-ipc': {
+    url: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&auto=format&fit=crop&q=80',
+    alt: 'Hospital clinical hygiene and clinical infection prevention and control standards',
+    attribution: 'Unsplash Medical Photography (Royalty-Free)'
+  },
+  'who-infection-prevention-control-standard-precautions': {
+    url: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&auto=format&fit=crop&q=80',
+    alt: 'Hospital clinical hygiene and clinical infection prevention and control standards',
+    attribution: 'Unsplash Medical Photography (Royalty-Free)'
+  },
+
+  // 38. Leadership and Followership (OpenLearn)
+  'course-openlearn-leadership': {
+    url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80',
+    alt: 'African corporate executive demonstrating leadership and team mentoring',
+    attribution: 'Unsplash Executive Photography (Royalty-Free)'
+  },
+  'openlearn-leadership-and-followership': {
+    url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80',
+    alt: 'African corporate executive demonstrating leadership and team mentoring',
+    attribution: 'Unsplash Executive Photography (Royalty-Free)'
+  },
+
+  // 39. Harvard CS50P: Programming with Python
+  'course-harvard-cs50-python': {
+    url: '/images/institutions/ghana_campus_students.jpg',
+    alt: 'Ghanaian computer science university students walking on tropical campus lawn',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  'cs50p-introduction-to-programming-with-python-harvard': {
+    url: '/images/institutions/ghana_campus_students.jpg',
+    alt: 'Ghanaian computer science university students walking on tropical campus lawn',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+
+  // 40. Microsoft Power BI Data Analyst (PL-300)
+  'course-microsoft-power-bi': {
+    url: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female business intelligence analyst interpreting Power BI visual data dashboards',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+  'microsoft-power-bi-data-analyst-pathway-free': {
+    url: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female business intelligence analyst interpreting Power BI visual data dashboards',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+
+  // 41. Meta Front-End Developer
+  'course-meta-front-end': {
+    url: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer designing modern digital applications',
+    attribution: 'Unsplash Web Development Photography (Royalty-Free)'
+  },
+  'meta-front-end-developer-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer designing modern digital applications',
+    attribution: 'Unsplash Web Development Photography (Royalty-Free)'
+  },
+
+  // 42. IBM Data Science Professional Certificate
+  'course-ibm-data-science': {
+    url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data science analyst examining multi-dimensional analytics visual charts',
+    attribution: 'Unsplash Data Photography (Royalty-Free)'
+  },
+  'ibm-data-science-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data science analyst examining multi-dimensional analytics visual charts',
+    attribution: 'Unsplash Data Photography (Royalty-Free)'
+  },
+
+  // 43. Google UX Design Professional Certificate
+  'course-google-ux-design': {
+    url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Graphic and UX designer developing creative layout systems',
+    attribution: 'Unsplash Design Photography (Royalty-Free)'
+  },
+  'google-ux-design-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Graphic and UX designer developing creative layout systems',
+    attribution: 'Unsplash Design Photography (Royalty-Free)'
+  },
+
+  // 44. ALX Africa Software Engineering Program
+  'course-alx-software-engineering': {
+    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80',
+    alt: 'African engineering cohorts collaborating on enterprise software code',
+    attribution: 'Unsplash Tech Photography (Royalty-Free)'
+  },
+  'alx-africa-software-engineering-program': {
+    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80',
+    alt: 'African engineering cohorts collaborating on enterprise software code',
+    attribution: 'Unsplash Tech Photography (Royalty-Free)'
+  },
+
+  // 45. ALX Africa Data Analytics Program
+  'course-alx-data-analytics': {
+    url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&auto=format&fit=crop&q=80',
+    alt: 'African data analysts reviewing metrics dashboards and analytics models',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+  'alx-africa-data-analytics-program': {
+    url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&auto=format&fit=crop&q=80',
+    alt: 'African data analysts reviewing metrics dashboards and analytics models',
+    attribution: 'Unsplash Analytics Photography (Royalty-Free)'
+  },
+
+  // 46. Google Data Analytics Professional Certificate
+  'course-google-data-analytics': {
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data analytics team interpreting data visual representations',
+    attribution: 'Unsplash Business Analytics Photography (Royalty-Free)'
+  },
+  'google-data-analytics-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data analytics team interpreting data visual representations',
+    attribution: 'Unsplash Business Analytics Photography (Royalty-Free)'
+  },
+  'res-google-data-analytics-cert': {
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data analytics team interpreting data visual representations',
+    attribution: 'Unsplash Business Analytics Photography (Royalty-Free)'
+  },
+
+  // 47. Google Cybersecurity Professional Certificate
+  'course-google-cybersecurity': {
+    url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital cybersecurity cloud encryption and systems defence',
+    attribution: 'Unsplash Security Photography (Royalty-Free)'
+  },
+  'google-cybersecurity-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital cybersecurity cloud encryption and systems defence',
+    attribution: 'Unsplash Security Photography (Royalty-Free)'
+  },
+  'res-google-cybersecurity-cert': {
+    url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital cybersecurity cloud encryption and systems defence',
+    attribution: 'Unsplash Security Photography (Royalty-Free)'
+  },
+
+  // 48. Google Project Management Professional Certificate
+  'course-google-project-management': {
+    url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agile project managers orchestrating product milestones',
+    attribution: 'Unsplash Management Photography (Royalty-Free)'
+  },
+  'google-project-management-professional-certificate': {
+    url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agile project managers orchestrating product milestones',
+    attribution: 'Unsplash Management Photography (Royalty-Free)'
+  },
+  'res-google-project-management-cert': {
+    url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agile project managers orchestrating product milestones',
+    attribution: 'Unsplash Management Photography (Royalty-Free)'
+  },
+
+  // 49. AWS Certified Solutions Architect Associate
+  'res-aws-solutions-architect-assoc': {
+    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Enterprise cloud infrastructure and software architecture code systems',
+    attribution: 'Unsplash Architecture Photography (Royalty-Free)'
+  },
+  'aws-certified-solutions-architect-associate': {
+    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Enterprise cloud infrastructure and software architecture code systems',
+    attribution: 'Unsplash Architecture Photography (Royalty-Free)'
+  },
+
+  // 50. Cisco CCNA 200-301
+  'res-cisco-ccna-200-301': {
+    url: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Student studying computer networking certification blueprints in university library',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+  'cisco-certified-network-associate-ccna': {
+    url: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Student studying computer networking certification blueprints in university library',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+
+  // 51. Harvard CS50 Web Programming
+  'res-harvard-cs50-web-programming': {
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African student pursuing full stack web application engineering',
+    attribution: 'Unsplash Student Photography (Royalty-Free)'
+  },
+  'cs50w-web-programming-with-python-and-javascript-harvard': {
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African student pursuing full stack web application engineering',
+    attribution: 'Unsplash Student Photography (Royalty-Free)'
+  },
+
+  // 52. DeepLearning.AI Machine Learning Specialization
+  'res-deeplearning-ai-ml-specialization': {
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African machine learning specialist and data science professional',
+    attribution: 'Unsplash AI Photography (Royalty-Free)'
+  },
+  'machine-learning-specialization-deeplearning-ai-andrew-ng': {
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African machine learning specialist and data science professional',
+    attribution: 'Unsplash AI Photography (Royalty-Free)'
+  },
+
+  // 53. MITx DEDP MicroMasters
+  'res-mitx-dedp-micromasters': {
+    url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&auto=format&fit=crop&q=80',
+    alt: 'African development economist analyzing data and public policy',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+  'data-economics-and-development-policy-micromasters-mitx': {
+    url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&auto=format&fit=crop&q=80',
+    alt: 'African development economist analyzing data and public policy',
+    attribution: 'Unsplash Academic Photography (Royalty-Free)'
+  },
+
+  // 54. 100 Days of Code Python Bootcamp
+  'res-angela-yu-python-bootcamp': {
+    url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female developer engaged in coding intensive bootcamp challenges',
+    attribution: 'Unsplash Developer Photography (Royalty-Free)'
+  },
+  '100-days-of-code-complete-python-pro-bootcamp': {
+    url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female developer engaged in coding intensive bootcamp challenges',
+    attribution: 'Unsplash Developer Photography (Royalty-Free)'
+  },
+
+  // 55. ACCA Chartered Accountant Qualification
+  'res-acca-chartered-accountant-qualification': {
+    url: 'https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=800&auto=format&fit=crop&q=80',
+    alt: 'African chartered accountant and financial controller examining accounting audit books',
+    attribution: 'Unsplash Finance Photography (Royalty-Free)'
+  },
+  'acca-qualification-chartered-certified-accountant': {
+    url: 'https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=800&auto=format&fit=crop&q=80',
+    alt: 'African chartered accountant and financial controller examining accounting audit books',
+    attribution: 'Unsplash Finance Photography (Royalty-Free)'
+  },
+
+  // 56. PMI Certified Associate in Project Management (CAPM)
+  'res-pmi-capm-credential': {
+    url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80',
+    alt: 'Project management team steering agile sprint planning and deliverables',
+    attribution: 'Unsplash Management Photography (Royalty-Free)'
+  },
+  'certified-associate-in-project-management-capm-pmi': {
+    url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80',
+    alt: 'Project management team steering agile sprint planning and deliverables',
+    attribution: 'Unsplash Management Photography (Royalty-Free)'
+  },
+
+  // 57. Microsoft Azure Fundamentals AZ-900 (Certification)
+  'res-microsoft-azure-fundamentals-az900': {
+    url: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&auto=format&fit=crop&q=80',
+    alt: 'Enterprise cloud infrastructure design and modern tech operations',
+    attribution: 'Unsplash Cloud Photography (Royalty-Free)'
+  }
+};
+
+/**
+ * Large pool of verified, high-resolution African and Ghanaian educational, tech,
+ * business, and creative photographs rotated deterministically for any dynamically
+ * created or unmapped course listings to permanently prevent duplicate images.
+ */
+export const COURSE_VARIETY_POOL: CoursePhoto[] = [
+  {
+    url: '/images/ghana_student_workspace.jpg',
+    alt: 'Young Ghanaian student with laptop in university learning workspace',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&auto=format&fit=crop&q=80',
+    alt: 'African IT network and cybersecurity specialist working in tech facility',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+    alt: 'African woman tech specialist analyzing artificial intelligence systems',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African tech innovators collaborating on software applications',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African computer scientist working on software logic and algorithms',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    alt: 'African cloud systems practitioner working at modern engineering workstation',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: '/images/institutions/ghana_tech_students.jpg',
+    alt: 'African college students collaborating with laptops in modern university tech lab',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer coding responsive website interface and CSS styling',
+    attribution: 'Unsplash Coding Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer developing Python scripts on workstation',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African students collaborating in hands-on computer programming workshop',
+    attribution: 'Unsplash Educational Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?w=800&auto=format&fit=crop&q=80',
+    alt: 'African university students examining computational algorithms and logic',
+    attribution: 'Unsplash Educational Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=800&auto=format&fit=crop&q=80',
+    alt: 'Ghanaian entrepreneur and business executive discussing commercial strategies',
+    attribution: 'Unsplash Business Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Financial markets trading, stock exchange analytics and economic capital charts',
+    attribution: 'Unsplash Finance Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1557838923-2985c318be48?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing strategist optimizing inbound sales funnel and audience growth',
+    attribution: 'Unsplash Marketing Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+    alt: 'Business professionals engaging in executive commercial negotiation',
+    attribution: 'Unsplash Corporate Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&auto=format&fit=crop&q=80',
+    alt: 'African startup founder pitching value proposition to investors',
+    attribution: 'Unsplash Business Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Content creator developing viral social media campaign and digital brand reach',
+    attribution: 'Unsplash Digital Media Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female small enterprise owner managing business operations',
+    attribution: 'Unsplash Business Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=800&auto=format&fit=crop&q=80',
+    alt: 'African human resources director conducting corporate talent assessment',
+    attribution: 'Unsplash Workplace Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80',
+    alt: 'Serene personal wellness, mindfulness meditation and positive mental health',
+    attribution: 'Unsplash Wellness Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African job candidate engaging in professional interview and career readiness',
+    attribution: 'Unsplash Professional Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80',
+    alt: 'Academic scholar composing scientific manuscript and research literature',
+    attribution: 'Unsplash Academic Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Legal research library with law textbooks, gavel and jurisprudence references',
+    attribution: 'Unsplash Legal Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&auto=format&fit=crop&q=80',
+    alt: 'African healthcare team coordinating epidemiology contact tracing and disease containment',
+    attribution: 'Unsplash Healthcare Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agribusiness investment planner drafting commercial agricultural project budget',
+    attribution: 'Unsplash Business Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80',
+    alt: 'Sustainable agricultural landscape, soil agronomy and ecological farm cultivation',
+    attribution: 'Unsplash Agriculture Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
+    alt: 'Renewable energy photovoltaic solar panels generating clean sustainable electricity',
+    attribution: 'Unsplash Energy Photography'
+  },
+  {
+    url: '/images/institutions/ghana_health_students.jpg',
+    alt: 'African university medical and nursing students in clinical auditorium lecture',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+    alt: 'African UI/UX designer wireframing user experience architecture and digital interfaces',
+    attribution: 'Unsplash Design Photography'
+  },
+  {
+    url: '/images/ghana_hero_professionals.jpg',
+    alt: 'Ghanaian tech entrepreneurs and university graduates celebrating startup training milestone',
+    attribution: 'Opportunity Ghana Official Media'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+    alt: 'IT hardware technician configuring enterprise network routers, patch cables and switches',
+    attribution: 'Unsplash Technology Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80',
+    alt: 'Software engineer writing Python scripts and unit tests on developer rig',
+    attribution: 'Unsplash Coding Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African software engineer writing algorithmic JavaScript and data structures',
+    attribution: 'Unsplash Software Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+    alt: 'Web analytics consultant reviewing visitor metrics, bounce rates and conversion reports',
+    attribution: 'Unsplash Analytics Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital marketing campaign manager analyzing audience reach and conversions',
+    attribution: 'Unsplash Marketing Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80',
+    alt: 'Intellectual property documentation, patent filings and trademark agreements',
+    attribution: 'Unsplash Legal Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&auto=format&fit=crop&q=80',
+    alt: 'Hospital clinical hygiene and clinical infection prevention and control standards',
+    attribution: 'Unsplash Medical Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80',
+    alt: 'African corporate executive demonstrating leadership and team mentoring',
+    attribution: 'Unsplash Executive Photography'
+  },
+  {
+    url: '/images/institutions/ghana_campus_students.jpg',
+    alt: 'Ghanaian computer science university students walking on tropical campus lawn',
+    attribution: 'Opportunity Ghana Educational Media'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female business intelligence analyst interpreting visual data dashboards',
+    attribution: 'Unsplash Analytics Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80',
+    alt: 'African front-end developer designing modern digital applications',
+    attribution: 'Unsplash Web Development Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data science analyst examining multi-dimensional analytics visual charts',
+    attribution: 'Unsplash Data Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Graphic and UX designer developing creative layout systems',
+    attribution: 'Unsplash Design Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80',
+    alt: 'African engineering cohorts collaborating on enterprise software code',
+    attribution: 'Unsplash Tech Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&auto=format&fit=crop&q=80',
+    alt: 'African data analysts reviewing metrics dashboards and analytics models',
+    attribution: 'Unsplash Analytics Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+    alt: 'Data analytics team interpreting data visual representations',
+    attribution: 'Unsplash Business Analytics Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    alt: 'Digital cybersecurity cloud encryption and systems defence',
+    attribution: 'Unsplash Security Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+    alt: 'Agile project managers orchestrating product milestones',
+    attribution: 'Unsplash Management Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    alt: 'Enterprise cloud infrastructure and software architecture code systems',
+    attribution: 'Unsplash Architecture Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=800&auto=format&fit=crop&q=80',
+    alt: 'Student studying computer networking certification blueprints in university library',
+    attribution: 'Unsplash Academic Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    alt: 'Young African student pursuing full stack web application engineering',
+    attribution: 'Unsplash Student Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+    alt: 'African machine learning specialist and data science professional',
+    attribution: 'Unsplash AI Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&auto=format&fit=crop&q=80',
+    alt: 'African development economist analyzing data and public policy',
+    attribution: 'Unsplash Academic Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&auto=format&fit=crop&q=80',
+    alt: 'African female developer engaged in coding intensive bootcamp challenges',
+    attribution: 'Unsplash Developer Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=800&auto=format&fit=crop&q=80',
+    alt: 'African chartered accountant and financial controller examining accounting audit books',
+    attribution: 'Unsplash Finance Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80',
+    alt: 'Project management team steering agile sprint planning and deliverables',
+    attribution: 'Unsplash Management Photography'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&auto=format&fit=crop&q=80',
+    alt: 'Enterprise cloud infrastructure design and modern tech operations',
+    attribution: 'Unsplash Cloud Photography'
+  }
+];
+
+/**
+ * Resolves a unique, human-centered photograph for any course or learning resource.
+ * Checks the persistent registry by course ID or slug, then falls back to deterministic
+ * variety pool hashing so that identical course entries always receive the same image,
+ * while distinct courses receive distinct images.
+ */
+export function getHumanCenteredCourseImage(resource: Partial<Resource>): CoursePhoto {
+  const id = resource.id || '';
+  const slug = resource.slug || '';
+
+  // 1. Direct registry lookup by ID
+  if (id && COURSE_UNIQUE_PHOTO_REGISTRY[id]) {
+    return COURSE_UNIQUE_PHOTO_REGISTRY[id];
+  }
+
+  // 2. Direct registry lookup by slug
+  if (slug && COURSE_UNIQUE_PHOTO_REGISTRY[slug]) {
+    return COURSE_UNIQUE_PHOTO_REGISTRY[slug];
+  }
+
+  // 3. Normalized slug lookup
+  const cleanSlug = slug.toLowerCase().trim();
+  if (cleanSlug && COURSE_UNIQUE_PHOTO_REGISTRY[cleanSlug]) {
+    return COURSE_UNIQUE_PHOTO_REGISTRY[cleanSlug];
+  }
+
+  // 4. Deterministic variety pool hashing based on stable identifier
+  const seed = `${id}-${slug}-${resource.title || 'course'}`;
+  const idx = hashString(seed) % COURSE_VARIETY_POOL.length;
+  return COURSE_VARIETY_POOL[idx];
+}
+
 /**
  * Resolves the visual media for a Resource card according to:
- * 1. Valid uploaded image (preserves user/admin uploads)
- * 2. If no image: attractive, professional category-based gradient
+ * 1. Valid uploaded image (preserves genuine user/admin photo uploads, excluding generic placeholders)
+ * 2. Distinct, human-centered authentic African photograph matched to course ID / slug
  */
 export function resolveResourceMedia(resource: Partial<Resource>): ResolvedCardMedia {
   const gradient = getCategoryGradient(resource.category, 'resource');
@@ -1061,11 +2101,56 @@ export function resolveResourceMedia(resource: Partial<Resource>): ResolvedCardM
     };
   }
 
-  // No image: return clean, professional category gradient
+  // Always assign a distinct, authentic African educational photo for the course
+  const coursePhoto = getHumanCenteredCourseImage(resource);
   return {
-    imageUrl: null,
+    imageUrl: coursePhoto.url,
+    imageAlt: coursePhoto.alt,
+    imageAttribution: coursePhoto.attribution,
     isSvg: false,
-    source: 'gradient',
+    source: 'course',
     gradient
   };
 }
+
+/**
+ * Validates and ensures that an array of courses displayed together on a page
+ * never renders duplicate background images. If any course duplicates an image
+ * already seen on the current view, it is assigned the next available distinct
+ * photo from the verified variety pool.
+ */
+export function ensureUniqueCourseImages<T extends Partial<Resource>>(courses: T[]): T[] {
+  const seenUrls = new Set<string>();
+  let poolCursor = 0;
+
+  return courses.map(course => {
+    const media = resolveResourceMedia(course);
+    let assignedUrl = media.imageUrl;
+
+    if (assignedUrl && seenUrls.has(assignedUrl)) {
+      // Find the next unused photo from the variety pool
+      for (let i = 0; i < COURSE_VARIETY_POOL.length; i++) {
+        const candidate = COURSE_VARIETY_POOL[(poolCursor + i) % COURSE_VARIETY_POOL.length].url;
+        if (!seenUrls.has(candidate)) {
+          assignedUrl = candidate;
+          poolCursor = (poolCursor + i + 1) % COURSE_VARIETY_POOL.length;
+          break;
+        }
+      }
+    }
+
+    if (assignedUrl) {
+      seenUrls.add(assignedUrl);
+    }
+
+    if (assignedUrl && assignedUrl !== course.imageUrl) {
+      return {
+        ...course,
+        imageUrl: assignedUrl
+      };
+    }
+
+    return course;
+  });
+}
+

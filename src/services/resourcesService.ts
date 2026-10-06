@@ -4,6 +4,7 @@ import { sanitizeForFirestore } from './firebase/firestoreService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
+import { ensureUniqueCourseImages } from '../utils/cardBackgrounds';
 import {
   collection,
   getDocs,
@@ -73,11 +74,11 @@ function getStoredResources(): Resource[] {
     if (hasNew || !raw) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
     }
-    return list;
+    return ensureUniqueCourseImages(list);
   } catch (e) {
     console.error('Failed to load local resources storage', e);
   }
-  return [...VERIFIED_REAL_RESOURCES];
+  return ensureUniqueCourseImages([...VERIFIED_REAL_RESOURCES]);
 }
 
 function saveStoredResources(items: Resource[]) {
@@ -173,7 +174,7 @@ export const ResourcesService = {
       }
     }
 
-    return items;
+    return ensureUniqueCourseImages(items);
   },
 
   async getById(id: string): Promise<Resource | null> {
