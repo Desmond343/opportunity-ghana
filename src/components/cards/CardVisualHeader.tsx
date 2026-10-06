@@ -172,29 +172,29 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
 
   return (
     <div
-      className={`relative w-full ${heightClass} overflow-hidden select-none bg-slate-950`}
+      className={`relative w-full ${heightClass} overflow-hidden select-none bg-slate-950 specular-rim-highlight`}
       style={{
         background: !shouldRenderImage ? gradient.cssGradient : undefined
       }}
     >
       {shouldRenderImage ? (
         <>
-          {/* Main Visual Image */}
+          {/* Main Visual Image - Vibrant & Unobscured */}
           <img
             src={media.imageUrl!}
             alt={media.imageAlt || alt}
             onError={() => setImageError(true)}
-            className={`w-full h-full object-cover object-[center_25%] transition-transform duration-500 ease-out ${
+            className={`w-full h-full object-cover object-[center_25%] transition-transform duration-700 ease-out contrast-[1.03] saturate-[1.05] ${
               hoverScale ? 'group-hover:scale-105' : ''
             }`}
             loading="lazy"
           />
 
-          {/* Subtle bottom gradient to ground the visual header and blend into card body */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
+          {/* Subtle bottom gradient to ground the visual header and blend into card body without dimming subjects */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
 
           {/* Subtle top vignette for crisp floating badge legibility */}
-          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
         </>
       ) : (
         /* Professional Category Gradient Banner */

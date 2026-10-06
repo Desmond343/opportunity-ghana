@@ -211,7 +211,7 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
       onBlur={() => setIsPaused(false)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      className="relative w-full rounded-3xl overflow-hidden bg-slate-950 border border-slate-800/80 shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#006B3F] select-none"
+      className="floating-glass-tablet relative w-full rounded-3xl overflow-hidden !bg-slate-950/95 dark:!bg-[#0C101A]/95 backdrop-blur-2xl border border-white/15 dark:border-white/10 shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#006B3F] select-none specular-rim-highlight"
     >
       {/* Decorative Gold Ghanaian Accent Bar at Top */}
       <div className="h-1.5 w-full bg-gradient-to-r from-[#006B3F] via-[#FCD116] to-[#006B3F]" />
@@ -228,12 +228,12 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
           <div className="space-y-4">
             {/* Header kicker & Verification row */}
             <div className="flex flex-wrap items-center gap-2.5 text-xs">
-              <span className="font-extrabold uppercase tracking-wider text-[11px] px-2.5 py-1 rounded-lg bg-[#FCD116] text-[#111111] font-space shadow-xs">
+              <span className="font-extrabold uppercase tracking-wider text-[11px] px-3 py-1 rounded-xl bg-[#FCD116] text-[#111111] font-space shadow-xs">
                 {activeOpp.category}
               </span>
 
               {activeOpp.opportunityType && (
-                <span className="text-[11px] font-semibold text-emerald-200/90 px-2.5 py-1 rounded-lg bg-emerald-900/60 border border-emerald-700/40">
+                <span className="text-[11px] font-semibold text-emerald-200/95 px-3 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/30 backdrop-blur-xs">
                   {activeOpp.opportunityType}
                 </span>
               )}
@@ -282,14 +282,14 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
             {/* Metadata Badges / Info tags */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
               {activeOpp.educationLevel && (
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-[11px]">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-[11px] backdrop-blur-xs shadow-2xs">
                   <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
                   <span>{activeOpp.educationLevel}</span>
                 </div>
               )}
 
               {activeOpp.fundingType && (
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-emerald-300 text-[11px] font-semibold">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950/50 border border-emerald-500/25 text-emerald-300 text-[11px] font-semibold backdrop-blur-xs shadow-2xs">
                   <Sparkles className="w-3.5 h-3.5 text-[#FCD116]" />
                   <span>{activeOpp.fundingType}</span>
                 </div>
@@ -303,7 +303,7 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <button
               onClick={() => onNavigate(`/opportunities/${activeOpp.slug}`)}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-lg hover:shadow-emerald-900/30 cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-lg hover:shadow-emerald-900/40 cursor-pointer active:scale-95"
             >
               <span>View Opportunity</span>
               <ArrowRight className="w-4 h-4" />
@@ -314,8 +314,8 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
               aria-label={isCurrentSaved ? 'Remove from saved' : 'Save opportunity'}
               className={`p-3 rounded-xl border transition-all cursor-pointer ${
                 isCurrentSaved
-                  ? 'bg-emerald-900/70 border-emerald-500/50 text-[#FCD116]'
-                  : 'bg-white/5 hover:bg-white/10 border-white/15 text-slate-300 hover:text-white'
+                  ? 'bg-emerald-900/80 border-emerald-500/60 text-[#FCD116] shadow-sm'
+                  : 'bg-white/10 hover:bg-white/15 border-white/20 text-slate-200 hover:text-white'
               }`}
             >
               <Bookmark className={`w-4 h-4 ${isCurrentSaved ? 'fill-[#FCD116]' : ''}`} />
