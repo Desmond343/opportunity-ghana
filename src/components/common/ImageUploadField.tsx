@@ -122,14 +122,14 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       <div className="flex items-center justify-between">
         <label
           htmlFor="image-upload-input"
-          className="text-xs font-bold text-slate-700 flex items-center gap-1.5"
+          className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
         >
-          <Image className="w-3.5 h-3.5 text-slate-500" />
+          <Image className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
           <span>{label}</span>
-          <span className="text-[10px] text-slate-400 font-normal">(Optional)</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">(Optional)</span>
         </label>
         {activeDisplayUrl && (
-          <span className="text-[11px] font-medium text-emerald-700 flex items-center gap-1">
+          <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
             <Check className="w-3 h-3" />
             <span>Image attached</span>
           </span>
@@ -149,15 +149,15 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       />
 
       {/* Image Preview Box */}
-      <div className="relative w-full rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 overflow-hidden flex flex-col items-center justify-center min-h-[160px] p-4 transition-colors">
+      <div className="relative w-full rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40 overflow-hidden flex flex-col items-center justify-center min-h-[160px] p-4 transition-colors">
         {optimizing ? (
-          <div className="flex flex-col items-center justify-center py-8 space-y-2 text-slate-600">
-            <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+          <div className="flex flex-col items-center justify-center py-8 space-y-2 text-slate-600 dark:text-slate-300">
+            <Loader2 className="w-6 h-6 animate-spin text-emerald-600 dark:text-emerald-400" />
             <p className="text-xs font-semibold">Optimizing and compressing image for fast loading...</p>
           </div>
         ) : activeDisplayUrl ? (
           <div className="w-full space-y-3">
-            <div className="relative w-full h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900/5 border border-slate-200 flex items-center justify-center">
+            <div className="relative w-full h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900/5 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
               <img
                 src={activeDisplayUrl}
                 alt={`${label} preview`}
@@ -170,8 +170,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
             {/* Optimization Savings Badge */}
             {optStats && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-800 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>
                   Compressed by {optStats.savings}% ({formatBytes(optStats.original)} → {formatBytes(optStats.optimized)}) for faster mobile browsing.
                 </span>
@@ -184,9 +184,9 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={disabled}
-                className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
               >
-                <Upload className="w-3.5 h-3.5 text-slate-500" />
+                <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                 <span>Replace Photo</span>
               </button>
 
@@ -194,21 +194,21 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 type="button"
                 onClick={handleRemove}
                 disabled={disabled}
-                className="px-3.5 py-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-950/60 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                <Trash2 className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
                 <span>Remove Photo</span>
               </button>
             </div>
           </div>
         ) : (
           <div className="text-center space-y-2.5 py-4">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto text-slate-400 shadow-2xs">
-              <Image className="w-6 h-6 text-slate-400" />
+            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 shadow-2xs">
+              <Image className="w-6 h-6 text-slate-400 dark:text-slate-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-700">Add an optional banner or photo</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Add an optional banner or photo</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {helpText || 'Displays on public listing cards and detailed view pages'}
               </p>
             </div>
@@ -216,9 +216,9 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
-              className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold rounded-xl inline-flex items-center gap-2 shadow-2xs transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl inline-flex items-center gap-2 shadow-2xs transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             >
-              <Upload className="w-3.5 h-3.5 text-slate-600" />
+              <Upload className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
               <span>Choose Photo</span>
             </button>
           </div>
@@ -227,17 +227,17 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
       {/* Progress Bar (Visible during active upload) */}
       {uploadProgress !== null && uploadProgress !== undefined && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1.5 animate-in fade-in">
-          <div className="flex items-center justify-between text-xs font-semibold text-emerald-900">
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl space-y-1.5 animate-in fade-in">
+          <div className="flex items-center justify-between text-xs font-semibold text-emerald-900 dark:text-emerald-200">
             <span className="flex items-center gap-1.5">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700 dark:text-emerald-400" />
               <span>Uploading photo...</span>
             </span>
-            <span className="font-mono font-bold text-emerald-800">{uploadProgress}%</span>
+            <span className="font-mono font-bold text-emerald-800 dark:text-emerald-300">{uploadProgress}%</span>
           </div>
-          <div className="w-full bg-emerald-200/80 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-emerald-200/80 dark:bg-emerald-900/60 rounded-full h-2 overflow-hidden">
             <div
-              className="bg-emerald-600 h-full rounded-full transition-all duration-300 ease-out"
+              className="bg-emerald-600 dark:bg-emerald-500 h-full rounded-full transition-all duration-300 ease-out"
               style={{ width: `${Math.max(uploadProgress, 5)}%` }}
             />
           </div>
@@ -246,14 +246,14 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
       {/* Validation Error Message */}
       {validationError && (
-        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+        <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-200 text-xs font-semibold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Format and Size Hint */}
-      <p className="text-[10px] text-slate-400">
+      <p className="text-[10px] text-slate-400 dark:text-slate-500">
         Supported: JPG, JPEG, PNG, WebP • Maximum size: 5 MB • Automatically optimized for high-speed delivery
       </p>
     </div>

@@ -166,16 +166,16 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumbs Navigation */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto whitespace-nowrap">
-        <button onClick={() => onNavigate('/')} className="hover:text-emerald-700 cursor-pointer">
+      <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 overflow-x-auto whitespace-nowrap">
+        <button onClick={() => onNavigate('/')} className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
           Home
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <button onClick={() => onNavigate('/resources')} className="hover:text-emerald-700 cursor-pointer">
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+        <button onClick={() => onNavigate('/resources')} className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
           Courses &amp; Credentials
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <span className="text-slate-800 font-semibold truncate max-w-[280px]">
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+        <span className="text-slate-800 dark:text-slate-200 font-semibold truncate max-w-[280px]">
           {resource.title || 'Course Details'}
         </span>
       </nav>
@@ -185,7 +185,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         const media = resolveResourceMedia(resource);
         return (
           <div
-            className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 shadow-xs relative bg-slate-950"
+            className="w-full h-56 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-xs relative bg-slate-950"
             style={{ background: media.gradient.cssGradient }}
           >
             {media.imageUrl ? (
@@ -226,26 +226,26 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
       {/* Media Attribution (if verified graphic source exists) */}
       {resource.imageSourceName && (
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium px-2">
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium px-2">
           <span>Official credential graphic provided by</span>
           {resource.imageSourceUrl ? (
             <a
               href={resource.imageSourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#006B3F] hover:underline font-bold inline-flex items-center gap-0.5"
+              className="text-[#006B3F] dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-0.5"
             >
               <span>{resource.imageSourceName}</span>
               <ExternalLink className="w-2.5 h-2.5" />
             </a>
           ) : (
-            <strong className="text-slate-700">{resource.imageSourceName}</strong>
+            <strong className="text-slate-700 dark:text-slate-300">{resource.imageSourceName}</strong>
           )}
         </div>
       )}
 
       {/* Main Course Header Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -257,38 +257,38 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               <VerificationBadge status={resource.verificationStatus || 'verified'} />
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space leading-tight">
               {resource.title}
             </h1>
 
-            <div className="text-xs sm:text-sm text-slate-600 flex flex-wrap items-center gap-2 font-medium">
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-2 font-medium">
               <span>Offered by</span>
               {resource.providerWebsiteUrl ? (
                 <a
                   href={resource.providerWebsiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-900 font-bold hover:text-emerald-700 inline-flex items-center gap-1 underline underline-offset-2"
+                  className="text-slate-900 dark:text-slate-100 font-bold hover:text-emerald-700 dark:hover:text-emerald-400 inline-flex items-center gap-1 underline underline-offset-2"
                 >
                   <span>{resource.providerName || 'Certified Academy'}</span>
-                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                  <ExternalLink className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                 </a>
               ) : (
-                <strong className="text-slate-800">{resource.providerName || 'Certified Academy'}</strong>
+                <strong className="text-slate-800 dark:text-slate-200">{resource.providerName || 'Certified Academy'}</strong>
               )}
 
               {resource.format && (
                 <>
                   <span>•</span>
-                  <span className="text-slate-500">{resource.format}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{resource.format}</span>
                 </>
               )}
 
               {resource.language && (
                 <>
                   <span>•</span>
-                  <span className="text-slate-500 flex items-center gap-1">
-                    <Globe className="w-3 h-3 text-slate-400" />
+                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Globe className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                     <span>{resource.language}</span>
                   </span>
                 </>
@@ -302,17 +302,17 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               onClick={() => setIsSaved(!isSaved)}
               className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
                 isSaved
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
               title="Bookmark course"
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700 dark:fill-emerald-400' : ''}`} />
             </button>
 
             <button
               onClick={handleShare}
-              className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               title="Copy share link"
             >
               <Share2 className="w-4 h-4" />
@@ -323,7 +323,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                 href={resource.officialCourseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold rounded-xl text-xs shadow-2xs cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold rounded-xl text-xs shadow-2xs cursor-pointer transition-colors"
               >
                 <span>Official Course Page</span>
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
@@ -345,40 +345,40 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         </div>
 
         {copied && (
-          <div className="text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl font-bold inline-block">
+          <div className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-xl font-bold inline-block">
             ✓ Course share link copied to clipboard!
           </div>
         )}
 
         {/* Course Specifications Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           {/* Duration */}
-          <div className="p-3.5 bg-slate-50 rounded-2xl">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-transparent dark:border-slate-700/60">
             <p className="text-[10px] uppercase font-bold text-slate-400">Duration</p>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.duration || 'Self-paced'}</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5">{resource.duration || 'Self-paced'}</p>
           </div>
 
           {/* Level */}
-          <div className="p-3.5 bg-slate-50 rounded-2xl">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-transparent dark:border-slate-700/60">
             <p className="text-[10px] uppercase font-bold text-slate-400">Skill Level</p>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">{resource.level || 'All Levels'}</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5">{resource.level || 'All Levels'}</p>
           </div>
 
           {/* Certificate */}
-          <div className="p-3.5 bg-slate-50 rounded-2xl">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-transparent dark:border-slate-700/60">
             <p className="text-[10px] uppercase font-bold text-slate-400">Certificate</p>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5">
               {resource.certificateType || (resource.hasCertificate ? 'Official Credential' : 'No Certificate')}
             </p>
           </div>
 
           {/* Cost & Pricing Model */}
-          <div className="p-3.5 bg-slate-50 rounded-2xl">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-transparent dark:border-slate-700/60">
             <p className="text-[10px] uppercase font-bold text-slate-400">Cost &amp; Access</p>
-            <p className="text-xs font-bold text-emerald-700 mt-0.5">
+            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
               {formattedCost()}
               {resource.pricingModel && !resource.isFree && (
-                <span className="text-[10px] text-slate-500 font-normal ml-1">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal ml-1">
                   {resource.pricingModel === 'monthly'
                     ? '/ month'
                     : resource.pricingModel === 'per-course'
@@ -398,22 +398,22 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         {/* Left 2 Columns: Curriculum Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Curriculum Overview */}
-          <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-            <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-700" />
+          <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
               <span>Course Curriculum Overview</span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
               {resource.description || 'Verified course curriculum from official educational partner.'}
             </p>
           </section>
 
           {/* Learning Outcomes / What You Will Learn */}
           {learningOutcomes.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-emerald-700" />
-                <h2 className="text-base font-bold text-slate-900 font-space">
+                <Award className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
                   What You Will Learn &amp; Master
                 </h2>
               </div>
@@ -421,9 +421,9 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                 {learningOutcomes.map((outcome, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 rounded-2xl bg-emerald-50/50 border border-emerald-100/80 flex items-start gap-2.5 text-xs text-slate-800 leading-relaxed"
+                    className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-100/80 dark:border-emerald-800/40 flex items-start gap-2.5 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
                   >
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <span>{outcome}</span>
                   </div>
                 ))}
@@ -433,15 +433,15 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Who Should Enroll / Target Audience */}
           {targetAudiences.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-emerald-700" />
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 <span>Who Should Enroll in This Course?</span>
               </h2>
               <ul className="space-y-2 pt-1">
                 {targetAudiences.map((audience, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 shrink-0" />
+                  <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 mt-2 shrink-0" />
                     <span>{audience}</span>
                   </li>
                 ))}
@@ -451,33 +451,33 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Pricing & Fee Transparency Card (if paid or special cost structure) */}
           {(!resource.isFree || resource.costDescription || resource.paymentNotes) && (
-            <section className="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 rounded-3xl border border-amber-200/80 p-6 sm:p-8 space-y-4 shadow-xs">
+            <section className="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 dark:from-amber-950/20 dark:via-[#141B29] dark:to-slate-900 rounded-3xl border border-amber-200/80 dark:border-amber-800/50 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h2 className="text-base font-bold text-amber-950 font-space flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-amber-700" />
+                <h2 className="text-base font-bold text-amber-950 dark:text-amber-200 font-space flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-amber-700 dark:text-amber-400" />
                   <span>Verified Price &amp; Payment Transparency</span>
                 </h2>
-                <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
                   {resource.costType ? resource.costType.replace(/_/g, ' ').toUpperCase() : 'VERIFIED RATE'}
                 </span>
               </div>
 
               {resource.costDescription && (
-                <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
+                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
                   {resource.costDescription}
                 </p>
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-amber-100 dark:border-slate-700 shadow-2xs">
                   <p className="text-[10px] uppercase font-bold text-slate-400">Published Price</p>
-                  <p className="text-base font-black text-slate-900 font-mono mt-0.5">
+                  <p className="text-base font-black text-slate-900 dark:text-slate-100 font-mono mt-0.5">
                     {formattedCost()}
                   </p>
                 </div>
-                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-amber-100 dark:border-slate-700 shadow-2xs">
                   <p className="text-[10px] uppercase font-bold text-slate-400">Billing Model</p>
-                  <p className="text-xs font-bold text-slate-800 mt-1 capitalize">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-1 capitalize">
                     {resource.pricingModel === 'monthly'
                       ? 'Monthly Subscription'
                       : resource.pricingModel === 'per-course'
@@ -489,17 +489,17 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                       : 'One-Time Payment'}
                   </p>
                 </div>
-                <div className="p-3 bg-white rounded-xl border border-amber-100 shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-amber-100 dark:border-slate-700 shadow-2xs">
                   <p className="text-[10px] uppercase font-bold text-slate-400">Financial Aid / Aid</p>
-                  <p className="text-xs font-bold text-emerald-800 mt-1">
+                  <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 mt-1">
                     {resource.financialAid ? '✓ Relief / Discounts Available' : 'Standard Rate'}
                   </p>
                 </div>
               </div>
 
               {resource.paymentNotes && (
-                <div className="text-xs text-slate-700 leading-relaxed bg-white/90 p-4 rounded-2xl border border-amber-100 space-y-1">
-                  <strong className="text-slate-900 block font-semibold">Payment &amp; Voucher Specifics:</strong>
+                <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-white/90 dark:bg-slate-800/60 p-4 rounded-2xl border border-amber-100 dark:border-slate-700 space-y-1">
+                  <strong className="text-slate-900 dark:text-slate-100 block font-semibold">Payment &amp; Voucher Specifics:</strong>
                   <p>{resource.paymentNotes}</p>
                 </div>
               )}
@@ -510,7 +510,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                     href={resource.financialAidUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline"
                   >
                     <span>Apply for Provider Financial Aid / Scholarship</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -522,14 +522,14 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Ghana Accessibility & Testing Centers */}
           {resource.accessGhanaNotes || resource.ghanaAccessibility ? (
-            <section className="bg-emerald-50/60 rounded-3xl border border-emerald-200/80 p-6 sm:p-8 space-y-3 shadow-xs">
+            <section className="bg-emerald-50/60 dark:bg-emerald-950/20 rounded-3xl border border-emerald-200/80 dark:border-emerald-800/50 p-6 sm:p-8 space-y-3 shadow-xs">
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-emerald-700" />
-                <h2 className="text-base font-bold text-emerald-950 font-space">
+                <MapPin className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+                <h2 className="text-base font-bold text-emerald-950 dark:text-emerald-200 font-space">
                   Ghana Accessibility &amp; Examination Notes
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-emerald-950/90 leading-relaxed">
+              <p className="text-xs sm:text-sm text-emerald-950/90 dark:text-emerald-100 leading-relaxed">
                 {resource.accessGhanaNotes || resource.ghanaAccessibility}
               </p>
             </section>
@@ -537,16 +537,16 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Skills You Will Master */}
           {skillsList.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-700" />
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 <span>Skills You Will Master</span>
               </h2>
               <div className="flex flex-wrap gap-2 pt-1">
                 {skillsList.map((skill, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-xs font-semibold rounded-xl transition-colors"
+                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl transition-colors"
                   >
                     {skill}
                   </span>
@@ -557,15 +557,15 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Prerequisites */}
           {prerequisitesList.length > 0 && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 <span>Eligibility &amp; Prerequisites</span>
               </h2>
               <ul className="space-y-2 pt-1">
                 {prerequisitesList.map((p, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <span>{p}</span>
                   </li>
                 ))}
@@ -575,20 +575,20 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Languages & Subtitles */}
           {(resource.language || subtitlesList.length > 0) && (
-            <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-xs">
-              <h2 className="text-base font-bold text-slate-900 font-space flex items-center gap-2">
-                <Languages className="w-5 h-5 text-emerald-700" />
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
+                <Languages className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 <span>Language &amp; Subtitle Options</span>
               </h2>
-              <div className="text-xs text-slate-700 space-y-1">
+              <div className="text-xs text-slate-700 dark:text-slate-300 space-y-1">
                 {resource.language && (
                   <p>
-                    <strong className="text-slate-900">Instructional Language:</strong> {resource.language}
+                    <strong className="text-slate-900 dark:text-slate-100">Instructional Language:</strong> {resource.language}
                   </p>
                 )}
                 {subtitlesList.length > 0 && (
                   <p>
-                    <strong className="text-slate-900">Available Subtitles:</strong> {subtitlesList.join(', ')}
+                    <strong className="text-slate-900 dark:text-slate-100">Available Subtitles:</strong> {subtitlesList.join(', ')}
                   </p>
                 )}
               </div>
@@ -598,11 +598,11 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
         {/* Right Sidebar: Direct Enrollment & Provider Details */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-xs sticky top-24">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-space">
+          <div className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 space-y-4 shadow-xs sticky top-24">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
               Direct Enrollment Portal
             </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Access the official course registration portal or partner learning management system:
             </p>
 
@@ -623,7 +623,7 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                 href={resource.officialCourseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl shadow-2xs cursor-pointer transition-colors"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl shadow-2xs cursor-pointer transition-colors"
               >
                 <span>Visit Official Course Page</span>
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
@@ -631,23 +631,23 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
             )}
 
             {/* Verification Box */}
-            <div className="p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-200 text-[11px] text-indigo-950 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 text-[11px] text-indigo-950 dark:text-indigo-200 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-1 text-indigo-900">
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-700" />
+                <span className="font-bold flex items-center gap-1 text-indigo-900 dark:text-indigo-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
                   Provider Verification
                 </span>
                 <VerificationBadge status={resource.verificationStatus || 'verified'} />
               </div>
 
               {(resource.officialCourseUrl || resource.sourceUrl) && (
-                <div className="pt-1 border-t border-indigo-200/60">
-                  <span className="text-indigo-700 font-medium block">Course Syllabus Source:</span>
+                <div className="pt-1 border-t border-indigo-200/60 dark:border-indigo-800/40">
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium block">Course Syllabus Source:</span>
                   <a
                     href={resource.officialCourseUrl || resource.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-800 hover:underline truncate block font-mono font-bold"
+                    className="text-indigo-800 dark:text-indigo-300 hover:underline truncate block font-mono font-bold"
                   >
                     {resource.officialCourseUrl || resource.sourceUrl}
                   </a>
@@ -655,26 +655,26 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               )}
 
               {resource.lastVerifiedAt && (
-                <div className="text-[10px] text-slate-500 font-mono">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                   Verified: {new Date(resource.lastVerifiedAt).toLocaleDateString('en-GB')}
                 </div>
               )}
 
               {resource.verificationNotes && (
-                <p className="text-indigo-900 text-[10px] leading-relaxed italic bg-white/60 p-2 rounded-lg">
+                <p className="text-indigo-900 dark:text-indigo-200 text-[10px] leading-relaxed italic bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg">
                   &ldquo;{resource.verificationNotes}&rdquo;
                 </p>
               )}
 
               {resource.accreditationNotes && (
-                <p className="text-slate-600 text-[10px] leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-400 text-[10px] leading-relaxed">
                   {resource.accreditationNotes}
                 </p>
               )}
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
-              <div className="flex items-center gap-1 font-bold text-slate-800">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
+              <div className="flex items-center gap-1 font-bold text-slate-800 dark:text-slate-200">
                 <Info className="w-3.5 h-3.5 text-slate-500" />
                 <span>Legitimacy Protection</span>
               </div>

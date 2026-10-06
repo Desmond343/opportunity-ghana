@@ -51,7 +51,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 pb-[env(safe-area-inset-bottom,0px)] shadow-lg"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg transition-colors duration-200"
     >
       <div className="grid grid-cols-5 h-16 max-w-md mx-auto px-2">
         {navItems.map((item, index) => {
@@ -70,13 +70,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               }}
               className={`flex flex-col items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer touch-manipulation select-none py-1 ${
                 active
-                  ? 'text-emerald-700 font-bold'
-                  : 'text-slate-500 hover:text-slate-800 font-medium'
+                  ? 'text-[#006B3F] dark:text-emerald-400 font-bold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium'
               }`}
             >
               <div
                 className={`p-1 rounded-xl transition-colors ${
-                  active ? 'bg-emerald-50 text-emerald-700' : ''
+                  active ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400' : ''
                 }`}
               >
                 <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : 'stroke-2'}`} />

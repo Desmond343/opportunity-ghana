@@ -45,10 +45,10 @@ export const InstallAppPrompt: React.FC<InstallAppPromptProps> = ({ variant = 'b
       <>
         <button
           onClick={handleInstallClick}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-bold hover:bg-emerald-100 hover:text-emerald-900 transition-all shadow-xs cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 hover:text-emerald-900 dark:hover:text-emerald-200 transition-all shadow-xs cursor-pointer"
           title="Install Opportunity Ghana app"
         >
-          <Download className="w-3.5 h-3.5 text-emerald-700 animate-pulse" />
+          <Download className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 animate-pulse" />
           <span>Install App</span>
         </button>
 
@@ -68,7 +68,7 @@ export const InstallAppPrompt: React.FC<InstallAppPromptProps> = ({ variant = 'b
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-white p-1.5 shadow-md shrink-0 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 p-1.5 shadow-md shrink-0 flex items-center justify-center border border-white/20 dark:border-slate-700">
                 <img
                   src="/icon-192.png"
                   alt="Opportunity Ghana Logo"
@@ -114,17 +114,17 @@ export const InstallAppPrompt: React.FC<InstallAppPromptProps> = ({ variant = 'b
   return (
     <>
       <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-40 animate-in slide-in-from-bottom-5 duration-300">
-        <div className="relative rounded-2xl bg-white p-4 shadow-2xl border border-emerald-100 ring-1 ring-slate-900/5">
+        <div className="relative rounded-2xl bg-white dark:bg-[#141B29] p-4 shadow-2xl border border-emerald-100 dark:border-slate-800 ring-1 ring-slate-900/5 dark:ring-white/10 transition-colors">
           <button
             onClick={dismiss}
-            className="absolute top-2.5 right-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="absolute top-2.5 right-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Dismiss install prompt"
           >
             <X className="w-4 h-4" />
           </button>
 
           <div className="flex items-start gap-3.5 pr-6">
-            <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 p-1 shadow-sm shrink-0 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-1 shadow-sm shrink-0 flex items-center justify-center">
               <img
                 src="/icon-192.png"
                 alt="Opportunity Ghana Icon"
@@ -132,19 +132,19 @@ export const InstallAppPrompt: React.FC<InstallAppPromptProps> = ({ variant = 'b
               />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-900">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 Install Opportunity Ghana
               </h4>
-              <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
                 Get quick access to jobs, scholarships, courses, internships and more.
               </p>
             </div>
           </div>
 
-          <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
             <button
               onClick={dismiss}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               Not now
             </button>
@@ -170,9 +170,9 @@ export const InstallAppPrompt: React.FC<InstallAppPromptProps> = ({ variant = 'b
 // Guided iOS Install Modal for Safari Users
 const IOSInstallModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-in fade-in">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-[#141B29] p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 transition-colors">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
             <img
               src="/icon-192.png"
@@ -180,60 +180,60 @@ const IOSInstallModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               className="w-8 h-8 rounded-lg shadow-xs"
             />
             <div>
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 Install on iPhone / iPad
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 Add to your Home Screen in 3 steps
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="space-y-3 py-1">
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-900">
+              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 1. Tap the Share button
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Located at the bottom of Safari on iPhone or top right on iPad.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <PlusSquare className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-900">
+              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 2. Select &ldquo;Add to Home Screen&rdquo;
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Scroll down the share sheet menu to find this option.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-900">
+              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 3. Tap &ldquo;Add&rdquo;
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Confirm at the top-right corner to place the app on your home screen.
               </p>
             </div>
@@ -242,7 +242,7 @@ const IOSInstallModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         <button
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors"
+          className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-emerald-700 text-white text-xs font-bold hover:bg-slate-800 dark:hover:bg-emerald-600 transition-colors cursor-pointer"
         >
           Got it
         </button>

@@ -83,18 +83,18 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F]" />
-            <span className="text-xs font-extrabold uppercase tracking-wider text-[#006B3F] font-space">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
+            <span className="text-xs font-extrabold uppercase tracking-wider text-[#006B3F] dark:text-emerald-400 font-space">
               Verified Training & Credentials
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
             Courses, Certifications & Professional Training
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Discover verified paid and free online courses, cloud certifications, and executive masterclasses. All paid courses feature transparent costs, official syllabi, and verified accessibility for learners in Ghana.
           </p>
         </div>
@@ -109,7 +109,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
       </div>
 
       {/* Main Cost Filter Tabs: All vs Paid Courses vs Free */}
-      <div className="bg-slate-100 p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 border border-slate-200/80">
+      <div className="bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 border border-slate-200/80 dark:border-slate-700">
         <button
           onClick={() => {
             setCostFilter('all');
@@ -117,8 +117,8 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
           }}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             costFilter === 'all'
-              ? 'bg-white text-slate-900 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-white dark:bg-[#141B29] text-slate-900 dark:text-slate-100 shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
           }`}
         >
           All Programs ({resources.length})
@@ -129,13 +129,13 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             costFilter === 'paid'
               ? 'bg-[#006B3F] text-white shadow-xs'
-              : 'text-slate-700 hover:text-[#006B3F] hover:bg-white/60'
+              : 'text-slate-700 dark:text-slate-300 hover:text-[#006B3F] dark:hover:text-emerald-300 hover:bg-white/60 dark:hover:bg-slate-700/50'
           }`}
         >
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-200" />
           <span>Verified Paid Courses & Certifications</span>
           <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
-            costFilter === 'paid' ? 'bg-emerald-800 text-white' : 'bg-slate-200 text-slate-700'
+            costFilter === 'paid' ? 'bg-emerald-800 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
           }`}>
             {paidCount > 0 ? paidCount : '12+'}
           </span>
@@ -149,12 +149,12 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             costFilter === 'free'
               ? 'bg-emerald-700 text-white shadow-xs'
-              : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-white/60 dark:hover:bg-slate-700/50'
           }`}
         >
           <span>100% Free Tuition</span>
           <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
-            costFilter === 'free' ? 'bg-emerald-900 text-white' : 'bg-slate-200 text-slate-700'
+            costFilter === 'free' ? 'bg-emerald-900 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
           }`}>
             Free
           </span>
@@ -255,8 +255,8 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
             onClick={() => setSelectedType(type.id)}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               selectedType === type.id
-                ? 'bg-slate-900 text-white shadow-2xs'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-2xs'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
             {type.label}
@@ -265,14 +265,14 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
 
         {costFilter === 'paid' && (
           <div className="flex items-center gap-2 ml-0 sm:ml-4">
-            <span className="text-xs text-slate-400 font-medium">Model:</span>
+            <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">Model:</span>
             <select
               value={selectedPricingModel}
               onChange={(e) => setSelectedPricingModel(e.target.value)}
-              className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             >
               {pricingModels.map((pm) => (
-                <option key={pm.id} value={pm.id}>
+                <option key={pm.id} value={pm.id} className="dark:bg-slate-900 dark:text-slate-100">
                   {pm.label}
                 </option>
               ))}
@@ -285,8 +285,8 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
             onClick={() => setOnlyCert(!onlyCert)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
               onlyCert
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-indigo-800 border-indigo-200 hover:bg-indigo-50'
+                ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40'
             }`}
           >
             <Award className="w-3.5 h-3.5 inline mr-1" />
@@ -303,18 +303,18 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
             placeholder="Search verified courses, certifications or skills (e.g. AWS, Python, Scrum, Cybersecurity, ACCA)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
+            className="w-full px-4 py-2.5 bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
           />
         </div>
         <div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full px-4 py-2.5 bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
           >
-            <option value="All">All Categories</option>
+            <option value="All" className="dark:bg-slate-900 dark:text-slate-100">All Categories</option>
             {RESOURCE_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
+              <option key={cat} value={cat} className="dark:bg-slate-900 dark:text-slate-100">
                 {cat}
               </option>
             ))}
@@ -323,9 +323,9 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
       </div>
 
       {/* Results Count Summary */}
-      <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-2">
+      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-2">
         <span>
-          Showing <strong className="text-slate-800">{resources.length}</strong>{' '}
+          Showing <strong className="text-slate-800 dark:text-slate-200">{resources.length}</strong>{' '}
           {costFilter === 'paid' ? 'verified paid training programs' : costFilter === 'free' ? 'free courses' : 'learning resources'}
         </span>
         {(selectedType !== 'All' || selectedCategory !== 'All' || searchTerm || costFilter !== 'all' || selectedPricingModel !== 'All' || onlyCert) && (
@@ -338,7 +338,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
               setSelectedPricingModel('All');
               setOnlyCert(false);
             }}
-            className="text-emerald-700 hover:underline font-semibold cursor-pointer"
+            className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
           >
             Clear all filters
           </button>

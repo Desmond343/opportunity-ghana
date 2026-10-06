@@ -12,17 +12,17 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
   }, []);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <div className="border-b border-slate-200 pb-5">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2 mb-1">
-          <TrendingUp className="w-5 h-5 text-emerald-700" />
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+          <TrendingUp className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
             Workforce Intelligence
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-space">
-          Ghana Career Pathways & Skill Mapping
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+          Ghana Career Pathways &amp; Skill Mapping
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
           Connect your field of study and current skills to high-growth career tracks in Ghana. Discover which certifications and entry-level jobs unlock each pathway.
         </p>
       </div>

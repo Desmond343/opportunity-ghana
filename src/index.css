@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-ghana-green: #006B3F;
   --color-ghana-green-hover: #005632;
@@ -31,18 +33,58 @@
     --ghana-red-light: #FCE8EA;
     --ghana-black: #111111;
     --background: #FFFFFF;
-    --background-secondary: #F7F9F8;
-    --border: #E5E7EB;
-    --text-primary: #111111;
-    --text-secondary: #5F6368;
-    --text-muted: #737373;
+    --background-secondary: #F8FAFC;
+    --card-surface: #FFFFFF;
+    --card-subpanel: #F1F5F9;
+    --border: #E2E8F0;
+    --border-subtle: #F1F5F9;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
 
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .dark {
+    --ghana-green: #00965E;
+    --ghana-green-hover: #00B370;
+    --ghana-green-light: rgba(0, 150, 94, 0.2);
+    --ghana-gold: #FCD116;
+    --ghana-gold-hover: #FEDC44;
+    --ghana-gold-light: rgba(252, 209, 22, 0.16);
+    --ghana-red: #E02438;
+    --ghana-red-hover: #F03D51;
+    --ghana-red-light: rgba(224, 36, 56, 0.22);
+    --ghana-black: #FFFFFF;
+    --background: #0B0F17;
+    --background-secondary: #0F141F;
+    --card-surface: #141B29;
+    --card-subpanel: #1A2234;
+    --border: #1F293D;
+    --border-subtle: #192131;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
     background-color: var(--background-secondary);
     color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, *, *::before, *::after {
+    transition-duration: 0.01ms !important;
   }
 }
 
