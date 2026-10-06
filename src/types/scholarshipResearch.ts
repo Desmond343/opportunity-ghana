@@ -1,18 +1,43 @@
 import { Opportunity, VerificationStatus, OpportunityStatus } from './database';
 
-export interface ScholarshipResearchParams {
-  studyLevel?: 'all' | 'undergraduate' | 'masters' | 'phd' | 'fellowship';
-  providerFocus?: 'all' | 'government' | 'universities' | 'foundations' | 'international';
+export type UniversalCategory =
+  | 'All'
+  | 'Scholarships'
+  | 'Grants'
+  | 'Internships'
+  | 'Jobs'
+  | 'Admissions'
+  | 'Fellowships'
+  | 'Competitions'
+  | 'Training'
+  | 'Courses'
+  | 'Study Abroad'
+  | 'Exchange Programmes'
+  | 'Research'
+  | 'Volunteering'
+  | 'Conferences'
+  | 'Bootcamps'
+  | 'Apprenticeships'
+  | 'Other';
+
+export type GhanaEligibilityStatus = 'Confirmed' | 'Not Eligible' | 'Unknown';
+
+export interface UniversalResearchParams {
+  category?: UniversalCategory | string;
+  studyLevel?: 'all' | 'undergraduate' | 'masters' | 'phd' | 'fellowship' | 'entry_level' | 'mid_level' | 'student' | string;
+  providerFocus?: 'all' | 'government' | 'universities' | 'foundations' | 'corporate' | 'international' | string;
+  eligibilityFilter?: 'all' | 'confirmed' | 'unknown';
   query?: string;
   maxResults?: number;
 }
 
-export interface ScholarshipResearchRun {
+export interface UniversalResearchRun {
   id: string;
   startedAt: string;
   completedAt?: string;
   triggeredByEmail: string;
   triggeredByName: string;
+  category?: string;
   query: string;
   studyLevelFilter: string;
   providerFocus: string;
@@ -25,31 +50,39 @@ export interface ScholarshipResearchRun {
   error?: string;
 }
 
-export interface DiscoveredScholarshipCandidate {
+export interface DiscoveredOpportunityCandidate {
   id: string;
   title: string;
   slug: string;
   providerName: string;
-  providerType: 'government' | 'university' | 'foundation' | 'international' | 'bilateral';
-  category: 'Scholarships';
-  studyLevel: 'Undergraduate' | 'Master\'s' | 'PhD' | 'Postdoctoral' | 'Fellowship' | 'Research' | 'All Levels';
-  fieldOfStudy: string;
+  providerType: 'government' | 'university' | 'foundation' | 'international' | 'corporate' | 'ngo' | 'bilateral';
+  category: UniversalCategory | string;
+  subcategory?: string;
+  studyLevel?: 'Undergraduate' | 'Master\'s' | 'PhD' | 'Postdoctoral' | 'Fellowship' | 'Research' | 'All Levels' | string;
+  fieldOfStudy?: string;
   description: string;
   location: string;
   country: string;
+  destinationCountry?: string;
+  region?: string;
   
-  // Eligibility
+  // Ghana Eligibility
   ghanaEligibilityConfirmed: boolean;
+  ghanaEligibilityStatus: GhanaEligibilityStatus;
   eligibilityDescription: string;
-  nationality: string;
-  academicRequirements: string[];
+  nationality?: string;
+  eligibleCountries?: string[];
+  academicRequirements?: string[];
+  requirements?: string[];
   workExperienceRequired?: string;
   ageRequirement?: string;
 
-  // Funding Breakdown
-  fundingType: 'Fully Funded' | 'Partially Funded' | 'Tuition Waiver' | 'Stipend Only' | 'Research Grant';
+  // Funding & Compensation
+  fundingType: string;
+  fundingAmount?: string;
   fundingDetails: string;
   benefits: string[];
+  salary?: string;
   tuition?: string;
   stipend?: string;
   travel?: string;
@@ -57,18 +90,18 @@ export interface DiscoveredScholarshipCandidate {
 
   // Deadlines & Dates
   openingDate?: string;
-  deadline: string; // ISO date or verified formatted string
+  deadline: string; // ISO date string YYYY-MM-DD or ISO timestamp
   isDeadlineVerified: boolean;
-  academicYear: string; // e.g. "2026/2027"
+  academicYear?: string;
 
-  // Application & Sources
-  officialApplicationUrl: string;
+  // Application & Separate Sources
+  officialApplicationUrl: string; // Official portal link
   applicationInstructions: string;
-  documentsRequired: string[];
+  documentsRequired?: string[];
   
-  // Source Traceability (Strict Tier 1 / Tier 2)
+  // Source Traceability
   sourceName: string;
-  sourceUrl: string;
+  sourceUrl: string; // Official announcement link
   sourceTier: 'tier1_official_provider' | 'tier2_government_education' | 'tier3_verified_secondary';
   sourceLastChecked: string;
 
@@ -97,7 +130,15 @@ export interface DiscoveredScholarshipCandidate {
   status: OpportunityStatus;
   researchRunId: string;
   createdAt: string;
+  publishedAt?: string;
+  publishedSlug?: string;
+  publishedOpportunityId?: string;
 }
+
+// Backward-compatibility aliases
+export type DiscoveredScholarshipCandidate = DiscoveredOpportunityCandidate;
+export type ScholarshipResearchParams = UniversalResearchParams;
+export type ScholarshipResearchRun = UniversalResearchRun;
 
 export interface RecheckSummary {
   checkedCount: number;
@@ -108,8 +149,8 @@ export interface RecheckSummary {
   updatedItems: Array<{
     id: string;
     title: string;
-    previousStatus: string;
-    newStatus: string;
-    reason: string;
+    previousStatus: OpportunityStatus;
+    newStatus: OpportunityStatus;
+    deadline: string;
   }>;
 }
