@@ -294,7 +294,7 @@
 }
 
 .floating-glass-tablet:hover {
-  transform: translateY(-6px) scale(1.004) translateZ(0);
+  transform: translateY(-3px) scale(1.002) translateZ(0);
   border-color: rgba(255, 255, 255, 1);
   box-shadow:
     0 0 0 1px rgba(0, 107, 63, 0.28),

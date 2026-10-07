@@ -161,7 +161,7 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
   subtitle,
   badgeTopLeft,
   actionsTopRight,
-  heightClass = 'h-40 sm:h-44',
+  heightClass = 'h-24 sm:h-28 md:h-32',
   hoverScale = true
 }) => {
   const [usedFallback, setUsedFallback] = useState(false);
@@ -206,30 +206,30 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
           />
 
           {/* Subtle bottom gradient to ground the visual header and blend into card body without dimming subjects */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-10 sm:h-12 bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
 
           {/* Subtle top vignette for crisp floating badge legibility */}
-          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
         </>
       ) : (
         /* Professional Category Gradient Banner */
-        <div className="relative w-full h-full flex flex-col justify-end p-4 sm:p-5 overflow-hidden">
+        <div className="relative w-full h-full flex flex-col justify-end p-2.5 sm:p-3 overflow-hidden">
           {/* Subtle Geometric SVG Pattern Overlay */}
           <PatternOverlay pattern={gradient.pattern} accentColor={gradient.accentColor} />
 
           {/* Large decorative watermark icon in background */}
           <div
-            className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none text-white transition-transform duration-500 group-hover:scale-110"
+            className="absolute -right-2 -bottom-2 opacity-15 pointer-events-none text-white transition-transform duration-500 group-hover:scale-110"
             style={{ color: gradient.accentColor }}
           >
-            <IconComponent className="w-32 h-32" />
+            <IconComponent className="w-20 h-20 sm:w-24 sm:h-24" />
           </div>
 
           {/* Center/Bottom Content within Banner */}
-          <div className="relative z-10 space-y-1 max-w-[85%]">
-            <div className="flex items-center gap-1.5">
+          <div className="relative z-10 space-y-0.5 max-w-[85%]">
+            <div className="flex items-center gap-1">
               <span
-                className="text-[10px] font-extrabold uppercase tracking-widest font-space block"
+                className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest font-space block"
                 style={{ color: gradient.accentColor }}
               >
                 {gradient.name}
@@ -237,13 +237,13 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
             </div>
 
             {subtitle && (
-              <p className="text-xs font-bold text-white/95 truncate font-space">
+              <p className="text-[11px] sm:text-xs font-bold text-white/95 truncate font-space">
                 {subtitle}
               </p>
             )}
 
             {title && (
-              <p className="text-[11px] font-medium text-slate-300/90 line-clamp-1">
+              <p className="text-[10px] sm:text-[11px] font-medium text-slate-300/90 line-clamp-1">
                 {title}
               </p>
             )}
@@ -253,14 +253,14 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
 
       {/* Floating Top Left Badge / Tags */}
       {badgeTopLeft && (
-        <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+        <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 flex items-center gap-1 sm:gap-1.5 pointer-events-auto">
           {badgeTopLeft}
         </div>
       )}
 
       {/* Floating Top Right Action Controls */}
       {actionsTopRight && (
-        <div className="absolute top-3 right-3 z-20 pointer-events-auto">
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 pointer-events-auto">
           {actionsTopRight}
         </div>
       )}

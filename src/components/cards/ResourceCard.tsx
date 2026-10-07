@@ -88,7 +88,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
   return (
     <article
       onClick={() => onNavigate(`/resources/${resource.slug}`)}
-      className="floating-glass-tablet specular-rim-highlight group relative rounded-2xl sm:rounded-[22px] cursor-pointer flex flex-col justify-between overflow-hidden"
+      className="floating-glass-tablet specular-rim-highlight group relative rounded-xl sm:rounded-2xl cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200"
     >
       {/* Visual Header Banner: Prioritizes uploaded image, or provides category gradient fallback */}
       <CardVisualHeader
@@ -96,19 +96,19 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
         alt={resource.title}
         title={resource.title}
         subtitle={resource.providerName || 'Certified Partner'}
-        heightClass="h-36 sm:h-40"
+        heightClass="h-24 sm:h-28 md:h-32"
         badgeTopLeft={
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-slate-950/75 backdrop-blur-md text-white border border-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.2)] font-space">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md text-white border border-white/20 shadow-xs font-space">
               {resource.category}
             </span>
             {resource.level && resource.level !== 'Not specified' && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-white/90 dark:bg-slate-900/85 backdrop-blur-md text-slate-800 dark:text-slate-100 border border-white/60 dark:border-white/20 shadow-xs">
+              <span className="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-white/90 dark:bg-slate-900/85 backdrop-blur-md text-slate-800 dark:text-slate-100 border border-white/60 dark:border-white/20 shadow-xs">
                 {resource.level}
               </span>
             )}
             {resource.isFree && (
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-[#006B3F]/95 backdrop-blur-md text-[#FCD116] border border-emerald-400/40 shadow-xs uppercase tracking-wider">
+              <span className="text-[9px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-md bg-[#006B3F]/95 backdrop-blur-md text-[#FCD116] border border-emerald-400/40 shadow-xs uppercase tracking-wider">
                 FREE
               </span>
             )}
@@ -122,10 +122,10 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
             }}
             title={isSaved ? 'Remove from saved' : 'Save resource'}
             aria-label={isSaved ? 'Remove from saved' : 'Save resource'}
-            className={`p-2 rounded-xl backdrop-blur-md transition-all duration-200 cursor-pointer hover:scale-105 ${
+            className={`p-1.5 rounded-lg backdrop-blur-md transition-all duration-200 cursor-pointer hover:scale-105 ${
               isSaved
-                ? 'bg-[#006B3F] text-[#FCD116] border border-emerald-400/50 shadow-[0_4px_12px_rgba(0,107,63,0.35),inset_0_1px_0_rgba(255,255,255,0.3)]'
-                : 'bg-slate-950/70 hover:bg-slate-950/90 text-white/95 hover:text-white border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.2)]'
+                ? 'bg-[#006B3F] text-[#FCD116] border border-emerald-400/50 shadow-xs'
+                : 'bg-slate-950/70 hover:bg-slate-950/90 text-white/95 hover:text-white border border-white/20 shadow-xs'
             }`}
           >
             <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
@@ -134,38 +134,38 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
       />
 
       {/* Card Content Area */}
-      <div className="p-5 pb-3.5 flex-1 flex flex-col justify-between space-y-3">
-        <div className="space-y-2">
+      <div className="p-3.5 sm:p-4 pb-2.5 sm:pb-3 flex-1 flex flex-col justify-between space-y-2">
+        <div className="space-y-1.5">
           {/* Provider */}
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between gap-2">
+          <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between gap-2">
             <span className="truncate">By <strong className="text-slate-800 dark:text-slate-200">{resource.providerName || 'Certified Partner'}</strong></span>
             {getCertBadge()}
           </p>
 
           {/* Title */}
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug font-space">
+          <h3 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug font-space">
             {resource.title}
           </h3>
 
           {/* Description */}
-          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+          <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
             {resource.description}
           </p>
         </div>
 
         {/* Skills pill list */}
         {resource.skills && resource.skills.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
+          <div className="flex flex-wrap gap-1 pt-0.5">
             {resource.skills.slice(0, 3).map((skill, i) => (
               <span
                 key={i}
-                className="text-[11px] font-medium bg-white/85 dark:bg-slate-800/85 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-0.5 rounded-lg shadow-2xs"
+                className="text-[10px] sm:text-[11px] font-medium bg-white/85 dark:bg-slate-800/85 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-md shadow-2xs"
               >
                 {skill}
               </span>
             ))}
             {resource.skills.length > 3 && (
-              <span className="text-[11px] text-slate-400 dark:text-slate-400 self-center font-medium">
+              <span className="text-[10px] text-slate-400 dark:text-slate-400 self-center font-medium">
                 +{resource.skills.length - 3} more
               </span>
             )}
@@ -174,26 +174,26 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
       </div>
 
       {/* Layered Frosted Glass Meta Footer */}
-      <div className="glass-subpanel mx-3 mb-3 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs gap-2">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300 min-w-0">
+      <div className="glass-subpanel mx-2.5 mb-2.5 sm:mx-3 sm:mb-3 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl flex items-center justify-between text-xs gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 min-w-0">
           {resource.duration && (
-            <span className="flex items-center gap-1 font-medium truncate">
-              <Clock className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400 shrink-0" />
+            <span className="flex items-center gap-1 font-medium truncate text-[11px]">
+              <Clock className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />
               <span className="truncate">{resource.duration}</span>
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {getCostBadge()}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onNavigate(`/resources/${resource.slug}`);
             }}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#006B3F] text-white hover:bg-emerald-800 transition-all cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-[#006B3F] text-white hover:bg-emerald-800 transition-all cursor-pointer shadow-xs"
           >
-            <span>{resource.isFree ? 'View Free Course' : 'View Course'}</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#FCD116]" />
+            <span>{resource.isFree ? 'Free Course' : 'View'}</span>
+            <ArrowUpRight className="w-3 h-3 text-[#FCD116]" />
           </button>
         </div>
       </div>

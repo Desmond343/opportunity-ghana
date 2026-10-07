@@ -22,11 +22,11 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <span
         title="Application deadline is not specified by the employer — check the official listing."
-        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs ${className}`}
+        className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs ${className}`}
         role="status"
       >
         <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
-        <span>{compact ? 'No deadline specified' : 'Deadline not specified — check official listing'}</span>
+        <span>{compact ? 'No deadline' : 'Deadline not specified'}</span>
       </span>
     );
   }
@@ -39,13 +39,13 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <div className={`inline-flex items-center gap-1.5 ${className}`}>
         {showDate && (
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-mono">
+          <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium font-mono">
             Deadline: {info.formattedDate}
           </span>
         )}
         <span
           title={info.detailText}
-          className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shadow-2xs"
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shadow-2xs"
           role="status"
           aria-label={info.detailText}
         >
@@ -61,13 +61,13 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <div className={`inline-flex items-center gap-1.5 ${className}`}>
         {showDate && (
-          <span className="text-[11px] text-slate-700 dark:text-slate-300 font-semibold font-mono">
+          <span className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-300 font-semibold font-mono">
             Deadline: {info.formattedDate}
           </span>
         )}
         <span
           title={info.detailText}
-          className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FCE8EA] dark:bg-rose-950/60 text-[#CE1126] dark:text-rose-300 border border-[#CE1126]/30 dark:border-rose-700/60 shadow-2xs ${
+          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCE8EA] dark:bg-rose-950/60 text-[#CE1126] dark:text-rose-300 border border-[#CE1126]/30 dark:border-rose-700/60 shadow-2xs ${
             info.isToday ? 'animate-pulse ring-2 ring-[#CE1126]/20' : ''
           }`}
           role="status"
@@ -85,13 +85,13 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <div className={`inline-flex items-center gap-1.5 ${className}`}>
         {showDate && (
-          <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium font-mono">
+          <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium font-mono">
             Deadline: {info.formattedDate}
           </span>
         )}
         <span
           title={info.detailText}
-          className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF9E7] dark:bg-amber-950/60 text-[#8C6D00] dark:text-amber-300 border border-[#FCD116]/60 dark:border-amber-700/60 shadow-2xs"
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FEF9E7] dark:bg-amber-950/60 text-[#8C6D00] dark:text-amber-300 border border-[#FCD116]/60 dark:border-amber-700/60 shadow-2xs"
           role="status"
           aria-label={info.detailText}
         >
@@ -107,7 +107,7 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
     return (
       <span
         title={info.detailText}
-        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 ${className}`}
+        className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 ${className}`}
         role="status"
         aria-label={info.detailText}
       >
@@ -121,13 +121,13 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
   return (
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       {showDate && (
-        <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium font-mono">
+        <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium font-mono">
           Deadline: {info.formattedDate}
         </span>
       )}
       <span
         title={info.detailText}
-        className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-700/60"
+        className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-700/60"
         role="status"
         aria-label={info.detailText}
       >
