@@ -1417,14 +1417,31 @@ app.post('/api/admin/competition-research/publish', verifyAdminAuth, async (req,
   }
 });
 
-// PWA Service Worker specific headers and direct serving
+// PWA Service Worker & Web App Manifest headers and direct serving
 app.get('/sw.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Service-Worker-Allowed', '/');
-  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  const swPublic = path.resolve(process.cwd(), 'public', 'sw.js');
+  if (!isProduction && fs.existsSync(swPublic)) {
+    return res.sendFile(swPublic);
+  }
   const swDist = path.resolve(process.cwd(), 'dist', 'sw.js');
-  if (fs.existsSync(swDist)) {
+  if (isProduction && fs.existsSync(swDist)) {
     return res.sendFile(swDist);
+  }
+  if (fs.existsSync(swPublic)) {
+    return res.sendFile(swPublic);
+  }
+  next();
+});
+
+app.get(['/manifest.json', '/manifest.webmanifest'], (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+  const manifestPublic = path.resolve(process.cwd(), 'public', 'manifest.json');
+  if (fs.existsSync(manifestPublic)) {
+    return res.sendFile(manifestPublic);
   }
   next();
 });

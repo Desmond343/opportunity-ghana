@@ -1,15 +1,17 @@
 {
   "id": "/",
   "name": "Opportunity Ghana",
-  "short_name": "Opportunity Ghana",
-  "description": "Find opportunities. Build skills. Advance your career.",
+  "short_name": "Opp Ghana",
+  "description": "Find opportunities, build skills, and advance your career in Ghana. Verified scholarships, jobs, internships, grants, and courses.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "theme_color": "#006B3F",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
   "background_color": "#ffffff",
-  "categories": ["education", "business", "career", "productivity"],
+  "theme_color": "#006B3F",
+  "prefer_related_applications": false,
+  "categories": ["education", "business", "productivity", "news"],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -38,25 +40,25 @@
   ],
   "shortcuts": [
     {
-      "name": "Search Opportunities",
-      "short_name": "Search",
-      "description": "Search jobs, scholarships, and grants in Ghana",
+      "name": "Browse Opportunities",
+      "short_name": "Opportunities",
+      "description": "View latest scholarships, jobs, and internships",
       "url": "/opportunities",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Learning Resources",
-      "short_name": "Courses",
-      "description": "Browse courses and certifications",
+      "short_name": "Resources",
+      "description": "Free courses and skill training",
       "url": "/resources",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "Saved Items",
+      "name": "Saved Opportunities",
       "short_name": "Saved",
-      "description": "View bookmarked opportunities",
+      "description": "View your bookmarked opportunities",
       "url": "/saved",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

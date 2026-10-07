@@ -2,11 +2,8 @@ import React from 'react';
 import { SuccessStory } from '../../types/database';
 import {
   Award,
-  GraduationCap,
   Building2,
-  MapPin,
   ArrowRight,
-  Quote,
   CheckCircle2,
   Calendar
 } from 'lucide-react';
@@ -17,25 +14,25 @@ interface SuccessStoryCardProps {
 }
 
 export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNavigate }) => {
-  const initials = story.personName
+  const initials = (story.storytellerName || 'OG')
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .slice(0, 2)
     .toUpperCase();
 
   return (
     <article
-      onClick={() => onNavigate(`/success-stories/${story.slug || story.id}`)}
+      onClick={() => onNavigate(`/success-stories?story=${story.slug || story.id}`)}
       className="floating-glass-tablet specular-rim-highlight group relative rounded-2xl sm:rounded-[22px] overflow-hidden cursor-pointer flex flex-col justify-between"
     >
       {/* Top Visual / Alumnus Header */}
       <div>
-        {story.imageUrl ? (
+        {story.storytellerAvatar ? (
           <div className="relative h-48 w-full overflow-hidden bg-slate-900">
             <img
-              src={story.imageUrl}
-              alt={`${story.personName} - ${story.title}`}
+              src={story.storytellerAvatar}
+              alt={`${story.storytellerName} - ${story.title}`}
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-500"
               onError={(e) => {
@@ -49,20 +46,15 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNav
                 <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                 Verified Alumnus Story
               </span>
-              {story.opportunityCategory && (
-                <span className="px-2.5 py-1 rounded-full bg-slate-900/80 text-[#FCD116] border border-white/15 text-[10px] font-bold backdrop-blur-md">
-                  {story.opportunityCategory}
-                </span>
-              )}
             </div>
 
             <div className="absolute bottom-3 left-4 right-4 text-white">
               <p className="text-sm font-extrabold font-space tracking-tight text-white">
-                {story.personName}
+                {story.storytellerName}
               </p>
-              {story.personRoleOrTitle && (
+              {story.storytellerRole && (
                 <p className="text-[11px] text-emerald-200 font-medium truncate">
-                  {story.personRoleOrTitle}
+                  {story.storytellerRole}
                 </p>
               )}
             </div>
@@ -76,26 +68,20 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNav
               <div>
                 <div className="flex items-center gap-1.5">
                   <h4 className="text-sm font-extrabold text-slate-900 dark:text-white font-space">
-                    {story.personName}
+                    {story.storytellerName}
                   </h4>
                   <CheckCircle2
                     className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400 shrink-0"
-                    title="Verified Alumnus"
+                    aria-label="Verified Alumnus"
                   />
                 </div>
-                {story.personRoleOrTitle && (
+                {story.storytellerRole && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    {story.personRoleOrTitle}
+                    {story.storytellerRole}
                   </p>
                 )}
               </div>
             </div>
-
-            {story.opportunityCategory && (
-              <span className="px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-[#006B3F] dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] font-extrabold uppercase tracking-wider shrink-0">
-                {story.opportunityCategory}
-              </span>
-            )}
           </div>
         )}
 
@@ -105,13 +91,13 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNav
           <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/75 text-[#006B3F] dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60 font-bold">
               <Award className="w-3 h-3 shrink-0" />
-              <span className="truncate max-w-[210px]">{story.opportunityBenefitedFrom}</span>
+              <span className="truncate max-w-[210px]">{story.benefitedOpportunityTitle}</span>
             </span>
 
-            {story.institutionOrCareerInfo && (
+            {story.institutionOrCareer && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 font-medium">
                 <Building2 className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
-                <span className="truncate max-w-[180px]">{story.institutionOrCareerInfo}</span>
+                <span className="truncate max-w-[180px]">{story.institutionOrCareer}</span>
               </span>
             )}
           </div>
@@ -124,36 +110,35 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNav
           {/* Excerpt / Quote */}
           <div className="relative pl-3 border-l-2 border-[#006B3F]/40 dark:border-emerald-500/50">
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3 italic">
-              &ldquo;{story.summary || story.storyContent}&rdquo;
+              &ldquo;{story.quote || story.content}&rdquo;
             </p>
           </div>
 
-          {/* Location & Year */}
-          <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-            {story.location && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                <span>{story.location}</span>
-              </span>
-            )}
-            {story.year && (
+          {/* Published Date */}
+          {story.publishedAt && (
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               <span className="inline-flex items-center gap-1 font-mono">
                 <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                <span>{story.year}</span>
+                <span>
+                  {new Date(story.publishedAt).toLocaleDateString(undefined, {
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </span>
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Internal Frosted Shelf Footer */}
       <div className="glass-subpanel mx-3 mb-3 px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-2">
-        {story.opportunitySlug ? (
+        {story.benefitedOpportunityId ? (
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onNavigate(`/opportunities/${story.opportunitySlug}`);
+              onNavigate(`/opportunities/${story.benefitedOpportunityId}`);
             }}
             className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-[#006B3F] dark:hover:text-emerald-400 underline underline-offset-2 truncate max-w-[160px] cursor-pointer"
           >

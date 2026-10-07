@@ -39,6 +39,7 @@ import { OPPORTUNITY_CATEGORIES } from './data/categories';
 import { InstallAppPrompt } from './components/pwa/InstallAppPrompt';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
+import { SavedNotificationBanner } from './components/common/SavedNotificationBanner';
 
 export function AppContent() {
   const { isEditorOrAdmin } = useAuth();
@@ -279,6 +280,9 @@ export function AppContent() {
 
       {/* Main View with mobile safe bottom spacing */}
       <main className="flex-1 pb-20 md:pb-0">{renderRoute()}</main>
+
+      {/* Global Saved Opportunity Toast Feedback */}
+      {!isAdminRoute && <SavedNotificationBanner onNavigate={navigate} />}
 
       {/* PWA Floating Install Prompt (suppresses automatically if installed or dismissed) */}
       {!isAdminRoute && <InstallAppPrompt variant="banner" />}

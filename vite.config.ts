@@ -28,14 +28,16 @@ export default defineConfig(() => {
         manifest: {
           id: '/',
           name: 'Opportunity Ghana',
-          short_name: 'Opportunity Ghana',
-          description: 'Find opportunities. Build skills. Advance your career.',
+          short_name: 'Opp Ghana',
+          description: 'Find opportunities, build skills, and advance your career in Ghana. Verified scholarships, jobs, internships, grants, and courses.',
           start_url: '/',
           scope: '/',
           display: 'standalone',
-          orientation: 'portrait',
+          display_override: ['standalone', 'minimal-ui', 'browser'],
+          orientation: 'any',
           background_color: '#ffffff',
           theme_color: '#006B3F',
+          prefer_related_applications: false,
           categories: ['education', 'business', 'productivity', 'news'],
           icons: [
             {
@@ -65,6 +67,9 @@ export default defineConfig(() => {
           ]
         },
         workbox: {
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           navigateFallback: '/index.html',
@@ -107,7 +112,7 @@ export default defineConfig(() => {
                 networkTimeoutSeconds: 3,
                 expiration: {
                   maxEntries: 50,
-                  maxAgeSeconds: 60 * 30
+                  maxAgeSeconds: 60 * 15
                 },
                 cacheableResponse: {
                   statuses: [0, 200]
@@ -117,7 +122,8 @@ export default defineConfig(() => {
           ]
         },
         devOptions: {
-          enabled: false
+          enabled: true,
+          type: 'module'
         }
       })
     ],

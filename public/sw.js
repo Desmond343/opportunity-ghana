@@ -1,14 +1,17 @@
-const CACHE_NAME = 'opportunity-ghana-v1';
+const CACHE_NAME = 'opportunity-ghana-v2';
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
   '/manifest.json',
   '/manifest.webmanifest',
+  '/icon.svg',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-512.png',
   '/apple-touch-icon.png',
   '/favicon.png',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
   '/favicon.ico'
 ];
 
@@ -22,31 +25,43 @@ const EXCLUDED_HOSTS = [
   'google.com'
 ];
 
-// Install: Precaches core shell assets & offline fallback
+// Install: Precaches core shell assets & offline fallback resiliently
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => Promise.allSettled(STATIC_ASSETS.map((asset) => cache.add(asset))))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate: Clean up old caches and take control
+// Activate: Clean up old caches (including any stale precache buckets) and take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.map((key) => {
+            if (key !== CACHE_NAME) {
+              return caches.delete(key);
+            }
+            return Promise.resolve();
+          })
+        )
+      )
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch: Smart network-first for navigation, stale-while-revalidate for static assets
+// Allow immediate skipWaiting message from client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// Fetch: Network-first for navigation & scripts/styles, stale-while-revalidate for static images/fonts
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -56,12 +71,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Never cache or intercept Firebase Auth, Firestore, APIs, or dev server websocket
+  // 2. Never cache or intercept Firebase Auth, Firestore, live APIs, or Vite dev modules
   if (
     EXCLUDED_HOSTS.some((host) => url.hostname.includes(host)) ||
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/@') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/node_modules/') ||
     url.pathname.includes('__vite') ||
+    url.pathname.includes('dev-sw.js') ||
     url.protocol.startsWith('chrome-extension')
   ) {
     return;
@@ -72,7 +90,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // If valid response, keep a copy of the shell
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -82,63 +99,59 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(async () => {
-          // Attempt to retrieve cached shell
           const cachedResponse = await caches.match(request);
           if (cachedResponse) {
             return cachedResponse;
           }
-          // Fallback to designated offline experience
+          const rootShell = await caches.match('/');
+          if (rootShell) {
+            return rootShell;
+          }
           const offlinePage = await caches.match('/offline.html');
           if (offlinePage) {
             return offlinePage;
           }
-          return new Response('You are offline. Please reconnect.', {
-            headers: { 'Content-Type': 'text/plain' }
+          return new Response('You are offline. Please reconnect to Opportunity Ghana.', {
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
           });
         })
     );
     return;
   }
 
-  // 4. Static assets (Images, Fonts, CSS, JS): Cache-first with network fallback
+  // 4. Static visual assets (Images, Icons, Fonts): Stale-while-revalidate
   if (
     request.destination === 'image' ||
     request.destination === 'font' ||
-    request.destination === 'style' ||
-    request.destination === 'script' ||
     url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.jpeg') ||
+    url.pathname.endsWith('.webp') ||
     url.pathname.endsWith('.svg') ||
-    url.pathname.endsWith('.ico')
+    url.pathname.endsWith('.ico') ||
+    url.pathname.endsWith('.woff2')
   ) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          // Return cached and update in background if online
-          fetch(request).then((networkResponse) => {
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone);
+              });
             }
-          }).catch(() => {/* Offline background refresh ignored */});
-          return cachedResponse;
-        }
+            return networkResponse;
+          })
+          .catch(() => {
+            if (cachedResponse) return cachedResponse;
+            if (request.destination === 'image') {
+              return caches.match('/icon-192.png');
+            }
+          });
 
-        return fetch(request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return networkResponse;
-        }).catch(() => {
-          // If icon/image fails offline, return cached fallback icon
-          if (request.destination === 'image') {
-            return caches.match('/icon-192.png');
-          }
-        });
+        return cachedResponse || fetchPromise;
       })
     );
-    return;
   }
 });

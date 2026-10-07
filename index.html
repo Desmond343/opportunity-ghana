@@ -90,6 +90,26 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="mask-icon" href="/icon.svg" color="#006B3F" />
 
+    <!-- Early PWA Install Prompt Capture (prevents missing beforeinstallprompt before React mounts) -->
+    <script>
+      (function() {
+        window.__deferredPWAInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          window.__deferredPWAInstallPrompt = e;
+          window.dispatchEvent(new CustomEvent('pwa-install-available'));
+        });
+        window.addEventListener('appinstalled', function() {
+          window.__deferredPWAInstallPrompt = null;
+          try {
+            localStorage.setItem('opportunity_ghana_pwa_installed', 'true');
+            localStorage.removeItem('opportunity_ghana_pwa_dismissed');
+          } catch (err) {}
+          window.dispatchEvent(new CustomEvent('pwa-app-installed'));
+        });
+      })();
+    </script>
+
     <!-- Open Graph & Social Cards -->
     <meta property="og:title" content="Opportunity Ghana - Find opportunities, build skills, and advance your career in Ghana" />
     <meta property="og:description" content="Find opportunities, build skills, and advance your career in Ghana. The database-driven opportunity and career platform for jobs, scholarships, internships, and courses." />

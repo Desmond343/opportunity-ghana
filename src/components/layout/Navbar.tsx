@@ -281,7 +281,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
           </div>
 
           {/* Mobile Menu, Theme Toggle & Search Actions */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1.5 md:hidden">
+            <InstallAppPrompt variant="navbar" />
             <ThemeToggle />
 
             {onOpenSearch && (
@@ -322,6 +323,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
                 {link.label}
               </button>
             ))}
+
+            <div className="pt-1">
+              <InstallAppPrompt
+                variant="mobile-menu"
+                onActionComplete={() => setMobileMenuOpen(false)}
+              />
+            </div>
 
             {currentUser && (
               <>
