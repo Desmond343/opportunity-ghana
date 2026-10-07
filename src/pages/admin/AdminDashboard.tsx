@@ -3,6 +3,7 @@ import { PipelineMetrics } from '../../types/database';
 import { AdminService } from '../../services/adminService';
 import { OpportunitiesService } from '../../services/opportunitiesService';
 import { ResourcesService } from '../../services/resourcesService';
+import { AlertSubscriptionsService } from '../../services/alertSubscriptionsService';
 import {
   Compass,
   CheckCircle2,
@@ -22,7 +23,10 @@ import {
   Archive,
   Hourglass,
   FileText,
-  Award
+  Award,
+  Mail,
+  UserCheck,
+  UserX
 } from 'lucide-react';
 
 interface PendingQueueItem {
@@ -37,19 +41,24 @@ interface PendingQueueItem {
 
 export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const [metrics, setMetrics] = useState<PipelineMetrics | null>(null);
+  const [subscriberMetrics, setSubscriberMetrics] = useState<{ total: number; active: number; unsubscribed: number; newThisMonth: number } | null>(null);
   const [pendingQueue, setPendingQueue] = useState<PendingQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadMetricsAndQueue() {
       try {
-        const [data, opps, resList, partners] = await Promise.all([
+        const [data, opps, resList, partners, subRes] = await Promise.all([
           AdminService.getPipelineMetrics(),
           OpportunitiesService.getPendingSubmissions(),
           ResourcesService.getPendingSubmissions(),
-          AdminService.loadSubmissionsFromFirestore()
+          AdminService.loadSubmissionsFromFirestore(),
+          AlertSubscriptionsService.getAdminSubscribers({ limit: 1 }).catch(() => null)
         ]);
         setMetrics(data);
+        if (subRes && subRes.metrics) {
+          setSubscriberMetrics(subRes.metrics);
+        }
 
         const unified: PendingQueueItem[] = [
           ...opps.map(o => ({
@@ -336,6 +345,65 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
                 {metrics?.successStoriesMetrics?.archived ?? 0}
               </p>
               <p className="text-[10px] text-purple-600 dark:text-purple-500">Stored history</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 11. Daily Alert Subscribers & Excel Export */}
+        <div
+          onClick={() => onNavigate('/admin/subscribers')}
+          className="p-5 bg-white dark:bg-[#141B29] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-700 transition-all cursor-pointer group col-span-2 sm:col-span-3 lg:col-span-3"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
+                <Mail className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Daily Alert Email Subscribers
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Visitor registrations from homepage &amp; alerts page • Excel (.xlsx) export ready
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                {subscriberMetrics?.active ?? 0} Active Subscribers
+              </span>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+            <div className="bg-slate-50/70 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60">
+              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">Total Registered</p>
+              <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5 font-space">
+                {subscriberMetrics?.total ?? 0}
+              </p>
+              <p className="text-[10px] text-slate-500">All submissions</p>
+            </div>
+            <div className="bg-emerald-50/70 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-100 dark:border-emerald-900/60">
+              <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Active</p>
+              <p className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-0.5 font-space">
+                {subscriberMetrics?.active ?? 0}
+              </p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-500">Receives daily alerts</p>
+            </div>
+            <div className="bg-amber-50/70 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/60">
+              <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase">New This Month</p>
+              <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 font-space">
+                {subscriberMetrics?.newThisMonth ?? 0}
+              </p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-500">Recent registrations</p>
+            </div>
+            <div className="bg-slate-100/70 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
+              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">Unsubscribed</p>
+              <p className="text-xl font-black text-slate-600 dark:text-slate-400 mt-0.5 font-space">
+                {subscriberMetrics?.unsubscribed ?? 0}
+              </p>
+              <p className="text-[10px] text-slate-500">Opted out</p>
             </div>
           </div>
         </div>

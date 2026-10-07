@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Bell, Check, ShieldCheck, Smartphone, Mail, Sparkles } from 'lucide-react';
 import { OPPORTUNITY_CATEGORIES, GHANA_REGIONS } from '../data/categories';
+import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
+import { useAuth } from '../services/authContext';
 
 export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () => {
+  const { currentUser } = useAuth();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState(true);
@@ -10,6 +13,8 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
   const [selectedCats, setSelectedCats] = useState<string[]>(['Scholarships', 'Jobs', 'Internships']);
   const [selectedRegion, setSelectedRegion] = useState('All Ghana');
   const [saved, setSaved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
 
   const toggleCategory = (cat: string) => {
     setSelectedCats((prev) =>
@@ -17,10 +22,30 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
     );
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 4000);
+    if (!email.trim()) return;
+
+    setSubmitting(true);
+    try {
+      const res = await AlertSubscriptionsService.subscribe({
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        whatsappEnabled: whatsapp,
+        categories: selectedCats,
+        regions: [selectedRegion],
+        frequency,
+        source: 'Alerts Preferences Page',
+        userId: currentUser?.id
+      });
+      setFeedbackMessage(res.message || 'Your alert preferences have been successfully updated.');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 5000);
+    } catch (err: any) {
+      alert(err.message || 'Failed to update alert preferences');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -42,8 +67,8 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
 
       {saved && (
         <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-          <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          <span>Your alert preferences have been successfully updated. Verified matching opportunities will be dispatched to your channels.</span>
+          <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span>{feedbackMessage || 'Your alert preferences have been successfully updated. Verified matching opportunities will be dispatched to your channels.'}</span>
         </div>
       )}
 
@@ -161,9 +186,10 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
 
         <button
           type="submit"
-          className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+          disabled={submitting}
+          className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
         >
-          Save &amp; Activate Opportunity Alerts
+          {submitting ? 'Saving Preferences...' : 'Save & Activate Opportunity Alerts'}
         </button>
       </form>
     </div>

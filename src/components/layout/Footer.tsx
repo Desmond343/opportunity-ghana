@@ -174,6 +174,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   </li>
                   <li>
                     <button
+                      onClick={() => onNavigate('/admin/subscribers')}
+                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                    >
+                      Alert Subscribers
+                    </button>
+                  </li>
+                  <li>
+                    <button
                       onClick={() => onNavigate('/admin/settings')}
                       className="hover:text-[#006B3F] transition-colors cursor-pointer"
                     >

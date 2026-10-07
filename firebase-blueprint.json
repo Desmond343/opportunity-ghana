@@ -144,15 +144,26 @@
     },
     "alerts": {
       "title": "AlertPreference",
-      "description": "User opportunity alert preferences",
+      "description": "User opportunity alert preferences and daily email subscriptions",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "userId": { "type": "string" },
         "email": { "type": "string" },
         "phone": { "type": "string" },
+        "whatsappEnabled": { "type": "boolean" },
         "categories": { "type": "array" },
-        "frequency": { "type": "string" }
+        "regions": { "type": "array" },
+        "frequency": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "unsubscribed"] },
+        "active": { "type": "boolean" },
+        "source": { "type": "string" },
+        "lastAlertSentAt": { "type": "string" },
+        "lastAlertTitle": { "type": "string" },
+        "alertsCount": { "type": "number" },
+        "unsubscribedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
       },
       "required": ["id", "email"]
     },

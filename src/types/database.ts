@@ -377,10 +377,25 @@ export interface AlertSubscription {
   phone?: string;
   whatsappEnabled?: boolean;
   categories: string[];
-  regions: string[];
+  regions?: string[];
   frequency: 'instant' | 'daily' | 'weekly';
-  createdAt: string;
+  status: 'active' | 'unsubscribed';
   active: boolean;
+  source?: string;
+  lastAlertSentAt?: string | null;
+  lastAlertTitle?: string | null;
+  alertsCount?: number;
+  unsubscribedAt?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AlertSubscriberMetrics {
+  total: number;
+  active: number;
+  unsubscribed: number;
+  newThisMonth: number;
+  newThisWeek: number;
 }
 
 export type SuccessStoryStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'archived';
@@ -390,20 +405,36 @@ export interface SuccessStory {
   slug: string;
   title: string;
   storytellerName: string;
+  personName?: string;
   storytellerRole?: string;
+  personRoleOrTitle?: string;
   storytellerAvatar?: string;
+  imageUrl?: string;
+  imagePath?: string;
   benefitedOpportunityTitle: string;
+  opportunityBenefitedFrom?: string;
   benefitedOpportunityId?: string;
+  opportunityId?: string;
+  opportunitySlug?: string;
+  opportunityCategory?: string;
   institutionOrCareer?: string;
+  institutionOrCareerInfo?: string;
+  location?: string;
+  year?: string;
   quote?: string;
+  summary?: string;
   content: string;
+  storyContent?: string;
   keyTakeaways?: string[];
+  keyAdvice?: string;
   status: SuccessStoryStatus;
   isFeatured?: boolean;
+  featured?: boolean;
   publishedAt?: string;
   reviewedBy?: string;
   reviewedAt?: string;
   rejectionReason?: string;
+  verificationStatus?: 'verified' | 'needs_verification' | 'warning' | 'closed';
   createdAt: string;
   updatedAt: string;
 }
@@ -436,7 +467,7 @@ export interface PipelineMetrics {
 
 export interface AuditLogEntry {
   id: string;
-  entityType: 'opportunity' | 'resource' | 'organization' | 'submission' | 'success_story';
+  entityType: 'opportunity' | 'resource' | 'organization' | 'submission' | 'success_story' | 'alert_subscribers';
   entityId: string;
   entityTitle: string;
   action:
@@ -449,7 +480,8 @@ export interface AuditLogEntry {
     | 'archived'
     | 'duplicated'
     | 'deleted'
-    | 'bulk_action';
+    | 'bulk_action'
+    | 'exported';
   performedByEmail: string;
   performedByName: string;
   timestamp: string;

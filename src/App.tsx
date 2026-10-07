@@ -26,6 +26,7 @@ import { AdminAIAssistant } from './pages/admin/AdminAIAssistant';
 import { AdminOpportunities } from './pages/admin/AdminOpportunities';
 import { AdminResources } from './pages/admin/AdminResources';
 import { AdminSuccessStories } from './pages/admin/AdminSuccessStories';
+import { AdminAlertSubscribers } from './pages/admin/AdminAlertSubscribers';
 import { AdminOrganizations } from './pages/admin/AdminOrganizations';
 import { AdminSkills } from './pages/admin/AdminSkills';
 import { AdminSubmissions } from './pages/admin/AdminSubmissions';
@@ -247,6 +248,7 @@ export function AppContent() {
           {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
           {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
           {currentPath === '/admin/success-stories' && <AdminSuccessStories onNavigate={navigate} />}
+          {(currentPath === '/admin/subscribers' || currentPath === '/admin/alerts') && <AdminAlertSubscribers onNavigate={navigate} />}
           {currentPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
           {currentPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
           {currentPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}

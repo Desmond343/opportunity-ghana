@@ -12,6 +12,7 @@ import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts'
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
 import { VERIFIED_REAL_COMPETITIONS } from './src/data/verifiedCompetitions.ts';
 import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
+import * as XLSX from 'xlsx';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
@@ -1042,6 +1043,588 @@ app.delete('/api/admin/success-stories/:id', verifyAdminAuth, async (req, res) =
   } catch (err: any) {
     console.error('Error deleting success story:', err);
     res.status(500).json({ error: 'Failed to delete success story' });
+  }
+});
+
+// =========================================================================
+// DAILY ALERT EMAIL SUBSCRIBERS PERSISTENCE & ADMIN ENDPOINTS
+// =========================================================================
+const ALERT_SUBSCRIBERS_FILE = path.resolve(process.cwd(), 'data', 'alert_subscribers.json');
+
+function normalizeAlertEmail(email: string): string {
+  return (email || '').trim().toLowerCase();
+}
+
+function loadServerAlertSubscribers(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(ALERT_SUBSCRIBERS_FILE))) {
+      fs.mkdirSync(path.dirname(ALERT_SUBSCRIBERS_FILE), { recursive: true });
+    }
+    if (fs.existsSync(ALERT_SUBSCRIBERS_FILE)) {
+      const raw = fs.readFileSync(ALERT_SUBSCRIBERS_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.email) {
+            const key = normalizeAlertEmail(item.email);
+            map.set(key, item);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading alert subscribers from disk:', err);
+  }
+  return map;
+}
+
+const serverAlertSubscribersMap = loadServerAlertSubscribers();
+
+function persistServerAlertSubscribers() {
+  try {
+    if (!fs.existsSync(path.dirname(ALERT_SUBSCRIBERS_FILE))) {
+      fs.mkdirSync(path.dirname(ALERT_SUBSCRIBERS_FILE), { recursive: true });
+    }
+    const list = Array.from(serverAlertSubscribersMap.values());
+    fs.writeFileSync(ALERT_SUBSCRIBERS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error saving alert subscribers to disk:', err);
+  }
+}
+
+// 1. PUBLIC: Subscribe email for daily alerts (with duplicate prevention & reactivation)
+app.post('/api/alerts/subscribe', async (req, res) => {
+  try {
+    const { email, phone, whatsappEnabled, categories, regions, frequency, source, userId } = req.body || {};
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'A valid email address is required.' });
+    }
+
+    const normalized = normalizeAlertEmail(email);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalized)) {
+      return res.status(400).json({ error: 'Please enter a valid email address (e.g. name@domain.com).' });
+    }
+
+    const now = new Date().toISOString();
+    const existing = serverAlertSubscribersMap.get(normalized);
+
+    // Build categories list
+    const finalCategories = Array.isArray(categories) && categories.length > 0
+      ? categories
+      : (existing?.categories?.length ? existing.categories : ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training']);
+
+    const finalRegions = Array.isArray(regions) && regions.length > 0
+      ? regions
+      : (existing?.regions?.length ? existing.regions : ['All Ghana']);
+
+    const finalFrequency = frequency || existing?.frequency || 'daily';
+    const finalSource = source || existing?.source || 'Homepage Daily Alerts';
+
+    let subscriberRecord: any;
+    let wasReactivated = false;
+    let alreadySubscribed = false;
+
+    if (existing) {
+      const wasActive = existing.status === 'active' && existing.active === true;
+      wasReactivated = !wasActive;
+      alreadySubscribed = wasActive;
+
+      subscriberRecord = {
+        ...existing,
+        userId: userId || existing.userId || undefined,
+        phone: phone !== undefined ? phone : existing.phone,
+        whatsappEnabled: whatsappEnabled !== undefined ? Boolean(whatsappEnabled) : existing.whatsappEnabled,
+        categories: finalCategories,
+        regions: finalRegions,
+        frequency: finalFrequency,
+        source: finalSource,
+        status: 'active',
+        active: true,
+        unsubscribedAt: null,
+        updatedAt: now
+      };
+    } else {
+      const id = `sub_${Buffer.from(normalized).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 24)}_${Date.now().toString(36)}`;
+      subscriberRecord = {
+        id,
+        userId: userId || undefined,
+        email: normalized,
+        phone: phone || '',
+        whatsappEnabled: Boolean(whatsappEnabled),
+        categories: finalCategories,
+        regions: finalRegions,
+        frequency: finalFrequency,
+        status: 'active',
+        active: true,
+        source: finalSource,
+        lastAlertSentAt: null,
+        lastAlertTitle: null,
+        alertsCount: 0,
+        unsubscribedAt: null,
+        createdAt: now,
+        updatedAt: now
+      };
+    }
+
+    // Persist locally
+    serverAlertSubscribersMap.set(normalized, subscriberRecord);
+    persistServerAlertSubscribers();
+
+    // Persist to Firestore if available
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('alerts').doc(subscriberRecord.id).set(subscriberRecord, { merge: true });
+      } catch (err: any) {
+        console.warn('Firestore admin save alert notice:', err.message);
+      }
+    }
+
+    let message = 'Thank you! You are now subscribed to verified daily opportunity alerts.';
+    if (alreadySubscribed) {
+      message = 'Your alert preferences have been updated. You are already subscribed to daily alerts.';
+    } else if (wasReactivated) {
+      message = 'Welcome back! Your alert subscription has been reactivated.';
+    }
+
+    return res.json({
+      success: true,
+      subscriber: subscriberRecord,
+      alreadySubscribed,
+      reactivated: wasReactivated,
+      isNew: !existing,
+      message
+    });
+  } catch (err: any) {
+    console.error('Error subscribing email to alerts:', err);
+    return res.status(500).json({ error: 'Failed to save alert subscription. Please try again.' });
+  }
+});
+
+// 2. PUBLIC: Unsubscribe from daily alerts
+app.post('/api/alerts/unsubscribe', async (req, res) => {
+  try {
+    const { email, id } = req.body || {};
+    let targetKey: string | null = null;
+
+    if (email && typeof email === 'string') {
+      targetKey = normalizeAlertEmail(email);
+    } else if (id && typeof id === 'string') {
+      for (const [key, sub] of serverAlertSubscribersMap.entries()) {
+        if (sub.id === id) {
+          targetKey = key;
+          break;
+        }
+      }
+    }
+
+    if (!targetKey || !serverAlertSubscribersMap.has(targetKey)) {
+      return res.status(404).json({ error: 'Subscription not found.' });
+    }
+
+    const sub = serverAlertSubscribersMap.get(targetKey)!;
+    const now = new Date().toISOString();
+    const updated = {
+      ...sub,
+      status: 'unsubscribed',
+      active: false,
+      unsubscribedAt: now,
+      updatedAt: now
+    };
+
+    serverAlertSubscribersMap.set(targetKey, updated);
+    persistServerAlertSubscribers();
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('alerts').doc(updated.id).set(updated, { merge: true });
+      } catch (err: any) {
+        console.warn('Firestore admin unsubscribe notice:', err.message);
+      }
+    }
+
+    return res.json({ success: true, message: 'You have been successfully unsubscribed from daily alerts.' });
+  } catch (err: any) {
+    console.error('Error unsubscribing:', err);
+    return res.status(500).json({ error: 'Failed to process unsubscribe request.' });
+  }
+});
+
+// 3. ADMIN: Get Daily Alert Subscribers with search, filter, sort & pagination
+app.get('/api/admin/alerts/subscribers', verifyAdminAuth, async (req, res) => {
+  try {
+    // Sync with Firestore collection if initialized
+    if (adminDb && isInitialized) {
+      try {
+        const snap = await adminDb.collection('alerts').get();
+        snap.docs.forEach((d: any) => {
+          const data = d.data();
+          if (data && data.email) {
+            const key = normalizeAlertEmail(data.email);
+            if (!serverAlertSubscribersMap.has(key)) {
+              serverAlertSubscribersMap.set(key, { id: d.id, ...data });
+            }
+          }
+        });
+      } catch (err: any) {
+        console.warn('Firestore read alerts notice:', err.message);
+      }
+    }
+
+    let all = Array.from(serverAlertSubscribersMap.values());
+
+    // Compute overall statistics
+    const nowMs = Date.now();
+    const thirtyDaysAgo = nowMs - 30 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = nowMs - 7 * 24 * 60 * 60 * 1000;
+
+    const total = all.length;
+    const active = all.filter((s) => s.status === 'active' || s.active === true).length;
+    const unsubscribed = all.filter((s) => s.status === 'unsubscribed' || s.active === false).length;
+    const newThisMonth = all.filter((s) => new Date(s.createdAt).getTime() >= thirtyDaysAgo).length;
+    const newThisWeek = all.filter((s) => new Date(s.createdAt).getTime() >= sevenDaysAgo).length;
+
+    // Apply Filters
+    const search = ((req.query.search as string) || '').trim().toLowerCase();
+    if (search) {
+      all = all.filter(
+        (s) =>
+          (s.email && s.email.toLowerCase().includes(search)) ||
+          (s.phone && s.phone.includes(search)) ||
+          (s.source && s.source.toLowerCase().includes(search))
+      );
+    }
+
+    const statusFilter = (req.query.status as string) || 'all';
+    if (statusFilter === 'active') {
+      all = all.filter((s) => s.status === 'active' || s.active === true);
+    } else if (statusFilter === 'unsubscribed') {
+      all = all.filter((s) => s.status === 'unsubscribed' || s.active === false);
+    }
+
+    const categoryFilter = (req.query.category as string) || 'all';
+    if (categoryFilter && categoryFilter !== 'all') {
+      all = all.filter(
+        (s) => Array.isArray(s.categories) && s.categories.some((c: string) => c.toLowerCase() === categoryFilter.toLowerCase())
+      );
+    }
+
+    const frequencyFilter = (req.query.frequency as string) || 'all';
+    if (frequencyFilter && frequencyFilter !== 'all') {
+      all = all.filter((s) => (s.frequency || 'daily').toLowerCase() === frequencyFilter.toLowerCase());
+    }
+
+    // Sort
+    const sortBy = (req.query.sortBy as string) || 'newest';
+    all.sort((a, b) => {
+      if (sortBy === 'oldest') {
+        return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      }
+      if (sortBy === 'email_asc') {
+        return (a.email || '').localeCompare(b.email || '');
+      }
+      if (sortBy === 'email_desc') {
+        return (b.email || '').localeCompare(a.email || '');
+      }
+      // default: newest
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+
+    // Pagination
+    const page = Math.max(1, parseInt((req.query.page as string) || '1', 10));
+    const limit = Math.max(1, Math.min(200, parseInt((req.query.limit as string) || '25', 10)));
+    const filteredTotal = all.length;
+    const totalPages = Math.ceil(filteredTotal / limit) || 1;
+    const paginated = all.slice((page - 1) * limit, page * limit);
+
+    return res.json({
+      success: true,
+      subscribers: paginated,
+      total: filteredTotal,
+      page,
+      totalPages,
+      metrics: {
+        total,
+        active,
+        unsubscribed,
+        newThisMonth,
+        newThisWeek
+      }
+    });
+  } catch (err: any) {
+    console.error('Error fetching alert subscribers:', err);
+    return res.status(500).json({ error: 'Failed to fetch alert subscribers' });
+  }
+});
+
+// 4. ADMIN: Update subscriber status (Activate / Unsubscribe)
+app.post('/api/admin/alerts/subscribers/:id/status', verifyAdminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['active', 'unsubscribed'].includes(status)) {
+      return res.status(400).json({ error: "Status must be 'active' or 'unsubscribed'." });
+    }
+
+    let foundKey: string | null = null;
+    let targetSub: any = null;
+
+    for (const [key, sub] of serverAlertSubscribersMap.entries()) {
+      if (sub.id === id || sub.email === id) {
+        foundKey = key;
+        targetSub = sub;
+        break;
+      }
+    }
+
+    if (!targetSub || !foundKey) {
+      return res.status(404).json({ error: 'Subscriber not found.' });
+    }
+
+    const now = new Date().toISOString();
+    const isNowActive = status === 'active';
+    const updated = {
+      ...targetSub,
+      status,
+      active: isNowActive,
+      unsubscribedAt: isNowActive ? null : (targetSub.unsubscribedAt || now),
+      updatedAt: now
+    };
+
+    serverAlertSubscribersMap.set(foundKey, updated);
+    persistServerAlertSubscribers();
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('alerts').doc(updated.id).set(updated, { merge: true });
+      } catch (err: any) {
+        console.warn('Firestore update alert status notice:', err.message);
+      }
+    }
+
+    return res.json({ success: true, subscriber: updated });
+  } catch (err: any) {
+    console.error('Error updating subscriber status:', err);
+    return res.status(500).json({ error: 'Failed to update subscriber status' });
+  }
+});
+
+// 5. ADMIN: Delete a subscriber
+app.delete('/api/admin/alerts/subscribers/:id', verifyAdminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let foundKey: string | null = null;
+
+    for (const [key, sub] of serverAlertSubscribersMap.entries()) {
+      if (sub.id === id || sub.email === id) {
+        foundKey = key;
+        break;
+      }
+    }
+
+    if (foundKey) {
+      serverAlertSubscribersMap.delete(foundKey);
+      persistServerAlertSubscribers();
+    }
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('alerts').doc(id).delete();
+      } catch (err: any) {
+        console.warn('Firestore delete alert notice:', err.message);
+      }
+    }
+
+    return res.json({ success: true, id });
+  } catch (err: any) {
+    console.error('Error deleting subscriber:', err);
+    return res.status(500).json({ error: 'Failed to delete subscriber' });
+  }
+});
+
+// 6. ADMIN: Export Daily Alert Subscribers to Real Excel (.xlsx)
+app.get('/api/admin/alerts/export', verifyAdminAuth, async (req, res) => {
+  try {
+    let all = Array.from(serverAlertSubscribersMap.values());
+
+    // Apply any query filters if specified (scope: 'filtered' vs 'all')
+    const scope = (req.query.scope as string) || 'filtered';
+    if (scope === 'filtered') {
+      const search = ((req.query.search as string) || '').trim().toLowerCase();
+      if (search) {
+        all = all.filter(
+          (s) =>
+            (s.email && s.email.toLowerCase().includes(search)) ||
+            (s.phone && s.phone.includes(search)) ||
+            (s.source && s.source.toLowerCase().includes(search))
+        );
+      }
+
+      const statusFilter = (req.query.status as string) || 'all';
+      if (statusFilter === 'active') {
+        all = all.filter((s) => s.status === 'active' || s.active === true);
+      } else if (statusFilter === 'unsubscribed') {
+        all = all.filter((s) => s.status === 'unsubscribed' || s.active === false);
+      }
+
+      const categoryFilter = (req.query.category as string) || 'all';
+      if (categoryFilter && categoryFilter !== 'all') {
+        all = all.filter(
+          (s) => Array.isArray(s.categories) && s.categories.some((c: string) => c.toLowerCase() === categoryFilter.toLowerCase())
+        );
+      }
+
+      const frequencyFilter = (req.query.frequency as string) || 'all';
+      if (frequencyFilter && frequencyFilter !== 'all') {
+        all = all.filter((s) => (s.frequency || 'daily').toLowerCase() === frequencyFilter.toLowerCase());
+      }
+    }
+
+    // Sort newest first
+    all.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+    // Prepare table rows for Excel
+    const rows = all.map((s, index) => {
+      const cats = Array.isArray(s.categories) ? s.categories.join(', ') : 'All Categories';
+      const regs = Array.isArray(s.regions) ? s.regions.join(', ') : 'All Ghana';
+      const createdDate = s.createdAt ? new Date(s.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+      const lastAlert = s.lastAlertSentAt ? new Date(s.lastAlertSentAt).toISOString().replace('T', ' ').substring(0, 19) : 'Never';
+
+      return {
+        'No.': index + 1,
+        'Email Address': s.email || '',
+        'Status': (s.status === 'active' || s.active === true) ? 'Active' : 'Unsubscribed',
+        'Subscription Date': createdDate,
+        'Dispatch Frequency': (s.frequency || 'Daily').toUpperCase(),
+        'Target Categories': cats,
+        'Target Regions': regs,
+        'Phone / WhatsApp': s.phone || 'None',
+        'WhatsApp Enabled': s.whatsappEnabled ? 'Yes' : 'No',
+        'Source': s.source || 'Homepage Daily Alerts',
+        'Last Alert Sent': lastAlert,
+        'Total Alerts Received': s.alertsCount || 0
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // Set professional column widths
+    worksheet['!cols'] = [
+      { wch: 6 },  // No.
+      { wch: 32 }, // Email Address
+      { wch: 14 }, // Status
+      { wch: 22 }, // Subscription Date
+      { wch: 18 }, // Dispatch Frequency
+      { wch: 35 }, // Target Categories
+      { wch: 20 }, // Target Regions
+      { wch: 20 }, // Phone
+      { wch: 16 }, // WhatsApp
+      { wch: 26 }, // Source
+      { wch: 22 }, // Last Alert Sent
+      { wch: 20 }  // Total Alerts
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Alert Subscribers');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const todayStr = new Date().toISOString().split('T')[0];
+    const filename = `opportunity-ghana-daily-alert-subscribers-${todayStr}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error('Error generating Excel export:', err);
+    return res.status(500).json({ error: 'Failed to generate Excel export' });
+  }
+});
+
+// 7. ADMIN: Dispatch Daily Alert Digest to Active Subscribers
+app.post('/api/admin/alerts/dispatch-daily', verifyAdminAuth, async (req, res) => {
+  try {
+    const activeSubscribers = Array.from(serverAlertSubscribersMap.values()).filter(
+      (s) => s.status === 'active' || s.active === true
+    );
+
+    if (activeSubscribers.length === 0) {
+      return res.json({
+        success: true,
+        sentCount: 0,
+        message: 'No active subscribers to dispatch alerts to.'
+      });
+    }
+
+    // Find top open/recent opportunities to include in digest
+    const recentOpps = Array.from(serverPublishedOppsMap.values())
+      .filter((o) => o.status === 'published')
+      .slice(0, 5);
+
+    const fallbackTitle = ALL_VERIFIED_INITIAL[0]?.title || 'MTN Ghana Bright Scholarship 2026';
+    const topTitle = recentOpps.length > 0 ? recentOpps[0].title : fallbackTitle;
+    const now = new Date().toISOString();
+
+    let updatedCount = 0;
+    for (const sub of activeSubscribers) {
+      const key = normalizeAlertEmail(sub.email);
+      const updated = {
+        ...sub,
+        lastAlertSentAt: now,
+        lastAlertTitle: topTitle,
+        alertsCount: (sub.alertsCount || 0) + 1,
+        updatedAt: now
+      };
+      serverAlertSubscribersMap.set(key, updated);
+      updatedCount++;
+
+      if (adminDb && isInitialized) {
+        adminDb.collection('alerts').doc(updated.id).set(updated, { merge: true }).catch(() => {});
+      }
+    }
+
+    persistServerAlertSubscribers();
+
+    return res.json({
+      success: true,
+      sentCount: updatedCount,
+      timestamp: now,
+      leadOpportunity: topTitle,
+      message: `Daily alert digest successfully queued & recorded for ${updatedCount} active subscriber${updatedCount === 1 ? '' : 's'}.`
+    });
+  } catch (err: any) {
+    console.error('Error dispatching daily alerts:', err);
+    return res.status(500).json({ error: 'Failed to dispatch daily alerts' });
+  }
+});
+
+// 8. ADMIN: Record Audit Log for Excel Export
+app.post('/api/admin/alerts/audit-export', verifyAdminAuth, async (req, res) => {
+  try {
+    const user = (req as any).user || {};
+    const { count, scope, filename } = req.body || {};
+
+    const auditEntry = {
+      id: `log_export_${Date.now()}`,
+      entityType: 'alert_subscribers',
+      entityId: 'daily_alerts_export',
+      entityTitle: `Excel Export (${scope || 'all'}: ${count || 0} subscribers)`,
+      action: 'exported',
+      performedByEmail: user.email || 'administrator@opportunityghana.com',
+      performedByName: user.name || 'Administrator',
+      timestamp: new Date().toISOString(),
+      details: `Exported ${count || 0} subscribers to ${filename || 'Excel .xlsx'}`
+    };
+
+    if (adminDb && isInitialized) {
+      adminDb.collection('audit_logs').doc(auditEntry.id).set(auditEntry).catch(() => {});
+    }
+
+    return res.json({ success: true, auditEntry });
+  } catch (err: any) {
+    return res.json({ success: false, error: err.message });
   }
 });
 

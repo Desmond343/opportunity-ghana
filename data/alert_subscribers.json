@@ -1,0 +1,74 @@
+[
+  {
+    "id": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+    "email": "kofi.annan@example.com",
+    "phone": "",
+    "whatsappEnabled": false,
+    "categories": [
+      "Scholarships",
+      "Jobs",
+      "Internships",
+      "Grants",
+      "Training"
+    ],
+    "regions": [
+      "All Ghana"
+    ],
+    "frequency": "daily",
+    "status": "active",
+    "active": true,
+    "source": "Homepage Daily Alerts",
+    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
+    "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
+    "alertsCount": 1,
+    "unsubscribedAt": null,
+    "createdAt": "2026-10-07T17:45:27.278Z",
+    "updatedAt": "2026-10-07T17:45:27.349Z"
+  },
+  {
+    "id": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+    "email": "efua.mensah@ug.edu.gh",
+    "phone": "+233 24 111 2222",
+    "whatsappEnabled": true,
+    "categories": [
+      "Scholarships",
+      "Jobs"
+    ],
+    "regions": [
+      "All Ghana"
+    ],
+    "frequency": "daily",
+    "status": "active",
+    "active": true,
+    "source": "Homepage Daily Alerts",
+    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
+    "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
+    "alertsCount": 1,
+    "unsubscribedAt": null,
+    "createdAt": "2026-10-07T17:45:27.303Z",
+    "updatedAt": "2026-10-07T17:45:27.349Z"
+  },
+  {
+    "id": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+    "email": "kwame.boateng@knust.edu.gh",
+    "phone": "",
+    "whatsappEnabled": false,
+    "categories": [
+      "Internships",
+      "Grants"
+    ],
+    "regions": [
+      "All Ghana"
+    ],
+    "frequency": "daily",
+    "status": "active",
+    "active": true,
+    "source": "Homepage Daily Alerts",
+    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
+    "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
+    "alertsCount": 1,
+    "unsubscribedAt": null,
+    "createdAt": "2026-10-07T17:45:27.307Z",
+    "updatedAt": "2026-10-07T17:45:27.349Z"
+  }
+]

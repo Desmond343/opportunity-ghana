@@ -3,6 +3,7 @@ import { Opportunity, Resource, SuccessStory } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
 import { ResourcesService } from '../services/resourcesService';
 import { SuccessStoriesService } from '../services/successStoriesService';
+import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
@@ -55,6 +56,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   // Newsletter email state
   const [alertEmail, setAlertEmail] = useState('');
   const [alertSuccess, setAlertSuccess] = useState(false);
+  const [alertSuccessMessage, setAlertSuccessMessage] = useState('');
+  const [alertErrorMessage, setAlertErrorMessage] = useState('');
+  const [alertLoading, setAlertLoading] = useState(false);
 
   // Horizontal scroll container ref for "What's available right now?"
   const availableScrollRef = useRef<HTMLDivElement>(null);
@@ -118,12 +122,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     onNavigate(`/opportunities?${params.toString()}`);
   };
 
-  const handleAlertSubmit = (e: React.FormEvent) => {
+  const handleAlertSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (alertEmail) {
+    const cleanEmail = alertEmail.trim();
+    if (!cleanEmail) return;
+
+    setAlertLoading(true);
+    setAlertErrorMessage('');
+    try {
+      const res = await AlertSubscriptionsService.subscribe({
+        email: cleanEmail,
+        source: 'Homepage Daily Alerts',
+        frequency: 'daily'
+      });
       setAlertSuccess(true);
+      setAlertSuccessMessage(res.message || '✓ Thank you! You will receive verified opportunity alerts directly.');
       setAlertEmail('');
-      setTimeout(() => setAlertSuccess(false), 5000);
+      setTimeout(() => setAlertSuccess(false), 6000);
+    } catch (err: any) {
+      setAlertErrorMessage(err.message || 'Failed to register alert email. Please try again.');
+    } finally {
+      setAlertLoading(false);
     }
   };
 
@@ -1030,26 +1049,35 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </p>
 
             {alertSuccess ? (
-              <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl text-xs sm:text-sm font-bold text-[#FCD116]">
-                ✓ Thank you! You will receive verified opportunity alerts directly.
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl text-xs sm:text-sm font-bold text-[#FCD116] border border-[#FCD116]/30">
+                {alertSuccessMessage || '✓ Thank you! You will receive verified opportunity alerts directly.'}
               </div>
             ) : (
-              <form onSubmit={handleAlertSubmit} className="pt-2 flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter your email for free alerts"
-                  value={alertEmail}
-                  onChange={(e) => setAlertEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 rounded-xl bg-[#FCD116] hover:bg-[#D9B400] text-[#111111] text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer"
-                >
-                  Set Free Alerts
-                </button>
-              </form>
+              <div className="space-y-2 max-w-md mx-auto">
+                <form onSubmit={handleAlertSubmit} className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                  <input
+                    type="email"
+                    required
+                    disabled={alertLoading}
+                    placeholder="Enter your email for free alerts"
+                    value={alertEmail}
+                    onChange={(e) => setAlertEmail(e.target.value)}
+                    className="flex-1 px-4 py-3 rounded-xl bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-60"
+                  />
+                  <button
+                    type="submit"
+                    disabled={alertLoading}
+                    className="px-6 py-3 rounded-xl bg-[#FCD116] hover:bg-[#D9B400] disabled:opacity-60 text-[#111111] text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer"
+                  >
+                    {alertLoading ? 'Saving...' : 'Set Free Alerts'}
+                  </button>
+                </form>
+                {alertErrorMessage && (
+                  <p className="text-xs text-rose-300 font-semibold bg-rose-950/40 p-2 rounded-lg border border-rose-800/40">
+                    {alertErrorMessage}
+                  </p>
+                )}
+              </div>
             )}
 
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs text-emerald-200/80">
