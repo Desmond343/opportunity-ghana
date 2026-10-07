@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AuthProvider } from './services/authContext';
+import { AuthProvider, useAuth } from './services/authContext';
 import { ThemeProvider } from './services/themeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -18,12 +18,14 @@ import { AlertsPage } from './pages/AlertsPage';
 import { SavedPage } from './pages/SavedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AuthPage } from './pages/AuthPage';
+import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminScholarshipResearch } from './pages/admin/AdminScholarshipResearch';
 import { AdminAIAssistant } from './pages/admin/AdminAIAssistant';
 import { AdminOpportunities } from './pages/admin/AdminOpportunities';
 import { AdminResources } from './pages/admin/AdminResources';
+import { AdminSuccessStories } from './pages/admin/AdminSuccessStories';
 import { AdminOrganizations } from './pages/admin/AdminOrganizations';
 import { AdminSkills } from './pages/admin/AdminSkills';
 import { AdminSubmissions } from './pages/admin/AdminSubmissions';
@@ -31,6 +33,7 @@ import { AdminResourceSubmissions } from './pages/admin/AdminResourceSubmissions
 import { AdminReports } from './pages/admin/AdminReports';
 import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
+import { usePublishedStoriesCount } from './services/successStoriesService';
 import { Search, X, Compass, ExternalLink } from 'lucide-react';
 import { OPPORTUNITY_CATEGORIES } from './data/categories';
 import { InstallAppPrompt } from './components/pwa/InstallAppPrompt';
@@ -38,6 +41,8 @@ import { OfflineIndicator } from './components/pwa/OfflineIndicator';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 export function AppContent() {
+  const { isEditorOrAdmin } = useAuth();
+  const { count: publishedStoriesCount } = usePublishedStoriesCount();
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname || '/');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState('');
@@ -216,7 +221,22 @@ export function AppContent() {
       return <AuthPage mode="signup" onNavigate={navigate} />;
     }
 
-    // 11. Admin routes: /admin/*
+    // 11. Success Stories: /success-stories and /success-stories/:slug
+    if (pathname === '/success-stories' || pathname.startsWith('/success-stories/')) {
+      const slug = pathname.replace('/success-stories/', '').replace(/\/$/, '');
+      // When zero published stories exist and visitor is not an admin, do not expose empty page or coming soon
+      if (publishedStoriesCount === 0 && !isEditorOrAdmin) {
+        return <HomePage onNavigate={navigate} />;
+      }
+      return (
+        <SuccessStoriesPage
+          onNavigate={navigate}
+          initialStorySlug={slug !== '/success-stories' && slug !== '' ? slug : undefined}
+        />
+      );
+    }
+
+    // 12. Admin routes: /admin/*
     if (currentPath.startsWith('/admin')) {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
@@ -225,6 +245,7 @@ export function AppContent() {
           {currentPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
           {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
           {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
+          {currentPath === '/admin/success-stories' && <AdminSuccessStories onNavigate={navigate} />}
           {currentPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
           {currentPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
           {currentPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}

@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Mail, ArrowRight, Heart } from 'lucide-react';
 import { OPPORTUNITY_CATEGORIES } from '../../data/categories';
 import { useAuth } from '../../services/authContext';
+import { usePublishedStoriesCount } from '../../services/successStoriesService';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -9,6 +10,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { isEditorOrAdmin } = useAuth();
+  const { count: publishedStoriesCount } = usePublishedStoriesCount();
 
   return (
     <footer className="bg-[#111111] text-neutral-300 border-t border-neutral-800 pt-14 pb-12">
@@ -95,6 +97,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   Deadline Alerts
                 </button>
               </li>
+              {publishedStoriesCount > 0 && (
+                <li>
+                  <button
+                    onClick={() => onNavigate('/success-stories')}
+                    className="hover:text-[#006B3F] transition-colors cursor-pointer text-emerald-400 font-semibold flex items-center gap-1"
+                  >
+                    Success Stories
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -150,6 +162,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                       className="hover:text-[#006B3F] transition-colors cursor-pointer"
                     >
                       Manage Resources
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => onNavigate('/admin/success-stories')}
+                      className="hover:text-[#006B3F] transition-colors cursor-pointer"
+                    >
+                      Manage Stories
                     </button>
                   </li>
                   <li>

@@ -142,5 +142,11 @@ service cloud.firestore {
     match /verification_records/{recordId} {
       allow read, write: if isAdminOrEditor();
     }
+
+    // 14. Success Stories: Public can ONLY read published stories. Admin/editor have full access.
+    match /success_stories/{storyId} {
+      allow read: if (resource.data.status == 'published') || isAdminOrEditor();
+      allow write: if isAdminOrEditor();
+    }
   }
 }

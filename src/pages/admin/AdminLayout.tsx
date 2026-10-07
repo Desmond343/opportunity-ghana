@@ -17,7 +17,8 @@ import {
   RotateCw,
   CheckCircle2,
   Lock,
-  GraduationCap
+  GraduationCap,
+  Award
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -68,6 +69,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
     { label: 'AI Content Assistant', path: '/admin/ai-assistant', icon: Sparkles },
     { label: 'Opportunities', path: '/admin/opportunities', icon: Compass },
     { label: 'Resources', path: '/admin/resources', icon: BookOpen },
+    { label: 'Success Stories', path: '/admin/success-stories', icon: Award },
     { label: 'Organizations', path: '/admin/organizations', icon: Building },
     { label: 'Skills', path: '/admin/skills', icon: Sparkles },
     { label: 'Submissions', path: '/admin/submissions', icon: Inbox },

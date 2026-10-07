@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../services/authContext';
 import { SavedService } from '../../services/savedService';
+import { usePublishedStoriesCount } from '../../services/successStoriesService';
 import {
   Search,
   ShieldCheck,
@@ -37,6 +38,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
     return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
   }, []);
 
+  const { count: publishedStoriesCount } = usePublishedStoriesCount();
+
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Jobs', path: '/jobs' },
@@ -44,6 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
     { label: 'Scholarships', path: '/scholarships' },
     { label: 'Free Courses', path: '/courses' },
     { label: 'Institutions', path: '/institutions' },
+    ...(publishedStoriesCount > 0 ? [{ label: 'Success Stories', path: '/success-stories' }] : []),
     { label: 'All Opportunities', path: '/opportunities' },
     { label: 'Saved', path: '/saved' }
   ];

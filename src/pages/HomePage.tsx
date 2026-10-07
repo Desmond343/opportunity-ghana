@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Opportunity, Resource } from '../types/database';
+import { Opportunity, Resource, SuccessStory } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
 import { ResourcesService } from '../services/resourcesService';
+import { SuccessStoriesService } from '../services/successStoriesService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
@@ -42,6 +43,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [closingSoon, setClosingSoon] = useState<Opportunity[]>([]);
   const [newlyAdded, setNewlyAdded] = useState<Opportunity[]>([]);
   const [freeCourses, setFreeCourses] = useState<Resource[]>([]);
+  const [publishedStories, setPublishedStories] = useState<SuccessStory[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -61,13 +63,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     async function loadData() {
       try {
         setLoading(true);
-        const [slides, featured, closing, recent, courses, count] = await Promise.all([
+        const [slides, featured, closing, recent, courses, count, stories] = await Promise.all([
           OpportunitiesService.getSlideshowOpportunities(6),
           OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
           ResourcesService.getFreeCourses(3),
-          OpportunitiesService.getPublishedOpportunityCount()
+          OpportunitiesService.getPublishedOpportunityCount(),
+          SuccessStoriesService.getPublishedStories(3)
         ]);
         setSlideshowOpps(slides);
         setFeaturedOpps(featured);
@@ -75,6 +78,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         setNewlyAdded(recent);
         setFreeCourses(courses);
         setTotalCount(count);
+        setPublishedStories(stories);
       } catch (err) {
         console.error('Failed to load homepage data', err);
       } finally {
@@ -86,8 +90,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     const handleUpdate = () => {
       loadData();
     };
+
+    const handleStoriesUpdate = () => {
+      SuccessStoriesService.getPublishedStories(3)
+        .then(setPublishedStories)
+        .catch(() => {});
+    };
+
     window.addEventListener('opportunities-changed', handleUpdate);
-    return () => window.removeEventListener('opportunities-changed', handleUpdate);
+    window.addEventListener('success-stories-changed', handleStoriesUpdate);
+    return () => {
+      window.removeEventListener('opportunities-changed', handleUpdate);
+      window.removeEventListener('success-stories-changed', handleStoriesUpdate);
+    };
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -854,44 +869,110 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       )}
 
       {/* ==================================================
-          7. SUCCESS STORIES (Verified Stories Only / Professional Empty State)
+          7. SUCCESS STORIES (Admin-Controlled: Visible ONLY if published stories exist)
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
-              Success Stories
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real people. Real opportunities. Real journeys.
-          </p>
-        </div>
-
-        {/* Note: Section 10 strictly requires: "If there are no verified stories, DO NOT create fake people. Instead show a beautiful empty state" */}
-        <div className="bg-[#F7F8FA] dark:bg-[#141B29] border border-slate-200/90 dark:border-slate-800 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-3xl mx-auto">
-          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center mx-auto shadow-2xs">
-            <Users className="w-6 h-6" />
-          </div>
-          <div className="space-y-1.5">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
-              Success Stories are Coming Soon
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 leading-relaxed max-w-lg mx-auto">
-              We exclusively publish authenticated, verified alumnus journeys. Benefited from an opportunity discovered through Opportunity Ghana?
-            </p>
-          </div>
-          <div className="pt-2">
+      {publishedStories.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
+                  Success Stories
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Real people. Real opportunities. Real journeys.
+              </p>
+            </div>
             <button
-              onClick={() => onNavigate('/alerts')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
+              onClick={() => onNavigate('/success-stories')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:underline cursor-pointer self-start sm:self-auto"
             >
-              Share Your Journey
+              <span>Explore All Stories</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
-        </div>
-      </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {publishedStories.map((story) => (
+              <div
+                key={story.id}
+                onClick={() => onNavigate(`/success-stories?story=${story.slug}`)}
+                className="group bg-white dark:bg-[#141B29] border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 hover:border-emerald-500/50 dark:hover:border-emerald-600/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-100 dark:border-emerald-800 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center font-bold text-base overflow-hidden shrink-0 shadow-2xs">
+                      {story.storytellerAvatar ? (
+                        <img
+                          src={story.storytellerAvatar}
+                          alt={story.storytellerName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        story.storytellerName.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors truncate font-space">
+                        {story.storytellerName}
+                      </h3>
+                      {story.storytellerRole && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          {story.storytellerRole}
+                        </p>
+                      )}
+                      {story.institutionOrCareer && (
+                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium truncate flex items-center gap-1 mt-0.5">
+                          <GraduationCap className="w-3 h-3 shrink-0" />
+                          {story.institutionOrCareer}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0B0F17] border border-slate-100 dark:border-slate-800/80">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
+                      Benefited From
+                    </span>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 mt-0.5">
+                      {story.benefitedOpportunityTitle}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-space line-clamp-2 leading-snug">
+                      {story.title}
+                    </h4>
+                    {story.quote && (
+                      <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-3 leading-relaxed border-l-2 border-[#006B3F] dark:border-emerald-400 pl-2.5">
+                        "{story.quote}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-5">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#006B3F] dark:text-emerald-400 group-hover:underline">
+                    Read Journey
+                    <ArrowRight className="w-3 h-3" />
+                  </span>
+                  {story.publishedAt && (
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                      {new Date(story.publishedAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ==================================================
           8. RESOURCES & LEARNING PATHS

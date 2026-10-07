@@ -4,6 +4,7 @@ import { VERIFIED_ORGANIZATIONS } from '../data/verifiedOpportunities';
 import { OpportunitiesService } from './opportunitiesService';
 import { ResourcesService } from './resourcesService';
 import { calculateDeadlineInfo } from './deadlineService';
+import { SuccessStoriesService } from './successStoriesService';
 import { db, isFirebaseConfigured } from './firebase';
 import { collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
 
@@ -581,6 +582,14 @@ export const AdminService = {
 
     const pendingPartnerSubs = subs.filter(s => s.status === 'pending').length;
 
+    let successStoriesMetrics = { total: 0, published: 0, draft: 0, pending: 0, rejected: 0, archived: 0 };
+    try {
+      const { metrics: sm } = await SuccessStoriesService.getAdminStories();
+      if (sm) successStoriesMetrics = sm;
+    } catch {
+      // ignore
+    }
+
     return {
       totalOpportunities: opps.length,
       publishedCount: opps.filter(o => o.status === 'published' && !calculateDeadlineInfo(o.deadline).isClosed).length,
@@ -594,7 +603,8 @@ export const AdminService = {
       totalUsers: users.length,
       totalOrganizations: orgs.length,
       pendingSubmissionsCount: pendingOppSubmissions + pendingResSubmissions + pendingPartnerSubs,
-      openReportsCount: reps.filter(r => r.status === 'open' || r.status === 'investigating').length
+      openReportsCount: reps.filter(r => r.status === 'open' || r.status === 'investigating').length,
+      successStoriesMetrics
     };
   }
 };

@@ -252,7 +252,6 @@ export interface Resource {
   certificateType?: CertificateType;
   certificateStatus?: string;
   certificateCost?: string;
-  certificateStatus?: string;
   financialAid?: boolean;
   financialAidUrl?: string;
   startDate?: string;
@@ -270,14 +269,6 @@ export interface Resource {
   enrollmentUrl: string;
   courseUrl?: string;
   officialCourseUrl?: string;
-  courseUrl?: string;
-  startDate?: string;
-  endDate?: string;
-  enrollmentDeadline?: string;
-  requiredSoftware?: string;
-  assessmentMethod?: string;
-  geographicRestrictions?: string;
-  enrollmentNotes?: string;
   language?: string;
   subtitles?: string[] | string;
   ghanaAccessibility?: string;
@@ -392,6 +383,40 @@ export interface AlertSubscription {
   active: boolean;
 }
 
+export type SuccessStoryStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'archived';
+
+export interface SuccessStory {
+  id: string;
+  slug: string;
+  title: string;
+  storytellerName: string;
+  storytellerRole?: string;
+  storytellerAvatar?: string;
+  benefitedOpportunityTitle: string;
+  benefitedOpportunityId?: string;
+  institutionOrCareer?: string;
+  quote?: string;
+  content: string;
+  keyTakeaways?: string[];
+  status: SuccessStoryStatus;
+  isFeatured?: boolean;
+  publishedAt?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SuccessStoryMetrics {
+  total: number;
+  published: number;
+  draft: number;
+  pending: number;
+  rejected: number;
+  archived: number;
+}
+
 export interface PipelineMetrics {
   totalOpportunities: number;
   publishedCount: number;
@@ -406,11 +431,12 @@ export interface PipelineMetrics {
   totalOrganizations: number;
   pendingSubmissionsCount: number;
   openReportsCount: number;
+  successStoriesMetrics?: SuccessStoryMetrics;
 }
 
 export interface AuditLogEntry {
   id: string;
-  entityType: 'opportunity' | 'resource' | 'organization' | 'submission';
+  entityType: 'opportunity' | 'resource' | 'organization' | 'submission' | 'success_story';
   entityId: string;
   entityTitle: string;
   action:

@@ -606,6 +606,244 @@ app.delete('/api/resources/:id', verifyAdminAuth, async (req, res) => {
   res.json({ success: true, id, note: 'deleted_locally' });
 });
 
+// =========================================================================
+// SUCCESS STORIES CMS PERSISTENCE & API ENDPOINTS
+// =========================================================================
+const SUCCESS_STORIES_FILE = path.resolve(process.cwd(), 'data', 'success_stories.json');
+
+function loadServerSuccessStories(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(SUCCESS_STORIES_FILE))) {
+      fs.mkdirSync(path.dirname(SUCCESS_STORIES_FILE), { recursive: true });
+    }
+    if (fs.existsSync(SUCCESS_STORIES_FILE)) {
+      const raw = fs.readFileSync(SUCCESS_STORIES_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.id) map.set(item.id, item);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading success stories from disk:', err);
+  }
+  return map;
+}
+
+const serverSuccessStoriesMap = loadServerSuccessStories();
+
+function saveServerSuccessStory(story: any) {
+  if (!story || !story.id) return;
+  serverSuccessStoriesMap.set(story.id, story);
+  try {
+    if (!fs.existsSync(path.dirname(SUCCESS_STORIES_FILE))) {
+      fs.mkdirSync(path.dirname(SUCCESS_STORIES_FILE), { recursive: true });
+    }
+    const list = Array.from(serverSuccessStoriesMap.values());
+    fs.writeFileSync(SUCCESS_STORIES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error saving success story to disk:', err);
+  }
+}
+
+function deleteServerSuccessStory(id: string) {
+  serverSuccessStoriesMap.delete(id);
+  try {
+    const list = Array.from(serverSuccessStoriesMap.values());
+    fs.writeFileSync(SUCCESS_STORIES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error deleting success story from disk:', err);
+  }
+}
+
+async function getAllSuccessStoriesRaw(): Promise<any[]> {
+  const map = new Map<string, any>();
+  // 1. Add local disk-stored stories
+  for (const item of serverSuccessStoriesMap.values()) {
+    map.set(item.id, item);
+  }
+  // 2. Add Firestore-stored stories if available
+  if (adminDb && isInitialized) {
+    try {
+      const snapshot = await adminDb.collection('success_stories').get();
+      if (!snapshot.empty) {
+        for (const doc of snapshot.docs) {
+          map.set(doc.id, { id: doc.id, ...doc.data() });
+        }
+      }
+    } catch (e) {
+      console.warn('Admin Firestore success_stories read error:', e);
+    }
+  }
+  return Array.from(map.values());
+}
+
+// 1. Public Lightweight Count Endpoint (Checks if at least one published story exists)
+app.get('/api/success-stories/count', async (req, res) => {
+  try {
+    const all = await getAllSuccessStoriesRaw();
+    const publishedCount = all.filter((s: any) => s.status === 'published').length;
+    res.json({ count: publishedCount });
+  } catch (err: any) {
+    console.warn('Error fetching success stories count:', err.message);
+    res.json({ count: 0 });
+  }
+});
+
+// 2. Public Success Stories Endpoint (STRICTLY published stories only)
+app.get('/api/success-stories', async (req, res) => {
+  try {
+    const all = await getAllSuccessStoriesRaw();
+    // Only published stories are accessible to the public
+    const published = all
+      .filter((s: any) => s.status === 'published')
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+        const dateB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+        return dateB - dateA;
+      });
+
+    const limitQuery = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+    const results = limitQuery && limitQuery > 0 ? published.slice(0, limitQuery) : published;
+    res.json(results);
+  } catch (err: any) {
+    console.warn('Error fetching public success stories:', err.message);
+    res.json([]);
+  }
+});
+
+// 3. Admin Success Stories List Endpoint (Full CMS management access: draft, pending, published, rejected, archived)
+app.get('/api/admin/success-stories', verifyAdminAuth, async (req, res) => {
+  try {
+    const all = await getAllSuccessStoriesRaw();
+    const sorted = all.sort((a: any, b: any) => {
+      const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
+
+    const metrics = {
+      total: sorted.length,
+      published: sorted.filter((s: any) => s.status === 'published').length,
+      draft: sorted.filter((s: any) => s.status === 'draft').length,
+      pending: sorted.filter((s: any) => s.status === 'pending').length,
+      rejected: sorted.filter((s: any) => s.status === 'rejected').length,
+      archived: sorted.filter((s: any) => s.status === 'archived').length
+    };
+
+    res.json({ stories: sorted, metrics });
+  } catch (err: any) {
+    console.warn('Error fetching admin success stories:', err.message);
+    res.status(500).json({ error: 'Failed to load success stories' });
+  }
+});
+
+// 4. Admin Create Success Story
+app.post('/api/admin/success-stories', verifyAdminAuth, async (req, res) => {
+  try {
+    const body = req.body || {};
+    if (!body.title || !body.storytellerName || !body.content) {
+      return res.status(400).json({ error: 'Title, storyteller name, and story content are required' });
+    }
+
+    const now = new Date().toISOString();
+    const id = body.id || `story_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const slug = body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const story = {
+      ...body,
+      id,
+      slug,
+      status: body.status || 'draft',
+      publishedAt: body.status === 'published' ? (body.publishedAt || now) : null,
+      createdAt: body.createdAt || now,
+      updatedAt: now
+    };
+
+    saveServerSuccessStory(story);
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('success_stories').doc(id).set(story, { merge: true });
+      } catch (err: any) {
+        console.warn('Firestore admin save success story notice:', err.message);
+      }
+    }
+
+    res.json({ success: true, story });
+  } catch (err: any) {
+    console.error('Error creating success story:', err);
+    res.status(500).json({ error: 'Failed to save success story' });
+  }
+});
+
+// 5. Admin Update Success Story (Edit fields or change status: draft, publish, unpublish, reject, archive)
+app.put('/api/admin/success-stories/:id', verifyAdminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    const now = new Date().toISOString();
+
+    const existingStories = await getAllSuccessStoriesRaw();
+    const existing = existingStories.find((s: any) => s.id === id) || {};
+
+    const updatedStory = {
+      ...existing,
+      ...body,
+      id,
+      updatedAt: now
+    };
+
+    // If publishing and no publishedAt date, assign current time
+    if (updatedStory.status === 'published' && !updatedStory.publishedAt) {
+      updatedStory.publishedAt = now;
+    } else if (updatedStory.status !== 'published') {
+      // If unpublishing or archiving, keep record clean
+      if (body.status === 'draft') {
+        updatedStory.publishedAt = null;
+      }
+    }
+
+    saveServerSuccessStory(updatedStory);
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('success_stories').doc(id).set(updatedStory, { merge: true });
+      } catch (err: any) {
+        console.warn('Firestore admin update success story notice:', err.message);
+      }
+    }
+
+    res.json({ success: true, story: updatedStory });
+  } catch (err: any) {
+    console.error('Error updating success story:', err);
+    res.status(500).json({ error: 'Failed to update success story' });
+  }
+});
+
+// 6. Admin Delete Success Story
+app.delete('/api/admin/success-stories/:id', verifyAdminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    deleteServerSuccessStory(id);
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('success_stories').doc(id).delete();
+      } catch (err: any) {
+        console.warn('Firestore admin delete success story notice:', err.message);
+      }
+    }
+
+    res.json({ success: true, id });
+  } catch (err: any) {
+    console.error('Error deleting success story:', err);
+    res.status(500).json({ error: 'Failed to delete success story' });
+  }
+});
+
 // AI Content Extraction Assistant Route (Admin only)
 app.post('/api/ai/extract', verifyAdminAuth, async (req, res) => {
   try {

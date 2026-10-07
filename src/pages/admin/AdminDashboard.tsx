@@ -21,7 +21,8 @@ import {
   Users,
   Archive,
   Hourglass,
-  FileText
+  FileText,
+  Award
 } from 'lucide-react';
 
 interface PendingQueueItem {
@@ -265,6 +266,78 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
             {metrics?.openReportsCount ?? 0}
           </p>
           <p className="text-[11px] text-rose-800 dark:text-rose-300 mt-1">Dead links, expired items &amp; feedback</p>
+        </div>
+
+        {/* 10. Success Stories CMS & Publication Status */}
+        <div
+          onClick={() => onNavigate('/admin/success-stories')}
+          className="p-5 bg-white dark:bg-[#141B29] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-700 transition-all cursor-pointer group col-span-2 sm:col-span-3 lg:col-span-3"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Success Stories CMS
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Public section is visible only when ≥ 1 story is published
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase ${
+                (metrics?.successStoriesMetrics?.published ?? 0) > 0
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+              }`}>
+                {(metrics?.successStoriesMetrics?.published ?? 0) > 0
+                  ? `Public Visible (${metrics?.successStoriesMetrics?.published})`
+                  : 'Public Hidden (0 Published)'}
+              </span>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-4">
+            <div className="bg-emerald-50/70 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-100 dark:border-emerald-900/60">
+              <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Published</p>
+              <p className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-0.5 font-space">
+                {metrics?.successStoriesMetrics?.published ?? 0}
+              </p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-500">Live on website</p>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">Draft</p>
+              <p className="text-xl font-black text-slate-700 dark:text-slate-200 mt-0.5 font-space">
+                {metrics?.successStoriesMetrics?.draft ?? 0}
+              </p>
+              <p className="text-[10px] text-slate-500">Private / Editing</p>
+            </div>
+            <div className="bg-amber-50/70 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/60">
+              <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase">Pending</p>
+              <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 font-space">
+                {metrics?.successStoriesMetrics?.pending ?? 0}
+              </p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-500">Awaiting review</p>
+            </div>
+            <div className="bg-rose-50/70 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-100 dark:border-rose-900/60">
+              <p className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase">Rejected</p>
+              <p className="text-xl font-black text-rose-600 dark:text-rose-400 mt-0.5 font-space">
+                {metrics?.successStoriesMetrics?.rejected ?? 0}
+              </p>
+              <p className="text-[10px] text-rose-600 dark:text-rose-500">Not approved</p>
+            </div>
+            <div className="bg-purple-50/70 dark:bg-purple-950/40 p-2.5 rounded-xl border border-purple-100 dark:border-purple-900/60">
+              <p className="text-[10px] font-bold text-purple-700 dark:text-purple-300 uppercase">Archived</p>
+              <p className="text-xl font-black text-purple-600 dark:text-purple-400 mt-0.5 font-space">
+                {metrics?.successStoriesMetrics?.archived ?? 0}
+              </p>
+              <p className="text-[10px] text-purple-600 dark:text-purple-500">Stored history</p>
+            </div>
+          </div>
         </div>
       </div>
 
