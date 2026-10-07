@@ -116,6 +116,26 @@ export const SuccessStoriesPage: React.FC<SuccessStoriesPageProps> = ({
         </div>
       </div>
 
+      {/* Admin Notice if 0 published */}
+      {isEditorOrAdmin && count === 0 && (
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <p className="font-bold text-amber-900 dark:text-amber-200">
+              Admin Notice: Success Stories section is currently hidden from the public.
+            </p>
+            <p className="text-amber-700 dark:text-amber-300">
+              There are currently 0 published stories. Regular users are redirected away. Publish at least 1 story in the Admin Console to reveal this section publicly.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('/admin/success-stories')}
+            className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shrink-0 self-start sm:self-auto cursor-pointer"
+          >
+            Open Success Stories CMS
+          </button>
+        </div>
+      )}
+
       {/* Stories Grid */}
       {filteredStories.length === 0 ? (
         <div className="text-center py-16 bg-slate-50 dark:bg-[#141B29] rounded-3xl border border-slate-200 dark:border-slate-800 p-8 space-y-3">
