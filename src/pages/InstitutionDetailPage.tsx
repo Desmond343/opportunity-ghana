@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InstitutionsService } from '../services/institutionsService';
+import { SavedService } from '../services/savedService';
+import { useAuth } from '../services/authContext';
 import { Institution, AdmissionCycle } from '../types/institution';
 import { getInstitutionMedia } from '../utils/institutionMedia';
 import {
@@ -31,11 +33,27 @@ interface InstitutionDetailPageProps {
 }
 
 export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ slug, onNavigate }) => {
+  const { currentUser, getIdToken } = useAuth();
   const institution = InstitutionsService.getBySlug(slug);
   const [activeTab, setActiveTab] = useState<'admissions' | 'programmes' | 'requirements' | 'application'>('admissions');
-  const [isSaved, setIsSaved] = useState(() => (institution ? InstitutionsService.isSaved(institution.id) : false));
+  const [isSaved, setIsSaved] = useState(() => (institution ? SavedService.isSaved(institution.id) : false));
+  const [isSaving, setIsSaving] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const media = institution ? getInstitutionMedia(institution) : null;
+
+  useEffect(() => {
+    if (institution?.id) {
+      setIsSaved(SavedService.isSaved(institution.id));
+    }
+    const handleUpdate = (e: any) => {
+      if (!institution) return;
+      if (!e.detail || e.detail.id === institution.id || e.detail.userId !== undefined) {
+        setIsSaved(SavedService.isSaved(institution.id));
+      }
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, [institution?.id]);
 
   if (!institution) {
     return (
@@ -57,9 +75,37 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
     );
   }
 
-  const handleToggleSave = () => {
-    const next = InstitutionsService.toggleSave(institution.id);
-    setIsSaved(next);
+  const handleToggleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const nearest = InstitutionsService.getNearestActiveDeadline(institution);
+      const primaryCycle = institution.admissionCycles[0];
+      const deadlineDate =
+        nearest?.cycle?.extendedDeadline ||
+        nearest?.cycle?.applicationCloseDate ||
+        primaryCycle?.extendedDeadline ||
+        primaryCycle?.applicationCloseDate ||
+        '';
+      const next = await SavedService.toggleSave(
+        {
+          id: institution.id,
+          slug: institution.slug,
+          title: institution.name,
+          category: 'Tertiary Institution',
+          type: institution.institutionType,
+          itemType: 'institution',
+          targetPath: `/institutions/${institution.slug}`,
+          organizationName: `${institution.shortName} • ${institution.location.region} Region`,
+          deadline: deadlineDate
+        },
+        currentUser?.id,
+        getIdToken
+      );
+      setIsSaved(next);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleShare = () => {

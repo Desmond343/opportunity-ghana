@@ -39,6 +39,16 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
   const [mySubmissions, setMySubmissions] = useState<Resource[]>([]);
   const [myOpportunities, setMyOpportunities] = useState<Opportunity[]>([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [savedCount, setSavedCount] = useState<number>(() => SavedService.getSavedIds().length);
+
+  useEffect(() => {
+    setSavedCount(SavedService.getSavedIds().length);
+    const handleSavedUpdate = () => {
+      setSavedCount(SavedService.getSavedIds().length);
+    };
+    window.addEventListener('saved-opportunities-changed', handleSavedUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleSavedUpdate);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (currentUser) {
@@ -151,7 +161,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
               Saved Opportunities &amp; Bookmarks
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              You have {SavedService.getSavedIds().length} saved opportunit{SavedService.getSavedIds().length === 1 ? 'y' : 'ies'} bookmarked for deadline tracking.
+              You have {savedCount} saved opportunit{savedCount === 1 ? 'y' : 'ies'} bookmarked for deadline tracking.
             </p>
           </div>
         </div>

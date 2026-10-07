@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Resource } from '../types/database';
 import { ResourcesService } from '../services/resourcesService';
+import { SavedService } from '../services/savedService';
 import { useAuth } from '../services/authContext';
 import { Badge } from '../components/common/Badge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
@@ -34,10 +35,11 @@ interface ResourceDetailPageProps {
 }
 
 export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, onNavigate }) => {
-  const { currentUser, isEditorOrAdmin } = useAuth();
+  const { currentUser, getIdToken, isEditorOrAdmin } = useAuth();
   const [resource, setResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -46,6 +48,9 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
       try {
         const item = await ResourcesService.getBySlug(slug);
         setResource(item);
+        if (item) {
+          setIsSaved(SavedService.isSaved(item.id));
+        }
       } catch (err) {
         console.error('Error loading course details:', err);
       } finally {
@@ -54,6 +59,47 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
     }
     loadResource();
   }, [slug]);
+
+  useEffect(() => {
+    if (resource?.id) {
+      setIsSaved(SavedService.isSaved(resource.id));
+    }
+    const handleUpdate = (e: any) => {
+      if (!resource) return;
+      if (!e.detail || e.detail.id === resource.id || e.detail.userId !== undefined) {
+        setIsSaved(SavedService.isSaved(resource.id));
+      }
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, [resource?.id]);
+
+  const handleToggleSave = async () => {
+    if (!resource || isSaving) return;
+    setIsSaving(true);
+    try {
+      const updated = await SavedService.toggleSave(
+        {
+          id: resource.id,
+          slug: resource.slug,
+          title: resource.title,
+          category: resource.category || 'Courses & Resources',
+          type: resource.isFree ? 'Free Course' : 'Course / Credential',
+          itemType: 'resource',
+          targetPath: `/resources/${resource.slug || resource.id}`,
+          organizationName: resource.providerName || 'Certified Academy',
+          deadline: ''
+        },
+        currentUser?.id,
+        getIdToken
+      );
+      setIsSaved(updated);
+    } catch (err) {
+      console.warn('Error saving course detail:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (loading) return <LoadingState message="Loading course details..." />;
 
@@ -303,15 +349,17 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
           {/* Action CTAs */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
             <button
-              onClick={() => setIsSaved(!isSaved)}
-              className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
+              onClick={handleToggleSave}
+              disabled={isSaving}
+              className={`px-3 py-2.5 rounded-xl border transition-colors cursor-pointer flex items-center gap-1.5 ${
                 isSaved
                   ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
                   : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
-              title="Bookmark course"
+              title={isSaved ? 'Remove from saved' : 'Bookmark course'}
             >
               <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-700 dark:fill-emerald-400' : ''}`} />
+              <span className="text-xs font-semibold">{isSaved ? 'Saved' : 'Save'}</span>
             </button>
 
             <button

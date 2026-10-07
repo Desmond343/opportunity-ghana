@@ -298,6 +298,207 @@ function deleteServerPublishedOpportunity(id: string) {
   }
 }
 
+// =========================================================================
+// SAVED OPPORTUNITIES / BOOKMARKS PERSISTENT STORE & ENDPOINTS
+// =========================================================================
+const SAVED_OPPS_FILE = path.resolve(process.cwd(), 'data', 'saved_opportunities.json');
+
+function loadServerSavedOpportunities(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(SAVED_OPPS_FILE))) {
+      fs.mkdirSync(path.dirname(SAVED_OPPS_FILE), { recursive: true });
+    }
+    if (fs.existsSync(SAVED_OPPS_FILE)) {
+      const raw = fs.readFileSync(SAVED_OPPS_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.id && item.userId && item.opportunityId) {
+            map.set(item.id, item);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading saved opportunities from disk:', err);
+  }
+  return map;
+}
+
+const serverSavedOppsMap = loadServerSavedOpportunities();
+
+function persistServerSavedMap() {
+  try {
+    if (!fs.existsSync(path.dirname(SAVED_OPPS_FILE))) {
+      fs.mkdirSync(path.dirname(SAVED_OPPS_FILE), { recursive: true });
+    }
+    const list = Array.from(serverSavedOppsMap.values());
+    fs.writeFileSync(SAVED_OPPS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error writing saved opportunities to disk:', err);
+  }
+}
+
+async function resolveAuthenticatedUserId(req: express.Request): Promise<string | null> {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split('Bearer ')[1].trim();
+    if (token) {
+      if (adminAuth) {
+        try {
+          const decoded = await adminAuth.verifyIdToken(token);
+          if (decoded?.uid) return decoded.uid;
+        } catch {}
+      }
+      try {
+        const verified = await verifyUserToken(token);
+        if (verified?.uid) return verified.uid;
+      } catch {}
+    }
+  }
+  const headerUid = req.headers['x-user-id'];
+  if (typeof headerUid === 'string' && headerUid.trim() && headerUid !== 'guest') {
+    return headerUid.trim();
+  }
+  return null;
+}
+
+// GET /api/saved - Retrieve all saved items for the authenticated user
+app.get('/api/saved', async (req, res) => {
+  const userId = await resolveAuthenticatedUserId(req);
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required to fetch saved opportunities.' });
+  }
+
+  const mergedByOppId = new Map<string, any>();
+
+  // 1. Load from server disk store for this user
+  for (const record of serverSavedOppsMap.values()) {
+    if (record.userId === userId && record.opportunityId) {
+      mergedByOppId.set(record.opportunityId, record);
+    }
+  }
+
+  // 2. Load from Firestore Admin saved_opportunities collection if available
+  if (adminDb && isInitialized) {
+    try {
+      const snap = await adminDb
+        .collection('saved_opportunities')
+        .where('userId', '==', userId)
+        .get();
+      snap.docs.forEach((d: any) => {
+        const data = d.data();
+        if (data && data.opportunityId) {
+          const docId = `${userId}_${data.opportunityId}`;
+          const item = { id: docId, ...data, userId };
+          mergedByOppId.set(data.opportunityId, item);
+          serverSavedOppsMap.set(docId, item);
+        }
+      });
+    } catch (err: any) {
+      console.warn('[API /api/saved GET] Firestore read note:', err.message);
+    }
+  }
+
+  const savedList = Array.from(mergedByOppId.values()).sort(
+    (a, b) => new Date(b.savedAt || 0).getTime() - new Date(a.savedAt || 0).getTime()
+  );
+
+  return res.json({ success: true, userId, saved: savedList });
+});
+
+// POST /api/saved - Save an opportunity/resource/institution for the authenticated user
+app.post('/api/saved', async (req, res) => {
+  const userId = await resolveAuthenticatedUserId(req);
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required to save opportunities.' });
+  }
+
+  const {
+    opportunityId,
+    title,
+    slug,
+    category,
+    type,
+    itemType,
+    targetPath,
+    organizationName,
+    deadline,
+    savedAt
+  } = req.body || {};
+
+  if (!opportunityId || typeof opportunityId !== 'string') {
+    return res.status(400).json({ error: 'Valid opportunityId is required.' });
+  }
+
+  const docId = `${userId}_${opportunityId}`;
+  const record = {
+    id: docId,
+    userId,
+    opportunityId,
+    title: title || '',
+    slug: slug || opportunityId,
+    category: category || 'General',
+    type: type || '',
+    itemType: itemType || 'opportunity',
+    targetPath: targetPath || '',
+    organizationName: organizationName || '',
+    deadline: deadline || '',
+    savedAt: savedAt || new Date().toISOString()
+  };
+
+  // 1. Save to server disk store
+  serverSavedOppsMap.set(docId, record);
+  persistServerSavedMap();
+
+  // 2. Save to Firestore Admin if available
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('saved_opportunities').doc(docId).set(record, { merge: true });
+    } catch (err: any) {
+      console.warn('[API /api/saved POST] Firestore write note:', err.message);
+    }
+  }
+
+  return res.json({ success: true, item: record });
+});
+
+// DELETE /api/saved/:opportunityId - Remove a saved item for the authenticated user
+app.delete('/api/saved/:opportunityId', async (req, res) => {
+  const userId = await resolveAuthenticatedUserId(req);
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required to remove saved opportunities.' });
+  }
+
+  const opportunityId = req.params.opportunityId;
+  if (!opportunityId) {
+    return res.status(400).json({ error: 'opportunityId parameter is required.' });
+  }
+
+  const docId = `${userId}_${opportunityId}`;
+
+  // 1. Remove from server disk store
+  serverSavedOppsMap.delete(docId);
+  for (const [key, val] of Array.from(serverSavedOppsMap.entries())) {
+    if (val.userId === userId && val.opportunityId === opportunityId) {
+      serverSavedOppsMap.delete(key);
+    }
+  }
+  persistServerSavedMap();
+
+  // 2. Remove from Firestore Admin if available
+  if (adminDb && isInitialized) {
+    try {
+      await adminDb.collection('saved_opportunities').doc(docId).delete();
+    } catch (err: any) {
+      console.warn('[API /api/saved DELETE] Firestore delete note:', err.message);
+    }
+  }
+
+  return res.json({ success: true, removedId: opportunityId });
+});
+
 // Get opportunities
 app.get('/api/opportunities', async (req, res) => {
   const includeUnpublished = req.query.includeUnpublished === 'true';

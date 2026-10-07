@@ -66,12 +66,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Sync basic user info to localStorage and initialize SavedService
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && currentUser.id) {
       localStorage.setItem('opp_gh_auth_user', JSON.stringify(currentUser));
       SavedService.initForUser(currentUser.id, getIdToken).catch((err) => {
         console.warn('[SavedService] initForUser error:', err);
       });
-    } else {
+    } else if (!currentUser) {
       localStorage.removeItem('opp_gh_auth_user');
       SavedService.clearUser();
     }
@@ -83,6 +83,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const unsubscribe = FirebaseAuthService.onAuthChanged(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
+          // Immediately ensure currentUser is populated with fbUser.uid so saves never miss userId
+          const fallbackUser: User = {
+            id: fbUser.uid,
+            name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Opportunity Seeker',
+            email: fbUser.email || '',
+            photoURL: fbUser.photoURL || undefined,
+            role: 'user',
+            location: 'Accra, Ghana',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          setCurrentUser((prev) => (prev && prev.id === fbUser.uid ? prev : fallbackUser));
+
           try {
             // Read custom claims from Firebase ID Token
             const tokenResult = await fbUser.getIdTokenResult();
@@ -96,18 +109,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const verifiedRole: UserRole = isAdm ? 'admin' : isEdt ? 'editor' : 'user';
 
             if (profile) {
-              profile.role = verifiedRole;
-              setCurrentUser(profile);
+              setCurrentUser({
+                ...profile,
+                id: fbUser.uid,
+                role: verifiedRole
+              });
             } else {
               setCurrentUser({
-                id: fbUser.uid,
-                name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Opportunity Seeker',
-                email: fbUser.email || '',
-                photoURL: fbUser.photoURL || undefined,
-                role: verifiedRole,
-                location: 'Accra, Ghana',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
+                ...fallbackUser,
+                role: verifiedRole
               });
             }
           } catch (err) {

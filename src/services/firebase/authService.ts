@@ -10,15 +10,21 @@ import {
   Auth
 } from 'firebase/auth';
 import { app, isFirebaseConfigured } from './config';
+import { db, sanitizeForFirestore } from './firestoreService';
 import { User, UserRole } from '../../types/database';
-import { doc, getDoc, setDoc, getFirestore, Firestore } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export const auth: Auth | null = (app && isFirebaseConfigured) ? getAuth(app) : null;
 
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-const db: Firestore | null = (app && isFirebaseConfigured) ? getFirestore(app) : null;
+function withTimeout<T>(promise: Promise<T>, ms = 2500): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error('firestore_timeout')), ms))
+  ]);
+}
 
 export const FirebaseAuthService = {
   getAuthInstance(): Auth | null {
@@ -64,7 +70,7 @@ export const FirebaseAuthService = {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
-        await setDoc(userDocRef, profile, { merge: true });
+        await withTimeout(setDoc(userDocRef, sanitizeForFirestore(profile), { merge: true }));
       } catch (err) {
         console.warn('[Opportunity Ghana] Could not write user profile to Firestore:', err);
       }
@@ -88,9 +94,9 @@ export const FirebaseAuthService = {
       if (db) {
         try {
           const userDocRef = doc(db, 'users', fbUser.uid);
-          const existing = await getDoc(userDocRef);
+          const existing = await withTimeout(getDoc(userDocRef));
           if (existing.exists()) {
-            profile = { id: existing.id, ...existing.data() } as User;
+            profile = { ...existing.data(), id: fbUser.uid } as User;
             if (isAdminFromClaim) {
               profile.role = 'admin';
             }
@@ -106,7 +112,7 @@ export const FirebaseAuthService = {
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
             };
-            await setDoc(userDocRef, profile);
+            await withTimeout(setDoc(userDocRef, sanitizeForFirestore(profile), { merge: true }));
           }
         } catch {
           profile = {
@@ -163,12 +169,12 @@ export const FirebaseAuthService = {
   async getUserProfile(uid: string): Promise<User | null> {
     if (!db) return null;
     try {
-      const snap = await getDoc(doc(db, 'users', uid));
+      const snap = await withTimeout(getDoc(doc(db, 'users', uid)));
       if (snap.exists()) {
-        return { id: snap.id, ...snap.data() } as User;
+        return { ...snap.data(), id: uid } as User;
       }
     } catch (e) {
-      console.warn('[Opportunity Ghana] Error reading user profile from Firestore:', e);
+      console.debug('[Opportunity Ghana] Profile lookup fallback used:', e);
     }
     return null;
   }

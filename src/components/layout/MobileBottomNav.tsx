@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Search, Bookmark, Bell, User } from 'lucide-react';
 import { useAuth } from '../../services/authContext';
+import { SavedService } from '../../services/savedService';
 
 interface MobileBottomNavProps {
   currentPath: string;
@@ -14,6 +15,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenSearch
 }) => {
   const { currentUser } = useAuth();
+  const [savedCount, setSavedCount] = useState(() => SavedService.getSavedIds().length);
+
+  useEffect(() => {
+    setSavedCount(SavedService.getSavedIds().length);
+    const handleUpdate = () => {
+      setSavedCount(SavedService.getSavedIds().length);
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, [currentUser?.id]);
 
   const navItems = [
     {
@@ -32,6 +43,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       label: 'Saved',
       icon: Bookmark,
       path: '/saved',
+      badge: savedCount,
       isActive: currentPath === '/saved'
     },
     {
@@ -75,11 +87,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               }`}
             >
               <div
-                className={`p-1 rounded-xl transition-colors ${
+                className={`relative p-1 rounded-xl transition-colors ${
                   active ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400' : ''
                 }`}
               >
                 <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : 'stroke-2'}`} />
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1.5 min-w-[16px] h-[16px] px-1 bg-[#006B3F] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center shadow-xs">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </div>
               <span className="text-[10px] tracking-tight truncate max-w-[56px]">
                 {item.label}

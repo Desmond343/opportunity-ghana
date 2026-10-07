@@ -50,5 +50,9 @@ export const AuditService = {
     } catch (e) {
       console.error('Failed to append audit log', e);
     }
+  },
+
+  record(entry: Omit<AuditLogEntry, 'id' | 'timestamp'>): void {
+    this.log(entry);
   }
 };

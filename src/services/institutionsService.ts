@@ -43,6 +43,14 @@ export class InstitutionsService {
   }
 
   /**
+   * Look up a single institution by id or slug
+   */
+  static getById(id: string): Institution | null {
+    if (!id) return null;
+    return this.getBySlug(id);
+  }
+
+  /**
    * Computes dynamic deadline statuses for each admission cycle
    */
   static computeRealTimeStatus(institution: Institution): Institution {

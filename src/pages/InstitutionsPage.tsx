@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { InstitutionsService } from '../services/institutionsService';
+import { SavedService } from '../services/savedService';
 import { InstitutionCard } from '../components/institutions/InstitutionCard';
 import { GHANA_REGIONS, INSTITUTION_TYPES } from '../data/institutions';
 import {
@@ -34,15 +35,23 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
   const [selectedType, setSelectedType] = useState<string>(initialType);
   const [selectedRegion, setSelectedRegion] = useState<string>(initialRegion);
   const [admissionStatusFilter, setAdmissionStatusFilter] = useState<string>('All');
-  const [savedIds, setSavedIds] = useState<string[]>(() => InstitutionsService.getSavedIds());
+  const [savedIds, setSavedIds] = useState<string[]>(() => SavedService.getSavedIds());
 
   const institutions = useMemo(() => {
     return InstitutionsService.getAll();
   }, []);
 
-  const handleToggleSave = (id: string) => {
-    InstitutionsService.toggleSave(id);
-    setSavedIds(InstitutionsService.getSavedIds());
+  useEffect(() => {
+    setSavedIds(SavedService.getSavedIds());
+    const handleUpdate = () => {
+      setSavedIds(SavedService.getSavedIds());
+    };
+    window.addEventListener('saved-opportunities-changed', handleUpdate);
+    return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
+  }, []);
+
+  const handleToggleSave = () => {
+    setSavedIds(SavedService.getSavedIds());
   };
 
   const filteredInstitutions = useMemo(() => {

@@ -67,7 +67,8 @@ export const collections = {
   get notifications() { return getFirebaseCollection('notifications'); },
   get reports() { return getFirebaseCollection('reports'); },
   get submissions() { return getFirebaseCollection('submissions'); },
-  get verificationRecords() { return getFirebaseCollection('verification_records'); }
+  get verificationRecords() { return getFirebaseCollection('verification_records'); },
+  get successStories() { return getFirebaseCollection('success_stories'); }
 };
 
 /**

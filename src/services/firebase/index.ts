@@ -1,4 +1,4 @@
 export { app, analytics, firebaseConfig, isFirebaseConfigured } from './config';
+export { db, collections, testFirestoreConnection, sanitizeForFirestore } from './firestoreService';
 export { auth, googleProvider, FirebaseAuthService } from './authService';
-export { db, collections, testFirestoreConnection } from './firestoreService';
 export { storage, FirebaseStorageService } from './storageService';
