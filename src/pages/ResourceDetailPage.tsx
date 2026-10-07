@@ -161,7 +161,11 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
   const skillsList = Array.isArray(resource.skills) ? resource.skills.filter(Boolean) : [];
   const prerequisitesList = Array.isArray(resource.prerequisites) ? resource.prerequisites.filter(Boolean) : [];
-  const subtitlesList = Array.isArray(resource.subtitles) ? resource.subtitles.filter(Boolean) : [];
+  const subtitlesList = Array.isArray(resource.subtitles)
+    ? resource.subtitles.filter(Boolean)
+    : (typeof resource.subtitles === 'string' && resource.subtitles.trim()
+        ? resource.subtitles.split(',').map(s => s.trim()).filter(Boolean)
+        : []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
