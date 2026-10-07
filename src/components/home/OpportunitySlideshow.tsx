@@ -162,18 +162,18 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
   // Loading Skeleton State
   if (loading) {
     return (
-      <div className="floating-glass-hero-3d w-full rounded-3xl overflow-hidden animate-pulse">
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px] sm:min-h-[460px]">
-          <div className="lg:col-span-7 p-6 sm:p-10 space-y-4 flex flex-col justify-between">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 border border-slate-200/20 dark:border-white/10 shadow-sm animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[380px] sm:min-h-[420px]">
+          <div className="lg:col-span-7 p-6 sm:p-8 space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="h-5 bg-white/10 rounded-lg w-36" />
-              <div className="h-9 bg-white/15 rounded-xl w-4/5" />
+              <div className="h-8 bg-white/15 rounded-lg w-4/5" />
               <div className="h-4 bg-white/10 rounded w-1/2" />
-              <div className="h-20 bg-white/10 rounded-2xl w-full" />
+              <div className="h-16 bg-white/10 rounded-xl w-full" />
             </div>
-            <div className="h-11 bg-emerald-700/40 rounded-xl w-48" />
+            <div className="h-10 bg-emerald-600/40 rounded-xl w-44" />
           </div>
-          <div className="lg:col-span-5 bg-white/5 min-h-[240px]" />
+          <div className="lg:col-span-5 bg-white/5 min-h-[200px]" />
         </div>
       </div>
     );
@@ -182,9 +182,9 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
   // Professional Empty State when no opportunities are published
   if (totalSlides === 0) {
     return (
-      <div className="floating-glass-hero-3d w-full rounded-3xl p-8 sm:p-12 text-white text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 flex items-center justify-center mx-auto shadow-inner">
-          <Compass className="w-7 h-7" />
+      <div className="relative w-full rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-white text-center space-y-4 bg-slate-900 border border-slate-200/20 dark:border-white/10 shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/20 text-emerald-300 flex items-center justify-center mx-auto">
+          <Compass className="w-6 h-6" />
         </div>
         <div className="space-y-1 max-w-lg mx-auto">
           <h3 className="text-xl sm:text-2xl font-bold font-space text-white">
@@ -197,7 +197,7 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
         <div className="pt-2">
           <button
             onClick={() => onNavigate('/opportunities')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold transition-colors cursor-pointer"
           >
             <span>Browse All Listings</span>
             <ArrowRight className="w-4 h-4" />
@@ -228,14 +228,13 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
       onBlur={() => setIsPaused(false)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      className="floating-glass-hero-3d specular-rim-highlight group/hero relative w-full rounded-3xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] select-none"
+      className="group/hero relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/50 dark:border-white/10 bg-slate-950 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] select-none"
     >
-      {/* Top Ghanaian Gold & Emerald Specular Accent Bar */}
-      <div className="relative z-30 h-1.5 w-full bg-gradient-to-r from-[#006B3F] via-[#FCD116] to-[#006B3F]" />
+      {/* Top Ghanaian Gold & Emerald Accent Line */}
+      <div className="relative z-30 h-1 w-full bg-gradient-to-r from-[#006B3F] via-[#FCD116] to-[#006B3F]" />
 
       {/* =====================================================================
           LAYER 1: FULL-BLEED SHARP SCHOLARSHIP / OPPORTUNITY BACKGROUND IMAGE
-          Zero blur on the background image itself; high clarity & recognition
          ===================================================================== */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
@@ -246,51 +245,46 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
           onError={() => {
             setFailedImages(prev => ({ ...prev, [activeOpp.id]: true }));
           }}
-          className="w-full h-full object-cover object-[center_22%] transform group-hover/hero:scale-[1.03] transition-transform duration-700 ease-out contrast-[1.06] saturate-[1.08] brightness-[0.98]"
+          className="w-full h-full object-cover object-[center_22%] contrast-[1.04] saturate-[1.05] brightness-[0.96] transition-transform duration-500 ease-out"
         />
 
-        {/* ===================================================================
-            LAYER 2: CONTROLLED DIRECTIONAL DARK / EMERALD CONTRAST GRADIENT
-            Deep contrast on the left behind the glass content panel, opening
-            up to crystal-clear, unobstructed imagery on the right and edges.
-           =================================================================== */}
+        {/* Flat clean directional contrast gradient */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(102deg, rgba(2, 16, 11, 0.90) 0%, rgba(3, 24, 16, 0.78) 38%, rgba(2, 14, 18, 0.42) 64%, rgba(2, 10, 18, 0.14) 100%)'
+              'linear-gradient(105deg, rgba(2, 14, 10, 0.92) 0%, rgba(2, 18, 14, 0.82) 40%, rgba(2, 12, 16, 0.45) 70%, rgba(2, 10, 16, 0.20) 100%)'
           }}
         />
-        {/* Subtle top & bottom framing vignette for badge and control bar contrast */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(180deg, rgba(2, 8, 16, 0.38) 0%, rgba(2, 8, 16, 0) 24%, rgba(2, 8, 16, 0) 72%, rgba(2, 10, 16, 0.82) 100%)'
+              'linear-gradient(180deg, rgba(2, 8, 14, 0.30) 0%, transparent 25%, transparent 70%, rgba(2, 8, 14, 0.75) 100%)'
           }}
         />
       </div>
 
       {/* =====================================================================
-          LAYER 3 & 4: FOREGROUND GLASS CONTENT LAYER + VISUAL SHOWCASE
+          LAYER 2: FOREGROUND FLAT GLASS CONTENT + SHOWCASE
          ===================================================================== */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-[430px] sm:min-h-[460px] lg:min-h-[490px] p-4 sm:p-6 lg:p-8 gap-6 items-stretch"
+        className="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-[400px] sm:min-h-[430px] lg:min-h-[460px] p-4 sm:p-6 lg:p-7 gap-5 sm:gap-6 items-stretch"
       >
-        {/* Left Column: Floating 3D Frosted Glass Content Tablet */}
-        <div className="lg:col-span-7 glass-hero-content-panel specular-rim-highlight rounded-2xl sm:rounded-[22px] p-5 sm:p-7 lg:p-8 flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
+        {/* Left Column: Flat Frosted Glass Content Panel */}
+        <div className="lg:col-span-7 bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-7 border border-white/10 shadow-sm flex flex-col justify-between space-y-5">
+          <div className="space-y-3.5">
             {/* Header Kicker, Category Pill & Verification Status */}
-            <div className="flex flex-wrap items-center gap-2.5 text-xs">
-              <span className="font-extrabold uppercase tracking-wider text-[11px] px-3.5 py-1 rounded-xl bg-[#FCD116] text-[#0A0F0D] font-space shadow-[0_4px_12px_rgba(252,209,22,0.3)]">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-bold uppercase tracking-wider text-[11px] px-3 py-1 rounded-lg bg-[#FCD116] text-[#0A0F0D] font-space">
                 {activeOpp.category}
               </span>
 
               {activeOpp.opportunityType && (
-                <span className="text-[11px] font-bold text-emerald-100 px-3 py-1 rounded-xl bg-emerald-950/85 border border-emerald-400/40 shadow-sm">
+                <span className="text-[11px] font-semibold text-emerald-100 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/30">
                   {activeOpp.opportunityType}
                 </span>
               )}
@@ -298,35 +292,35 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
               <VerificationBadge status={activeOpp.verificationStatus} />
             </div>
 
-            {/* High-Contrast Scholarship / Opportunity Title */}
+            {/* High-Contrast Scholarship / Opportunity Title (Flat typography, zero text extrusion/shadow) */}
             <h2
               onClick={() => onNavigate(`/opportunities/${activeOpp.slug}`)}
-              className="text-2xl sm:text-3xl lg:text-[34px] font-black text-white tracking-tight leading-[1.13] font-space cursor-pointer hover:text-[#FCD116] transition-colors line-clamp-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]"
+              className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-[1.18] font-space cursor-pointer hover:text-[#FCD116] transition-colors line-clamp-2"
             >
               {activeOpp.title}
             </h2>
 
             {/* Organization & Location Row */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
               <div className="flex items-center gap-2">
                 {activeOpp.organizationLogo ? (
                   <img
                     src={activeOpp.organizationLogo}
                     alt={activeOpp.organizationName || 'Organization'}
-                    className="w-5 h-5 rounded-md object-contain bg-white/15 p-0.5"
+                    className="w-5 h-5 rounded-md object-contain bg-white/10 p-0.5"
                   />
                 ) : (
-                  <span className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/35 flex items-center justify-center text-[#FCD116] shrink-0">
-                    <Building className="w-3.5 h-3.5" />
+                  <span className="w-5 h-5 rounded-md bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-[#FCD116] shrink-0">
+                    <Building className="w-3 h-3" />
                   </span>
                 )}
-                <span className="font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                <span className="font-semibold text-white">
                   {activeOpp.organizationName || 'Verified Scholarship Partner'}
                 </span>
               </div>
 
               {activeOpp.location && (
-                <div className="flex items-center gap-1.5 text-emerald-100 font-medium">
+                <div className="flex items-center gap-1 text-emerald-200/90 font-medium">
                   <MapPin className="w-3.5 h-3.5 text-[#FCD116] shrink-0" />
                   <span>{activeOpp.location}</span>
                 </div>
@@ -334,21 +328,21 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
             </div>
 
             {/* Crisp Readable Description */}
-            <p className="text-xs sm:text-sm text-slate-100/95 leading-relaxed line-clamp-3 max-w-2xl font-normal drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+            <p className="text-xs sm:text-sm text-slate-200/90 leading-relaxed line-clamp-3 max-w-2xl font-normal">
               {activeOpp.description}
             </p>
 
-            {/* High-Contrast Metadata Badges */}
-            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+            {/* Metadata Badges */}
+            <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs">
               {activeOpp.educationLevel && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/85 border border-white/20 text-white text-[11px] font-semibold shadow-sm">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/10 text-white text-[11px] font-medium">
                   <GraduationCap className="w-3.5 h-3.5 text-[#FCD116] shrink-0" />
                   <span>{activeOpp.educationLevel}</span>
                 </div>
               )}
 
               {activeOpp.fundingType && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/90 border border-emerald-400/45 text-[#FCD116] text-[11px] font-bold shadow-sm">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[#FCD116] text-[11px] font-semibold">
                   <Sparkles className="w-3.5 h-3.5 text-[#FCD116] shrink-0" />
                   <span>{activeOpp.fundingType}</span>
                 </div>
@@ -358,18 +352,18 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
             </div>
           </div>
 
-          {/* Primary Action & Interactive Controls Row */}
-          <div className="pt-3 border-t border-white/15 flex flex-wrap items-center gap-3">
+          {/* Primary Action & Controls Row */}
+          <div className="pt-3 border-t border-white/10 flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => onNavigate(`/opportunities/${activeOpp.slug}`)}
-              className="group/btn inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#006B3F] to-[#008751] hover:from-[#007A48] hover:to-[#009B5D] text-white text-xs sm:text-sm font-extrabold transition-all duration-200 border border-emerald-400/40 shadow-[0_8px_24px_-4px_rgba(0,107,63,0.65),inset_0_1px_1px_rgba(255,255,255,0.35)] hover:-translate-y-0.5 cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-colors cursor-pointer shadow-xs"
             >
               <span>
                 {activeOpp.category === 'Scholarships'
                   ? 'Explore Scholarship'
                   : 'View Opportunity'}
               </span>
-              <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover/btn:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-[#FCD116]" />
             </button>
 
             {activeOpp.applicationUrl && (
@@ -378,7 +372,7 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1.5 px-4 py-3.5 rounded-xl bg-white/12 hover:bg-white/20 border border-white/25 hover:border-white/40 text-white text-xs font-bold transition-all backdrop-blur-md shadow-md cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 sm:py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-semibold transition-colors cursor-pointer"
               >
                 <span>Official Portal</span>
                 <ExternalLink className="w-3.5 h-3.5 text-[#FCD116]" />
@@ -389,58 +383,58 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
               onClick={(e) => handleToggleSave(e, activeOpp)}
               aria-label={isCurrentSaved ? 'Remove from saved' : 'Save opportunity'}
               title={isCurrentSaved ? 'Remove from saved' : 'Save opportunity'}
-              className={`p-3.5 rounded-xl border transition-all cursor-pointer backdrop-blur-md shadow-md ${
+              className={`p-2.5 sm:p-3 rounded-xl border transition-colors cursor-pointer ${
                 isCurrentSaved
-                  ? 'bg-emerald-900/90 border-[#FCD116]/70 text-[#FCD116]'
-                  : 'bg-slate-900/75 hover:bg-slate-900/95 border-white/25 hover:border-white/45 text-white'
+                  ? 'bg-emerald-950 border-[#FCD116]/60 text-[#FCD116]'
+                  : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
               }`}
             >
               <Bookmark className={`w-4 h-4 ${isCurrentSaved ? 'fill-[#FCD116]' : ''}`} />
             </button>
 
-            {/* Quick slide counter text on mobile */}
-            <span className="text-[11px] font-mono font-bold text-white/90 ml-auto lg:hidden bg-slate-950/70 px-2.5 py-1 rounded-lg border border-white/15">
+            {/* Slide counter on mobile */}
+            <span className="text-[11px] font-mono font-medium text-white/80 ml-auto lg:hidden bg-black/40 px-2 py-0.5 rounded-md border border-white/10">
               {currentIndex + 1} / {totalSlides}
             </span>
           </div>
         </div>
 
-        {/* Right Column: Clear Unobstructed Image Viewport + Floating Glass Highlights */}
+        {/* Right Column: Clear Image Viewport + Flat Glass Coverage Badge */}
         <div
           onClick={() => onNavigate(`/opportunities/${activeOpp.slug}`)}
-          className="lg:col-span-5 relative flex flex-col justify-between min-h-[220px] sm:min-h-[260px] lg:min-h-full cursor-pointer group/media"
+          className="lg:col-span-5 relative flex flex-col justify-between min-h-[200px] sm:min-h-[240px] lg:min-h-full cursor-pointer"
         >
-          {/* Top-Right Floating Glass Featured Stamp */}
+          {/* Top-Right Flat Glass Stamp */}
           <div className="flex items-center justify-between lg:justify-end gap-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-hero-badge-card text-[11px] font-extrabold text-white tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-[#FCD116] animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-xs font-semibold text-white">
+              <span className="w-2 h-2 rounded-full bg-[#FCD116]" />
               <span>Featured {activeOpp.category === 'Scholarships' ? 'Scholarship' : 'Selection'}</span>
             </div>
           </div>
 
-          {/* Bottom-Right Floating Glass Coverage / Eligibility Highlight Card */}
-          <div className="mt-auto glass-hero-badge-card rounded-2xl p-4 sm:p-5 space-y-2.5 transform group-hover/media:-translate-y-1 transition-transform duration-300">
+          {/* Bottom-Right Flat Glass Benefit Panel */}
+          <div className="mt-auto bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-4.5 space-y-2 border border-white/10 shadow-sm">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-[#006B3F] border border-emerald-400/40 flex items-center justify-center text-[#FCD116] shadow-sm shrink-0">
-                  <Award className="w-4 h-4" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-[#006B3F] flex items-center justify-center text-[#FCD116] shrink-0">
+                  <Award className="w-3.5 h-3.5" />
                 </div>
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#FCD116] font-space">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#FCD116] font-space truncate">
                     Verified Benefits &amp; Coverage
                   </p>
-                  <p className="text-xs font-bold text-white truncate max-w-[240px]">
+                  <p className="text-xs font-semibold text-white truncate">
                     {activeOpp.fundingType || 'Comprehensive Support'}
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/35 text-[10px] font-bold text-emerald-200 shrink-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-[10px] font-semibold text-emerald-200 shrink-0">
                 <ShieldCheck className="w-3 h-3 text-[#FCD116]" />
                 Ghanaians Eligible
               </span>
             </div>
 
-            <p className="text-xs text-slate-100/95 font-medium line-clamp-2 leading-snug">
+            <p className="text-xs text-slate-200/90 font-normal line-clamp-2 leading-relaxed">
               {activeOpp.funding ||
                 activeOpp.benefits?.[0] ||
                 'Full tuition coverage, academic support, and leadership development for qualified Ghanaian applicants.'}
@@ -450,10 +444,10 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
       </div>
 
       {/* =====================================================================
-          LAYER 5: FROSTED GLASS BOTTOM CAROUSEL NAVIGATION BAR
+          LAYER 3: FLAT CLEAN BOTTOM CAROUSEL NAVIGATION BAR
          ===================================================================== */}
       {totalSlides > 1 && (
-        <div className="relative z-20 bg-slate-950/80 backdrop-blur-xl border-t border-white/15 px-5 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+        <div className="relative z-20 bg-slate-950/90 backdrop-blur-md border-t border-white/10 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-4">
           {/* Slide Indicator Dots / Pills */}
           <div className="flex items-center gap-2 overflow-x-auto py-1">
             {opportunities.map((opp, idx) => (
@@ -461,35 +455,35 @@ export const OpportunitySlideshow: React.FC<OpportunitySlideshowProps> = ({
                 key={opp.id}
                 onClick={() => goToSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}: ${opp.title}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer h-2.5 ${
+                className={`transition-all duration-200 rounded-full cursor-pointer h-2 ${
                   idx === currentIndex
-                    ? 'w-9 bg-[#FCD116] shadow-[0_0_12px_rgba(252,209,22,0.6)]'
-                    : 'w-2.5 bg-white/30 hover:bg-white/60'
+                    ? 'w-7 bg-[#FCD116]'
+                    : 'w-2 bg-white/30 hover:bg-white/60'
                 }`}
               />
             ))}
           </div>
 
           {/* Active Slide Quick Label + Prev / Next Controls */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <span className="hidden md:inline-block text-xs font-semibold text-emerald-200/90 truncate max-w-[260px] mr-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="hidden md:inline-block text-xs font-medium text-emerald-200/80 truncate max-w-[240px] mr-1">
               Next: {opportunities[(currentIndex + 1) % totalSlides]?.title}
             </span>
 
             <button
               onClick={prevSlide}
               aria-label="Previous opportunity slide"
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all cursor-pointer active:scale-95 shadow-sm"
+              className="p-1.5 sm:p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="hidden sm:inline font-mono font-bold text-xs text-white px-1.5 tabular-nums">
+            <span className="hidden sm:inline font-mono font-medium text-xs text-white/90 px-1 tabular-nums">
               {String(currentIndex + 1).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}
             </span>
             <button
               onClick={nextSlide}
               aria-label="Next opportunity slide"
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all cursor-pointer active:scale-95 shadow-sm"
+              className="p-1.5 sm:p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

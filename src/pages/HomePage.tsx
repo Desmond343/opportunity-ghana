@@ -555,50 +555,50 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 tabIndex={0}
                 role="button"
                 aria-label={`Explore ${track.label}`}
-                className="floating-glass-hero-3d specular-rim-highlight group relative overflow-hidden w-72 sm:w-80 min-h-[260px] shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-3.5 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2"
+                className="group relative overflow-hidden w-72 sm:w-80 min-h-[260px] shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-3.5 cursor-pointer flex flex-col justify-between border border-white/10 bg-slate-950 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2"
               >
-                {/* Layer 1: Sharp, Vivid Background Photograph (Zero blur, 100% opacity) */}
+                {/* Layer 1: Sharp Background Photograph */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
                   <img
                     src={track.backgroundImage}
                     alt=""
                     loading="lazy"
-                    className="w-full h-full object-cover object-[center_20%] transform group-hover:scale-106 transition-all duration-500 ease-out brightness-[0.99] contrast-[1.06] saturate-[1.08]"
+                    className="w-full h-full object-cover object-[center_20%] brightness-[0.98] contrast-[1.04] saturate-[1.05]"
                   />
-                  {/* Layer 2: Controlled Directional Contrast Gradient (Clear at top to showcase image, rich dark contrast at bottom) */}
+                  {/* Layer 2: Directional Contrast Gradient */}
                   <div
                     className="absolute inset-0"
                     style={{
                       background:
-                        'linear-gradient(180deg, rgba(2, 10, 18, 0.10) 0%, rgba(2, 12, 18, 0.24) 42%, rgba(2, 16, 12, 0.80) 76%, rgba(2, 12, 10, 0.94) 100%)'
+                        'linear-gradient(180deg, rgba(2, 10, 18, 0.10) 0%, rgba(2, 12, 18, 0.28) 40%, rgba(2, 16, 12, 0.82) 75%, rgba(2, 12, 10, 0.94) 100%)'
                     }}
                   />
                 </div>
 
-                {/* Top Floating Badges (Leaves upper photography open & recognizable) */}
+                {/* Top Badges */}
                 <div className="relative z-10 flex items-center justify-between p-1">
-                  <div className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md text-[#006B3F] border border-white/90 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-                    <Icon className="w-5 h-5" />
+                  <div className="w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-[#006B3F] border border-white/80 flex items-center justify-center shadow-xs">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md ${track.tagColor}`}>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${track.tagColor}`}>
                     {track.tag}
                   </span>
                 </div>
 
-                {/* Layer 3 & 4: Floating Glass Content Panel + High-Contrast Text & CTA */}
-                <div className="relative z-10 mt-14 p-4 rounded-xl glass-hero-content-panel space-y-2.5">
+                {/* Flat Glass Content Panel */}
+                <div className="relative z-10 mt-14 p-3.5 rounded-xl bg-slate-950/75 dark:bg-slate-950/80 backdrop-blur-md border border-white/10 shadow-sm space-y-2">
                   <div>
-                    <h3 className="text-base font-extrabold text-white group-hover:text-[#FCD116] transition-colors font-space tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                    <h3 className="text-base font-bold text-white group-hover:text-[#FCD116] transition-colors font-space tracking-tight">
                       {track.label}
                     </h3>
-                    <p className="text-xs text-slate-100/95 font-normal mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-200/90 font-normal mt-1 line-clamp-2 leading-relaxed">
                       {track.subtitle}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-[#FCD116] group-hover:text-white transition-colors">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors">
                     <span>{track.ctaText || 'Explore opportunities'}</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 text-[#FCD116] group-hover:text-white" />
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#FCD116] group-hover:text-white" />
                   </div>
                 </div>
               </div>
@@ -627,43 +627,43 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 1: Students & Undergraduates (Featured Scholarship Pathway) */}
           <div
             onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px]"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
           >
-            {/* Layer 1: Sharp, Full-Opacity Scholarship Background Image (No blur, no opacity reduction) */}
+            {/* Layer 1: Scholarship Background Image */}
             <img
               src="/images/ghana_student_workspace.jpg"
               alt="Young Ghanaian student studying in modern university commons"
-              className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700 ease-out contrast-[1.06] saturate-[1.08]"
+              className="absolute inset-0 w-full h-full object-cover object-[center_20%] contrast-[1.04] saturate-[1.05]"
             />
-            {/* Layer 2: Controlled Directional Dark/Emerald Contrast Gradient (Clear at top, protective dark contrast at bottom) */}
+            {/* Layer 2: Directional Contrast Gradient */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 12, 0.22) 38%, rgba(2, 18, 13, 0.78) 72%, rgba(2, 14, 10, 0.94) 100%)'
+                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 12, 0.25) 38%, rgba(2, 18, 13, 0.80) 72%, rgba(2, 14, 10, 0.95) 100%)'
               }}
             />
 
-            {/* Top Floating Badge */}
+            {/* Top Badge */}
             <div className="relative z-10 p-4 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-xl bg-[#FCD116] text-[#0A0F0D] shadow-md font-space">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#FCD116] text-[#0A0F0D] font-space">
                 Students &amp; Graduates
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full glass-hero-badge-card text-[10px] font-bold text-white">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white">
                 <GraduationCap className="w-3 h-3 text-[#FCD116]" />
                 Full Funding
               </span>
             </div>
 
-            {/* Layer 3 & 4: Floating Glass Content Layer + High-Contrast Text & CTA */}
-            <div className="relative z-10 m-3.5 mt-auto p-5 rounded-2xl glass-hero-content-panel space-y-2.5 text-white">
-              <h3 className="text-lg font-extrabold font-space text-white group-hover:text-[#FCD116] transition-colors leading-snug drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+            {/* Layer 3: Flat Glass Content Panel */}
+            <div className="relative z-10 m-3.5 mt-auto p-4 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 space-y-2 text-white shadow-sm">
+              <h3 className="text-base sm:text-lg font-bold font-space text-white group-hover:text-[#FCD116] transition-colors leading-snug">
                 Scholarships &amp; University Fellowships
               </h3>
-              <p className="text-xs text-slate-100/95 leading-relaxed font-normal">
+              <p className="text-xs text-slate-200/90 leading-relaxed font-normal">
                 Full tuition waivers, Mastercard Foundation awards, and international graduate programs for Ghanaian students.
               </p>
-              <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-[#FCD116] group-hover:text-white transition-colors">
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors">
                 <span>Discover Scholarships</span>
                 <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1 transition-transform" />
               </div>
@@ -673,43 +673,43 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 2: Early Career Professionals */}
           <div
             onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px]"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
           >
-            {/* Layer 1: Sharp, Full-Opacity Career Background Image */}
+            {/* Layer 1: Career Background Image */}
             <img
               src="/images/ghana_hero_professionals.jpg"
               alt="Young Ghanaian professionals in modern workplace"
-              className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700 ease-out contrast-[1.06] saturate-[1.08]"
+              className="absolute inset-0 w-full h-full object-cover object-[center_20%] contrast-[1.04] saturate-[1.05]"
             />
-            {/* Layer 2: Controlled Directional Contrast Gradient */}
+            {/* Layer 2: Directional Contrast Gradient */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 24, 0.22) 38%, rgba(2, 14, 24, 0.78) 72%, rgba(2, 10, 20, 0.94) 100%)'
+                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 24, 0.25) 38%, rgba(2, 14, 24, 0.80) 72%, rgba(2, 10, 20, 0.95) 100%)'
               }}
             />
 
-            {/* Top Floating Badge */}
+            {/* Top Badge */}
             <div className="relative z-10 p-4 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 shadow-md font-space">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-space">
                 Early Career &amp; NSS
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full glass-hero-badge-card text-[10px] font-bold text-white">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white">
                 <Briefcase className="w-3 h-3 text-emerald-300" />
                 Verified Roles
               </span>
             </div>
 
-            {/* Layer 3 & 4: Floating Glass Content Layer + High-Contrast Text & CTA */}
-            <div className="relative z-10 m-3.5 mt-auto p-5 rounded-2xl glass-hero-content-panel space-y-2.5 text-white">
-              <h3 className="text-lg font-extrabold font-space text-white group-hover:text-emerald-300 transition-colors leading-snug drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+            {/* Layer 3: Flat Glass Content Panel */}
+            <div className="relative z-10 m-3.5 mt-auto p-4 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 space-y-2 text-white shadow-sm">
+              <h3 className="text-base sm:text-lg font-bold font-space text-white group-hover:text-emerald-300 transition-colors leading-snug">
                 Jobs, Internships &amp; Graduate Schemes
               </h3>
-              <p className="text-xs text-slate-100/95 leading-relaxed font-normal">
+              <p className="text-xs text-slate-200/90 leading-relaxed font-normal">
                 Verified entry-level vacancies, management trainee programs, and paid corporate attachments across Ghana.
               </p>
-              <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-extrabold text-emerald-300 group-hover:text-white transition-colors">
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-300 group-hover:text-white transition-colors">
                 <span>View Open Vacancies</span>
                 <ArrowRight className="w-4 h-4 text-emerald-300 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -719,11 +719,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
             onClick={() => onNavigate('/resources?paid=true')}
-            className="floating-glass-hero-3d specular-rim-highlight group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[340px] text-white cursor-pointer"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[340px] text-white cursor-pointer border border-white/10 shadow-sm"
           >
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111] font-mono">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111] font-mono">
                   Verified Pricing
                 </span>
                 <span className="text-[10px] font-semibold text-emerald-200">
