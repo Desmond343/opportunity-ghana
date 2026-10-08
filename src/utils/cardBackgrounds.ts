@@ -417,11 +417,13 @@ function normalizeCategoryKey(category?: string | null): string {
   if (raw.includes('entrepreneur') || raw.includes('startup') || raw.includes('incubator') || raw.includes('accelerator')) return 'entrepreneurship';
   if (raw.includes('health') || raw.includes('medic') || raw.includes('nurs') || raw.includes('pharm') || raw.includes('clinic')) return 'health';
   if (raw.includes('agri') || raw.includes('farm') || raw.includes('crop') || raw.includes('food')) return 'agriculture';
-  if (raw.includes('engine') || raw.includes('civil') || raw.includes('mechanical') || raw.includes('electrical')) return 'engineering';
+  if (raw.includes('engine') || raw.includes('civil') || raw.includes('mechanical') || raw.includes('electrical') || raw.includes('vocational') || raw.includes('trade') || raw.includes('tvet') || raw.includes('plumb') || raw.includes('weld')) return 'engineering';
+  if (raw.includes('hospitality') || raw.includes('hotel') || raw.includes('tour') || raw.includes('cook') || raw.includes('cater') || raw.includes('culinary') || raw.includes('baking')) return 'training';
+  if (raw.includes('beauty') || raw.includes('hair') || raw.includes('barber') || raw.includes('cosmetology') || raw.includes('makeup') || raw.includes('nail')) return 'design';
   if (raw.includes('market') || raw.includes('brand') || raw.includes('media') || raw.includes('pr')) return 'marketing';
   if (raw.includes('design') || raw.includes('creative') || raw.includes('ui') || raw.includes('ux') || raw.includes('graphic')) return 'design';
-  if (raw.includes('educat') || raw.includes('teach') || raw.includes('school')) return 'education';
-  if (raw.includes('prof') || raw.includes('skill')) return 'professional development';
+  if (raw.includes('educat') || raw.includes('teach') || raw.includes('school') || raw.includes('tutor') || raw.includes('classroom')) return 'education';
+  if (raw.includes('prof') || raw.includes('skill') || raw.includes('workplace') || raw.includes('public speak')) return 'professional development';
 
   return CATEGORY_GRADIENTS[raw] ? raw : 'default';
 }

@@ -71,7 +71,7 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
           Ghana Skills &amp; Career Competencies Library
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
-          Explore high-demand tech, business, vocational, creative, and professional skills in Ghana. Discover verified curriculum paths, project portfolios, and direct career tracks.
+          Explore verified skills across technology, business, agriculture, vocational trades, healthcare, hospitality, education, and creative industries. Discover practical tools, Ghanaian market context, and career pathways.
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search skills by name, tools (Python, Figma, AutoCAD), or career roles..."
+              placeholder="Search skills by name, tools (e.g. Drip Irrigation, Tiling, Python, Baking, Sewing), or career roles..."
               className="w-full pl-10 pr-10 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-[#006B3F] text-slate-900 dark:text-slate-100"
             />
             {searchQuery && (

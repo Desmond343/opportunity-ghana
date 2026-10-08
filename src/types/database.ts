@@ -365,6 +365,7 @@ export interface Skill {
   status?: SkillStatus;
   views?: number;
   saves?: number;
+  isCustom?: boolean;
   createdAt: string;
   updatedAt: string;
 }

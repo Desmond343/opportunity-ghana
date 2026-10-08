@@ -1,0 +1,1360 @@
+import { Skill } from '../../types/database';
+
+export const agricultureSkills: Skill[] = [
+  {
+    "id": "skill-agri-biz",
+    "name": "Agribusiness & Precision Agriculture",
+    "slug": "agribusiness-value-addition",
+    "category": "Agriculture & Agribusiness",
+    "description": "Modern food processing, agricultural supply chain optimization, post-harvest loss reduction, and sustainable commercial farming.",
+    "detailedDescription": "Agribusiness merges agronomy with commercial business discipline. Practitioners master soil fertility management, drip irrigation engineering, pest control protocols (GAP), post-harvest cold chain management, food processing value addition, and agricultural export standards (GlobalGAP).",
+    "level": "Beginner",
+    "demandLevel": "Growing",
+    "whatItIsUsedFor": [
+      "Managing commercial crop and livestock production with standardized record keeping",
+      "Implementing solar-powered drip irrigation and greenhouse cultivation techniques",
+      "Reducing post-harvest losses through proper sorting, packaging, and cold storage",
+      "Securing off-taker contracts and export certifications for processed agricultural goods"
+    ],
+    "whyUsefulInGhana": "Agriculture employs over 40% of the Ghanaian workforce and provides over 20% of GDP. Shifting from subsistence farming to commercial agribusiness and agro-processing is widely championed by the Ghana government (Planting for Food and Jobs) and international grant funds.",
+    "topCareers": [
+      "Agribusiness Manager",
+      "Farm Operations Specialist",
+      "Value Chain Coordinator",
+      "Commercial Agronomist"
+    ],
+    "relatedJobs": [
+      "Farm Supervisor",
+      "Post-Harvest Quality Officer",
+      "Agro-Chemical Field Representative"
+    ],
+    "industries": [
+      "Agriculture & Farming",
+      "Food Processing & Export",
+      "Commodity Trading",
+      "Rural Development"
+    ],
+    "prerequisites": [
+      "Interest in practical outdoor agriculture and food systems"
+    ],
+    "toolsAndSoftware": [
+      "Drip Irrigation Kits",
+      "Soil pH Testers",
+      "Farm Management Software",
+      "Excel"
+    ],
+    "relatedSkills": [
+      "Business Management",
+      "Supply Chain Management",
+      "Food Processing",
+      "Logistics"
+    ],
+    "certifications": [
+      "GlobalGAP Farm Assurer Certification",
+      "Ghana Export Promotion Authority (GEPA) Agribusiness Diploma"
+    ],
+    "practicalProjects": [
+      "Develop a complete farm business plan and cash flow forecast for a 5-acre commercial greenhouse tomato enterprise",
+      "Design a gravity-fed solar drip irrigation layout optimizing water efficiency for a vegetable nursery",
+      "Formulate a post-harvest drying and packaging protocol for processed ginger or cassava flour meeting export specifications"
+    ],
+    "learningResources": [
+      {
+        "title": "Sustainable Agricultural Land Management",
+        "provider": "University of Florida / Coursera",
+        "url": "https://www.coursera.org",
+        "isFree": true
+      },
+      {
+        "title": "Ministry of Food and Agriculture (MoFA) Farmer Guides",
+        "provider": "MoFA Ghana",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Food and Agriculture (MoFA Ghana) / Ghana Export Promotion Authority (GEPA)",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-15T00:00:00Z",
+    "imageUrl": "/images/categories/grants.jpg",
+    "imageAlt": "Ghanaian agribusiness manager inspecting modern drip irrigation vegetable farm",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-15T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-crop-farming",
+    "name": "Commercial Crop Production (Maize, Cassava & Yam)",
+    "slug": "commercial-crop-farming-ghana",
+    "category": "Agriculture & Agribusiness",
+    "description": "Modern agronomic practices for cultivating staple crops profitably across Ghana’s agro-ecological zones with high-yield varieties.",
+    "detailedDescription": "Commercial crop production encompasses soil analysis, mechanized land preparation, certified seed selection (such as hybrid maize and high-starch cassava stems), optimal plant spacing, integrated pest management (IPM), and timely harvesting. It prepares farm managers and agri-entrepreneurs to run viable commercial operations serving Ghana’s industrial food processing and grain buffer markets.",
+    "level": "Beginner",
+    "demandLevel": "Very High",
+    "whatItIsUsedFor": [
+      "Establishing commercial grain and root tuber farms across middle and northern transition belts",
+      "Implementing soil fertility management and nitrogen-fixing rotation schedules",
+      "Managing mechanized tractor ploughing, harrowing, and seed-drilling operations",
+      "Contract farming for industrial breweries, poultry feed mills, and export aggregators"
+    ],
+    "whyUsefulInGhana": "Staple crops like maize, cassava, and yam form the foundation of Ghana’s food security and agro-industrial inputs. Through initiatives like Planting for Food and Jobs (PFJ 2.0), commercial farmers gain access to subsidized inputs, off-taker agreements with brewery giants (e.g. Guinness Ghana, Accra Brewery PLC), and starch processing mills in Eastern, Ashanti, and Bono regions.",
+    "topCareers": [
+      "Commercial Farm Manager",
+      "Agronomy Field Officer",
+      "Outgrower Scheme Supervisor",
+      "Agri-Enterprise Owner"
+    ],
+    "relatedJobs": [
+      "Crop Production Specialist",
+      "Farm Operations Coordinator",
+      "Agricultural Extension Agent"
+    ],
+    "industries": [
+      "Agriculture & Farming",
+      "Agro-Processing",
+      "FMCG Manufacturing",
+      "Commodity Trading"
+    ],
+    "prerequisites": [
+      "Basic numeracy and land appreciation",
+      "Willingness to conduct hands-on field management"
+    ],
+    "toolsAndSoftware": [
+      "Soil testing kits (NPK & pH)",
+      "Tractor attachments & disc harrows",
+      "Knapsack sprayers",
+      "Grain moisture meters (Dickey-John)",
+      "Agrivi mobile app"
+    ],
+    "relatedSkills": [
+      "Agribusiness Management",
+      "Drip Irrigation",
+      "Post-Harvest Grain Storage",
+      "Soil Science",
+      "Fertilizer Application"
+    ],
+    "certifications": [
+      "MoFA Good Agricultural Practices (GAP) Certificate",
+      "CSIR-CRI Certified Commercial Crop Producer",
+      "CTVET Level 3 Crop Husbandry"
+    ],
+    "practicalProjects": [
+      "Draft a comprehensive 5-acre commercial maize cultivation budget and calendar for the transition belt",
+      "Design an integrated fall armyworm scouting and botanical pesticide spray regimen for a maize farm",
+      "Establish a high-density stem multiplication nursery for vitamin-A fortified yellow cassava"
+    ],
+    "learningResources": [
+      {
+        "title": "Crops Research Institute Field Agronomy Guide",
+        "provider": "CSIR Crops Research Institute (CRI)",
+        "url": "https://cropsresearch.org",
+        "isFree": true
+      },
+      {
+        "title": "Good Agricultural Practices for Maize & Roots",
+        "provider": "Ministry of Food and Agriculture (MoFA)",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      },
+      {
+        "title": "FAO Sustainable Crop Production Intensification",
+        "provider": "UN FAO",
+        "url": "https://www.fao.org/agriculture/crops",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Food and Agriculture (MoFA) Ghana / CSIR Crops Research Institute",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Agricultural workers and extension agents inspecting commercial crops in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-vegetables",
+    "name": "Intensive Vegetable Farming & Horticulture",
+    "slug": "vegetable-farming-horticulture",
+    "category": "Agriculture & Agribusiness",
+    "description": "High-density commercial production of fresh vegetables (tomatoes, peppers, onions, cabbage) for urban markets and supermarkets.",
+    "detailedDescription": "Commercial vegetable farming involves intensive nursery seedling raising, raised bed preparation, mulching, drip irrigation scheduling, pest prevention, and post-harvest grading. It allows entrepreneurs to generate fast cash flows across multiple harvest cycles per year on relatively small land parcels.",
+    "level": "Beginner",
+    "demandLevel": "Very High",
+    "whatItIsUsedFor": [
+      "Producing high-grade tomatoes, habanero peppers, cabbage, and carrots year-round",
+      "Operating raised-bed drip-irrigated market gardens supplying urban supermarkets",
+      "Managing insect netting and micro-tunnels for chemical-residue-free produce",
+      "Supplying fresh vegetable packs to restaurants, hotels, and grocery chains"
+    ],
+    "whyUsefulInGhana": "Ghana consumes immense quantities of fresh vegetables in Greater Accra, Kumasi, and Sekondi-Takoradi. Traditional open-field production suffers from seasonal shortages; skilled commercial horticulturalists utilizing modern drip kits and nursery practices achieve premium off-season prices at Agbogbloshie, Makola, and modern retail supermarkets.",
+    "topCareers": [
+      "Horticultural Farm Manager",
+      "Greenhouse Vegetable Grower",
+      "Market Garden Entrepreneur",
+      "Horticulture Extension Officer"
+    ],
+    "relatedJobs": [
+      "Vegetable Production Specialist",
+      "Urban Farming Consultant",
+      "Produce Quality Inspector"
+    ],
+    "industries": [
+      "Horticulture",
+      "Agribusiness",
+      "Retail & Supermarkets",
+      "Hospitality & Foodservice"
+    ],
+    "prerequisites": [
+      "Basic understanding of plant biology",
+      "Access to reliable water source"
+    ],
+    "toolsAndSoftware": [
+      "Nursery seedling plug trays",
+      "Drip tape irrigation kits",
+      "Silicone insect netting",
+      "Knapsack mist blowers",
+      "pH & EC meters"
+    ],
+    "relatedSkills": [
+      "Drip Irrigation",
+      "Greenhouse Farming",
+      "Organic Bio-Fertilizer",
+      "Agro-Marketing",
+      "Farm Budgeting"
+    ],
+    "certifications": [
+      "Ghana Export Promotion Authority (GEPA) Fresh Produce Quality Standard",
+      "MoFA Directorate of Crop Services Horticulture Certificate",
+      "GlobalGAP Farm Assurer"
+    ],
+    "practicalProjects": [
+      "Construct a 500-tray nursery germination setup for hybrid Scotch bonnet chili seedlings",
+      "Formulate an organic neem-oil and garlic biopesticide spray routine for pest prevention on cabbage",
+      "Design a quarter-acre gravity-fed drip irrigation vegetable garden layout with water storage tanks"
+    ],
+    "learningResources": [
+      {
+        "title": "Vegetable Production Manual for West Africa",
+        "provider": "World Vegetable Center (WorldVeg)",
+        "url": "https://avrdc.org",
+        "isFree": true
+      },
+      {
+        "title": "Ghana Horticulture Export Standards",
+        "provider": "Ghana Export Promotion Authority",
+        "url": "https://gepaghana.org",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Food and Agriculture (MoFA) / Ghana Export Promotion Authority (GEPA)",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Horticulturists tending to fresh vegetable crops with modern irrigation in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-poultry",
+    "name": "Commercial Poultry Farming & Hatchery Management",
+    "slug": "commercial-poultry-farming-hatchery",
+    "category": "Agriculture & Agribusiness",
+    "description": "Modern husbandry for commercial broiler meat, layer egg production, brooding management, biosecurity, and feed formulation.",
+    "detailedDescription": "Commercial poultry farming focuses on optimizing feed conversion ratios, maintaining strict veterinary biosecurity, managing day-old chick brooding temperatures, automating nipple drinkers and bell feeders, and disease prophylaxis (Newcastle, Gumboro, Marek). Advanced practitioners also master forced-air egg incubation and hatchery operations.",
+    "level": "Beginner",
+    "demandLevel": "Very High",
+    "whatItIsUsedFor": [
+      "Managing commercial broiler farms for fresh dressed poultry meat production",
+      "Running commercial egg laying enterprises with high peak lay persistence",
+      "Operating automated commercial incubators for day-old chick production",
+      "Formulating balanced poultry feed rations using local maize, soy, and fishmeal"
+    ],
+    "whyUsefulInGhana": "Ghana has launched major government initiatives to boost domestic broiler and egg production under PFJ 2.0 and the Broiler Revitalization Scheme. Layer egg demand is consistently high across schools (School Feeding Programme), bakeries, and households, making poultry one of the highest-turnover agribusinesses in Ghana.",
+    "topCareers": [
+      "Poultry Farm Manager",
+      "Hatchery Supervisor",
+      "Poultry Health Technician",
+      "Livestock Feed Specialist"
+    ],
+    "relatedJobs": [
+      "Broiler Unit Operator",
+      "Egg Production Supervisor",
+      "Poultry Equipment Technician"
+    ],
+    "industries": [
+      "Poultry & Livestock",
+      "Animal Feed Manufacturing",
+      "Food Processing",
+      "FMCG"
+    ],
+    "prerequisites": [
+      "Attention to detail",
+      "Willingness to maintain strict hygiene and daily flock routines"
+    ],
+    "toolsAndSoftware": [
+      "Automated egg incubators & candlers",
+      "Infrared brooder heaters",
+      "Nipple drinker lines & pressure regulators",
+      "Feed balance scales",
+      "Hygrometers & thermometers"
+    ],
+    "relatedSkills": [
+      "Animal Husbandry",
+      "Farm Accounting",
+      "Agro-Marketing",
+      "Veterinary First Aid",
+      "Supply Chain Management"
+    ],
+    "certifications": [
+      "Veterinary Services Directorate (VSD) Farm Biosecurity Certificate",
+      "Ghana National Association of Poultry Farmers (GNAPF) Masterclass",
+      "CTVET Level 4 Poultry Husbandry"
+    ],
+    "practicalProjects": [
+      "Build a brooding house management plan for 1,000 day-old broiler chicks over a 6-week cycle",
+      "Formulate a 100kg balanced layer mash feed formula using locally available ingredients and premixes",
+      "Design a commercial poultry biosecurity and vaccination schedule protocol compliant with VSD guidelines"
+    ],
+    "learningResources": [
+      {
+        "title": "Commercial Poultry Production Guidelines",
+        "provider": "KNUST Department of Animal Science",
+        "url": "https://knust.edu.gh",
+        "isFree": true
+      },
+      {
+        "title": "Poultry Biosecurity Manual",
+        "provider": "FAO Animal Production and Health",
+        "url": "https://www.fao.org/animal-health",
+        "isFree": true
+      }
+    ],
+    "source": "Veterinary Services Directorate (MoFA) / KNUST Department of Animal Science",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Poultry farm technicians managing modern broiler production facility in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-aquaculture",
+    "name": "Aquaculture & Freshwater Fish Farming (Catfish & Tilapia)",
+    "slug": "aquaculture-fish-farming-ghana",
+    "category": "Agriculture & Agribusiness",
+    "description": "Commercial cultivation of African catfish and Nile tilapia in concrete tanks, tarpaulin vats, earthen ponds, and lake cages.",
+    "detailedDescription": "Aquaculture equips individuals with techniques for pond/tank design, water quality management (dissolved oxygen, pH, ammonia, temperature), fingerling stocking, graded feeding schedules with floating extruded feed, and disease prevention. It also covers breeding and hormone-induced artificial spawning of catfish.",
+    "level": "Beginner",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Operating intensive tarpaulin and concrete catfish tanks in backyard and peri-urban spaces",
+      "Managing commercial tilapia earthen ponds and floating cages on Lake Volta",
+      "Artificial breeding and hatchery production of clarias gariepinus fingerlings",
+      "Supplying live and smoked catfish/tilapia to restaurants, chop bars, and cold stores"
+    ],
+    "whyUsefulInGhana": "Fish is the primary source of animal protein in the Ghanaian diet, but Ghana imports significant amounts of fish annually. Government aquaculture programs and high consumer demand for fresh tilapia and catfish make fish farming one of the most profitable peri-urban agricultural enterprises in Southern and Middle Ghana.",
+    "topCareers": [
+      "Aquaculture Farm Manager",
+      "Fish Hatchery Technician",
+      "Fish Nutritionist",
+      "Commercial Fish Farmer"
+    ],
+    "relatedJobs": [
+      "Pond Supervisor",
+      "Aquaculture Consultant",
+      "Smoked Fish Processing Coordinator"
+    ],
+    "industries": [
+      "Aquaculture & Fisheries",
+      "Food Processing",
+      "Hospitality & Restaurants"
+    ],
+    "prerequisites": [
+      "Consistent access to unchlorinated water",
+      "Basic biology interest"
+    ],
+    "toolsAndSoftware": [
+      "Water test kits (DO, pH, Ammonia, Nitrite)",
+      "Paddlewheel aerators & air blowers",
+      "Sorting and harvesting dip nets",
+      "Submersible water pumps",
+      "Refractometers"
+    ],
+    "relatedSkills": [
+      "Water Quality Management",
+      "Agro-Processing",
+      "Feed Formulation",
+      "Farm Accounting",
+      "Agribusiness Management"
+    ],
+    "certifications": [
+      "Fisheries Commission of Ghana Aquaculture Operator Certificate",
+      "CSIR Water Research Institute (WRI) Commercial Aquaculture Training",
+      "CTVET Level 3 Aquaculture"
+    ],
+    "practicalProjects": [
+      "Construct a 3-tank recirculation tarpaulin catfish setup with bio-filters for 1,500 fingerlings",
+      "Conduct an artificial hormone-induced spawning session for Clarias gariepinus broodstock and record hatching rate",
+      "Create a 6-month feeding and water exchange schedule optimized for feed conversion ratio (FCR)"
+    ],
+    "learningResources": [
+      {
+        "title": "Aquaculture Training Manual for Ghana",
+        "provider": "CSIR Water Research Institute (WRI)",
+        "url": "https://csir-water.org",
+        "isFree": true
+      },
+      {
+        "title": "Small-scale Aquaculture Guidelines",
+        "provider": "Fisheries Commission of Ghana",
+        "url": "https://fishcom.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Fisheries and Aquaculture Development / CSIR Water Research Institute",
+    "sourceUrl": "https://fishcom.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Fish farming technicians managing intensive freshwater aquaculture tanks in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-beekeeping",
+    "name": "Modern Beekeeping & Commercial Honey Production",
+    "slug": "commercial-beekeeping-honey-production",
+    "category": "Agriculture & Agribusiness",
+    "description": "Sustainable apiculture for pure honey harvesting, beeswax processing, propolis extraction, and crop pollination services.",
+    "detailedDescription": "Commercial beekeeping teaches the biology of the African honeybee (Apis mellifera adansonii), construction and baiting of Kenya Top Bar (KTB) and Langstroth beehives, non-destructive night harvesting, honey extraction without smoking contamination, and beeswax rendering for pharmaceutical and cosmetics use.",
+    "level": "Beginner",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Establishing commercial apiaries in cashew, citrus, and forest fringe plantations",
+      "Harvesting and filtering high-purity honey for retail supermarkets and pharmacy sales",
+      "Rendering clean beeswax for cosmetics, candle-making, and pharmaceutical ointment industries",
+      "Providing commercial pollination services to fruit and tree crop plantations"
+    ],
+    "whyUsefulInGhana": "Pure natural honey is in high demand in Ghana for medicinal, culinary, and cosmetic uses, with local demand far outstripping local supply. Beekeeping requires zero agricultural land ownership, minimal capital investment, and thrives in rural savannah and transition zones (Brong Ahafo, Volta, Northern regions).",
+    "topCareers": [
+      "Commercial Apiarist",
+      "Honey Production Manager",
+      "Forestry Agro-Enterprise Specialist",
+      "Bee Health Inspector"
+    ],
+    "relatedJobs": [
+      "Beekeeper",
+      "Wax Processing Technician",
+      "Pollination Services Coordinator"
+    ],
+    "industries": [
+      "Apiculture & Forestry",
+      "Cosmetics & Skincare",
+      "Food & Beverage",
+      "Pharmaceuticals"
+    ],
+    "prerequisites": [
+      "Physical agility",
+      "Calm temperament and adherence to protective safety gear"
+    ],
+    "toolsAndSoftware": [
+      "Kenya Top Bar & Langstroth hives",
+      "Stainless steel bee smoker",
+      "Protective bee suit with helmet veil",
+      "Hive tool & bee brush",
+      "Honey refractometer & stainless centrifuge"
+    ],
+    "relatedSkills": [
+      "Agroforestry",
+      "Natural Cosmetics Formulation",
+      "Agro-Marketing",
+      "Packaging & Branding",
+      "Organic Farming"
+    ],
+    "certifications": [
+      "CSIR-Forestry Research Institute of Ghana (FORIG) Apiculture Certificate",
+      "Forestry Commission NTFP Commercial Apiarist Accreditation",
+      "FDA Food Safety Standards"
+    ],
+    "practicalProjects": [
+      "Construct and bait 10 Kenya Top Bar beehives using beeswax attractant and local timber",
+      "Perform a cold-press hygienic honey filtration and test moisture content with a refractometer (<= 19%)",
+      "Render and purify 5kg of cosmetic-grade yellow beeswax from honey cappings"
+    ],
+    "learningResources": [
+      {
+        "title": "Beekeeping Training Handbook",
+        "provider": "CSIR Forestry Research Institute of Ghana (FORIG)",
+        "url": "https://csir-forig.org.gh",
+        "isFree": true
+      },
+      {
+        "title": "FAO Beekeeping in Africa Guide",
+        "provider": "FAO Agricultural Services",
+        "url": "https://www.fao.org/forestry",
+        "isFree": true
+      }
+    ],
+    "source": "CSIR Forestry Research Institute of Ghana (FORIG) / Forestry Commission of Ghana",
+    "sourceUrl": "https://csir-forig.org.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Ghanaian apiarist inspecting commercial beehives in full protective equipment",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-livestock",
+    "name": "Small Ruminant & Livestock Husbandry (Goats, Sheep & Pigs)",
+    "slug": "livestock-small-ruminant-husbandry",
+    "category": "Agriculture & Agribusiness",
+    "description": "Commercial breeding, intensive housing, nutrition, and disease management for goats, sheep, and pigs in Ghana.",
+    "detailedDescription": "Livestock husbandry focuses on modern intensive and semi-intensive management of sheep (Djallonké, Sahelian), goats (West African Dwarf), and pigs. Core competences include raised slatted housing design, silage and hay preparation, creep feeding, parasite control, deworming, and breeding selection for commercial meat markets.",
+    "level": "Beginner",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Managing commercial piggery operations with strict waste management and biogas integration",
+      "Operating raised-floor intensive goat and sheep fattening units for festive markets",
+      "Formulating low-cost livestock rations using agro-industrial byproducts (brewers spent grain, cassava peel)",
+      "Supplying high-demand live animals and meat carcasses to abattoirs, cold stores, and eateries"
+    ],
+    "whyUsefulInGhana": "Demand for chevron (goat meat), mutton (sheep), and pork is massive across Ghana, especially during festive seasons and social ceremonies. Modern housing and feeding methodologies eliminate the losses associated with traditional free-roaming livestock, creating profitable commercial farming operations across all 16 regions.",
+    "topCareers": [
+      "Livestock Farm Manager",
+      "Piggery Unit Supervisor",
+      "Small Ruminant Specialist",
+      "Feed Formulation Technician"
+    ],
+    "relatedJobs": [
+      "Animal Husbandry Officer",
+      "Meat Supply Coordinator",
+      "Breeding Unit Assistant"
+    ],
+    "industries": [
+      "Livestock & Meat Production",
+      "Agribusiness",
+      "Meat Processing & Butchery"
+    ],
+    "prerequisites": [
+      "Comfort around farm animals",
+      "Dedication to clean housing and daily animal feeding"
+    ],
+    "toolsAndSoftware": [
+      "Raised slatted wooden pens",
+      "Ear notching & tagging pliers",
+      "Weighing bands & scale scales",
+      "Silage compaction drums",
+      "Automatic nipple drinkers"
+    ],
+    "relatedSkills": [
+      "Veterinary First Aid",
+      "Waste Management & Biogas",
+      "Farm Accounting",
+      "Pasture Management",
+      "Agro-Marketing"
+    ],
+    "certifications": [
+      "MoFA Animal Production Directorate Livestock Husbandry Certificate",
+      "Veterinary Services Directorate Animal Health Accreditation",
+      "CTVET Level 3 Livestock Management"
+    ],
+    "practicalProjects": [
+      "Design a 20-sow commercial piggery housing unit with farrowing pens and waste drainage",
+      "Formulate a 500kg low-cost goat fattening feed mix using dried cassava peels, brewers spent grain, and salt minerals",
+      "Implement an internal and external parasite control protocol for a 50-head flock of Djallonké sheep"
+    ],
+    "learningResources": [
+      {
+        "title": "Small Ruminant Production in West Africa",
+        "provider": "University of Ghana Livestock Research Station",
+        "url": "https://ug.edu.gh",
+        "isFree": true
+      },
+      {
+        "title": "Modern Pig Husbandry Manual",
+        "provider": "Ministry of Food and Agriculture (MoFA)",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Food and Agriculture (MoFA) Animal Production Directorate / University of Ghana",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Livestock husbandry specialists managing raised-floor animal pens in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-drip-irrigation",
+    "name": "Drip Irrigation Design & Farm Water Management",
+    "slug": "drip-irrigation-farm-water-management",
+    "category": "Agriculture & Agribusiness",
+    "description": "Engineering and deploying pressurized water delivery systems, solar borehole pumping, and fertigation for commercial farms.",
+    "detailedDescription": "Drip irrigation design covers hydraulic calculations (pressure head, flow rate, emitter spacing), solar pumping sizing, filtration selection (screen, disc, sand filters), mainline and sub-main pipe trenching, and Venturi fertilizer injection systems. It guarantees water efficiency and crop resilience during dry seasons.",
+    "level": "Intermediate",
+    "demandLevel": "Very High",
+    "whatItIsUsedFor": [
+      "Sizing and installing solar-powered borehole irrigation systems for commercial farms",
+      "Assembling gravity and pressurized drip irrigation networks for vegetable fields",
+      "Calibrating Venturi injectors for automated liquid fertilizer delivery (fertigation)",
+      "Designing rainwater harvesting earth dams and farm pond water storage networks"
+    ],
+    "whyUsefulInGhana": "Ghana experiences distinct rainy and dry seasons; farmers relying solely on rain face 4 to 6 months of inactivity and crop failure. Installing efficient drip irrigation allows commercial farmers to produce high-value vegetables and fruits during the dry season when market prices double or triple.",
+    "topCareers": [
+      "Irrigation Systems Engineer",
+      "Farm Water Systems Technician",
+      "Horticultural Irrigation Specialist",
+      "Solar Ag-Tech Installer"
+    ],
+    "relatedJobs": [
+      "Irrigation Installer",
+      "Water Management Field Officer",
+      "Farm Infrastructure Technician"
+    ],
+    "industries": [
+      "Irrigation & Water Engineering",
+      "Agribusiness",
+      "Renewable Energy & Solar",
+      "Commercial Agriculture"
+    ],
+    "prerequisites": [
+      "Basic geometry and arithmetic",
+      "Familiarity with plumbing fittings and piping"
+    ],
+    "toolsAndSoftware": [
+      "Pressure gauges & flow meters",
+      "Pipe threaders & PVC solvent cement",
+      "Laser distance meters",
+      "Venturi injectors",
+      "EPANET hydraulic modeling software"
+    ],
+    "relatedSkills": [
+      "Plumbing",
+      "Solar PV Installation",
+      "Vegetable Horticulture",
+      "Greenhouse Farming",
+      "Hydraulics"
+    ],
+    "certifications": [
+      "Ghana Irrigation Development Authority (GIDA) Certified Irrigation Technician",
+      "CTVET Level 4 Irrigation Technology",
+      "IA (Irrigation Association) Certified Irrigation Designer"
+    ],
+    "practicalProjects": [
+      "Calculate the daily water requirement and pipe sizing for a 2-acre tomato farm in the Greater Accra plains",
+      "Assemble a complete solar submersible pump and elevated overhead tank distribution system",
+      "Calibrate a Venturi fertigation setup to inject soluble NPK fertilizer precisely through drip tape lines"
+    ],
+    "learningResources": [
+      {
+        "title": "Irrigation Engineering for Smallholders",
+        "provider": "Ghana Irrigation Development Authority (GIDA)",
+        "url": "https://gida.gov.gh",
+        "isFree": true
+      },
+      {
+        "title": "Solar Powered Irrigation Systems Toolkit",
+        "provider": "GIZ / Water and Energy for Food (WE4F)",
+        "url": "https://we4f.org",
+        "isFree": true
+      }
+    ],
+    "source": "Ghana Irrigation Development Authority (GIDA) / International Water Management Institute (IWMI)",
+    "sourceUrl": "https://gida.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Agricultural technicians installing solar-powered drip irrigation fittings on a Ghanaian farm",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-organic-farming",
+    "name": "Organic Farming & Bio-Fertilizer Production",
+    "slug": "organic-farming-bio-fertilizer",
+    "category": "Agriculture & Agribusiness",
+    "description": "Ecological crop management using compost, biochar, liquid organic fertilizers, botanical pest repellents, and soil biology restoration.",
+    "detailedDescription": "Organic farming teaches chemical-free soil fertility regeneration, thermal composting, vermicomposting (earthworm casting), biochar inoculation, liquid compost tea brewing, and biological pest management using beneficial insects and botanical extracts. It aligns with export organic standards and regenerates degraded soils.",
+    "level": "Beginner",
+    "demandLevel": "Growing",
+    "whatItIsUsedFor": [
+      "Producing certified organic fruits, vegetables, and cocoa for premium local and export markets",
+      "Manufacturing commercial liquid organic fertilizers and enriched compost bags for sale",
+      "Implementing companion planting and agro-ecological pest deterrence in orchards",
+      "Restoring exhausted agricultural soils through green manuring and cover cropping"
+    ],
+    "whyUsefulInGhana": "Escalating synthetic fertilizer costs and pesticide residues have driven surging demand for organic agricultural inputs and residue-free foods in Ghana. High-end restaurants in Accra and export off-takers in Europe pay premium prices for certified organic mangoes, pineapples, cashews, and vegetables.",
+    "topCareers": [
+      "Organic Farm Manager",
+      "Bio-Fertilizer Production Specialist",
+      "Agro-Ecology Consultant",
+      "Organic Certification Inspector"
+    ],
+    "relatedJobs": [
+      "Compost Facility Operator",
+      "Sustainable Agriculture Field Officer",
+      "Soil Health Advisor"
+    ],
+    "industries": [
+      "Organic Agriculture",
+      "Fertilizer & Soil Amendments",
+      "Environmental Conservation",
+      "Export Trade"
+    ],
+    "prerequisites": [
+      "Appreciation for natural ecosystems and environmental health"
+    ],
+    "toolsAndSoftware": [
+      "Compost thermometer probes",
+      "Bio-digester fermenters",
+      "Microbial spray tanks",
+      "Soil test kits",
+      "Shredding & mulching machines"
+    ],
+    "relatedSkills": [
+      "Soil Science",
+      "Vegetable Horticulture",
+      "Agribusiness Management",
+      "Waste Upcycling",
+      "Crop Farming"
+    ],
+    "certifications": [
+      "Participatory Guarantee Systems (PGS) Organic Certification Ghana",
+      "Ecological Agriculture Practitioner Certificate",
+      "GlobalGAP Organic Standards"
+    ],
+    "practicalProjects": [
+      "Build a 1-ton hot thermal compost pile using poultry manure, sawdust, and crop residues reaching 60°C",
+      "Brew a 200-liter batch of concentrated anaerobic liquid bio-fertilizer with rock phosphate and molasses",
+      "Formulate a botanical pest management spray routine using neem oil, garlic, and hot pepper extracts"
+    ],
+    "learningResources": [
+      {
+        "title": "Organic Agriculture Training Manual for West Africa",
+        "provider": "Ecological Agriculture Network Ghana",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      },
+      {
+        "title": "Soil Biology & Composting Handbook",
+        "provider": "CSIR Soil Research Institute (SRI)",
+        "url": "https://csirsoilresearch.org",
+        "isFree": true
+      }
+    ],
+    "source": "CSIR Soil Research Institute (SRI) / Ecological Agriculture Network Ghana",
+    "sourceUrl": "https://csirsoilresearch.org",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Ecological farming practitioners preparing thermal organic compost and bio-fertilizer",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-greenhouse",
+    "name": "Greenhouse Farming & Climate-Smart Horticulture",
+    "slug": "greenhouse-farming-climate-smart",
+    "category": "Agriculture & Agribusiness",
+    "description": "Controlled-environment agriculture (CEA) using protected polycarbonate and netting structures, soilless media, and climate automation.",
+    "detailedDescription": "Greenhouse farming trains professionals in managing microclimates (humidity, ventilation, shading, temperature), coco-peat and perlite soilless substrates, automated fertigation cycles, trellising high-yield indeterminate tomato and bell pepper vines, and integrated pest exclusion within protected agricultural structures.",
+    "level": "Intermediate",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Growing premium indeterminate greenhouse tomatoes, sweet bell peppers, and cucumbers",
+      "Managing automated micro-misting and climate cooling systems in tropical environments",
+      "Operating commercial substrate grow-bag fertigation lines with zero soil pathogens",
+      "Contract farming supplying supermarket chains (Shoprite, Melcom) and luxury hotels"
+    ],
+    "whyUsefulInGhana": "Under Ghana’s Greenhouse Village initiatives (Dawhenya, Bawjiase, Akumadan), greenhouse horticulture has emerged as a high-technology, lucrative youth agribusiness. Protected agriculture insulates crops from erratic rainfall, intense sun, and pest swarms, delivering yields 5x to 8x higher than open-field cultivation.",
+    "topCareers": [
+      "Greenhouse Agronomist",
+      "Controlled Environment Agriculture Specialist",
+      "Hydroponics Facility Manager",
+      "Horticultural Production Supervisor"
+    ],
+    "relatedJobs": [
+      "Greenhouse Crop Scout",
+      "Fertigation Technician",
+      "Protected Agriculture Consultant"
+    ],
+    "industries": [
+      "Protected Agriculture",
+      "Agri-Tech",
+      "Supermarkets & Retail",
+      "Export Horticulture"
+    ],
+    "prerequisites": [
+      "Prior experience in basic vegetable cultivation or agronomy"
+    ],
+    "toolsAndSoftware": [
+      "Greenhouse monitoring sensors (Temp & RH)",
+      "EC & pH meters",
+      "Venturi & automated dosing injectors",
+      "High-tensile trellising twine & rollerhooks",
+      "Automated shading screens"
+    ],
+    "relatedSkills": [
+      "Drip Irrigation",
+      "Vegetable Horticulture",
+      "Agribusiness Management",
+      "Sensors & Automation",
+      "Plant Pathology"
+    ],
+    "certifications": [
+      "Ghana EXIM Bank Greenhouse Youth Enterprise Certificate",
+      "CTVET Level 4 Protected Horticulture",
+      "MoFA Greenhouse Village Agronomist License"
+    ],
+    "practicalProjects": [
+      "Formulate a 4-stage hydroponic fertilizer recipe for greenhouse indeterminate bell peppers",
+      "Set up a 500-plant coco-peat slab grow bag setup with automated digital timer fertigation",
+      "Conduct a greenhouse microclimate audit to maintain optimal humidity and temperature below 32°C"
+    ],
+    "learningResources": [
+      {
+        "title": "Greenhouse Horticulture in the Tropics",
+        "provider": "KNUST Department of Horticulture",
+        "url": "https://knust.edu.gh",
+        "isFree": true
+      },
+      {
+        "title": "Ghana Greenhouse Training Guide",
+        "provider": "Ministry of Food and Agriculture (MoFA)",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "Ministry of Food and Agriculture (MoFA) Greenhouse Village Initiative / KNUST",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Young Ghanaian agricultural agronomists managing high-tech greenhouse tomato crops",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-farm-management",
+    "name": "Commercial Farm Management & Agro-Accounting",
+    "slug": "commercial-farm-management-accounting",
+    "category": "Agriculture & Agribusiness",
+    "description": "Operational leadership, labor management, input procurement, crop cycle budgeting, and gross margin accounting for commercial farms.",
+    "detailedDescription": "Commercial farm management equips agricultural leaders with the tools to plan seasonal budgets, manage field laborers, procure seeds and agrochemicals, analyze crop gross margins, forecast yields, and manage farm machinery logistics. It bridges agricultural technical knowledge with disciplined financial and personnel leadership.",
+    "level": "Intermediate",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Leading end-to-end seasonal operations for commercial grain, tree crop, or livestock farms",
+      "Preparing enterprise crop budgets, cash flow projections, and bank loan applications",
+      "Managing seasonal labor crews, piece-rate payments, and farm safety standards",
+      "Tracking machinery maintenance schedules and fuel consumption logs"
+    ],
+    "whyUsefulInGhana": "Many agricultural projects in Ghana fail not due to bad weather, but because of poor operational management, unchecked labor theft, and lack of financial records. Commercial investors, Diaspora landowners, and commercial agricultural firms actively recruit qualified farm managers capable of delivering profitable returns.",
+    "topCareers": [
+      "Commercial General Farm Manager",
+      "Estate Agriculture Supervisor",
+      "Agribusiness Financial Controller",
+      "Agricultural Operations Director"
+    ],
+    "relatedJobs": [
+      "Farm Administrator",
+      "Field Operations Officer",
+      "Agro-Logistics Manager"
+    ],
+    "industries": [
+      "Agribusiness & Agriculture",
+      "Commercial Farming Estates",
+      "Agricultural Banking & Finance",
+      "Commodity Investment"
+    ],
+    "prerequisites": [
+      "Basic accounting and financial literacy",
+      "Leadership and organizational capability"
+    ],
+    "toolsAndSoftware": [
+      "Excel farm accounting templates",
+      "FarmERP / Agrivi software",
+      "Time & attendance biometric trackers",
+      "Field GPS mapping tools",
+      "Inventory ledgers"
+    ],
+    "relatedSkills": [
+      "Agribusiness Management",
+      "Bookkeeping",
+      "Supply Chain Management",
+      "Human Resource Management",
+      "Crop Production"
+    ],
+    "certifications": [
+      "Chartered Institute of Agribusiness Professionals (CIAP) Certification",
+      "GIMPA Executive Agribusiness Management Certificate",
+      "MoFA Commercial Farm Administration"
+    ],
+    "practicalProjects": [
+      "Create a complete 100-acre commercial soya bean enterprise budget with projected gross margins and sensitivity analysis",
+      "Design a daily field operations logbook and labor task sheet for a 30-worker commercial vegetable plantation",
+      "Conduct a break-even financial assessment comparing owned tractor operations vs rental services"
+    ],
+    "learningResources": [
+      {
+        "title": "Commercial Farm Management Handbook",
+        "provider": "GIMPA Center for Agribusiness",
+        "url": "https://gimpa.edu.gh",
+        "isFree": true
+      },
+      {
+        "title": "Farm Business Analysis and Planning",
+        "provider": "FAO Agricultural Management",
+        "url": "https://www.fao.org/farm-management",
+        "isFree": true
+      }
+    ],
+    "source": "GIMPA Center for Agribusiness / Ministry of Food and Agriculture (MoFA)",
+    "sourceUrl": "https://gimpa.edu.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Farm manager reviewing financial records and crop schedules in rural Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-agro-processing",
+    "name": "Cassava & Cereal Agro-Processing (Gari, Flour & Starch)",
+    "slug": "agro-processing-cassava-cereal",
+    "category": "Agriculture & Agribusiness",
+    "description": "Transforming raw roots, tubers, and grains into shelf-stable packaged foods (fortified gari, high-quality cassava flour, cereal blends).",
+    "detailedDescription": "Agro-processing teaches mechanical peeling, grating, hydraulic dewatering, fermentation, roasting (gari), milling, packaging, and quality control compliant with Food and Drugs Authority (FDA) standards. It eliminates post-harvest rot and increases value capture by 3x to 5x over raw farmgate sales.",
+    "level": "Beginner",
+    "demandLevel": "Very High",
+    "whatItIsUsedFor": [
+      "Setting up automated and semi-mechanized gari roasting and packaging enterprises",
+      "Manufacturing High Quality Cassava Flour (HQCF) for bakery and industrial starch off-takers",
+      "Producing fortified infant cereal blends (Tom Brown) with local soybeans, maize, and groundnuts",
+      "Packaging and barcoding hygienic shelf-stable foods for local and diaspora export markets"
+    ],
+    "whyUsefulInGhana": "Under Ghana’s One District One Factory (1D1F) agenda, agro-processing is a cornerstone of economic transformation. Raw cassava and maize perish rapidly or sell cheap at harvest; processing them into clean, packaged gari, cereal blends, or starches yields high margins and access to supermarkets and export buyers.",
+    "topCareers": [
+      "Agro-Processing Unit Manager",
+      "Food Factory Quality Assurance Supervisor",
+      "Value Addition Entrepreneur",
+      "Food Production Technologist"
+    ],
+    "relatedJobs": [
+      "Food Processing Operator",
+      "Packaging Quality Inspector",
+      "Gari Production Supervisor"
+    ],
+    "industries": [
+      "Agro-Processing & Food Manufacturing",
+      "FMCG",
+      "Export Trade",
+      "Retail Supermarkets"
+    ],
+    "prerequisites": [
+      "Basic hygiene awareness",
+      "Interest in food production and machine operation"
+    ],
+    "toolsAndSoftware": [
+      "Mechanical cassava graters & dewatering presses",
+      "Rotary roasting pans",
+      "Industrial hammer mills",
+      "Continuous band sealers & heat guns",
+      "Grain moisture meters"
+    ],
+    "relatedSkills": [
+      "Food Safety (HACCP)",
+      "Packaging & Branding",
+      "Agribusiness Management",
+      "Machine Operation",
+      "Inventory Control"
+    ],
+    "certifications": [
+      "Food and Drugs Authority (FDA) Food Facility Registration Permit",
+      "Ghana Standards Authority (GSA) Product Certification",
+      "CTVET Level 3 Food Processing Technology"
+    ],
+    "practicalProjects": [
+      "Develop an FDA-compliant Standard Operating Procedure (SOP) and sanitation plan for a gari processing line",
+      "Formulate and test a batch of soy-fortified yellow gari enriched with vitamin A sweet potato flour",
+      "Design product packaging with nutritional facts and FDA barcode labels for a 1kg packaged cereal blend"
+    ],
+    "learningResources": [
+      {
+        "title": "Cassava Processing and Value Addition",
+        "provider": "CSIR Food Research Institute (FRI)",
+        "url": "https://csir-fri.org",
+        "isFree": true
+      },
+      {
+        "title": "Food Facility Registration Guidelines",
+        "provider": "Food and Drugs Authority Ghana",
+        "url": "https://fdaghana.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "Food and Drugs Authority (FDA) / CSIR Food Research Institute (FRI)",
+    "sourceUrl": "https://fdaghana.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Food processing operators packaging hygienic agro-processed foods in a certified facility",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-grain-storage",
+    "name": "Post-Harvest Grain Storage & Silo Management",
+    "slug": "post-harvest-storage-loss-prevention",
+    "category": "Agriculture & Agribusiness",
+    "description": "Techniques for grain drying, moisture testing, hermetic storage bags, and warehouse pest control to prevent post-harvest losses.",
+    "detailedDescription": "Post-harvest grain storage teaches solar and mechanical drying methods, grain moisture measurement, grading standards (Ghana Standards Authority GSA 211), hermetic sealed storage (PICS bags), warehouse ventilation, stack management, and chemical/biological fumigation to preserve maize, cowpeas, and rice quality over 12 months.",
+    "level": "Intermediate",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Managing commercial grain aggregation warehouses and metal silos across Ghana",
+      "Grading and storing grains for the National Food Buffer Stock Company (NAFCO) and GCX",
+      "Utilizing Purdue Improved Crop Storage (PICS) bags to eliminate grain weevil damage chemical-free",
+      "Preserving harvested maize and beans to sell at peak prices during the lean season"
+    ],
+    "whyUsefulInGhana": "Post-harvest losses claim up to 30% of harvested grains in Ghana due to weevils, mould, and poor drying. Certified grain storage practitioners prevent these losses, enabling farmers and aggregators to store grains safely and earn substantial seasonal price appreciation on the Ghana Commodity Exchange (GCX).",
+    "topCareers": [
+      "Warehouse Grain Superintendent",
+      "Post-Harvest Loss Prevention Specialist",
+      "Grain Quality Inspector",
+      "Silo Operations Manager"
+    ],
+    "relatedJobs": [
+      "Warehouseman",
+      "Grain Moisture Analyst",
+      "Commodity Storage Officer"
+    ],
+    "industries": [
+      "Grain Storage & Warehousing",
+      "Commodity Trading (GCX)",
+      "Food Security & Logistics",
+      "Agriculture"
+    ],
+    "prerequisites": [
+      "Basic numeracy and attention to quality standards"
+    ],
+    "toolsAndSoftware": [
+      "Grain moisture meters (Purdue & Dickey-John)",
+      "Hermetic PICS storage bags",
+      "Solar bubble dryers",
+      "Grain sampling spears",
+      "Digital humidity sensors"
+    ],
+    "relatedSkills": [
+      "Commodity Trading",
+      "Inventory Control",
+      "Agribusiness Management",
+      "Quality Assurance",
+      "Supply Chain Management"
+    ],
+    "certifications": [
+      "Ghana Commodity Exchange (GCX) Certified Warehouse Operator",
+      "National Food Buffer Stock Company (NAFCO) Grading Certificate",
+      "WFP Post-Harvest Management Training"
+    ],
+    "practicalProjects": [
+      "Execute a standardized grain sampling and moisture test protocol on a 50-bag maize batch to achieve <= 13% moisture",
+      "Set up an airtight hermetic storage trial comparing traditional polypropylene sacks vs triple-layer PICS bags over 90 days",
+      "Develop a warehouse rodent and insect pest management protocol compliant with EPA and GSA standards"
+    ],
+    "learningResources": [
+      {
+        "title": "Post-Harvest Grain Storage Handbook",
+        "provider": "CSIR Food Research Institute (FRI)",
+        "url": "https://csir-fri.org",
+        "isFree": true
+      },
+      {
+        "title": "Warehouse Receipt System Standards",
+        "provider": "Ghana Commodity Exchange (GCX)",
+        "url": "https://gcx.com.gh",
+        "isFree": true
+      }
+    ],
+    "source": "CSIR Food Research Institute (FRI) / Ghana Commodity Exchange (GCX)",
+    "sourceUrl": "https://gcx.com.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Grain warehouse operators testing moisture levels and inspecting hermetic storage bags in Ghana",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-commodity-trading",
+    "name": "Agricultural Marketing & Commodity Trading",
+    "slug": "agricultural-marketing-commodity-trading",
+    "category": "Agriculture & Agribusiness",
+    "description": "Aggregation, pricing strategies, market intelligence, contract negotiations, and formal trading on the Ghana Commodity Exchange.",
+    "detailedDescription": "Agricultural commodity trading equips operators to aggregate crops from smallholders, evaluate grade specifications, negotiate forward purchase agreements, utilize Mobile Money bulk payment systems, manage freight logistics, and trade standardized electronic warehouse receipts on the Ghana Commodity Exchange (GCX).",
+    "level": "Intermediate",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Operating as a commercial grain or cashew aggregator connecting rural farms to urban markets",
+      "Trading electronic warehouse receipts for maize, soya, and sorghum on the GCX platform",
+      "Structuring off-taker supply contracts with poultry feed mills and food conglomerates",
+      "Hedging seasonal price fluctuations through contract farming agreements"
+    ],
+    "whyUsefulInGhana": "Smallholder farmers often sell at low farmgate prices due to lack of market access. Skilled commodity aggregators and traders create liquid supply chains connecting farmers in the Northern and Middle belts to commercial buyers, food manufacturers, and export markets across West Africa.",
+    "topCareers": [
+      "Commodity Trader",
+      "Agricultural Aggregator",
+      "Agri-Business Market Linkage Officer",
+      "Procurement Specialist"
+    ],
+    "relatedJobs": [
+      "Grain Buyer",
+      "Field Sourcing Officer",
+      "Commodity Broker"
+    ],
+    "industries": [
+      "Commodity Trading",
+      "Agribusiness & FMCG",
+      "Export & International Trade",
+      "Logistics"
+    ],
+    "prerequisites": [
+      "Strong commercial negotiation skills",
+      "Numerical literacy and market savvy"
+    ],
+    "toolsAndSoftware": [
+      "GCX Electronic Trading Portal",
+      "Mobile Money bulk disbursement dashboards",
+      "Truck weighbridge ticketing systems",
+      "Excel commodity pricing models"
+    ],
+    "relatedSkills": [
+      "Negotiation",
+      "Commercial Contracts",
+      "Supply Chain Management",
+      "Post-Harvest Grain Storage",
+      "Financial Modeling"
+    ],
+    "certifications": [
+      "Ghana Commodity Exchange (GCX) Certified Trading Member",
+      "Ghana Export Promotion Authority (GEPA) Export School Diploma",
+      "Chartered Institute of Marketing Ghana (CIMG) Agribusiness Module"
+    ],
+    "practicalProjects": [
+      "Structure a formal contract farming agreement for 50 smallholders supplying yellow maize to a poultry feed mill",
+      "Build a seasonal price arbitrage and transport logistics calculation model between Techiman, Tamale, and Accra",
+      "Simulate an electronic warehouse receipt sale transaction on the Ghana Commodity Exchange platform"
+    ],
+    "learningResources": [
+      {
+        "title": "Trading on the Ghana Commodity Exchange",
+        "provider": "Ghana Commodity Exchange (GCX)",
+        "url": "https://gcx.com.gh",
+        "isFree": true
+      },
+      {
+        "title": "Agri-Business Market Access Guide",
+        "provider": "Ghana Export Promotion Authority (GEPA)",
+        "url": "https://gepaghana.org",
+        "isFree": true
+      }
+    ],
+    "source": "Ghana Commodity Exchange (GCX) / Ghana Export Promotion Authority (GEPA)",
+    "sourceUrl": "https://gcx.com.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Agricultural commodity traders inspecting grain samples and negotiating contracts",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-snail-farming",
+    "name": "Commercial Snail Farming (Heliciculture) & Mini-Livestock",
+    "slug": "snail-farming-mini-livestock",
+    "category": "Agriculture & Agribusiness",
+    "description": "Intensive breeding and fattening of the Giant African Land Snail (Achatina achatina) for culinary markets, cosmetics slime, and export.",
+    "detailedDescription": "Commercial heliciculture covers housing construction (wooden boxes, trench pens, greenhouses), soil preparation and neutralization, optimal humidity control, feeding with calcium-rich diets, selective breeding, egg incubation, juvenile nursing, and hygienic processing/freezing of snail meat and cosmetic snail mucin extraction.",
+    "level": "Beginner",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Operating intensive backyard or commercial snail pens producing live Giant African Land Snails",
+      "Supplying high-end restaurants, hotels, chop bars, and diaspora export food companies",
+      "Harvesting and filtering cosmetic-grade snail mucin (slime) for skincare formulators",
+      "Processing and vacuum-packing dried, oven-baked, and frozen snail meat"
+    ],
+    "whyUsefulInGhana": "Snails (Nwa/Waawa) are an esteemed delicacy in Ghanaian cuisine, but forest deforestation has severely depleted wild snail populations. Commercial farming provides high-margin year-round harvests with virtually zero noise, zero smell, low feed costs, and massive market demand in Accra and Kumasi.",
+    "topCareers": [
+      "Commercial Snail Farmer",
+      "Heliciculture Consultant",
+      "Mini-Livestock Specialist",
+      "Snail Meat Processor"
+    ],
+    "relatedJobs": [
+      "Snail Pen Supervisor",
+      "Exotic Meat Supplier",
+      "Cosmetic Slime Production Assistant"
+    ],
+    "industries": [
+      "Mini-Livestock",
+      "Hospitality & Restaurants",
+      "Cosmetics & Skincare",
+      "Export Food Trade"
+    ],
+    "prerequisites": [
+      "Patience and attention to humidity maintenance",
+      "Interest in eco-friendly farming"
+    ],
+    "toolsAndSoftware": [
+      "Trench brick pens with mosquito net mesh",
+      "Soil pH testers & agricultural lime",
+      "Fine mist spray nozzles",
+      "Incubation boxes with sterilized soil",
+      "Egg candlers"
+    ],
+    "relatedSkills": [
+      "Animal Husbandry",
+      "Natural Cosmetics Formulation",
+      "Agribusiness Management",
+      "Organic Farming",
+      "Food Safety"
+    ],
+    "certifications": [
+      "KNUST Department of Animal Science Mini-Livestock Certificate",
+      "MoFA Animal Production Snail Farming Accreditation",
+      "FDA Food Processing Permit"
+    ],
+    "practicalProjects": [
+      "Construct a 4-compartment escape-proof brick snail trench pen with drainage and ant-gutter moats",
+      "Formulate a high-calcium formulated mash feed using eggshells, soya, moringa, and pawpaw leaves",
+      "Set up a sterilized soil egg incubation box and track the hatching rate of 200 Achatina achatina eggs"
+    ],
+    "learningResources": [
+      {
+        "title": "Giant African Snail Farming Guide",
+        "provider": "KNUST Department of Animal Science",
+        "url": "https://knust.edu.gh",
+        "isFree": true
+      },
+      {
+        "title": "Mini-Livestock Husbandry Handbook",
+        "provider": "Ministry of Food and Agriculture (MoFA)",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "KNUST Department of Animal Science / Ministry of Food and Agriculture (MoFA)",
+    "sourceUrl": "https://mofa.gov.gh",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Commercial snail farming entrepreneur tending to Giant African snails in intensive pens",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  },
+  {
+    "id": "skill-agri-mushroom-cultivation",
+    "name": "Commercial Mushroom Cultivation & Spawn Production",
+    "slug": "mushroom-cultivation-spawns-production",
+    "category": "Agriculture & Agribusiness",
+    "description": "Year-round cultivation of oyster and oil palm mushrooms using agricultural composted sawdust bags, sterilization, and fruiting rooms.",
+    "detailedDescription": "Commercial mushroom cultivation encompasses substrate preparation (sawdust, rice bran, lime), composting, plastic bag bagging, thermal drum sterilization, pure culture spawn inoculation, dark room spawn running (mycelium colonization), and cropping room humidity and airflow regulation for high mushroom flushes.",
+    "level": "Beginner",
+    "demandLevel": "High",
+    "whatItIsUsedFor": [
+      "Producing fresh and dried oyster mushrooms for local retail supermarkets and restaurants",
+      "Operating a commercial grain spawn production laboratory for local mushroom growers",
+      "Upcycling agricultural timber waste (sawdust) into high-protein culinary mushrooms",
+      "Packaging oven-dried mushrooms with extended 12-month shelf life for export"
+    ],
+    "whyUsefulInGhana": "Mushroom cultivation is one of the highest revenue-per-square-meter agricultural activities in Ghana. Mushrooms grow indoors on agricultural waste, require no vast farmland, take only 3-4 weeks to produce, and sell at premium prices across urban fresh markets and grocery stores.",
+    "topCareers": [
+      "Commercial Mushroom Grower",
+      "Mushroom Spawn Lab Technician",
+      "Mycology Entrepreneur",
+      "Urban Agriculture Specialist"
+    ],
+    "relatedJobs": [
+      "Cropping House Attendant",
+      "Substrate Preparation Operator",
+      "Packaged Mushroom Distributor"
+    ],
+    "industries": [
+      "Indoor Agriculture",
+      "Food Manufacturing",
+      "Supermarkets & Retail",
+      "Waste Upcycling"
+    ],
+    "prerequisites": [
+      "Strict cleanliness and hygiene discipline",
+      "Willingness to follow sterile lab protocols"
+    ],
+    "toolsAndSoftware": [
+      "Drum substrate sterilizers / autoclaves",
+      "Laminar flow clean benches",
+      "Inoculation needles & alcohol lamps",
+      "Humidity hydrometers & misting nozzles",
+      "Impulse heat sealers"
+    ],
+    "relatedSkills": [
+      "Agro-Processing",
+      "Organic Farming",
+      "Food Safety",
+      "Agribusiness Management",
+      "Packaging & Branding"
+    ],
+    "certifications": [
+      "CSIR Food Research Institute (FRI) Mushroom Cultivation Certificate",
+      "CTVET Level 3 Mushroom Technology",
+      "FDA Food Registration"
+    ],
+    "practicalProjects": [
+      "Prepare, bag, and autoclave 200 sawdust substrate compost bags and inoculate with oyster mushroom spawn",
+      "Construct an evaporative cooled cropping room using local bamboo and jute sacks maintaining >= 80% humidity",
+      "Harvest, weigh, and package 50kg of fresh oyster mushrooms with transparent ventilated packaging"
+    ],
+    "learningResources": [
+      {
+        "title": "Mushroom Cultivation Handbook for Ghana",
+        "provider": "CSIR Food Research Institute (FRI)",
+        "url": "https://csir-fri.org",
+        "isFree": true
+      },
+      {
+        "title": "National Mushroom Development Programme",
+        "provider": "Ministry of Food and Agriculture (MoFA)",
+        "url": "https://mofa.gov.gh",
+        "isFree": true
+      }
+    ],
+    "source": "CSIR Food Research Institute (FRI) Mushroom Center / MoFA",
+    "sourceUrl": "https://csir-fri.org",
+    "verificationStatus": "verified",
+    "lastVerifiedAt": "2026-03-20T00:00:00Z",
+    "imageUrl": "/images/institutions/ug_students_workshop.jpg",
+    "imageAlt": "Mushroom growers harvesting fresh oyster mushrooms inside an environmentally controlled fruiting room",
+    "status": "published",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-03-20T00:00:00Z"
+  }
+];

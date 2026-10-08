@@ -77,9 +77,10 @@ export const SkillsService = {
       const keySlug = item.slug.toLowerCase().trim();
 
       if (idMap.has(item.id)) {
-        // Overlay local edits onto verified skill
+        // Overlay local edits onto verified skill if explicitly marked as custom edit
         const base = idMap.get(item.id)!;
-        const merged = { ...base, ...item };
+        const isCustomEdit = (item as any).isCustom || (item as any).isUserEdited;
+        const merged = isCustomEdit ? { ...base, ...item } : { ...item, ...base };
         idMap.set(item.id, merged);
         nameMap.set(keyName, merged);
         slugMap.set(keySlug, merged);
@@ -166,9 +167,9 @@ export const SkillsService = {
     const idx = all.findIndex(s => s.id === norm.id || s.slug === norm.slug);
 
     if (idx >= 0) {
-      all[idx] = { ...norm, updatedAt: new Date().toISOString() };
+      all[idx] = { ...norm, isCustom: true, updatedAt: new Date().toISOString() };
     } else {
-      all.unshift({ ...norm, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+      all.unshift({ ...norm, isCustom: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
     }
 
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {

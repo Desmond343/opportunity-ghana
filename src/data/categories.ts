@@ -160,8 +160,12 @@ export const SKILL_CATEGORIES = [
   'Business & Entrepreneurship',
   'Career & Professional',
   'Creative Arts & Media',
-  'Practical & Technical (TVET)',
-  'Education, Health & Social'
+  'Vocational & Technical Trades',
+  'Agriculture & Agribusiness',
+  'Hospitality, Food & Tourism',
+  'Beauty & Personal Care',
+  'Healthcare & Community',
+  'Education & Teaching'
 ] as const;
 
 export const STANDARD_CAREER_TRACKS: Skill[] = VERIFIED_REAL_SKILLS;

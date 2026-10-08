@@ -1,0 +1,380 @@
+export const newHospitalitySkills = [
+  {
+    id: 'skill-hosp-ghanaian-culinary',
+    name: 'Authentic Ghanaian & West African Culinary Arts',
+    slug: 'authentic-ghanaian-culinary-arts',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Mastery of traditional and contemporary Ghanaian cuisine (Jollof, Fufu & light soup, Waakye, Banku & tilapia, Red-Red).',
+    detailedDescription: 'Ghanaian culinary arts covers commercial preparation of indigenous soups (groundnut, palm nut, light soup, kontomire), slow-simmered Ghanaian Jollof rice, Waakye with shito and spaghetti, pounded and machine-processed swallows (fufu, banku, kokonte), meat/fish braising and smoking, knife skills, food portioning, and modern plating for commercial catering and restaurants.',
+    level: 'Beginner',
+    demandLevel: 'Very High',
+    whatItIsUsedFor: [
+      'Operating traditional and contemporary restaurants, chop bars, and commercial eateries',
+      'Catering for large social gatherings (weddings, funerals, corporate events, parties)',
+      'Developing packaged gourmet ready-to-eat Ghanaian sauces (shito, pepper pastes, waakye kits)',
+      'Designing modern Afro-fusion tasting menus for luxury hotels and tourist venues'
+    ],
+    whyUsefulInGhana: 'Food is at the heart of Ghanaian culture and economy. From bustling lunchtime corporate chop bars in Osu and Airport City to weekend funeral and wedding banquets across the country, authentic, hygienic, and deliciously prepared Ghanaian food is an evergreen, high-cashflow business.',
+    topCareers: ['Executive Head Chef', 'Professional Caterer', 'Restaurant Kitchen Manager', 'Afro-Fusion Culinary Specialist'],
+    relatedJobs: ['Cook', 'Sous Chef', 'Event Catering Assistant', 'Shito Brand Producer'],
+    industries: ['Hospitality & Restaurants', 'Catering & Events', 'Tourism & Culture', 'Packaged Food'],
+    prerequisites: ['Passion for cooking and strict adherence to personal and kitchen hygiene'],
+    toolsAndSoftware: ['Commercial multi-burner gas stoves & stock pots', 'High-speed heavy-duty commercial blenders', 'Traditional earthenware grinding bowls (Asanka)', 'Food core thermometers', 'Kitchen weighing scales'],
+    relatedSkills: ['Food Safety (HACCP)', 'Baking & Pastry', 'Event Planning', 'Customer Service', 'Cost Accounting'],
+    certifications: ['Ghana Tourism Authority (GTA) Licensed Cook / Caterer Certificate', 'FDA Food Handlers Medical Health Certificate', 'CTVET Level 3 Commercial Cookery'],
+    practicalProjects: [
+      'Prepare and execute a standardized 50-portion banquet batch of authentic smoky Ghanaian party Jollof rice and grilled chicken',
+      'Formulate and jar a commercially sterile batch of gourmet black pepper sauce (Shito) with 6-month room temperature shelf life',
+      'Create a standardized recipe cost card and portion-control guide for 10 staple Ghanaian restaurant dishes'
+    ],
+    learningResources: [
+      { title: 'Culinary Arts and Food Safety Manual', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true },
+      { title: 'Food Hygiene for Commercial Caterers', provider: 'Food and Drugs Authority Ghana', url: 'https://fdaghana.gov.gh', isFree: true }
+    ],
+    source: 'Ghana Tourism Authority (GTA) / Food and Drugs Authority (FDA) Ghana',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Professional chefs preparing authentic Ghanaian culinary dishes in a commercial kitchen',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-baking-pastry',
+    name: 'Commercial Baking, Bread Making & Pastry Arts',
+    slug: 'commercial-baking-pastry-arts',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Commercial bread making (butter bread, tea bread), meat pies, spring rolls, celebration cakes, and French pastry arts.',
+    detailedDescription: 'Commercial baking teaches flour gluten dynamics, yeast fermentation and proofing control, commercial dough mixers and dividers, oven temperature curves (deck & convection ovens), cake baking and fondant/buttercream decorating, savory pastry production (Ghanaian meat pies, fish pies, sausage rolls), and packaging for retail distribution.',
+    level: 'Beginner',
+    demandLevel: 'Very High',
+    whatItIsUsedFor: [
+      'Operating commercial bakeries producing sandwich bread, butter bread, and sweet rolls for grocery retailers',
+      'Running bespoke cake design studios specializing in multi-tier wedding and birthday celebration cakes',
+      'Supplying hot savory pastries (meat pies, sausage rolls) to cafes, schools, and filling station marts',
+      'Producing packaged cookies, shortbreads, and pastries for supermarket shelves'
+    ],
+    whyUsefulInGhana: 'Bread is a daily dietary staple in virtually every Ghanaian household, and celebration cakes and meat pies are essential at every party, church event, and wedding. Talented bakers who master consistent crumb texture, moist cakes, and flaky pastry crusts enjoy rapid commercial success.',
+    topCareers: ['Commercial Head Baker', 'Master Cake Decorator & Confectioner', 'Pastry Chef', 'Bakery Enterprise Owner'],
+    relatedJobs: ['Bakery Assistant', 'Dough Mixer Operator', 'Savoury Pastry Maker'],
+    industries: ['Bakery & Confectionery', 'Hospitality & Foodservice', 'Retail Supermarkets', 'Events & Weddings'],
+    prerequisites: ['Patience, precision with weights and measures, and kitchen cleanliness'],
+    toolsAndSoftware: ['Commercial deck and convection ovens', 'Spiral dough mixers & planetary cake mixers', 'Dough sheeters & proofing cabinets', 'Fondant sculpting tools & cake turntables', 'Digital kitchen timer scales'],
+    relatedSkills: ['Culinary Arts', 'Food Safety (HACCP)', 'Packaging & Branding', 'Inventory Control', 'Event Management'],
+    certifications: ['CTVET Level 3 Commercial Baking and Pastry Arts', 'FDA Food Facility Registration', 'Bakers Association of Ghana Accreditation'],
+    practicalProjects: [
+      'Bake a 100-loaf batch of soft, golden Ghanaian butter bread with consistent crumb structure and shelf-life stability',
+      'Construct and decorate a 3-tier structured wedding cake with smooth fondant finish and handcrafted sugar flowers',
+      'Formulate and bake 200 flaky Ghanaian beef meat pies with consistent golden crimping and seasoned filling'
+    ],
+    learningResources: [
+      { title: 'Commercial Baking Standards Handbook', provider: 'Bakers Association of Ghana', url: 'https://fdaghana.gov.gh', isFree: true },
+      { title: 'Baking and Pastry Arts Fundamentals', provider: 'CTVET Ghana', url: 'https://ctvet.gov.gh', isFree: true }
+    ],
+    source: 'Commission for TVET (CTVET) / Food and Drugs Authority (FDA) Ghana',
+    sourceUrl: 'https://ctvet.gov.gh',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Bakers decorating celebration cakes and checking freshly baked bread loaves in bakery',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-restaurant-operations',
+    name: 'Restaurant Operations & Food Service Management',
+    slug: 'restaurant-operations-service-management',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Front-of-house service, point-of-sale (POS) systems, kitchen ticket flow, inventory cost control, and staff coordination in food establishments.',
+    detailedDescription: 'Restaurant management covers front-of-house customer hospitality, table service standards, food and beverage costing (calculating Food Cost Percentage), point-of-sale (POS) system management, kitchen display coordination, shift scheduling, opening/closing sanitation checklists, and handling guest escalations.',
+    level: 'Intermediate',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Managing daily operations in upscale dining restaurants, casual eateries, and fast-food franchises',
+      'Monitoring food waste and cost percentages to ensure restaurant profitability',
+      'Training waitstaff and cashiers in professional service etiquette and upselling',
+      'Overseeing health inspections and hygiene standards compliant with Ghana Tourism Authority regulations'
+    ],
+    whyUsefulInGhana: 'The restaurant and nightlife scene in Accra, Kumasi, and coastal tourist hubs is growing rapidly. However, many dining venues suffer from poor customer service and uncontrolled inventory shrinkage. Skilled restaurant managers turn struggling venues into high-performing, profitable establishments.',
+    topCareers: ['Restaurant General Manager', 'Food & Beverage (F&B) Director', 'Floor Service Supervisor', 'Bar & Lounge Operations Manager'],
+    relatedJobs: ['Head Waiter / Captain', 'Restaurant Shift Supervisor', 'F&B Inventory Controller'],
+    industries: ['Hospitality & Foodservice', 'Tourism & Entertainment', 'Franchise Retail'],
+    prerequisites: ['Leadership confidence, numerical literacy, and customer service orientation'],
+    toolsAndSoftware: ['POS software (Lightspeed, Toast, Clover, Loyverse)', 'Table reservation platforms', 'Inventory stock take spreadsheets', 'Kitchen display systems (KDS)', 'Cash float reconciliation books'],
+    relatedSkills: ['Customer Service', 'Hospitality Experience', 'Inventory Control', 'Financial Planning', 'Leadership'],
+    certifications: ['Ghana Tourism Authority Food & Beverage Supervisory Certificate', 'ServSafe Food & Beverage Manager Certification', 'Chartered Institute of Hospitality (CIH) Member'],
+    practicalProjects: [
+      'Calculate theoretical vs actual food cost percentage for a 30-item restaurant menu and identify margin leakages',
+      'Conduct a full service role-play training workshop for waitstaff covering table greeting, upselling, and complaint handling',
+      'Create an opening, operational, and closing shift checklist for kitchen and floor staff in a 100-seat restaurant'
+    ],
+    learningResources: [
+      { title: 'Restaurant Management Manual', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true },
+      { title: 'Food & Beverage Operations Guide', provider: 'Chartered Institute of Hospitality', url: 'https://hospitality.org.uk', isFree: true }
+    ],
+    source: 'Ghana Tourism Authority (GTA) / Chartered Institute of Hospitality',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Restaurant manager coordinating floor staff and reviewing food service orders on tablet POS',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-hotel-front-desk',
+    name: 'Hotel Front Desk & Hospitality Guest Relations',
+    slug: 'hotel-front-desk-guest-relations',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Check-in/check-out procedures, Property Management Systems (PMS), concierge guest services, billing, and VIP protocol.',
+    detailedDescription: 'Front desk management covers hotel guest arrivals and departures, room rate yield management, room assignment optimization, operation of Property Management Systems (Opera, Cloudbeds, Sirvoy), keycard programming, currency exchange and credit card settlements, telephone switchboard etiquette, and VIP guest protocol.',
+    level: 'Beginner',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Managing front desk reception at 3-star, 4-star, and 5-star hotels, guest houses, and resorts',
+      'Operating hotel Property Management Systems (PMS) for reservations, room statuses, and guest folios',
+      'Resolving guest complaints diplomatically and managing special requests (airport pickups, tours)',
+      'Balancing the night audit and reconciling daily room revenue and payment transactions'
+    ],
+    whyUsefulInGhana: 'Tourism and business travel in Ghana (international conferences, diaspora Year of Return / Beyond the Return travelers) make the hotel sector a major employer. The front desk creates the crucial first impression; articulate, professional front desk personnel are recruited by major domestic and international hotel chains.',
+    topCareers: ['Front Office Supervisor', 'Hotel Receptionist', 'Guest Relations Executive', 'Night Auditor'],
+    relatedJobs: ['Front Desk Agent', 'Concierge Specialist', 'Hotel Reservationist'],
+    industries: ['Hotels & Accommodation', 'Tourism & Travel', 'Corporate Hospitality'],
+    prerequisites: ['Pleasant communication skills, computer literacy, and emotional composure'],
+    toolsAndSoftware: ['Property Management Systems (Opera PMS, Cloudbeds, Hotelogix)', 'Keycard encoding hardware', 'Online Travel Agency (OTA) portals (Booking.com, Expedia, Airbnb)', 'Credit card POS terminals'],
+    relatedSkills: ['Customer Service', 'Public Speaking', 'Conflict Resolution', 'Workplace Etiquette', 'Billing & Cash Handling'],
+    certifications: ['American Hotel & Lodging Educational Institute (AHLEI) Certified Front Desk Representative', 'Ghana Tourism Authority Front Office Certificate', 'Ghana Hotels Association Professional Endorsement'],
+    practicalProjects: [
+      'Simulate a complete guest check-in, key card issuance, and room billing cycle using a PMS software test environment',
+      'Execute a complex night audit reconciliation reconciling cash, POS card payments, and OTA commissions',
+      'Formulate a service recovery resolution for an overbooked hotel guest situation with alternative room upgrades'
+    ],
+    learningResources: [
+      { title: 'Front Office Operations Training Manual', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true },
+      { title: 'AHLEI Hospitality Operations Overview', provider: 'American Hotel & Lodging Educational Institute', url: 'https://ahlei.org', isFree: true }
+    ],
+    source: 'Ghana Tourism Authority (GTA) / Ghana Hotels Association',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Hotel front desk receptionist warmly welcoming guests and checking in reservations on PMS',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-housekeeping',
+    name: 'Professional Housekeeping & Accommodation Hygiene',
+    slug: 'professional-housekeeping-hospitality-hygiene',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Guest room servicing, linen management, deep cleaning chemistry, room inspection checklists, and sanitization standards.',
+    detailedDescription: 'Professional housekeeping teaches systematic guest room turnover, bed-making techniques (hospital corners, duvet dressing), bathroom descaling and disinfection, chemical color-coding for cross-contamination prevention, linen inventory control, laundry machinery operation, and executive room inspection standards.',
+    level: 'Beginner',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Maintaining guest rooms in hotels, boutique resorts, and serviced apartments to pristine standards',
+      'Supervising on-premise hotel commercial laundry lines for bed linen, towels, and guest clothing',
+      'Conducting room inspections ensuring zero dust, functional fixtures, and complete guest amenities',
+      'Managing industrial floor buffing, carpet extraction, and deep sanitization procedures'
+    ],
+    whyUsefulInGhana: 'Cleanliness and hygiene are the number-one criteria travelers use to review hotels and Airbnbs in Ghana. Properties that fail cleanliness standards lose business immediately. Trained housekeeping attendants and supervisors are the bedrock of operational excellence across the lodging industry.',
+    topCareers: ['Executive Housekeeper', 'Housekeeping Floor Supervisor', 'Hotel Laundry Manager', 'Commercial Cleaning Contractor'],
+    relatedJobs: ['Room Attendant', 'Linen Room Supervisor', 'Public Area Cleaner'],
+    industries: ['Hotels & Lodging', 'Serviced Apartments & Airbnb Management', 'Commercial Facilities Cleaning'],
+    prerequisites: ['Attention to immaculate detail, physical stamina, and hygiene standards'],
+    toolsAndSoftware: ['Commercial vacuum cleaners & carpet extractors', 'Housekeeping room attendant trolley carts', 'Color-coded microfibre sanitizing cloths', 'Linen inventory log software', 'Steam sanitation machines'],
+    relatedSkills: ['Customer Service', 'Food & Sanitation Safety', 'Inventory Control', 'Workplace Etiquette', 'Supervision'],
+    certifications: ['AHLEI Certified Hospitality Housekeeping Attendant', 'Ghana Tourism Authority Housekeeping Certificate', 'British Institute of Cleaning Science (BICSc) Standards'],
+    practicalProjects: [
+      'Execute a standardized 25-minute complete hotel guest room departure cleaning and bed dressing sequence',
+      'Perform a 50-point executive room inspection checklist identifying maintenance issues and hygiene gaps',
+      'Calculate chemical dilution ratios and monthly linen par stock levels for a 40-room boutique hotel'
+    ],
+    learningResources: [
+      { title: 'Housekeeping Standards and Hygiene Manual', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true },
+      { title: 'Hospitality Housekeeping Training Guide', provider: 'AHLEI', url: 'https://ahlei.org', isFree: true }
+    ],
+    source: 'Ghana Tourism Authority (GTA) / Ghana Hotels Association',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Hotel housekeeping attendant meticulously preparing bed linens and inspecting a guest suite',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-barista-beverage',
+    name: 'Barista Craft & Non-Alcoholic Beverage Mixology',
+    slug: 'barista-beverage-mixology',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Espresso extraction, milk steaming & latte art, artisanal smoothies, cold brews, and signature non-alcoholic mocktail mixology.',
+    detailedDescription: 'Barista craft teaches coffee bean origins, dialling in commercial burr grinders, espresso extraction pressure and brew ratios, microfoam milk steaming techniques, free-pour latte art, cold-brew infusions, fresh fruit smoothie compounding, and balancing acidity, sweetness, and aroma in non-alcoholic botanical mocktails.',
+    level: 'Beginner',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Working as a professional barista in specialty coffee shops, boutique cafes, and hotel lounges',
+      'Formulating signature mocktails and fresh fruit juice bars for events, weddings, and lounges',
+      'Dialling in commercial espresso machines to optimize flavor extraction',
+      'Operating independent mobile coffee and smoothie bar businesses for corporate events'
+    ],
+    whyUsefulInGhana: 'Coffee culture, aesthetic cafes, and health-conscious juice/smoothie bars are booming in urban Ghana (Accra, Tema, Kumasi, Takoradi). Skilled baristas who can pour delicate latte art and craft refreshing signature beverages are in high demand across trendy urban cafes and event beverage bars.',
+    topCareers: ['Specialty Coffee Barista', 'Beverage Mixologist', 'Cafe Head Barista & Supervisor', 'Mobile Beverage Bar Entrepreneur'],
+    relatedJobs: ['Barista', 'Smoothie Bar Operator', 'Beverage Attendant'],
+    industries: ['Cafes & Specialty Coffee', 'Hospitality & Restaurants', 'Events & Catering', 'Nightlife & Lounges'],
+    prerequisites: ['Passionate attention to sensory taste, smell, and presentation aesthetics'],
+    toolsAndSoftware: ['Commercial espresso machines (La Marzocco, Nuova Simonelli)', 'On-demand burr coffee grinders', 'Stainless steel milk frothing pitchers', 'Cocktail shakers, muddlers & strainers', 'Digital gram scales (0.1g accuracy)'],
+    relatedSkills: ['Culinary Arts', 'Customer Service', 'Hospitality Experience', 'Workplace Etiquette', 'Inventory Control'],
+    certifications: ['Specialty Coffee Association (SCA) Barista Skills Certificate', 'Beverage Service Professional Certificate', 'GTA Food and Beverage Service Accreditation'],
+    practicalProjects: [
+      'Dial in a commercial espresso grinder to extract a 1:2 ratio espresso shot in 28 seconds with rich golden crema',
+      'Steam microfoam milk and pour a crisp heart and rosetta latte art design in a 6oz ceramic cup',
+      'Create and present a signature Ghanaian tropical mocktail featuring hibiscus (soobolo), ginger, mint, and fresh pineapple'
+    ],
+    learningResources: [
+      { title: 'Introduction to Specialty Coffee and Barista Craft', provider: 'Specialty Coffee Association (SCA)', url: 'https://sca.coffee', isFree: true },
+      { title: 'Beverage Service and Hygiene Manual', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true }
+    ],
+    source: 'Specialty Coffee Association / Ghana Tourism Authority (GTA)',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Barista steaming milk and pouring intricate latte art in an upscale Accra cafe',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-travel-ticketing',
+    name: 'Travel Agency Operations & Flight Ticketing',
+    slug: 'travel-agency-planning-tour-ticketing',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Global Distribution Systems (Amadeus, Sabre), airline itinerary booking, travel visa assistance, and corporate travel planning.',
+    detailedDescription: 'Travel agency operations teaches international airfare ticketing, Global Distribution System (GDS) command entries (Amadeus, Sabre), itinerary building, visa application documentation, travel insurance policies, hotel and car rental bookings, and passenger re-routing during travel disruptions.',
+    level: 'Intermediate',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Operating as a certified travel ticketing consultant in IATA-accredited travel agencies',
+      'Booking complex multi-city flight itineraries and managing ticket re-issuances and refunds',
+      'Assisting international travelers with visa documentation, travel insurance, and hotel reservations',
+      'Managing corporate travel desk accounts for Ghanaian and multinational businesses'
+    ],
+    whyUsefulInGhana: 'With Ghanaians actively traveling for business, education (study abroad scholarships), pilgrimages, and vacations, certified travel consultants who master GDS ticketing systems and visa regulations are consistently hired by travel agencies across Ghana.',
+    topCareers: ['Certified Travel Consultant', 'GDS Ticketing Specialist', 'Corporate Travel Manager', 'Travel Agency Operations Lead'],
+    relatedJobs: ['Travel Agent', 'Flight Reservationist', 'Visa Documentation Assistant'],
+    industries: ['Travel & Aviation', 'Tourism & Hospitality', 'Corporate Business Services'],
+    prerequisites: ['Attention to geographical details, passenger name records, and computer literacy'],
+    toolsAndSoftware: ['Amadeus GDS / Sabre GDS booking portals', 'IATA Passenger Agency Programme software', 'Visa application portals (VFS Global, embassy sites)', 'Travel itinerary building software'],
+    relatedSkills: ['Customer Service', 'Tour Guiding', 'Business Communication', 'Problem Solving', 'Financial Accounting'],
+    certifications: ['IATA Travel and Tourism Consultant Foundation Diploma', 'Amadeus Certified GDS Professional', 'Ghana Tourism Authority Travel Agency Operations License'],
+    practicalProjects: [
+      'Create and price a multi-sector international roundtrip itinerary on Amadeus GDS including baggage allowances and transit rules',
+      'Process an airline ticket date-change reissue calculating fare difference, penalty fees, and taxes',
+      'Prepare a complete corporate travel itinerary and budget packet for an executive delegation traveling from Accra to London and Geneva'
+    ],
+    learningResources: [
+      { title: 'IATA Travel Agency Operations Training', provider: 'International Air Transport Association (IATA)', url: 'https://iata.org', isFree: true },
+      { title: 'Ghana Travel and Tourism Guidelines', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true }
+    ],
+    source: 'International Air Transport Association (IATA) / Ghana Tourism Authority (GTA)',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Travel agency consultant booking flights on GDS system and reviewing itineraries with a client',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-banqueting',
+    name: 'Banqueting Operations & Hospitality Customer Experience',
+    slug: 'hospitality-customer-experience-banquets',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Banquet floor logistics, VIP protocol, buffet station staging, banquet event orders (BEO), and high-end guest hospitality.',
+    detailedDescription: 'Banqueting operations focuses on executing large-scale hospitality events (state banquets, diplomatic receptions, high-profile weddings, corporate annual meetings). It covers banquet event order (BEO) interpretation, table and buffet layout staging, silver service and plated banquet delivery, synchronized table service, and managing banquet beverage flows.',
+    level: 'Beginner',
+    demandLevel: 'High',
+    whatItIsUsedFor: [
+      'Directing banquet service and food logistics at convention centres, luxury hotels, and event grounds',
+      'Executing synchronized plate service for 500+ guest wedding receptions and state dinners',
+      'Coordinating catering teams, stewarding, and beverage dispensers under strict timelines',
+      'Managing VIP and diplomatic protocol for high-net-worth attendees and dignitaries'
+    ],
+    whyUsefulInGhana: 'Ghana is a premier West African hub for international conventions (Accra International Conference Centre, Grand Arena, luxury hotels) and grand social celebrations. Banqueting professionals who ensure flawless service without food shortages or cold plates are indispensable.',
+    topCareers: ['Banquet Operations Manager', 'Events Food & Beverage Coordinator', 'Banquet Floor Captain', 'Hospitality Experience Lead'],
+    relatedJobs: ['Banquet Server', 'Buffet Supervisor', 'Event Protocol Lead'],
+    industries: ['Events & Banqueting', 'Luxury Hospitality', 'Corporate Conferences', 'Tourism'],
+    prerequisites: ['Leadership presence, physical energy, and high standards of hospitality etiquette'],
+    toolsAndSoftware: ['Banquet Event Order (BEO) software', 'Floor plan layout software (Social Tables)', 'Chafing dishes & hot holding cabinets', 'Two-way radio communication headsets', 'Plate cover thermal warming carts'],
+    relatedSkills: ['Culinary Arts', 'Event Planning', 'Customer Service', 'Leadership', 'Workplace Etiquette'],
+    certifications: ['Ghana Tourism Authority Banqueting and Events Protocol Certificate', 'AHLEI Certified Hospitality Supervisor', 'Event Planners Association of Ghana (EPAG) Hospitality Endorsement'],
+    practicalProjects: [
+      'Draft a detailed Banquet Event Order (BEO) and staffing timeline for a 400-guest presidential charity gala',
+      'Lead a team of 20 banquet servers in executing synchronized cover service for an executive head table',
+      'Design a buffet flow layout that minimizes queuing and serves 350 diners within 45 minutes'
+    ],
+    learningResources: [
+      { title: 'Banquet and Event Service Standards', provider: 'Ghana Tourism Authority (GTA)', url: 'https://visitghana.com', isFree: true },
+      { title: 'AHLEI Food and Beverage Service Manual', provider: 'American Hotel & Lodging Educational Institute', url: 'https://ahlei.org', isFree: true }
+    ],
+    source: 'Ghana Tourism Authority (GTA) / Event Planners Association of Ghana',
+    sourceUrl: 'https://visitghana.com',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Banqueting team coordinating elegant table service and buffet stations for a major gala in Accra',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  },
+  {
+    id: 'skill-hosp-ecotourism',
+    name: 'Ecotourism & Community Wildlife Guiding',
+    slug: 'ecotourism-conservation-guiding',
+    category: 'Hospitality, Food & Tourism',
+    description: 'Nature trail navigation, birdwatching interpretation, wildlife conservation ethics, and community-based eco-lodge guiding.',
+    detailedDescription: 'Ecotourism guiding trains professionals in wildlife and botanical identification (canopy walkways, savannah mammals, tropical birds), wilderness safety, first aid response, leave-no-trace conservation principles, historical and indigenous folklore storytelling, and engaging international conservation tourists.',
+    level: 'Beginner',
+    demandLevel: 'Growing',
+    whatItIsUsedFor: [
+      'Guiding tourist groups through national parks (Kakum, Mole, Shai Hills) and eco-sanctuaries',
+      'Leading specialized birdwatching, butterfly, and botanical nature walks for international researchers',
+      'Managing community-based ecotourism projects in rural villages (e.g. Boabeng-Fiema, Paga, Tafi Atome)',
+      'Educating local communities on wildlife conservation and sustainable forest stewardship'
+    ],
+    whyUsefulInGhana: 'Ghana is renowned for its community ecotourism successes (Kakum canopy walkway, Mole elephant safaris, Tafi Atome monkey sanctuary). Eco-guiding provides rewarding, sustainable employment for youth in forested and savannah regions who can communicate wildlife value to international visitors.',
+    topCareers: ['Professional Ecotourism Guide', 'National Park Ranger Guide', 'Eco-Lodge Activities Coordinator', 'Community Conservation Officer'],
+    relatedJobs: ['Nature Guide', 'Wildlife Spotter', 'Birdwatching Specialist'],
+    industries: ['Ecotourism & Parks', 'Wildlife Conservation', 'Community Development', 'Travel & Tourism'],
+    prerequisites: ['Passion for nature, physical stamina for hiking, and good communication skills'],
+    toolsAndSoftware: ['High-powered binoculars (8x42 or 10x42)', 'Field bird and plant identification books (Birds of Ghana)', 'Handheld GPS receivers', 'Wilderness first aid response kits', 'Spotting scopes'],
+    relatedSkills: ['Tour Guiding', 'First Aid', 'Public Speaking', 'Environmental Science', 'Storytelling'],
+    certifications: ['Wildlife Division / Forestry Commission Eco-Guide License', 'Tour Guides Association of Ghana (TORGAG) Accreditation', 'Red Cross Wilderness First Aid Certificate'],
+    practicalProjects: [
+      'Design and guide an interpretive 3-hour forest ecology trail walk identifying 15 indigenous tree and bird species',
+      'Develop a community-based ecotourism code of conduct and benefit-sharing model for a rural nature site',
+      'Execute a simulated emergency extraction and wilderness first aid response for an injured hiker on a nature trail'
+    ],
+    learningResources: [
+      { title: 'Wildlife Guiding and Conservation Manual', provider: 'Forestry Commission Wildlife Division Ghana', url: 'https://fcghana.org', isFree: true },
+      { title: 'Ecotourism Field Training Guide', provider: 'Tour Guides Association of Ghana (TORGAG)', url: 'https://visitghana.com', isFree: true }
+    ],
+    source: 'Forestry Commission of Ghana Wildlife Division / Tour Guides Association of Ghana',
+    sourceUrl: 'https://fcghana.org',
+    verificationStatus: 'verified',
+    lastVerifiedAt: '2026-03-20T00:00:00Z',
+    imageUrl: '/images/institutions/ug_students_workshop.jpg',
+    imageAlt: 'Ecotourism guide pointing out wildlife species to a group of travelers in a Ghanaian national park',
+    status: 'published',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-03-20T00:00:00Z'
+  }
+];
