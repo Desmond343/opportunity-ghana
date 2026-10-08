@@ -14,6 +14,9 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   signup: (userData: Partial<User>, password?: string) => Promise<void>;
   logout: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<{ success: boolean; message: string }>;
+  verifyResetCode: (code: string) => Promise<string>;
+  confirmPasswordReset: (code: string, newPass: string) => Promise<void>;
   refreshClaims: () => Promise<boolean>;
   getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
   isAdmin: boolean;
@@ -272,6 +275,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const sendPasswordReset = useCallback(async (email: string) => {
+    return await FirebaseAuthService.sendPasswordReset(email);
+  }, []);
+
+  const verifyResetCode = useCallback(async (code: string) => {
+    return await FirebaseAuthService.verifyResetCode(code);
+  }, []);
+
+  const confirmPasswordReset = useCallback(async (code: string, newPass: string) => {
+    return await FirebaseAuthService.confirmPasswordReset(code, newPass);
+  }, []);
+
   // Trusted authorization: Evaluated from Firebase Auth custom claims
   const isAdmin = Boolean(claims.admin === true);
   const isEditorOrAdmin = Boolean(claims.admin === true || claims.editor === true);
@@ -288,6 +303,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loginWithGoogle,
         signup,
         logout,
+        sendPasswordReset,
+        verifyResetCode,
+        confirmPasswordReset,
         refreshClaims,
         getIdToken,
         isAdmin,

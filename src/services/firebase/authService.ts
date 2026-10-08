@@ -6,6 +6,9 @@ import {
   GoogleAuthProvider,
   signOut as fbSignOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
   User as FirebaseUser,
   Auth
 } from 'firebase/auth';
@@ -156,6 +159,122 @@ export const FirebaseAuthService = {
   async signOut(): Promise<void> {
     if (auth) {
       await fbSignOut(auth);
+    }
+  },
+
+  /**
+   * Request official Firebase password reset email.
+   * Securely handles user enumeration prevention: returns neutral success even if email is unknown.
+   */
+  async sendPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+    if (!auth) {
+      throw new Error('Authentication service is not initialized.');
+    }
+    const cleanEmail = (email || '').trim().toLowerCase();
+    if (!cleanEmail) {
+      throw new Error('Please enter your email address.');
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      throw new Error('Please enter a valid email address.');
+    }
+
+    try {
+      // Build continue URL back to Opportunity Ghana's reset password page
+      const actionCodeSettings = typeof window !== 'undefined' ? {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: true,
+      } : undefined;
+
+      try {
+        await sendPasswordResetEmail(auth, cleanEmail, actionCodeSettings);
+      } catch (err: any) {
+        // If unauthorized-continue-uri error occurs (e.g. preview domain not yet in action url whitelist),
+        // fallback to standard Firebase reset email without custom continue url.
+        if (err?.code === 'auth/unauthorized-continue-uri') {
+          await sendPasswordResetEmail(auth, cleanEmail);
+        } else {
+          throw err;
+        }
+      }
+
+      return {
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent.'
+      };
+    } catch (err: any) {
+      // SECURITY: Avoid revealing whether an email is registered (account enumeration prevention)
+      if (err?.code === 'auth/user-not-found') {
+        return {
+          success: true,
+          message: 'If an account exists with this email, a password reset link has been sent.'
+        };
+      }
+      if (err?.code === 'auth/invalid-email') {
+        throw new Error('Please enter a valid email address.');
+      }
+      if (err?.code === 'auth/too-many-requests') {
+        throw new Error('Too many requests. Please wait a few moments before trying again.');
+      }
+      throw new Error(err?.message || 'Could not send reset link. Please try again.');
+    }
+  },
+
+  /**
+   * Verify password reset action code (oobCode) from email link.
+   * Returns the verified account email or throws expired/invalid error.
+   */
+  async verifyResetCode(code: string): Promise<string> {
+    if (!auth) {
+      throw new Error('Authentication service is not initialized.');
+    }
+    const cleanCode = (code || '').trim();
+    if (!cleanCode) {
+      throw new Error('Invalid or missing password reset link.');
+    }
+
+    try {
+      const email = await verifyPasswordResetCode(auth, cleanCode);
+      return email;
+    } catch (err: any) {
+      if (err?.code === 'auth/expired-action-code') {
+        throw new Error('This password reset link has expired. Please request a new link.');
+      }
+      if (err?.code === 'auth/invalid-action-code') {
+        throw new Error('This password reset link is invalid or has already been used.');
+      }
+      throw new Error(err?.message || 'Failed to verify reset link.');
+    }
+  },
+
+  /**
+   * Confirm password reset with Firebase Auth using new password.
+   */
+  async confirmPasswordReset(code: string, newPassword: string): Promise<void> {
+    if (!auth) {
+      throw new Error('Authentication service is not initialized.');
+    }
+    const cleanCode = (code || '').trim();
+    if (!cleanCode) {
+      throw new Error('Invalid or missing password reset link.');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+
+    try {
+      await confirmPasswordReset(auth, cleanCode, newPassword);
+    } catch (err: any) {
+      if (err?.code === 'auth/expired-action-code') {
+        throw new Error('This password reset link has expired. Please request a new link.');
+      }
+      if (err?.code === 'auth/invalid-action-code') {
+        throw new Error('This password reset link is invalid or has already been used.');
+      }
+      if (err?.code === 'auth/weak-password') {
+        throw new Error('Password is too weak. Please choose a stronger password.');
+      }
+      throw new Error(err?.message || 'Could not reset password. Please try again.');
     }
   },
 

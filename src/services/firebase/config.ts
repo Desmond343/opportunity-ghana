@@ -6,13 +6,17 @@ import firebaseAppletConfig from '../../../firebase-applet-config.json';
  * Reads from firebase-applet-config.json with optional VITE_ environment overrides
  */
 const getEnv = (key: string): string => {
+  let val = '';
   if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
-    return (import.meta as any).env[key] || '';
+    val = (import.meta as any).env[key] || '';
+  } else if (typeof process !== 'undefined' && process.env) {
+    val = process.env[key] || '';
   }
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key] || '';
+  const trimmed = (val || '').trim();
+  if (!trimmed || trimmed === 'your-api-key' || trimmed.startsWith('your-') || trimmed.includes('MY_')) {
+    return '';
   }
-  return '';
+  return trimmed;
 };
 
 export const firebaseConfig = {

@@ -19,6 +19,8 @@ import { AlertsPage } from './pages/AlertsPage';
 import { SavedPage } from './pages/SavedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AuthPage } from './pages/AuthPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -46,13 +48,15 @@ import { SavedNotificationBanner } from './components/common/SavedNotificationBa
 export function AppContent() {
   const { isEditorOrAdmin } = useAuth();
   const { count: publishedStoriesCount } = usePublishedStoriesCount();
-  const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname || '/');
+  const [currentPath, setCurrentPath] = useState<string>(
+    () => (typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '/') || '/'
+  );
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState('');
 
   useEffect(() => {
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname || '/');
+      setCurrentPath((window.location.pathname + window.location.search) || '/');
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -225,12 +229,24 @@ export function AppContent() {
       return <ProfilePage onNavigate={navigate} />;
     }
 
-    // 10. Auth: /login and /signup
-    if (currentPath === '/login') {
+    // 10. Auth: /login, /signup, /forgot-password, /reset-password
+    if (pathname === '/login') {
       return <AuthPage mode="login" onNavigate={navigate} />;
     }
-    if (currentPath === '/signup') {
+    if (pathname === '/signup') {
       return <AuthPage mode="signup" onNavigate={navigate} />;
+    }
+    if (pathname === '/forgot-password') {
+      return <ForgotPasswordPage onNavigate={navigate} />;
+    }
+    if (
+      pathname === '/reset-password' ||
+      pathname === '/auth/action' ||
+      pathname === '/__/auth/action' ||
+      (queryString && queryString.includes('mode=resetPassword')) ||
+      (queryString && queryString.includes('oobCode=') && !pathname.startsWith('/admin'))
+    ) {
+      return <ResetPasswordPage onNavigate={navigate} queryString={queryString} />;
     }
 
     // 11. Success Stories: /success-stories and /success-stories/:slug
