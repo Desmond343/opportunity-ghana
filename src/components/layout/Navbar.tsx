@@ -46,6 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenS
     { label: 'Internships', path: '/internships' },
     { label: 'Scholarships', path: '/scholarships' },
     { label: 'Free Courses', path: '/courses' },
+    { label: 'Skills', path: '/skills' },
     { label: 'Institutions', path: '/institutions' },
     ...(publishedStoriesCount > 0 ? [{ label: 'Success Stories', path: '/success-stories' }] : []),
     { label: 'All Opportunities', path: '/opportunities' },

@@ -14,7 +14,7 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 
-export type SavedItemEntityType = 'opportunity' | 'resource' | 'institution';
+export type SavedItemEntityType = 'opportunity' | 'resource' | 'institution' | 'skill';
 
 export interface SavedItem {
   id: string;
@@ -72,6 +72,13 @@ export function resolveSavedItemPath(item: Partial<SavedItem>): string {
     (item.id && (item.id.startsWith('res-') || item.id.startsWith('res_') || item.id.startsWith('course-')))
   ) {
     return `/resources/${slugOrId}`;
+  }
+  if (
+    item.itemType === 'skill' ||
+    (item.id && item.id.startsWith('skill-')) ||
+    item.category?.includes('Skill')
+  ) {
+    return `/skills/${slugOrId}`;
   }
   if (
     item.itemType === 'institution' ||

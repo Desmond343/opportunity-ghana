@@ -8,7 +8,7 @@
  * 3. If Resource or non-scholarship Opportunity without image: attractive, professional category-based gradient
  */
 
-import { Opportunity, Resource } from '../types/database';
+import { Opportunity, Resource, Skill } from '../types/database';
 
 export interface CategoryGradientConfig {
   id: string;
@@ -2695,4 +2695,32 @@ export function ensureUniqueOpportunityImages<T extends Partial<Opportunity>>(op
 
     return opp;
   });
+}
+
+/**
+ * Resolves the visual media for a Skill card:
+ * 1. Valid uploaded or curated image URL (photograph of African/Ghanaian context or technical SVG)
+ * 2. High-fidelity category-based gradient with pattern
+ */
+export function resolveSkillMedia(skill: Partial<Skill>): ResolvedCardMedia {
+  const gradient = getCategoryGradient(skill.category, 'resource');
+
+  const existingUrl = skill.imageUrl || (skill as any).image;
+
+  if (isUploadedRealImage(existingUrl)) {
+    return {
+      imageUrl: existingUrl!.trim(),
+      imageAlt: skill.imageAlt || skill.name || 'Skill career pathway image',
+      isSvg: existingUrl!.endsWith('.svg'),
+      source: 'uploaded',
+      gradient
+    };
+  }
+
+  return {
+    imageUrl: null,
+    isSvg: false,
+    source: 'gradient',
+    gradient
+  };
 }

@@ -3,6 +3,7 @@ import { STANDARD_CAREER_TRACKS } from '../data/categories';
 import { VERIFIED_ORGANIZATIONS } from '../data/verifiedOpportunities';
 import { OpportunitiesService } from './opportunitiesService';
 import { ResourcesService } from './resourcesService';
+import { SkillsService } from './skillsService';
 import { calculateDeadlineInfo } from './deadlineService';
 import { SuccessStoriesService } from './successStoriesService';
 import { db, isFirebaseConfigured } from './firebase';
@@ -66,35 +67,11 @@ export const AdminService = {
   },
 
   getSkills(): Skill[] {
-    try {
-      const raw = localStorage.getItem(SKILLS_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Error loading skills:', e);
-    }
-    // Default to the standard Ghana career and skills taxonomy
-    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify(STANDARD_CAREER_TRACKS));
-    return STANDARD_CAREER_TRACKS;
+    return SkillsService.getAll({ status: 'all' });
   },
 
   saveSkill(skill: Skill) {
-    const list = this.getSkills();
-    const idx = list.findIndex(s => s.id === skill.id);
-    if (idx >= 0) {
-      list[idx] = { ...skill, updatedAt: new Date().toISOString() };
-    } else {
-      list.unshift({ ...skill, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-    }
-    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify(list));
-
-    if (isFirebaseConfigured && db) {
-      setDoc(doc(db, 'skills', skill.id), skill, { merge: true }).catch(err =>
-        console.warn('Firestore saveSkill error:', err)
-      );
-    }
+    SkillsService.saveSkill(skill);
   },
 
   getSubmissions(filters?: {

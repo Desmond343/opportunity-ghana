@@ -323,17 +323,50 @@ export interface Resource {
   saves: number;
 }
 
+export type SkillStatus = 'published' | 'pending' | 'review' | 'rejected' | 'archived';
+export type SkillLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+export type SkillDemandLevel = 'High' | 'Very High' | 'Growing' | 'Stable';
+
+export interface SkillLearningResource {
+  title: string;
+  provider: string;
+  url: string;
+  isFree?: boolean;
+  type?: string;
+}
+
 export interface Skill {
   id: string;
   name: string;
   slug: string;
   category: string;
   description: string;
+  detailedDescription?: string;
+  level?: SkillLevel;
+  demandLevel?: SkillDemandLevel;
+  whatItIsUsedFor?: string[];
+  whyUsefulInGhana?: string;
+  careerOpportunities?: string[];
+  topCareers?: string[];
+  relatedJobs?: string[];
+  industries?: string[];
+  prerequisites?: string[];
+  toolsAndSoftware?: string[];
   relatedSkills: string[];
+  certifications?: string[];
+  practicalProjects?: string[];
+  learningResources?: SkillLearningResource[];
+  source?: string;
+  sourceUrl?: string;
+  verificationStatus?: 'verified' | 'official' | 'partner';
+  lastVerifiedAt?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  status?: SkillStatus;
+  views?: number;
+  saves?: number;
   createdAt: string;
   updatedAt: string;
-  demandLevel?: 'High' | 'Very High' | 'Growing' | 'Stable';
-  topCareers?: string[];
 }
 
 export interface Submission {

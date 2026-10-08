@@ -13,6 +13,7 @@ import { SubmitResourcePage } from './pages/SubmitResourcePage';
 import { InstitutionsPage } from './pages/InstitutionsPage';
 import { InstitutionDetailPage } from './pages/InstitutionDetailPage';
 import { CareersPage } from './pages/CareersPage';
+import { SkillDetailPage } from './pages/SkillDetailPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { SavedPage } from './pages/SavedPage';
@@ -190,8 +191,17 @@ export function AppContent() {
       );
     }
 
-    // 6. Careers & Skills: /careers
-    if (currentPath === '/careers') {
+    // 6. Skills & Careers Directory & Detail
+    const isSkillDetail =
+      (pathname.startsWith('/skills/') && pathname !== '/skills') ||
+      (pathname.startsWith('/careers/') && pathname !== '/careers');
+
+    if (isSkillDetail) {
+      const slug = pathname.replace(/^(\/skills|\/careers)\//, '').replace(/\/$/, '');
+      return <SkillDetailPage slug={slug} onNavigate={navigate} />;
+    }
+
+    if (pathname === '/careers' || pathname === '/skills') {
       return <CareersPage onNavigate={navigate} />;
     }
 

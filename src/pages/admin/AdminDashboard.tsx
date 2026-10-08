@@ -4,6 +4,7 @@ import { AdminService } from '../../services/adminService';
 import { OpportunitiesService } from '../../services/opportunitiesService';
 import { ResourcesService } from '../../services/resourcesService';
 import { AlertSubscriptionsService } from '../../services/alertSubscriptionsService';
+import { SkillsService } from '../../services/skillsService';
 import {
   Compass,
   CheckCircle2,
@@ -43,6 +44,7 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
   const [metrics, setMetrics] = useState<PipelineMetrics | null>(null);
   const [subscriberMetrics, setSubscriberMetrics] = useState<{ total: number; active: number; unsubscribed: number; newThisMonth: number } | null>(null);
   const [pendingQueue, setPendingQueue] = useState<PendingQueueItem[]>([]);
+  const [skillsCount, setSkillsCount] = useState(() => SkillsService.getAll({ status: 'all' }).length);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -134,6 +136,13 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
           >
             <Plus className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
             <span>New Resource</span>
+          </button>
+          <button
+            onClick={() => onNavigate('/admin/skills')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold shadow-2xs cursor-pointer transition-colors"
+          >
+            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span>Manage Skills</span>
           </button>
         </div>
       </div>
@@ -275,6 +284,21 @@ export const AdminDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
             {metrics?.openReportsCount ?? 0}
           </p>
           <p className="text-[11px] text-rose-800 dark:text-rose-300 mt-1">Dead links, expired items &amp; feedback</p>
+        </div>
+
+        {/* 10. Skills & Career Tracks */}
+        <div
+          onClick={() => onNavigate('/admin/skills')}
+          className="p-5 bg-white dark:bg-[#141B29] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Skills & Tracks</p>
+            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-2 font-space">
+            {skillsCount}
+          </p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Verified skills across 6 categories</p>
         </div>
 
         {/* 10. Success Stories CMS & Publication Status */}

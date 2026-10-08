@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Opportunity, Resource, SuccessStory } from '../types/database';
+import { Opportunity, Resource, SuccessStory, Skill } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
 import { ResourcesService } from '../services/resourcesService';
+import { SkillsService } from '../services/skillsService';
 import { SuccessStoriesService } from '../services/successStoriesService';
 import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
+import { SkillCard } from '../components/cards/SkillCard';
 import { OpportunitySkeleton } from '../components/common/CommonUI';
 import { GHANA_REGIONS } from '../data/categories';
 import {
@@ -44,6 +46,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [closingSoon, setClosingSoon] = useState<Opportunity[]>([]);
   const [newlyAdded, setNewlyAdded] = useState<Opportunity[]>([]);
   const [freeCourses, setFreeCourses] = useState<Resource[]>([]);
+  const [featuredSkills, setFeaturedSkills] = useState<Skill[]>([]);
   const [publishedStories, setPublishedStories] = useState<SuccessStory[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -81,6 +84,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         setClosingSoon(closing);
         setNewlyAdded(recent);
         setFreeCourses(courses);
+        setFeaturedSkills(SkillsService.getAll({ demandLevel: 'Very High' }).slice(0, 3));
         setTotalCount(count);
         setPublishedStories(stories);
       } catch (err) {
@@ -1024,6 +1028,44 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <ResourceCard
                 key={resource.id}
                 resource={resource}
+                onNavigate={onNavigate}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ==================================================
+          8B. HIGH-DEMAND SKILLS & CAREER PATHWAYS
+         ================================================== */}
+      {featuredSkills.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
+                  High-Demand Skills &amp; Career Tracks
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Verified competencies, project blueprints, and career pathways in Ghana.
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigate('/skills')}
+              className="text-xs sm:text-sm font-bold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+            >
+              <span>Explore all {SkillsService.getAll().length} skills</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredSkills.map((skill) => (
+              <SkillCard
+                key={skill.id}
+                skill={skill}
                 onNavigate={onNavigate}
               />
             ))}

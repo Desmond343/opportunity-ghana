@@ -152,77 +152,16 @@ export const EDUCATION_LEVELS = [
   'No Formal Requirement'
 ];
 
-export const STANDARD_CAREER_TRACKS: Skill[] = [
-  {
-    id: 'skill-tech-se',
-    name: 'Software Engineering & Web Development',
-    slug: 'software-engineering',
-    category: 'Technology',
-    description: 'Design, development, testing, and deployment of software systems and web/mobile apps for digital services.',
-    relatedSkills: ['JavaScript', 'TypeScript', 'Python', 'React', 'Git', 'System Architecture'],
-    demandLevel: 'Very High',
-    topCareers: ['Full Stack Developer', 'Cloud Engineer', 'Mobile App Developer'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  },
-  {
-    id: 'skill-data-sql',
-    name: 'Data Analytics & SQL',
-    slug: 'data-analytics-sql',
-    category: 'Data',
-    description: 'Extracting, cleaning, transforming, and interpreting data sets to drive business intelligence and strategy.',
-    relatedSkills: ['SQL', 'Tableau', 'Power BI', 'Excel', 'Statistics'],
-    demandLevel: 'Very High',
-    topCareers: ['Data Analyst', 'Business Intelligence Developer', 'Market Researcher'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  },
-  {
-    id: 'skill-mkt-growth',
-    name: 'Digital Marketing & Growth',
-    slug: 'digital-marketing-growth',
-    category: 'Marketing',
-    description: 'Promoting products, brands, and ventures through social media, SEO, content, and conversion optimization.',
-    relatedSkills: ['SEO', 'Content Strategy', 'Social Media Management', 'Google Ads', 'Copywriting'],
-    demandLevel: 'High',
-    topCareers: ['Growth Marketer', 'Content Manager', 'E-commerce Specialist'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  },
-  {
-    id: 'skill-fin-modeling',
-    name: 'Financial Modeling & Bookkeeping',
-    slug: 'financial-modeling-bookkeeping',
-    category: 'Finance',
-    description: 'Building quantitative forecasts, tracking revenue and expenses, and evaluating business investments.',
-    relatedSkills: ['Accounting', 'Financial Analysis', 'QuickBooks', 'Excel Modeling', 'Budgeting'],
-    demandLevel: 'High',
-    topCareers: ['Financial Analyst', 'Accountant', 'Investment Associate'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  },
-  {
-    id: 'skill-agri-biz',
-    name: 'Agribusiness & Precision Agriculture',
-    slug: 'agribusiness-value-addition',
-    category: 'Agriculture',
-    description: 'Modern food processing, supply chain optimization, and sustainable farming commercialization.',
-    relatedSkills: ['Agronomy', 'Supply Chain Management', 'Quality Control', 'Farm Business Planning'],
-    demandLevel: 'Growing',
-    topCareers: ['Agribusiness Manager', 'Farm Operations Specialist', 'Value Chain Coordinator'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  },
-  {
-    id: 'skill-grant-writing',
-    name: 'Grant Writing & Proposal Development',
-    slug: 'grant-writing-proposal-development',
-    category: 'Professional Development',
-    description: 'Authoring persuasive funding applications for non-profits, academic research, and social ventures.',
-    relatedSkills: ['Research', 'Budgeting', 'Project Management', 'Technical Writing'],
-    demandLevel: 'Growing',
-    topCareers: ['Development Officer', 'Program Coordinator', 'Fundraising Specialist'],
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z'
-  }
-];
+import { VERIFIED_REAL_SKILLS } from './verifiedSkills';
+
+export const SKILL_CATEGORIES = [
+  'All Categories',
+  'Technology & Digital',
+  'Business & Entrepreneurship',
+  'Career & Professional',
+  'Creative Arts & Media',
+  'Practical & Technical (TVET)',
+  'Education, Health & Social'
+] as const;
+
+export const STANDARD_CAREER_TRACKS: Skill[] = VERIFIED_REAL_SKILLS;
