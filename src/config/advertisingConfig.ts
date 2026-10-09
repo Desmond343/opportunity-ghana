@@ -13,10 +13,6 @@ export interface MonetagConfig {
   externalWorkerScript: string;
   enabled: boolean;
   notes: string;
-  // Monetag Onclick format configuration
-  onclickZoneId: string;
-  onclickScriptUrl: string;
-  onclickEnabled: boolean;
 }
 
 export interface AdSenseConfig {
@@ -33,19 +29,13 @@ export const ADSENSE_CONFIG: AdSenseConfig = {
 };
 
 export const MONETAG_CONFIG: MonetagConfig = {
-  domain: '5gvci.com',
-  zoneId: 11987072,
-  externalWorkerScript: 'https://5gvci.com/act/files/service-worker.min.js?r=sw',
+  domain: '3nbf4.com',
+  zoneId: 11987012,
+  externalWorkerScript: 'https://3nbf4.com/act/files/service-worker.min.js?r=sw',
   // Kept disabled while Google AdSense status is "Getting ready" to prevent
   // policy violations, crawler interference, pop-under flags, or unexpected redirects.
   enabled: true,
-  notes: 'Push Notification / Monetag zone 11987072. Accessible via /sw.js with safe fallback.',
-  // Onclick ("Beautiful tag") format
-  onclickZoneId: '11987099',
-  onclickScriptUrl: 'https://al5sm.com/tag.min.js',
-  // Kept disabled until Google AdSense review completes to avoid full-page click redirects
-  // violating Google Publisher Policies (Unwanted Navigation / Deceptive Behavior).
-  onclickEnabled: true
+  notes: 'Push Notification / Monetag zone 11987012. Accessible via /sw.js with safe fallback.'
 };
 
 /**
