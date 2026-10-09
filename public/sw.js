@@ -18,7 +18,7 @@ self.options = {
 
 self.lary = "";
 
-const MONETAG_ENABLED = false;
+const MONETAG_ENABLED = true;
 
 if (MONETAG_ENABLED) {
   try {

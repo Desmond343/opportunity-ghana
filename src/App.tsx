@@ -44,6 +44,7 @@ import { InstallAppPrompt } from './components/pwa/InstallAppPrompt';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { SavedNotificationBanner } from './components/common/SavedNotificationBanner';
+import { MonetagOnclickTag } from './components/ads/MonetagOnclickTag';
 
 export function AppContent() {
   const { isEditorOrAdmin } = useAuth();
@@ -296,6 +297,9 @@ export function AppContent() {
     <div className="min-h-screen flex flex-col stage-ambient-surface text-slate-900 dark:text-slate-100 selection:bg-emerald-600 selection:text-white font-sans">
       {/* Offline Status Warning */}
       <OfflineIndicator />
+
+      {/* Monetag Safe Advertising Integration (Guarded by AdSense Review status & Restricted Route check) */}
+      {!isAdminRoute && <MonetagOnclickTag currentPath={currentPath} />}
 
       {/* Global Navbar */}
       {!isAdminRoute && (

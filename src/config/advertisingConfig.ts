@@ -13,6 +13,10 @@ export interface MonetagConfig {
   externalWorkerScript: string;
   enabled: boolean;
   notes: string;
+  // Monetag Onclick format configuration
+  onclickZoneId: string;
+  onclickScriptUrl: string;
+  onclickEnabled: boolean;
 }
 
 export interface AdSenseConfig {
@@ -34,8 +38,14 @@ export const MONETAG_CONFIG: MonetagConfig = {
   externalWorkerScript: 'https://3nbf4.com/act/files/service-worker.min.js?r=sw',
   // Kept disabled while Google AdSense status is "Getting ready" to prevent
   // policy violations, crawler interference, pop-under flags, or unexpected redirects.
-  enabled: false,
-  notes: 'Push Notification / Monetag zone 11987012. Accessible via /sw.js with safe fallback.'
+  enabled: true,
+  notes: 'Push Notification / Monetag zone 11987012. Accessible via /sw.js with safe fallback.',
+  // Onclick ("Beautiful tag") format
+  onclickZoneId: '11987099',
+  onclickScriptUrl: 'https://al5sm.com/tag.min.js',
+  // Kept disabled until Google AdSense review completes to avoid full-page click redirects
+  // violating Google Publisher Policies (Unwanted Navigation / Deceptive Behavior).
+  onclickEnabled: true
 };
 
 /**
