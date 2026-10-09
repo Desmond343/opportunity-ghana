@@ -2001,10 +2001,25 @@ app.post('/api/admin/competition-research/publish', verifyAdminAuth, async (req,
 });
 
 // PWA Service Worker & Web App Manifest headers and direct serving
-app.get('/sw.js', (req, res, next) => {
+app.get(['/sw.js', '/sw-monetag.js', '/sw (1).js', '/sw%20(1).js'], (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Service-Worker-Allowed', '/');
   res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+
+  if (req.path.includes('(1)')) {
+    const sw1Public = path.resolve(process.cwd(), 'public', 'sw (1).js');
+    if (fs.existsSync(sw1Public)) {
+      return res.sendFile(sw1Public);
+    }
+  }
+
+  if (req.path.includes('monetag')) {
+    const swMonetag = path.resolve(process.cwd(), 'public', 'sw-monetag.js');
+    if (fs.existsSync(swMonetag)) {
+      return res.sendFile(swMonetag);
+    }
+  }
+
   const swPublic = path.resolve(process.cwd(), 'public', 'sw.js');
   if (fs.existsSync(swPublic)) {
     return res.sendFile(swPublic);
@@ -2012,16 +2027,6 @@ app.get('/sw.js', (req, res, next) => {
   const swDist = path.resolve(process.cwd(), 'dist', 'sw.js');
   if (fs.existsSync(swDist)) {
     return res.sendFile(swDist);
-  }
-  next();
-});
-
-app.get('/sw-monetag.js', (req, res, next) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-  const swMonetag = path.resolve(process.cwd(), 'public', 'sw-monetag.js');
-  if (fs.existsSync(swMonetag)) {
-    return res.sendFile(swMonetag);
   }
   next();
 });

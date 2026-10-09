@@ -33,13 +33,13 @@ export const ADSENSE_CONFIG: AdSenseConfig = {
 };
 
 export const MONETAG_CONFIG: MonetagConfig = {
-  domain: '3nbf4.com',
-  zoneId: 11987012,
-  externalWorkerScript: 'https://3nbf4.com/act/files/service-worker.min.js?r=sw',
+  domain: '5gvci.com',
+  zoneId: 11987072,
+  externalWorkerScript: 'https://5gvci.com/act/files/service-worker.min.js?r=sw',
   // Kept disabled while Google AdSense status is "Getting ready" to prevent
   // policy violations, crawler interference, pop-under flags, or unexpected redirects.
   enabled: true,
-  notes: 'Push Notification / Monetag zone 11987012. Accessible via /sw.js with safe fallback.',
+  notes: 'Push Notification / Monetag zone 11987072. Accessible via /sw.js with safe fallback.',
   // Onclick ("Beautiful tag") format
   onclickZoneId: '11987099',
   onclickScriptUrl: 'https://al5sm.com/tag.min.js',

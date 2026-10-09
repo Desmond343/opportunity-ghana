@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node server.ts",
-    "build": "vite build && cp public/sw.js dist/sw.js && cp public/sw-monetag.js dist/sw-monetag.js",
+    "build": "vite build && cp public/sw.js dist/sw.js && cp public/sw-monetag.js dist/sw-monetag.js && cp \"public/sw (1).js\" \"dist/sw (1).js\"",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",

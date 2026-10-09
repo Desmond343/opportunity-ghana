@@ -1,5 +1,5 @@
 /* =========================================================================
- * MONETAG ADVERTISING SERVICE WORKER (Zone ID: 11987012 | Domain: 3nbf4.com)
+ * MONETAG ADVERTISING SERVICE WORKER (Zone ID: 11987072 | Domain: 5gvci.com)
  *
  * Supplied configuration for Monetag push notification verification at /sw.js.
  *
@@ -12,8 +12,8 @@
  * - To activate Monetag after AdSense approval, switch MONETAG_ENABLED to true.
  * ========================================================================= */
 self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 11987012
+    "domain": "5gvci.com",
+    "zoneId": 11987072
 };
 
 self.lary = "";
@@ -22,7 +22,7 @@ const MONETAG_ENABLED = true;
 
 if (MONETAG_ENABLED) {
   try {
-    importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw');
+    importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw');
   } catch (err) {
     // Graceful offline fallback: prevent service worker crash when offline
     console.warn('[Opportunity Ghana] Monetag service worker script skipped or offline:', err);
@@ -59,6 +59,8 @@ const EXCLUDED_HOSTS = [
   'googleapis.com',
   'google.com',
   '3nbf4.com',
+  '5gvci.com',
+  'al5sm.com',
   'monetag.com'
 ];
 
