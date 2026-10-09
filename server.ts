@@ -2006,15 +2006,22 @@ app.get('/sw.js', (req, res, next) => {
   res.setHeader('Service-Worker-Allowed', '/');
   res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   const swPublic = path.resolve(process.cwd(), 'public', 'sw.js');
-  if (!isProduction && fs.existsSync(swPublic)) {
+  if (fs.existsSync(swPublic)) {
     return res.sendFile(swPublic);
   }
   const swDist = path.resolve(process.cwd(), 'dist', 'sw.js');
-  if (isProduction && fs.existsSync(swDist)) {
+  if (fs.existsSync(swDist)) {
     return res.sendFile(swDist);
   }
-  if (fs.existsSync(swPublic)) {
-    return res.sendFile(swPublic);
+  next();
+});
+
+app.get('/sw-monetag.js', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  const swMonetag = path.resolve(process.cwd(), 'public', 'sw-monetag.js');
+  if (fs.existsSync(swMonetag)) {
+    return res.sendFile(swMonetag);
   }
   next();
 });

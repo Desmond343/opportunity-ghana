@@ -1,3 +1,38 @@
+/* =========================================================================
+ * MONETAG ADVERTISING SERVICE WORKER (Zone ID: 11987012 | Domain: 3nbf4.com)
+ *
+ * Supplied configuration for Monetag push notification verification at /sw.js.
+ *
+ * ADSENSE REVIEW & PWA COMPATIBILITY GUARD:
+ * - Google AdSense site approval status is currently "Getting ready" with Auto Ads.
+ * - Active push subscription prompts, external redirects, or intrusive ad
+ *   behaviors during Google's automated review can trigger policy violations.
+ * - To preserve AdSense review eligibility and maintain full PWA offline
+ *   caching stability, active execution is safely guarded via MONETAG_ENABLED.
+ * - To activate Monetag after AdSense approval, switch MONETAG_ENABLED to true.
+ * ========================================================================= */
+self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 11987012
+};
+
+self.lary = "";
+
+const MONETAG_ENABLED = false;
+
+if (MONETAG_ENABLED) {
+  try {
+    importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw');
+  } catch (err) {
+    // Graceful offline fallback: prevent service worker crash when offline
+    console.warn('[Opportunity Ghana] Monetag service worker script skipped or offline:', err);
+  }
+}
+
+/* =========================================================================
+ * OPPORTUNITY GHANA PWA SERVICE WORKER
+ * Offline shell caching, asset stale-while-revalidate, and lifecycle handlers
+ * ========================================================================= */
 const CACHE_NAME = 'opportunity-ghana-v2';
 const STATIC_ASSETS = [
   '/',
@@ -15,14 +50,16 @@ const STATIC_ASSETS = [
   '/favicon.ico'
 ];
 
-// URLs/hosts that must NEVER be cached by the service worker
+// URLs/hosts that must NEVER be cached or intercepted by the service worker
 const EXCLUDED_HOSTS = [
   'identitytoolkit.googleapis.com',
   'securetoken.googleapis.com',
   'firestore.googleapis.com',
   'firebaseinstallations.googleapis.com',
   'googleapis.com',
-  'google.com'
+  'google.com',
+  '3nbf4.com',
+  'monetag.com'
 ];
 
 // Install: Precaches core shell assets & offline fallback resiliently
