@@ -60,10 +60,18 @@ service cloud.firestore {
       allow write: if isAdminOrEditor();
     }
 
-    // 3. Opportunities collection: Public read for published listings. Only admin/editor can write.
+    // 3. Opportunities collection:
+    // Public read for published listings.
+    // Authenticated users can submit new opportunities with status == 'pending' or 'pending_review'.
+    // Admin/editor have full permissions to review, approve, publish, edit, or delete.
     match /opportunities/{opportunityId} {
       allow read: if true;
-      allow write: if isAdminOrEditor();
+      allow create: if isAdminOrEditor() || (
+        isAuthenticated() &&
+        (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
+        (request.resource.data.submittedBy == request.auth.uid || request.resource.data.createdByUserId == request.auth.uid || request.resource.data.organizationId == request.auth.uid)
+      );
+      allow update, delete: if isAdminOrEditor();
     }
 
     // 4. Resources collection:

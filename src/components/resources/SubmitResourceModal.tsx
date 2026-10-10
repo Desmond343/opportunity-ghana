@@ -185,7 +185,7 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
           uploadedImagePath = uploadRes.imagePath;
         } catch (imgErr: any) {
           console.error('[SubmitResourceModal Image Upload Error]', imgErr);
-          setErrorMessage('Image upload failed. Please try again.');
+          setErrorMessage(imgErr?.message || 'Image upload failed. Please check file format (JPG, PNG, WebP under 5 MB) and try again.');
           return;
         }
       }
@@ -230,7 +230,7 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
         );
       } catch (subErr: any) {
         console.error('[SubmitResourceModal Service Error]', subErr);
-        setErrorMessage('The resource could not be published. Please try again.');
+        setErrorMessage(subErr?.message || 'Could not complete submission. Please try again.');
         return;
       }
 
@@ -238,9 +238,10 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error('Resource submission error:', err);
-      setErrorMessage(err?.message || 'The resource could not be published. Please try again.');
+      setErrorMessage(err?.message || 'Could not complete submission. Please try again.');
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(null);
     }
   };
 

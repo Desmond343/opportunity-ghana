@@ -21,11 +21,26 @@ if (storage) {
   }
 }
 
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/pjpeg',
+  'image/x-png'
+];
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+  if (!file) {
+    return { valid: false, error: 'No image file provided.' };
+  }
+  const type = (file.type || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+  const hasValidExt = /\.(jpe?g|png|webp)$/i.test(name);
+  const hasValidType = ALLOWED_IMAGE_TYPES.includes(type);
+
+  if (!hasValidType && !hasValidExt) {
     return {
       valid: false,
       error: 'Please choose a valid JPG, PNG, or WebP image under 5 MB.'
@@ -133,9 +148,10 @@ async function uploadViaServer(
     };
 
     const formData = new FormData();
-    formData.append('file', file);
+    // Critical: append metadata fields BEFORE the file so multipart streaming parses them first!
     formData.append('entityType', entityType);
     formData.append('entityId', entityId);
+    formData.append('file', file);
 
     xhr.send(formData);
   });

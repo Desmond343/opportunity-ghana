@@ -65,8 +65,10 @@ const upload = multer({
   storage: uploadDiskStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
   fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (allowed.includes(file.mimetype)) {
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/pjpeg', 'image/x-png'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+    if (allowed.includes(file.mimetype) || allowedExts.includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Invalid image type. Only JPG, PNG, and WebP images are allowed.'));
@@ -163,7 +165,11 @@ app.post('/api/upload', (req, res) => {
   upload.any()(req as any, res as any, (err: any) => {
     if (err) {
       console.warn('[Upload Error]', err.message);
-      return res.status(400).json({ success: false, error: err.message || 'File upload failed.' });
+      const isSize = err.code === 'LIMIT_FILE_SIZE' || err.message?.includes('too large');
+      const errorMsg = isSize
+        ? 'Image exceeds maximum allowed size of 5 MB. Please select a smaller photo.'
+        : (err.message || 'File upload failed.');
+      return res.status(400).json({ success: false, error: errorMsg });
     }
     const uploadedFile = (req.files && (req.files as any[])[0]) || req.file;
     if (!uploadedFile) {
@@ -172,7 +178,29 @@ app.post('/api/upload', (req, res) => {
 
     const rawEntity = (req.body && req.body.entityType) || 'resources';
     const safeEntity = ['opportunities', 'resources', 'users', 'public'].includes(rawEntity) ? rawEntity : 'resources';
-    const filename = uploadedFile.filename;
+    const targetDir = path.join(uploadBaseDir, safeEntity);
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const entityId = ((req.body && req.body.entityId) || 'file').replace(/[^a-zA-Z0-9_-]/g, '_');
+    let filename = uploadedFile.filename;
+
+    // Relocate file if fields streamed after file or entityId prefix is needed
+    const currentPath = uploadedFile.path;
+    let targetPath = path.join(targetDir, filename);
+
+    if (filename.startsWith('file_') && entityId !== 'file') {
+      const ext = path.extname(filename).toLowerCase() || '.webp';
+      const cleanFilename = `${entityId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+      filename = cleanFilename;
+      targetPath = path.join(targetDir, filename);
+    }
+
+    if (currentPath !== targetPath && fs.existsSync(currentPath)) {
+      fs.renameSync(currentPath, targetPath);
+    }
+
     const imageUrl = `/uploads/${safeEntity}/${filename}`;
     const imagePath = `public/uploads/${safeEntity}/${filename}`;
 
@@ -548,6 +576,23 @@ app.get('/api/opportunities', async (req, res) => {
   res.json(results);
 });
 
+// Helper to extract clean image URL string primitive
+function extractCleanImageUrl(val: any): string | undefined {
+  if (!val) return undefined;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    return trimmed.length > 0 && trimmed !== 'null' && trimmed !== 'undefined' ? trimmed : undefined;
+  }
+  if (typeof val === 'object') {
+    const raw = val.url || val.imageUrl || val.src || '';
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      return trimmed.length > 0 && trimmed !== 'null' && trimmed !== 'undefined' ? trimmed : undefined;
+    }
+  }
+  return undefined;
+}
+
 // User Opportunity Submission Endpoint (Enforces pending status server-side)
 app.post('/api/submissions/opportunity', async (req, res) => {
   const submissionData = req.body;
@@ -558,10 +603,14 @@ app.post('/api/submissions/opportunity', async (req, res) => {
   const id = submissionData.id || `opp_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
 
+  // Normalize image data
+  const normalizedImageUrl = extractCleanImageUrl(submissionData.imageUrl) || extractCleanImageUrl(submissionData.image);
+
   // Enforce server-side security: User submissions are always pending and cannot be self-published
   const sanitizedSubmission = {
     ...submissionData,
     id,
+    imageUrl: normalizedImageUrl,
     status: 'pending',
     submissionStatus: 'pending',
     verificationStatus: 'needs_verification',
@@ -570,6 +619,8 @@ app.post('/api/submissions/opportunity', async (req, res) => {
     createdAt: submissionData.createdAt || now,
     updatedAt: now
   };
+  delete (sanitizedSubmission as any).image;
+  delete (sanitizedSubmission as any).coverImage;
 
   if (adminDb && isInitialized) {
     try {
@@ -593,9 +644,13 @@ app.post('/api/submissions/resource', async (req, res) => {
   const id = submissionData.id || `res_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
 
+  // Normalize image data
+  const normalizedImageUrl = extractCleanImageUrl(submissionData.imageUrl) || extractCleanImageUrl(submissionData.image);
+
   const sanitizedSubmission = {
     ...submissionData,
     id,
+    imageUrl: normalizedImageUrl,
     status: 'pending',
     submissionStatus: 'pending',
     verificationStatus: 'needs_verification',
@@ -604,6 +659,8 @@ app.post('/api/submissions/resource', async (req, res) => {
     createdAt: submissionData.createdAt || now,
     updatedAt: now
   };
+  delete (sanitizedSubmission as any).image;
+  delete (sanitizedSubmission as any).coverImage;
 
   if (adminDb && isInitialized) {
     try {
@@ -631,8 +688,15 @@ app.post('/api/submissions/review', verifyAdminAuth, async (req, res) => {
   const isApproved = decision === 'approved';
   const targetStatus = isApproved ? 'published' : decision === 'rejected' ? 'rejected' : 'pending';
 
+  const sanitizedEdited = editedData ? { ...editedData } : {};
+  if (sanitizedEdited.imageUrl) {
+    sanitizedEdited.imageUrl = extractCleanImageUrl(sanitizedEdited.imageUrl);
+  }
+  delete sanitizedEdited.image;
+  delete sanitizedEdited.coverImage;
+
   const updatePayload: any = {
-    ...(editedData || {}),
+    ...sanitizedEdited,
     status: targetStatus,
     submissionStatus: decision,
     reviewedAt: now,
@@ -664,6 +728,16 @@ app.post('/api/opportunities', verifyAdminAuth, async (req, res) => {
   if (!item || !item.id) {
     return res.status(400).json({ error: 'Opportunity object with id is required' });
   }
+
+  // Normalize image data to clean string primitives
+  if (item.imageUrl && typeof item.imageUrl === 'object') {
+    item.imageUrl = item.imageUrl.url || item.imageUrl.imageUrl || item.imageUrl.src;
+  }
+  if (!item.imageUrl && item.image) {
+    item.imageUrl = typeof item.image === 'string' ? item.image : (item.image.url || item.image.imageUrl || item.image.src);
+  }
+  delete item.image;
+  delete item.coverImage;
 
   saveServerPublishedOpportunity(item);
 

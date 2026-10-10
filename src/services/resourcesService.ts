@@ -1,6 +1,7 @@
 import { Resource, OpportunityStatus, VerificationStatus } from '../types/database';
 import { db, isFirebaseConfigured } from './firebase';
 import { sanitizeForFirestore } from './firebase/firestoreService';
+import { auth } from './firebase/authService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
@@ -354,6 +355,22 @@ export const ResourcesService = {
       }
     }
 
+    // Mirror to backend server endpoint for resilient cross-device persistence
+    try {
+      let token: string | null = null;
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
+      fetch('/api/resources', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(toSave)
+      }).catch(err => console.debug('[ResourcesService] Server mirror notice:', err));
+    } catch {}
+
     AuditService.log({
       entityType: 'resource',
       entityId: toSave.id,
@@ -458,11 +475,20 @@ export const ResourcesService = {
     if (isFirebaseConfigured && db) {
       try {
         const cleanData = sanitizeForFirestore(newResource);
-        await setDoc(doc(db, 'resources', newResource.id), cleanData);
+        await setDoc(doc(db, 'resources', newResource.id), cleanData, { merge: true });
       } catch (err) {
         console.warn('Firestore submitUserResource error:', err);
       }
     }
+
+    // Mirror to backend server submission endpoint
+    try {
+      fetch('/api/submissions/resource', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newResource)
+      }).catch(err => console.debug('[ResourcesService] Server submission mirror notice:', err));
+    } catch {}
 
     // Mirror to unified submissions store
     try {
@@ -887,11 +913,21 @@ export const ResourcesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'resources', id), submission);
+        const cleanData = sanitizeForFirestore(submission);
+        await setDoc(doc(db, 'resources', id), cleanData, { merge: true });
       } catch (err: any) {
         console.warn('Firestore submitResource error:', err?.message || err);
       }
     }
+
+    // Mirror to backend server submission endpoint
+    try {
+      fetch('/api/submissions/resource', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission)
+      }).catch(err => console.debug('[ResourcesService] Server submission mirror notice:', err));
+    } catch {}
 
     AuditService.log({
       entityType: 'resource',
@@ -1004,11 +1040,34 @@ export const ResourcesService = {
           ...updated,
           updatedAt: now
         });
-        await updateDoc(doc(db, 'resources', id), cleanData);
+        await setDoc(doc(db, 'resources', id), cleanData, { merge: true });
       } catch (err) {
         console.warn('Firestore reviewSubmission error:', err);
       }
     }
+
+    // Sync review decision to server moderation endpoint
+    try {
+      let token: string | null = null;
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
+      fetch('/api/submissions/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          type: 'resource',
+          id,
+          decision,
+          rejectionReason,
+          adminNotes,
+          editedData
+        })
+      }).catch(err => console.debug('[ResourcesService] Server review sync notice:', err));
+    } catch {}
 
     AuditService.log({
       entityType: 'resource',

@@ -98,7 +98,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
       setAdminNotes('');
     } catch (err: any) {
       console.error('[Admin Review Decision Error]', err);
-      alert(decision === 'approved' ? 'The resource could not be published. Please try again.' : (err?.message || 'Error processing review decision.'));
+      alert(err?.message || (decision === 'approved' ? 'The resource could not be published. Please try again.' : 'Error processing review decision.'));
     } finally {
       setIsProcessing(false);
       setDecisionAction(null);

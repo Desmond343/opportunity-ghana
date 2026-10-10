@@ -1,5 +1,7 @@
 import { Opportunity, OpportunityStatus, VerificationStatus } from '../types/database';
 import { db, isFirebaseConfigured } from './firebase';
+import { sanitizeForFirestore } from './firebase/firestoreService';
+import { auth } from './firebase/authService';
 import { FirebaseStorageService } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
@@ -400,11 +402,28 @@ export const OpportunitiesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'opportunities', toSave.id), toSave, { merge: true });
+        const cleanData = sanitizeForFirestore(toSave);
+        await setDoc(doc(db, 'opportunities', toSave.id), cleanData, { merge: true });
       } catch (err) {
         console.warn('Firestore saveOpportunity error:', err);
       }
     }
+
+    // Mirror to backend server endpoint for resilient cross-device persistence
+    try {
+      let token: string | null = null;
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
+      fetch('/api/opportunities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(toSave)
+      }).catch(err => console.debug('[OpportunitiesService] Server mirror notice:', err));
+    } catch {}
 
     AuditService.log({
       entityType: 'opportunity',
@@ -841,11 +860,21 @@ export const OpportunitiesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'opportunities', id), submission);
+        const cleanData = sanitizeForFirestore(submission);
+        await setDoc(doc(db, 'opportunities', id), cleanData, { merge: true });
       } catch (err: any) {
         console.warn('Firestore submitUserOpportunity error:', err?.message || err);
       }
     }
+
+    // Mirror submission to server endpoint
+    try {
+      fetch('/api/submissions/opportunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission)
+      }).catch(err => console.debug('[OpportunitiesService] Server submission mirror notice:', err));
+    } catch {}
 
     AuditService.log({
       entityType: 'opportunity',
@@ -961,14 +990,38 @@ export const OpportunitiesService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await updateDoc(doc(db, 'opportunities', id), {
+        const cleanData = sanitizeForFirestore({
           ...updated,
           updatedAt: now
         });
+        await setDoc(doc(db, 'opportunities', id), cleanData, { merge: true });
       } catch (err: any) {
         console.warn('Firestore reviewSubmission opportunity error:', err?.message || err);
       }
     }
+
+    // Sync review decision to server moderation endpoint
+    try {
+      let token: string | null = null;
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
+      fetch('/api/submissions/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          type: 'opportunity',
+          id,
+          decision,
+          rejectionReason,
+          adminNotes,
+          editedData
+        })
+      }).catch(err => console.debug('[OpportunitiesService] Server review sync notice:', err));
+    } catch {}
 
     AuditService.log({
       entityType: 'opportunity',

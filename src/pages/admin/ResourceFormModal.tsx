@@ -250,7 +250,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
           finalResource.imagePath = uploadRes.imagePath;
         } catch (imgErr: any) {
           console.error('[Resource Form Image Upload Error]', imgErr);
-          setUploadError('Image upload failed. Please try again.');
+          setUploadError(imgErr?.message || 'Image upload failed. Please check file format and try again.');
           return;
         }
       } else if (isImageRemoved) {
@@ -265,7 +265,7 @@ export const ResourceFormModal: React.FC<ResourceFormModalProps> = ({
         if (newUploadedPath) {
           await FirebaseStorageService.deleteFile(newUploadedPath);
         }
-        setUploadError(saveErr?.message || 'The resource could not be published. Please try again.');
+        setUploadError(saveErr?.message || 'The resource could not be saved. Please check required fields and try again.');
         return;
       }
 

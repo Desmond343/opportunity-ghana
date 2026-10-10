@@ -70,5 +70,31 @@
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
     "updatedAt": "2026-10-07T17:45:27.349Z"
+  },
+  {
+    "id": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+    "email": "test@opportunityghana.com",
+    "phone": "",
+    "whatsappEnabled": false,
+    "categories": [
+      "Scholarships",
+      "Jobs",
+      "Internships",
+      "Grants",
+      "Training"
+    ],
+    "regions": [
+      "All Ghana"
+    ],
+    "frequency": "daily",
+    "status": "active",
+    "active": true,
+    "source": "Homepage Daily Alerts",
+    "lastAlertSentAt": null,
+    "lastAlertTitle": null,
+    "alertsCount": 0,
+    "unsubscribedAt": null,
+    "createdAt": "2026-10-10T18:32:10.774Z",
+    "updatedAt": "2026-10-10T18:32:13.626Z"
   }
 ]
