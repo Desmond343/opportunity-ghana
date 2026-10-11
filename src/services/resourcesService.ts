@@ -2,7 +2,7 @@ import { Resource, OpportunityStatus, VerificationStatus } from '../types/databa
 import { db, isFirebaseConfigured } from './firebase';
 import { sanitizeForFirestore } from './firebase/firestoreService';
 import { auth } from './firebase/authService';
-import { FirebaseStorageService } from './firebase/storageService';
+import { FirebaseStorageService, validateImageFile } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { VERIFIED_REAL_RESOURCES } from '../data/verifiedResources';
 import { ensureUniqueCourseImages } from '../utils/cardBackgrounds';
@@ -414,62 +414,98 @@ export const ResourcesService = {
       uid: string;
       email: string;
       name: string;
-    }
+    },
+    imageFile?: File | null
   ): Promise<Resource> {
-    const now = new Date().toISOString();
-    const id = 'res_sub_' + Math.random().toString(36).substring(2, 10);
-    const cleanSlug = submissionData.title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'resource';
-    const slug = `${cleanSlug}-${Math.random().toString(36).substring(2, 6)}`;
+    if (!submissionData.title?.trim()) {
+      throw new Error('Please enter a resource title.');
+    }
+    if (!submissionData.description?.trim() || submissionData.description.trim().length < 25) {
+      throw new Error('Please provide a descriptive overview of at least 25 characters.');
+    }
+    if (!submissionData.enrollmentUrl?.trim() || !submissionData.enrollmentUrl.trim().startsWith('http')) {
+      throw new Error('Please enter a valid website link starting with http:// or https://');
+    }
 
-    const newResource: Resource = {
-      id,
-      title: submissionData.title.trim(),
-      slug,
-      description: submissionData.description.trim(),
-      providerId: 'external_submission',
-      providerName: submissionData.providerName?.trim() || 'Community Contributor',
-      resourceType: submissionData.resourceType || 'course',
-      category: submissionData.category || 'Technology',
-      level: submissionData.level || 'All Levels',
-      format: submissionData.format || 'Self-paced Online',
-      location: submissionData.location || 'Online / Ghana',
-      duration: 'Flexible',
-      cost: submissionData.isFree ? 0 : Number(submissionData.cost || 0),
-      currency: submissionData.currency || 'GHS',
-      isFree: Boolean(submissionData.isFree),
-      hasCertificate: Boolean(submissionData.hasCertificate),
-      skills: submissionData.skills || [],
-      enrollmentUrl: submissionData.enrollmentUrl.trim(),
-      imageUrl: submissionData.imageUrl,
-      imagePath: submissionData.imagePath,
-      sourceUrl: submissionData.enrollmentUrl.trim(),
-      
-      // Strict moderation isolation: NOT published until administrator reviews
-      status: 'pending_review',
-      verificationStatus: 'needs_verification',
-      verificationNotes: `Submitted by user ${user.name} (${user.email}) on ${new Date().toLocaleDateString('en-GB')}. Awaiting verification.`,
+    if (imageFile) {
+      const val = validateImageFile(imageFile);
+      if (!val.valid) {
+        throw new Error(val.error || 'Invalid image file.');
+      }
+    }
 
-      // Authorship & Moderation metadata
-      createdByEmail: user.email,
-      createdByName: user.name,
-      createdByUserId: user.uid,
-      isUserSubmitted: true,
-      submissionStatus: 'pending',
-      submittedAt: now,
-      contactInfo: submissionData.contactInfo,
+    const formData = new FormData();
+    formData.append('title', submissionData.title.trim());
+    formData.append('description', submissionData.description.trim());
+    formData.append('category', submissionData.category || 'Technology');
+    formData.append('resourceType', submissionData.resourceType || 'course');
+    if (submissionData.level) formData.append('level', submissionData.level);
+    if (submissionData.format) formData.append('format', submissionData.format);
+    if (submissionData.location) formData.append('location', submissionData.location.trim());
+    formData.append('providerName', submissionData.providerName?.trim() || 'Community Contributor');
+    formData.append('enrollmentUrl', submissionData.enrollmentUrl.trim());
+    formData.append('isFree', String(Boolean(submissionData.isFree)));
+    formData.append('cost', String(submissionData.isFree ? 0 : Number(submissionData.cost || 0)));
+    formData.append('currency', submissionData.currency || 'GHS');
+    formData.append('hasCertificate', String(Boolean(submissionData.hasCertificate)));
+    if (submissionData.contactInfo) formData.append('contactInfo', submissionData.contactInfo.trim());
 
-      createdAt: now,
-      updatedAt: now,
-      views: 0,
-      saves: 0
-    };
+    if (submissionData.skills && submissionData.skills.length > 0) {
+      formData.append('skills', JSON.stringify(submissionData.skills));
+    }
+
+    formData.append('createdByUserId', user.uid);
+    formData.append('createdByName', user.name || 'User');
+    formData.append('createdByEmail', user.email);
+    formData.append('submittedBy', user.uid);
+    formData.append('submittedByName', user.name || 'User');
+    formData.append('submittedByEmail', user.email);
+
+    if (imageFile) {
+      formData.append('image', imageFile);
+    } else if (submissionData.imageUrl) {
+      formData.append('imageUrl', submissionData.imageUrl);
+      if (submissionData.imagePath) formData.append('imagePath', submissionData.imagePath);
+    }
+
+    let token: string | null = null;
+    try {
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
+    } catch {}
+
+    const res = await fetch('/api/submissions/resource', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      let errDetail = 'Could not submit resource. Please check fields and try again.';
+      try {
+        const body = await res.json();
+        if (body.error) errDetail = body.error;
+      } catch {}
+      throw new Error(errDetail);
+    }
+
+    const json = await res.json();
+    if (!json.success || !json.submission) {
+      throw new Error(json.error || 'Server did not confirm receipt of your submission.');
+    }
+
+    const newResource: Resource = json.submission;
 
     const items = getStoredResources();
-    items.unshift(newResource);
+    const existingIdx = items.findIndex(i => i.id === newResource.id);
+    if (existingIdx >= 0) {
+      items[existingIdx] = newResource;
+    } else {
+      items.unshift(newResource);
+    }
     saveStoredResources(items);
 
     if (isFirebaseConfigured && db) {
@@ -477,18 +513,9 @@ export const ResourcesService = {
         const cleanData = sanitizeForFirestore(newResource);
         await setDoc(doc(db, 'resources', newResource.id), cleanData, { merge: true });
       } catch (err) {
-        console.warn('Firestore submitUserResource error:', err);
+        console.debug('Firestore client mirror notice:', err);
       }
     }
-
-    // Mirror to backend server submission endpoint
-    try {
-      fetch('/api/submissions/resource', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newResource)
-      }).catch(err => console.debug('[ResourcesService] Server submission mirror notice:', err));
-    } catch {}
 
     // Mirror to unified submissions store
     try {
@@ -509,12 +536,12 @@ export const ResourcesService = {
         location: newResource.location,
         data: newResource,
         status: 'pending',
-        createdAt: now,
-        updatedAt: now
+        createdAt: newResource.submittedAt || new Date().toISOString(),
+        updatedAt: newResource.updatedAt || new Date().toISOString()
       };
-      const existingIdx = subList.findIndex((s: any) => s.id === submissionRecord.id);
-      if (existingIdx >= 0) {
-        subList[existingIdx] = submissionRecord;
+      const foundIdx = subList.findIndex((s: any) => s.id === submissionRecord.id);
+      if (foundIdx >= 0) {
+        subList[foundIdx] = submissionRecord;
       } else {
         subList.unshift(submissionRecord);
       }
@@ -878,69 +905,36 @@ export const ResourcesService = {
    */
   async submitResource(
     data: Omit<Resource, 'id' | 'createdAt' | 'updatedAt' | 'views' | 'saves' | 'status'>,
-    user: { uid: string; email: string; name: string }
+    user: { uid: string; email: string; name: string },
+    imageFile?: File | null
   ): Promise<Resource> {
     if (!user || !user.uid) {
       throw new Error('You must be signed in to submit a resource.');
     }
 
-    const id = 'res_sub_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-    const now = new Date().toISOString();
-    const slug = (data.title || 'resource')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') + '-' + id.substring(0, 6);
-
-    const submission: Resource = {
-      ...data,
-      id,
-      slug: data.slug || slug,
-      status: 'pending',
-      submittedBy: user.uid,
-      submittedByName: user.name || 'Community Member',
-      submittedByEmail: user.email,
-      providerId: data.providerId || user.uid,
-      providerName: data.providerName || user.name || 'Community Contribution',
-      createdAt: now,
-      updatedAt: now,
-      views: 0,
-      saves: 0
-    };
-
-    const items = getStoredResources();
-    items.unshift(submission);
-    saveStoredResources(items);
-
-    if (isFirebaseConfigured && db) {
-      try {
-        const cleanData = sanitizeForFirestore(submission);
-        await setDoc(doc(db, 'resources', id), cleanData, { merge: true });
-      } catch (err: any) {
-        console.warn('Firestore submitResource error:', err?.message || err);
-      }
-    }
-
-    // Mirror to backend server submission endpoint
-    try {
-      fetch('/api/submissions/resource', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submission)
-      }).catch(err => console.debug('[ResourcesService] Server submission mirror notice:', err));
-    } catch {}
-
-    AuditService.log({
-      entityType: 'resource',
-      entityId: id,
-      entityTitle: submission.title,
-      action: 'created',
-      performedByEmail: user.email,
-      performedByName: user.name || 'User',
-      details: `User submitted resource for administrative review and verification.`,
-      newStatus: 'pending'
-    });
-
-    return submission;
+    return this.submitUserResource(
+      {
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        resourceType: data.resourceType,
+        level: data.level,
+        format: data.format,
+        location: data.location,
+        providerName: data.providerName,
+        enrollmentUrl: data.enrollmentUrl,
+        isFree: data.isFree,
+        cost: data.cost,
+        currency: data.currency,
+        hasCertificate: data.hasCertificate,
+        skills: data.skills,
+        contactInfo: data.contactEmail ? `Email: ${data.contactEmail}` : undefined,
+        imageUrl: data.imageUrl,
+        imagePath: data.imagePath
+      },
+      user,
+      imageFile
+    );
   },
 
   /**

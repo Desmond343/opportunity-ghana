@@ -182,22 +182,7 @@ export const SubmitResourcePage: React.FC<SubmitResourcePageProps> = ({ onNaviga
 
     try {
       setIsSubmitting(true);
-
-      const tempId = 'res_sub_' + Date.now();
-      let uploadedImageUrl: string | undefined = undefined;
-      let uploadedImagePath: string | undefined = undefined;
-
-      // Image upload if selected
-      if (selectedFile) {
-        setUploadProgress(0);
-        const uploadResult = await FirebaseStorageService.uploadResourcePhoto(
-          tempId,
-          selectedFile,
-          (progress) => setUploadProgress(progress)
-        );
-        uploadedImageUrl = uploadResult.imageUrl;
-        uploadedImagePath = uploadResult.imagePath;
-      }
+      if (selectedFile) setUploadProgress(35);
 
       const skillsArray = skillsString
         .split(',')
@@ -220,17 +205,17 @@ export const SubmitResourcePage: React.FC<SubmitResourcePageProps> = ({ onNaviga
           currency,
           hasCertificate,
           skills: skillsArray,
-          contactInfo: contactInfo.trim(),
-          imageUrl: uploadedImageUrl,
-          imagePath: uploadedImagePath
+          contactInfo: contactInfo.trim()
         },
         {
           uid: currentUser.id,
           email: currentUser.email,
           name: currentUser.name
-        }
+        },
+        selectedFile
       );
 
+      if (selectedFile) setUploadProgress(100);
       setSubmittedResourceId(created.id);
       setSubmittedSuccess(true);
     } catch (err: any) {

@@ -168,35 +168,15 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
     setErrorMessage(null);
 
     try {
-      // 1. Upload image if selected
-      let uploadedImageUrl: string | undefined = undefined;
-      let uploadedImagePath: string | undefined = undefined;
+      if (imageFile) setUploadProgress(35);
 
-      if (imageFile) {
-        setUploadProgress(15);
-        const tempResId = 'res_sub_' + Math.random().toString(36).substring(2, 9);
-        try {
-          const uploadRes = await FirebaseStorageService.uploadResourcePhoto(
-            tempResId,
-            imageFile,
-            (pct) => setUploadProgress(pct)
-          );
-          uploadedImageUrl = uploadRes.imageUrl;
-          uploadedImagePath = uploadRes.imagePath;
-        } catch (imgErr: any) {
-          console.error('[SubmitResourceModal Image Upload Error]', imgErr);
-          setErrorMessage(imgErr?.message || 'Image upload failed. Please check file format (JPG, PNG, WebP under 5 MB) and try again.');
-          return;
-        }
-      }
-
-      // 2. Parse skills tags
+      // 1. Parse skills tags
       const skills = skillsString
         .split(',')
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
-      // 3. Submit resource record for verification
+      // 2. Submit resource record for verification
       try {
         await ResourcesService.submitResource(
           {
@@ -217,8 +197,6 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
             hasCertificate,
             skills: skills.length > 0 ? skills : [category],
             enrollmentUrl: formattedUrl,
-            imageUrl: uploadedImageUrl,
-            imagePath: uploadedImagePath,
             contactEmail: contactEmail.trim() || currentUser.email || undefined,
             contactPhone: contactPhone.trim() || undefined
           },
@@ -226,7 +204,8 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
             uid: currentUser.id,
             email: currentUser.email,
             name: currentUser.name
-          }
+          },
+          imageFile
         );
       } catch (subErr: any) {
         console.error('[SubmitResourceModal Service Error]', subErr);
@@ -234,6 +213,7 @@ export const SubmitResourceModal: React.FC<SubmitResourceModalProps> = ({
         return;
       }
 
+      if (imageFile) setUploadProgress(100);
       setIsSubmittedSuccess(true);
       if (onSuccess) onSuccess();
     } catch (err: any) {

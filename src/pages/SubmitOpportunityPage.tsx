@@ -214,22 +214,7 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
 
     try {
       setIsSubmitting(true);
-
-      const tempId = 'opp_sub_' + Date.now();
-      let uploadedImageUrl: string | undefined = undefined;
-      let uploadedImagePath: string | undefined = undefined;
-
-      // Handle image upload if selected
-      if (selectedFile) {
-        setUploadProgress(0);
-        const uploadResult = await FirebaseStorageService.uploadOpportunityPhoto(
-          tempId,
-          selectedFile,
-          (progress) => setUploadProgress(progress)
-        );
-        uploadedImageUrl = uploadResult.imageUrl;
-        uploadedImagePath = uploadResult.imagePath;
-      }
+      if (selectedFile) setUploadProgress(35);
 
       const benefits = benefitsString
         .split(',')
@@ -267,17 +252,20 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
         deadlineAt: deadline ? (deadline.includes('T') ? deadline : `${deadline}T23:59:59Z`) : undefined,
         deadlineTimezone: 'GMT',
         applicationInstructions: applicationInstructions.trim(),
-        imageUrl: uploadedImageUrl,
-        imagePath: uploadedImagePath,
         contactInfo: contactInfo.trim()
       };
 
-      await OpportunitiesService.submitUserOpportunity(opportunityData, {
-        uid: currentUser.id,
-        email: currentUser.email,
-        name: currentUser.name
-      });
+      await OpportunitiesService.submitUserOpportunity(
+        opportunityData,
+        {
+          uid: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name
+        },
+        selectedFile
+      );
 
+      if (selectedFile) setUploadProgress(100);
       setSubmittedSuccess(true);
     } catch (err: any) {
       console.error('Error submitting opportunity:', err);

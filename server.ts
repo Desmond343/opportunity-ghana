@@ -327,6 +327,156 @@ function deleteServerPublishedOpportunity(id: string) {
   }
 }
 
+// In-memory & disk storage for submitted opportunities (pending review queue)
+const SUBMITTED_OPPS_FILE = path.resolve(process.cwd(), 'data', 'submitted_opportunities.json');
+
+function loadServerSubmittedOpportunities(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(SUBMITTED_OPPS_FILE))) {
+      fs.mkdirSync(path.dirname(SUBMITTED_OPPS_FILE), { recursive: true });
+    }
+    if (fs.existsSync(SUBMITTED_OPPS_FILE)) {
+      const raw = fs.readFileSync(SUBMITTED_OPPS_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.id) map.set(item.id, item);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading submitted opportunities from disk:', err);
+  }
+  return map;
+}
+
+const serverSubmittedOppsMap = loadServerSubmittedOpportunities();
+
+function saveServerSubmittedOpportunity(opp: any) {
+  if (!opp || !opp.id) return;
+  serverSubmittedOppsMap.set(opp.id, opp);
+  try {
+    if (!fs.existsSync(path.dirname(SUBMITTED_OPPS_FILE))) {
+      fs.mkdirSync(path.dirname(SUBMITTED_OPPS_FILE), { recursive: true });
+    }
+    const list = Array.from(serverSubmittedOppsMap.values());
+    fs.writeFileSync(SUBMITTED_OPPS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error saving submitted opp to disk:', err);
+  }
+}
+
+function deleteServerSubmittedOpportunity(id: string) {
+  serverSubmittedOppsMap.delete(id);
+  try {
+    const list = Array.from(serverSubmittedOppsMap.values());
+    fs.writeFileSync(SUBMITTED_OPPS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error deleting submitted opp from disk:', err);
+  }
+}
+
+// In-memory & disk storage for published resources
+const PUBLISHED_RESOURCES_FILE = path.resolve(process.cwd(), 'data', 'published_resources.json');
+
+function loadServerPublishedResources(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(PUBLISHED_RESOURCES_FILE))) {
+      fs.mkdirSync(path.dirname(PUBLISHED_RESOURCES_FILE), { recursive: true });
+    }
+    if (fs.existsSync(PUBLISHED_RESOURCES_FILE)) {
+      const raw = fs.readFileSync(PUBLISHED_RESOURCES_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.id) map.set(item.id, item);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading published resources from disk:', err);
+  }
+  return map;
+}
+
+const serverPublishedResourcesMap = loadServerPublishedResources();
+
+function saveServerPublishedResource(resItem: any) {
+  if (!resItem || !resItem.id) return;
+  serverPublishedResourcesMap.set(resItem.id, resItem);
+  try {
+    if (!fs.existsSync(path.dirname(PUBLISHED_RESOURCES_FILE))) {
+      fs.mkdirSync(path.dirname(PUBLISHED_RESOURCES_FILE), { recursive: true });
+    }
+    const list = Array.from(serverPublishedResourcesMap.values());
+    fs.writeFileSync(PUBLISHED_RESOURCES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error saving published resource to disk:', err);
+  }
+}
+
+function deleteServerPublishedResource(id: string) {
+  serverPublishedResourcesMap.delete(id);
+  try {
+    const list = Array.from(serverPublishedResourcesMap.values());
+    fs.writeFileSync(PUBLISHED_RESOURCES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error deleting published resource from disk:', err);
+  }
+}
+
+// In-memory & disk storage for submitted resources (pending review queue)
+const SUBMITTED_RESOURCES_FILE = path.resolve(process.cwd(), 'data', 'submitted_resources.json');
+
+function loadServerSubmittedResources(): Map<string, any> {
+  const map = new Map<string, any>();
+  try {
+    if (!fs.existsSync(path.dirname(SUBMITTED_RESOURCES_FILE))) {
+      fs.mkdirSync(path.dirname(SUBMITTED_RESOURCES_FILE), { recursive: true });
+    }
+    if (fs.existsSync(SUBMITTED_RESOURCES_FILE)) {
+      const raw = fs.readFileSync(SUBMITTED_RESOURCES_FILE, 'utf8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (item && item.id) map.set(item.id, item);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error loading submitted resources from disk:', err);
+  }
+  return map;
+}
+
+const serverSubmittedResourcesMap = loadServerSubmittedResources();
+
+function saveServerSubmittedResource(resItem: any) {
+  if (!resItem || !resItem.id) return;
+  serverSubmittedResourcesMap.set(resItem.id, resItem);
+  try {
+    if (!fs.existsSync(path.dirname(SUBMITTED_RESOURCES_FILE))) {
+      fs.mkdirSync(path.dirname(SUBMITTED_RESOURCES_FILE), { recursive: true });
+    }
+    const list = Array.from(serverSubmittedResourcesMap.values());
+    fs.writeFileSync(SUBMITTED_RESOURCES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error saving submitted resource to disk:', err);
+  }
+}
+
+function deleteServerSubmittedResource(id: string) {
+  serverSubmittedResourcesMap.delete(id);
+  try {
+    const list = Array.from(serverSubmittedResourcesMap.values());
+    fs.writeFileSync(SUBMITTED_RESOURCES_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Error deleting submitted resource from disk:', err);
+  }
+}
+
 // =========================================================================
 // SAVED OPPORTUNITIES / BOOKMARKS PERSISTENT STORE & ENDPOINTS
 // =========================================================================
@@ -544,11 +694,18 @@ app.get('/api/opportunities', async (req, res) => {
     }
   }
 
-  // Merge in Firestore items, disk-persisted published items, and verified initial opportunities
+  // Merge in Firestore items, disk-persisted published items, submitted items (if includeUnpublished), and verified initial opportunities
   const merged = [...firestoreItems];
   for (const diskOpp of serverPublishedOppsMap.values()) {
     if (!merged.some(m => m.id === diskOpp.id || m.slug === diskOpp.slug)) {
       merged.push(diskOpp);
+    }
+  }
+  if (includeUnpublished) {
+    for (const subOpp of serverSubmittedOppsMap.values()) {
+      if (!merged.some(m => m.id === subOpp.id || m.slug === subOpp.slug)) {
+        merged.push(subOpp);
+      }
     }
   }
   for (const verified of ALL_VERIFIED_INITIAL) {
@@ -593,85 +750,329 @@ function extractCleanImageUrl(val: any): string | undefined {
   return undefined;
 }
 
-// User Opportunity Submission Endpoint (Enforces pending status server-side)
-app.post('/api/submissions/opportunity', async (req, res) => {
-  const submissionData = req.body;
-  if (!submissionData || !submissionData.title || !submissionData.applicationUrl) {
-    return res.status(400).json({ error: 'Title and application URL are required.' });
-  }
-
-  const id = submissionData.id || `opp_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const now = new Date().toISOString();
-
-  // Normalize image data
-  const normalizedImageUrl = extractCleanImageUrl(submissionData.imageUrl) || extractCleanImageUrl(submissionData.image);
-
-  // Enforce server-side security: User submissions are always pending and cannot be self-published
-  const sanitizedSubmission = {
-    ...submissionData,
-    id,
-    imageUrl: normalizedImageUrl,
-    status: 'pending',
-    submissionStatus: 'pending',
-    verificationStatus: 'needs_verification',
-    isUserSubmitted: true,
-    submittedAt: now,
-    createdAt: submissionData.createdAt || now,
-    updatedAt: now
-  };
-  delete (sanitizedSubmission as any).image;
-  delete (sanitizedSubmission as any).coverImage;
-
-  if (adminDb && isInitialized) {
-    try {
-      await adminDb.collection('opportunities').doc(id).set(sanitizedSubmission, { merge: true });
-      return res.json({ success: true, submission: sanitizedSubmission });
-    } catch (e: any) {
-      console.warn('Could not persist user submission to Firestore Admin:', e.message);
+// User Opportunity Submission Endpoint (Supports direct multipart image upload and JSON)
+app.post('/api/submissions/opportunity', (req, res, next) => {
+  upload.any()(req as any, res as any, (err: any) => {
+    if (err) {
+      console.warn('[Submission Opportunity Upload Error]', err.message);
+      const isSize = err.code === 'LIMIT_FILE_SIZE' || err.message?.includes('too large');
+      const errorMsg = isSize
+        ? 'Image exceeds maximum allowed size of 5 MB. Please select a smaller photo.'
+        : (err.message || 'File upload failed.');
+      return res.status(400).json({ success: false, error: errorMsg });
     }
-  }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    const rawData = req.body || {};
+    const uploadedFile = (req.files && (req.files as any[])[0]) || (req as any).file;
 
-  return res.json({ success: true, submission: sanitizedSubmission, note: 'persisted_locally' });
+    const title = (rawData.title || '').trim();
+    const applicationUrl = (rawData.applicationUrl || rawData.officialApplicationUrl || '').trim();
+    if (!title) {
+      return res.status(400).json({ success: false, error: 'Opportunity title is required.' });
+    }
+    if (!applicationUrl || !applicationUrl.startsWith('http')) {
+      return res.status(400).json({ success: false, error: 'Valid application URL (starting with http:// or https://) is required.' });
+    }
+
+    const id = rawData.id || `opp_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const now = new Date().toISOString();
+
+    let imageUrl: string | undefined = undefined;
+    let imagePath: string | undefined = undefined;
+
+    if (uploadedFile) {
+      const targetDir = path.join(uploadBaseDir, 'opportunities');
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+      let filename = uploadedFile.filename;
+      const currentPath = uploadedFile.path;
+      let targetPath = path.join(targetDir, filename);
+
+      if (filename.startsWith('file_')) {
+        const ext = path.extname(filename).toLowerCase() || '.webp';
+        filename = `${id}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+        targetPath = path.join(targetDir, filename);
+      }
+
+      if (currentPath !== targetPath && fs.existsSync(currentPath)) {
+        fs.renameSync(currentPath, targetPath);
+      }
+
+      imageUrl = `/uploads/opportunities/${filename}`;
+      imagePath = `public/uploads/opportunities/${filename}`;
+    } else if (rawData.imageUrl || rawData.image) {
+      const rawImg = rawData.imageUrl || rawData.image;
+      if (typeof rawImg === 'string' && rawImg.startsWith('data:image/')) {
+        try {
+          const matches = rawImg.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+          if (matches) {
+            const ext = matches[1] === 'jpeg' ? '.jpg' : `.${matches[1]}`;
+            const filename = `${id}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+            const targetDir = path.join(uploadBaseDir, 'opportunities');
+            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+            const targetPath = path.join(targetDir, filename);
+            fs.writeFileSync(targetPath, Buffer.from(matches[2], 'base64'));
+            imageUrl = `/uploads/opportunities/${filename}`;
+            imagePath = `public/uploads/opportunities/${filename}`;
+          }
+        } catch (b64Err) {
+          console.warn('Error saving base64 image:', b64Err);
+        }
+      } else {
+        imageUrl = extractCleanImageUrl(rawImg);
+        imagePath = rawData.imagePath;
+      }
+    }
+
+    const parseField = (val: any) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === 'string') {
+        try {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+        return val.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+      return [];
+    };
+
+    const benefits = parseField(rawData.benefits);
+    const requirements = parseField(rawData.requirements);
+    const documentsRequired = parseField(rawData.documentsRequired);
+
+    const rawSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'opportunity';
+    const slug = rawData.slug || `${rawSlug}-${id.substring(8, 14)}`;
+
+    const sanitizedSubmission = {
+      ...rawData,
+      id,
+      slug,
+      title,
+      description: (rawData.description || '').trim(),
+      organizationName: (rawData.organizationName || 'Community Partner').trim(),
+      category: rawData.category || 'Scholarships',
+      subcategory: rawData.subcategory || '',
+      opportunityType: rawData.opportunityType || 'Full-time',
+      location: (rawData.location || 'Ghana / Remote').trim(),
+      country: rawData.country || 'Ghana',
+      region: rawData.region || 'All Ghana',
+      educationLevel: rawData.educationLevel || 'Undergraduate',
+      fieldOfStudy: rawData.fieldOfStudy || 'All Fields',
+      experienceLevel: rawData.experienceLevel || 'Entry Level',
+      fundingType: rawData.fundingType || 'Fully Funded',
+      applicationUrl,
+      officialApplicationUrl: rawData.officialApplicationUrl || applicationUrl,
+      sourceUrl: rawData.sourceUrl || applicationUrl,
+      deadline: rawData.deadline || '',
+      deadlineAt: rawData.deadlineAt || (rawData.deadline ? (rawData.deadline.includes('T') ? rawData.deadline : `${rawData.deadline}T23:59:59Z`) : undefined),
+      benefits,
+      requirements,
+      documentsRequired,
+      imageUrl,
+      imagePath,
+      // Strict moderation workflow: always pending until admin reviews
+      status: 'pending',
+      submissionStatus: 'pending',
+      verificationStatus: 'needs_verification',
+      verificationNotes: `Submitted by ${rawData.submittedByName || rawData.createdByName || 'Community Contributor'} (${rawData.submittedByEmail || rawData.createdByEmail || 'N/A'}) on ${now}. Awaiting editorial verification.`,
+      isUserSubmitted: true,
+      submittedAt: rawData.submittedAt || now,
+      createdAt: rawData.createdAt || now,
+      updatedAt: now,
+      views: 0,
+      saves: 0
+    };
+    delete (sanitizedSubmission as any).image;
+    delete (sanitizedSubmission as any).coverImage;
+
+    // Save to disk CMS submission storage
+    saveServerSubmittedOpportunity(sanitizedSubmission);
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('opportunities').doc(id).set(sanitizedSubmission, { merge: true });
+      } catch (e: any) {
+        console.warn('Could not persist user submission to Firestore Admin:', e.message);
+      }
+    }
+
+    console.info(`[CMS Submission] Received opportunity "${title}" (ID: ${id}) with image: ${imageUrl || 'none'}`);
+
+    return res.status(200).json({
+      success: true,
+      submission: sanitizedSubmission,
+      message: 'Your opportunity has been successfully submitted for editorial review.'
+    });
+  } catch (err: any) {
+    console.error('[Opportunity Submission Error]', err);
+    return res.status(500).json({ success: false, error: err.message || 'Could not process submission.' });
+  }
 });
 
-// User Resource Submission Endpoint (Enforces pending status server-side)
-app.post('/api/submissions/resource', async (req, res) => {
-  const submissionData = req.body;
-  if (!submissionData || !submissionData.title || !submissionData.enrollmentUrl) {
-    return res.status(400).json({ error: 'Title and enrollment URL are required.' });
-  }
-
-  const id = submissionData.id || `res_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const now = new Date().toISOString();
-
-  // Normalize image data
-  const normalizedImageUrl = extractCleanImageUrl(submissionData.imageUrl) || extractCleanImageUrl(submissionData.image);
-
-  const sanitizedSubmission = {
-    ...submissionData,
-    id,
-    imageUrl: normalizedImageUrl,
-    status: 'pending',
-    submissionStatus: 'pending',
-    verificationStatus: 'needs_verification',
-    isUserSubmitted: true,
-    submittedAt: now,
-    createdAt: submissionData.createdAt || now,
-    updatedAt: now
-  };
-  delete (sanitizedSubmission as any).image;
-  delete (sanitizedSubmission as any).coverImage;
-
-  if (adminDb && isInitialized) {
-    try {
-      await adminDb.collection('resources').doc(id).set(sanitizedSubmission, { merge: true });
-      return res.json({ success: true, submission: sanitizedSubmission });
-    } catch (e: any) {
-      console.warn('Could not persist resource submission to Firestore Admin:', e.message);
+// User Resource Submission Endpoint (Supports direct multipart image upload and JSON)
+app.post('/api/submissions/resource', (req, res, next) => {
+  upload.any()(req as any, res as any, (err: any) => {
+    if (err) {
+      console.warn('[Submission Resource Upload Error]', err.message);
+      const isSize = err.code === 'LIMIT_FILE_SIZE' || err.message?.includes('too large');
+      const errorMsg = isSize
+        ? 'Image exceeds maximum allowed size of 5 MB. Please select a smaller photo.'
+        : (err.message || 'File upload failed.');
+      return res.status(400).json({ success: false, error: errorMsg });
     }
-  }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    const rawData = req.body || {};
+    const uploadedFile = (req.files && (req.files as any[])[0]) || (req as any).file;
 
-  return res.json({ success: true, submission: sanitizedSubmission, note: 'persisted_locally' });
+    const title = (rawData.title || '').trim();
+    const enrollmentUrl = (rawData.enrollmentUrl || rawData.sourceUrl || '').trim();
+    if (!title) {
+      return res.status(400).json({ success: false, error: 'Resource title is required.' });
+    }
+    if (!enrollmentUrl || !enrollmentUrl.startsWith('http')) {
+      return res.status(400).json({ success: false, error: 'Valid website link (starting with http:// or https://) is required.' });
+    }
+
+    const id = rawData.id || `res_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const now = new Date().toISOString();
+
+    let imageUrl: string | undefined = undefined;
+    let imagePath: string | undefined = undefined;
+
+    if (uploadedFile) {
+      const targetDir = path.join(uploadBaseDir, 'resources');
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+      let filename = uploadedFile.filename;
+      const currentPath = uploadedFile.path;
+      let targetPath = path.join(targetDir, filename);
+
+      if (filename.startsWith('file_')) {
+        const ext = path.extname(filename).toLowerCase() || '.webp';
+        filename = `${id}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+        targetPath = path.join(targetDir, filename);
+      }
+
+      if (currentPath !== targetPath && fs.existsSync(currentPath)) {
+        fs.renameSync(currentPath, targetPath);
+      }
+
+      imageUrl = `/uploads/resources/${filename}`;
+      imagePath = `public/uploads/resources/${filename}`;
+    } else if (rawData.imageUrl || rawData.image) {
+      const rawImg = rawData.imageUrl || rawData.image;
+      if (typeof rawImg === 'string' && rawImg.startsWith('data:image/')) {
+        try {
+          const matches = rawImg.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+          if (matches) {
+            const ext = matches[1] === 'jpeg' ? '.jpg' : `.${matches[1]}`;
+            const filename = `${id}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+            const targetDir = path.join(uploadBaseDir, 'resources');
+            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+            const targetPath = path.join(targetDir, filename);
+            fs.writeFileSync(targetPath, Buffer.from(matches[2], 'base64'));
+            imageUrl = `/uploads/resources/${filename}`;
+            imagePath = `public/uploads/resources/${filename}`;
+          }
+        } catch (b64Err) {
+          console.warn('Error saving base64 image:', b64Err);
+        }
+      } else {
+        imageUrl = extractCleanImageUrl(rawImg);
+        imagePath = rawData.imagePath;
+      }
+    }
+
+    const parseField = (val: any) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === 'string') {
+        try {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+        return val.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+      return [];
+    };
+
+    const skills = parseField(rawData.skills);
+    const isFree = rawData.isFree === true || rawData.isFree === 'true';
+    const cost = isFree ? 0 : Number(rawData.cost) || 0;
+    const hasCertificate = rawData.hasCertificate === true || rawData.hasCertificate === 'true';
+
+    const rawSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'resource';
+    const slug = rawData.slug || `${rawSlug}-${id.substring(8, 14)}`;
+
+    const sanitizedSubmission = {
+      ...rawData,
+      id,
+      slug,
+      title,
+      description: (rawData.description || '').trim(),
+      providerId: rawData.providerId || 'external_submission',
+      providerName: (rawData.providerName || 'Community Contributor').trim(),
+      resourceType: rawData.resourceType || 'course',
+      category: rawData.category || 'Technology',
+      level: rawData.level || 'All Levels',
+      format: rawData.format || 'Self-paced Online',
+      location: (rawData.location || 'Online / Ghana').trim(),
+      duration: rawData.duration || 'Flexible',
+      cost,
+      currency: rawData.currency || 'GHS',
+      isFree,
+      hasCertificate,
+      skills,
+      enrollmentUrl,
+      sourceUrl: enrollmentUrl,
+      imageUrl,
+      imagePath,
+      // Strict moderation isolation: NOT published until administrator reviews
+      status: 'pending_review',
+      submissionStatus: 'pending',
+      verificationStatus: 'needs_verification',
+      verificationNotes: `Submitted by ${rawData.createdByName || rawData.submittedByName || 'User'} (${rawData.createdByEmail || rawData.submittedByEmail || 'N/A'}) on ${now}. Awaiting verification.`,
+      isUserSubmitted: true,
+      submittedAt: rawData.submittedAt || now,
+      createdAt: rawData.createdAt || now,
+      updatedAt: now,
+      views: 0,
+      saves: 0
+    };
+    delete (sanitizedSubmission as any).image;
+    delete (sanitizedSubmission as any).coverImage;
+
+    // Save to disk CMS submission storage
+    saveServerSubmittedResource(sanitizedSubmission);
+
+    if (adminDb && isInitialized) {
+      try {
+        await adminDb.collection('resources').doc(id).set(sanitizedSubmission, { merge: true });
+      } catch (e: any) {
+        console.warn('Could not persist resource submission to Firestore Admin:', e.message);
+      }
+    }
+
+    console.info(`[CMS Submission] Received resource "${title}" (ID: ${id}) with image: ${imageUrl || 'none'}`);
+
+    return res.status(200).json({
+      success: true,
+      submission: sanitizedSubmission,
+      message: 'Your resource has been successfully submitted for editorial review.'
+    });
+  } catch (err: any) {
+    console.error('[Resource Submission Error]', err);
+    return res.status(500).json({ success: false, error: err.message || 'Could not process submission.' });
+  }
 });
 
 // Admin Review & Moderation Endpoint (Strictly Admin/Editor Custom Claims Required)
@@ -709,6 +1110,31 @@ app.post('/api/submissions/review', verifyAdminAuth, async (req, res) => {
     lastEditedByName: user.name || 'Administrator',
     ...(isApproved ? { publishedAt: now, publishedByEmail: user.email, verificationStatus: 'verified' } : {})
   };
+
+  // Sync to disk storage maps
+  if (type === 'opportunity') {
+    const existing = serverSubmittedOppsMap.get(id);
+    if (existing) {
+      const merged = { ...existing, ...updatePayload };
+      if (isApproved) {
+        saveServerPublishedOpportunity(merged);
+        deleteServerSubmittedOpportunity(id);
+      } else {
+        saveServerSubmittedOpportunity(merged);
+      }
+    }
+  } else {
+    const existing = serverSubmittedResourcesMap.get(id);
+    if (existing) {
+      const merged = { ...existing, ...updatePayload };
+      if (isApproved) {
+        saveServerPublishedResource(merged);
+        deleteServerSubmittedResource(id);
+      } else {
+        saveServerSubmittedResource(merged);
+      }
+    }
+  }
 
   if (adminDb && isInitialized) {
     try {
@@ -756,6 +1182,7 @@ app.post('/api/opportunities', verifyAdminAuth, async (req, res) => {
 app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
   const { id } = req.params;
   deleteServerPublishedOpportunity(id);
+  deleteServerSubmittedOpportunity(id);
   if (adminDb && isInitialized) {
     try {
       await adminDb.collection('opportunities').doc(id).delete();
@@ -771,40 +1198,49 @@ app.delete('/api/opportunities/:id', verifyAdminAuth, async (req, res) => {
 app.get('/api/resources', async (req, res) => {
   const includeUnpublished = req.query.includeUnpublished === 'true';
 
+  let firestoreItems: any[] = [];
   if (adminDb && isInitialized) {
     try {
       const snapshot = await adminDb.collection('resources').get();
       if (!snapshot.empty) {
-        let items = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-        const merged = [...items];
-        for (const verified of VERIFIED_REAL_RESOURCES) {
-          const exists = merged.some(m => m.id === verified.id || m.slug === verified.slug);
-          if (!exists) {
-            merged.push(verified);
-          }
-        }
-        items = merged;
-        if (!includeUnpublished) {
-          items = items.filter((r: any) =>
-            (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
-            r.status !== 'pending' &&
-            r.status !== 'rejected' &&
-            r.submissionStatus !== 'pending' &&
-            r.submissionStatus !== 'rejected'
-          );
-        }
-        return res.json(items);
+        firestoreItems = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
       }
     } catch (e) {
       console.warn('Admin Firestore resources read error:', e);
     }
   }
 
-  let fallback = [...VERIFIED_REAL_RESOURCES];
-  if (!includeUnpublished) {
-    fallback = fallback.filter((r: any) => r.status === 'published' || (r.status as string) === 'approved');
+  const merged = [...firestoreItems];
+  for (const diskRes of serverPublishedResourcesMap.values()) {
+    if (!merged.some(m => m.id === diskRes.id || m.slug === diskRes.slug)) {
+      merged.push(diskRes);
+    }
   }
-  res.json(fallback);
+  if (includeUnpublished) {
+    for (const subRes of serverSubmittedResourcesMap.values()) {
+      if (!merged.some(m => m.id === subRes.id || m.slug === subRes.slug)) {
+        merged.push(subRes);
+      }
+    }
+  }
+  for (const verified of VERIFIED_REAL_RESOURCES) {
+    const exists = merged.some(m => m.id === verified.id || m.slug === verified.slug);
+    if (!exists) {
+      merged.push(verified);
+    }
+  }
+
+  let items = merged;
+  if (!includeUnpublished) {
+    items = items.filter((r: any) =>
+      (r.status === 'published' || r.status === 'approved' || r.submissionStatus === 'approved') &&
+      r.status !== 'pending' &&
+      r.status !== 'rejected' &&
+      r.submissionStatus !== 'pending' &&
+      r.submissionStatus !== 'rejected'
+    );
+  }
+  return res.json(items);
 });
 
 // Save/Update resource (Admin only)
@@ -823,6 +1259,8 @@ app.post('/api/resources', verifyAdminAuth, async (req, res) => {
   }
   delete item.image;
   delete item.coverImage;
+
+  saveServerPublishedResource(item);
 
   if (adminDb && isInitialized) {
     try {

@@ -2,7 +2,7 @@ import { Opportunity, OpportunityStatus, VerificationStatus } from '../types/dat
 import { db, isFirebaseConfigured } from './firebase';
 import { sanitizeForFirestore } from './firebase/firestoreService';
 import { auth } from './firebase/authService';
-import { FirebaseStorageService } from './firebase/storageService';
+import { FirebaseStorageService, validateImageFile } from './firebase/storageService';
 import { AuditService } from './auditService';
 import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
@@ -762,12 +762,14 @@ export const OpportunitiesService = {
   },
 
   /**
-   * Submits a new opportunity from an authenticated community member for review.
-   * Saved strictly with status: 'pending' and does NOT appear on public website until approved.
+   * Submits a new opportunity from an authenticated community member directly to the CMS endpoint.
+   * Transmits form fields and optional image payload directly without intermediate Firebase Storage uploads.
+   * Saved strictly with status: 'pending' and does NOT appear on public website until approved by admin.
    */
   async submitUserOpportunity(
     data: Partial<Opportunity>,
-    user: { uid: string; email: string; name: string }
+    user: { uid: string; email: string; name: string },
+    imageFile?: File | null
   ): Promise<Opportunity> {
     if (!data.title?.trim()) {
       throw new Error('Opportunity title is required.');
@@ -775,110 +777,121 @@ export const OpportunitiesService = {
     if (!data.category?.trim()) {
       throw new Error('Opportunity category is required.');
     }
-    if (!data.description?.trim()) {
-      throw new Error('Description is required.');
+    if (!data.description?.trim() || data.description.trim().length < 25) {
+      throw new Error('Please provide an informative description of at least 25 characters.');
     }
-    if (!data.applicationUrl?.trim()) {
-      throw new Error('Application link is required.');
+    if (!data.applicationUrl?.trim() || !data.applicationUrl.trim().startsWith('http')) {
+      throw new Error('Application link must start with http:// or https://');
     }
 
-    const id = 'opp_sub_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-    const now = new Date().toISOString();
-    const rawSlug = (data.title || 'opportunity')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    const slug = `${rawSlug}-${id.substring(8, 14)}`;
-
-    const submission: Opportunity = {
-      id,
-      slug: data.slug || slug,
-      title: data.title.trim(),
-      description: data.description.trim(),
-      organizationId: data.organizationId || user.uid,
-      organizationName: data.organizationName?.trim() || 'Community Partner',
-      organizationLogo: data.organizationLogo,
-      category: data.category || 'Scholarships',
-      subcategory: data.subcategory || '',
-      opportunityType: data.opportunityType || 'Full-time',
-      location: data.location?.trim() || 'Ghana / Remote',
-      country: data.country?.trim() || 'Ghana',
-      region: data.region?.trim() || 'All Ghana',
-      educationLevel: data.educationLevel || 'Undergraduate',
-      fieldOfStudy: data.fieldOfStudy || 'All Fields',
-      experienceLevel: data.experienceLevel || 'Entry Level',
-      ageRequirement: data.ageRequirement || '',
-      nationality: data.nationality || 'Ghanaian citizens',
-      fundingType: data.fundingType || 'Fully Funded',
-      funding: data.funding || '',
-      tuition: data.tuition || '',
-      accommodation: data.accommodation || '',
-      stipend: data.stipend || '',
-      travel: data.travel || '',
-      otherBenefits: data.otherBenefits || '',
-      benefits: Array.isArray(data.benefits) ? data.benefits : (data.benefits ? [data.benefits] : []),
-      requirements: Array.isArray(data.requirements) ? data.requirements : (data.requirements ? [data.requirements] : []),
-      documentsRequired: Array.isArray(data.documentsRequired) ? data.documentsRequired : [],
-      applicationUrl: data.applicationUrl.trim(),
-      officialApplicationUrl: data.officialApplicationUrl?.trim() || data.applicationUrl.trim(),
-      applicationMethod: data.applicationMethod || 'online_form',
-      applicationInstructions: data.applicationInstructions || '',
-      deadline: data.deadline || '',
-      openingDate: data.openingDate || '',
-      studyLevel: data.studyLevel || data.educationLevel || '',
-      fundingDetails: data.fundingDetails || '',
-      imageUrl: data.imageUrl,
-      imagePath: data.imagePath,
-      sourceName: data.sourceName || data.organizationName || 'User Contribution',
-      sourceUrl: data.sourceUrl?.trim() || data.applicationUrl.trim(),
-
-      // Strict moderation workflow
-      status: 'pending',
-      submissionStatus: 'pending',
-      verificationStatus: 'needs_verification',
-      verificationNotes: `Submitted by user ${user.name} (${user.email}). Awaiting editorial review.`,
-
-      // User Submitter attribution
-      isUserSubmitted: true,
-      submittedBy: user.uid,
-      submittedByName: user.name || 'User',
-      submittedByEmail: user.email,
-      submittedAt: now,
-      contactEmail: data.contactEmail || user.email,
-      contactPhone: data.contactPhone || '',
-      contactInfo: data.contactInfo || '',
-
-      createdAt: now,
-      updatedAt: now,
-      views: 0,
-      saves: 0
-    };
-
-    const items = getStoredOpportunities();
-    items.unshift(submission);
-    saveStoredOpportunities(items);
-
-    if (isFirebaseConfigured && db) {
-      try {
-        const cleanData = sanitizeForFirestore(submission);
-        await setDoc(doc(db, 'opportunities', id), cleanData, { merge: true });
-      } catch (err: any) {
-        console.warn('Firestore submitUserOpportunity error:', err?.message || err);
+    if (imageFile) {
+      const val = validateImageFile(imageFile);
+      if (!val.valid) {
+        throw new Error(val.error || 'Invalid image file.');
       }
     }
 
-    // Mirror submission to server endpoint
+    // Direct CMS submission via FormData
+    const formData = new FormData();
+    formData.append('title', data.title.trim());
+    formData.append('organizationName', data.organizationName?.trim() || 'Community Partner');
+    formData.append('category', data.category);
+    if (data.subcategory) formData.append('subcategory', data.subcategory.trim());
+    if (data.opportunityType) formData.append('opportunityType', data.opportunityType);
+    if (data.location) formData.append('location', data.location.trim());
+    if (data.region) formData.append('region', data.region.trim());
+    if (data.country) formData.append('country', data.country.trim());
+    if (data.educationLevel) formData.append('educationLevel', data.educationLevel);
+    if (data.fieldOfStudy) formData.append('fieldOfStudy', data.fieldOfStudy.trim());
+    if (data.nationality) formData.append('nationality', data.nationality);
+    if (data.fundingType) formData.append('fundingType', data.fundingType);
+    if (data.tuition) formData.append('tuition', data.tuition.trim());
+    if (data.stipend) formData.append('stipend', data.stipend.trim());
+    if (data.accommodation) formData.append('accommodation', data.accommodation.trim());
+    if (data.description) formData.append('description', data.description.trim());
+    if (data.applicationUrl) formData.append('applicationUrl', data.applicationUrl.trim());
+    if (data.officialApplicationUrl) formData.append('officialApplicationUrl', data.officialApplicationUrl.trim());
+    if (data.sourceUrl) formData.append('sourceUrl', data.sourceUrl.trim());
+    if (data.deadline) formData.append('deadline', data.deadline);
+    if (data.applicationInstructions) formData.append('applicationInstructions', data.applicationInstructions.trim());
+    if (data.contactInfo) formData.append('contactInfo', data.contactInfo.trim());
+    if (data.contactEmail) formData.append('contactEmail', data.contactEmail.trim());
+
+    if (data.benefits) {
+      formData.append('benefits', JSON.stringify(Array.isArray(data.benefits) ? data.benefits : [data.benefits]));
+    }
+    if (data.requirements) {
+      formData.append('requirements', JSON.stringify(Array.isArray(data.requirements) ? data.requirements : [data.requirements]));
+    }
+    if (data.documentsRequired) {
+      formData.append('documentsRequired', JSON.stringify(data.documentsRequired));
+    }
+
+    formData.append('submittedBy', user.uid);
+    formData.append('submittedByName', user.name || 'User');
+    formData.append('submittedByEmail', user.email);
+
+    if (imageFile) {
+      formData.append('image', imageFile);
+    } else if (data.imageUrl) {
+      formData.append('imageUrl', data.imageUrl);
+      if (data.imagePath) formData.append('imagePath', data.imagePath);
+    }
+
+    let token: string | null = null;
     try {
-      fetch('/api/submissions/opportunity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submission)
-      }).catch(err => console.debug('[OpportunitiesService] Server submission mirror notice:', err));
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
+      }
     } catch {}
+
+    const res = await fetch('/api/submissions/opportunity', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      let errDetail = 'Failed to submit opportunity. Please check details and try again.';
+      try {
+        const body = await res.json();
+        if (body.error) errDetail = body.error;
+      } catch {}
+      throw new Error(errDetail);
+    }
+
+    const json = await res.json();
+    if (!json.success || !json.submission) {
+      throw new Error(json.error || 'Server did not confirm receipt of your submission.');
+    }
+
+    const submission: Opportunity = json.submission;
+
+    // Cache locally in client
+    const items = getStoredOpportunities();
+    const existingIdx = items.findIndex(i => i.id === submission.id);
+    if (existingIdx >= 0) {
+      items[existingIdx] = submission;
+    } else {
+      items.unshift(submission);
+    }
+    saveStoredOpportunities(items);
+
+    // Optional firestore sync if available (safe, non-blocking)
+    if (isFirebaseConfigured && db) {
+      try {
+        const cleanData = sanitizeForFirestore(submission);
+        await setDoc(doc(db, 'opportunities', submission.id), cleanData, { merge: true });
+      } catch (err: any) {
+        console.debug('Client firestore sync notice:', err?.message || err);
+      }
+    }
 
     AuditService.log({
       entityType: 'opportunity',
-      entityId: id,
+      entityId: submission.id,
       entityTitle: submission.title,
       action: 'created',
       performedByEmail: user.email,
