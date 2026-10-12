@@ -85,14 +85,18 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       }
       onNavigate('/');
     } catch (err: any) {
-      console.error(err);
-      let msg = err.message || 'Authentication error. Please try again.';
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+      let msg = err?.message || 'Authentication error. Please try again.';
+      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password' || err?.code === 'auth/user-not-found') {
         msg = 'Invalid email address or password. Please verify your credentials.';
-      } else if (err.code === 'auth/email-already-in-use') {
+        console.warn('[Opportunity Ghana] Auth credentials mismatch:', err?.code);
+      } else if (err?.code === 'auth/email-already-in-use') {
         msg = 'An account with this email address already exists. Please sign in instead.';
-      } else if (err.code === 'auth/weak-password') {
+        console.warn('[Opportunity Ghana] Auth email already registered:', err?.code);
+      } else if (err?.code === 'auth/weak-password') {
         msg = 'Password is too weak. Please use at least 6 characters with a combination of letters and numbers.';
+        console.warn('[Opportunity Ghana] Auth weak password:', err?.code);
+      } else {
+        console.error('[Opportunity Ghana] Auth submission error:', err);
       }
       setErrorMsg(msg);
     } finally {
@@ -108,11 +112,23 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       await loginWithGoogle();
       onNavigate('/');
     } catch (err: any) {
-      console.error(err);
-      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
-        setUnauthorizedDomain(currentHost || 'this-app-domain');
+      const isUnauthorizedDomain =
+        err?.code === 'auth/unauthorized-domain' ||
+        err?.message?.includes('unauthorized-domain');
+      const isPopupClosed =
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.message?.includes('popup-closed-by-user');
+
+      if (isUnauthorizedDomain) {
+        console.warn(
+          `[Opportunity Ghana] Firebase OAuth domain authorization required: The domain "${currentHost}" must be added to Authorized domains in Firebase Console (opportunity-ghana).`
+        );
+        setUnauthorizedDomain(currentHost || (typeof window !== 'undefined' ? window.location.hostname : 'this-app-domain'));
+      } else if (isPopupClosed) {
+        console.info('[Opportunity Ghana] Google sign-in popup dismissed by user.');
       } else {
-        setErrorMsg(err.message || 'Google sign-in could not be completed. Please try again.');
+        console.error('[Opportunity Ghana] Google sign-in error:', err);
+        setErrorMsg(err?.message || 'Google sign-in could not be completed. Please try again.');
       }
     } finally {
       setLoading(false);

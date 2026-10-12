@@ -23,7 +23,10 @@ import {
   generateActivepiecesFlowJson,
   executeActivepiecesAlertRun,
   generateNewApiKey,
+  generateNewApiKeyAsync,
   revokeCurrentApiKey,
+  revokeCurrentApiKeyAsync,
+  fetchActivepiecesConfigFromFirestore,
   PRODUCTION_ACTIVEPIECES_BASE_URL
 } from './server/activepiecesService.ts';
 
@@ -45,6 +48,14 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
+  }
+  next();
+});
+
+// Normalize incoming request path for Vercel Serverless Function rewrites
+app.use((req, res, next) => {
+  if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/@') && !req.url.startsWith('/src')) {
+    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
   }
   next();
 });
@@ -2425,13 +2436,19 @@ app.get('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
 });
 
 // POST /api/admin/activepieces/api-key/generate - Admin endpoint to generate a new cryptographically secure API key
-app.post('/api/admin/activepieces/api-key/generate', verifyAdminAuth, (req, res) => {
+app.post('/api/admin/activepieces/api-key/generate', verifyAdminAuth, async (req, res) => {
   try {
     const user = (req as any).user || {};
-    const result = generateNewApiKey({
-      name: user.name || 'Administrator',
-      email: user.email || 'admin@opportunityghana.com'
-    });
+    const authHeader = (req.headers.authorization || '') as string;
+    const adminToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+    const result = await generateNewApiKeyAsync(
+      {
+        name: user.name || 'Administrator',
+        email: user.email || 'admin@opportunityghana.com'
+      },
+      adminToken
+    );
 
     return res.json({
       success: true,
@@ -2451,18 +2468,24 @@ app.post('/api/admin/activepieces/api-key/generate', verifyAdminAuth, (req, res)
     });
   } catch (err: any) {
     console.error('[Activepieces Key Generate Error]', err);
-    return res.status(500).json({ success: false, error: 'Failed to generate Activepieces API key' });
+    return res.status(500).json({ success: false, error: err?.message || 'Failed to generate Activepieces API key' });
   }
 });
 
 // POST /api/admin/activepieces/api-key/revoke - Admin endpoint to revoke current API key
-app.post('/api/admin/activepieces/api-key/revoke', verifyAdminAuth, (req, res) => {
+app.post('/api/admin/activepieces/api-key/revoke', verifyAdminAuth, async (req, res) => {
   try {
     const user = (req as any).user || {};
-    const result = revokeCurrentApiKey({
-      name: user.name || 'Administrator',
-      email: user.email || 'admin@opportunityghana.com'
-    });
+    const authHeader = (req.headers.authorization || '') as string;
+    const adminToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+    const result = await revokeCurrentApiKeyAsync(
+      {
+        name: user.name || 'Administrator',
+        email: user.email || 'admin@opportunityghana.com'
+      },
+      adminToken
+    );
 
     if (!result.success) {
       return res.status(400).json({ success: false, error: result.error || 'Failed to revoke API key' });
@@ -2470,20 +2493,22 @@ app.post('/api/admin/activepieces/api-key/revoke', verifyAdminAuth, (req, res) =
 
     return res.json({
       success: true,
-      keyInfo: result.keyInfo ? {
-        status: result.keyInfo.status,
-        keyPrefix: result.keyInfo.keyPrefix,
-        keySuffix: result.keyInfo.keySuffix,
-        maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
-        createdAt: result.keyInfo.createdAt,
-        revokedAt: result.keyInfo.revokedAt,
-        lastUsedAt: result.keyInfo.lastUsedAt
-      } : undefined,
+      keyInfo: result.keyInfo
+        ? {
+            status: result.keyInfo.status,
+            keyPrefix: result.keyInfo.keyPrefix,
+            keySuffix: result.keyInfo.keySuffix,
+            maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
+            createdAt: result.keyInfo.createdAt,
+            revokedAt: result.keyInfo.revokedAt,
+            lastUsedAt: result.keyInfo.lastUsedAt
+          }
+        : undefined,
       message: 'Activepieces API key has been revoked. All incoming integration requests using this key will now be rejected.'
     });
   } catch (err: any) {
     console.error('[Activepieces Key Revoke Error]', err);
-    return res.status(500).json({ success: false, error: 'Failed to revoke Activepieces API key' });
+    return res.status(500).json({ success: false, error: err?.message || 'Failed to revoke Activepieces API key' });
   }
 });
 
@@ -3013,4 +3038,17 @@ async function setupVite() {
   });
 }
 
-setupVite();
+const isMainModule = Boolean(
+  process.argv[1] &&
+  (process.argv[1].endsWith('/server.ts') ||
+   process.argv[1].endsWith('server.ts') ||
+   process.argv[1].endsWith('/server.js') ||
+   process.argv[1].endsWith('server.js'))
+);
+
+if (isMainModule && !process.env.VERCEL) {
+  setupVite();
+}
+
+export { app };
+export default app;

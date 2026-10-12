@@ -69,6 +69,8 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
   const [showRevokeConfirmModal, setShowRevokeConfirmModal] = useState(false);
   const [showRotateConfirmModal, setShowRotateConfirmModal] = useState(false);
   const [copiedRawKey, setCopiedRawKey] = useState(false);
+  const [keyCardError, setKeyCardError] = useState<string | null>(null);
+  const [keyCardSuccess, setKeyCardSuccess] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -91,7 +93,7 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
         setFromName(res.config.fromName || 'Opportunity Ghana Daily Alerts');
       }
     } catch (err: any) {
-      console.error('Failed to load Activepieces config:', err);
+      console.warn('Failed to load Activepieces config:', err);
       setActionError(err.message || 'Could not load Activepieces configuration');
     } finally {
       setLoading(false);
@@ -106,18 +108,26 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
     setGeneratingKey(true);
     setActionError(null);
     setActionSuccess(null);
+    setKeyCardError(null);
+    setKeyCardSuccess(null);
     try {
       const res = await AlertSubscriptionsService.generateActivepiecesApiKey(getIdToken);
       if (res && res.success && res.apiKey) {
         setNewlyGeneratedApiKey(res.apiKey);
         setShowRotateConfirmModal(false);
-        setActionSuccess('Cryptographically secure API key generated! Please copy it now and update your Activepieces workflow.');
+        const successMsg = 'Cryptographically secure API key generated! Please copy it now and update your Activepieces workflow.';
+        setActionSuccess(successMsg);
+        setKeyCardSuccess('API key generated successfully and persisted to Cloud Firestore database! Copy your key above.');
         await loadData();
       } else {
-        setActionError(res.error || 'Failed to generate API key');
+        const errorMsg = res.error || 'Failed to generate API key';
+        setActionError(errorMsg);
+        setKeyCardError(errorMsg);
       }
     } catch (err: any) {
-      setActionError(err.message || 'Error generating API key');
+      const errorMsg = err.message || 'Error generating API key';
+      setActionError(errorMsg);
+      setKeyCardError(errorMsg);
     } finally {
       setGeneratingKey(false);
     }
@@ -127,18 +137,26 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
     setRevokingKey(true);
     setActionError(null);
     setActionSuccess(null);
+    setKeyCardError(null);
+    setKeyCardSuccess(null);
     try {
       const res = await AlertSubscriptionsService.revokeActivepiecesApiKey(getIdToken);
       if (res && res.success) {
         setShowRevokeConfirmModal(false);
         setNewlyGeneratedApiKey(null);
-        setActionSuccess('Activepieces API key has been revoked. All incoming integration requests using this key will now be rejected with HTTP 401.');
+        const successMsg = 'Activepieces API key has been revoked. All incoming integration requests using this key will now be rejected with HTTP 401.';
+        setActionSuccess(successMsg);
+        setKeyCardSuccess(successMsg);
         await loadData();
       } else {
-        setActionError(res.error || 'Failed to revoke API key');
+        const errorMsg = res.error || 'Failed to revoke API key';
+        setActionError(errorMsg);
+        setKeyCardError(errorMsg);
       }
     } catch (err: any) {
-      setActionError(err.message || 'Error revoking API key');
+      const errorMsg = err.message || 'Error revoking API key';
+      setActionError(errorMsg);
+      setKeyCardError(errorMsg);
     } finally {
       setRevokingKey(false);
     }
@@ -553,6 +571,20 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
             )}
           </div>
         </div>
+
+        {keyCardError && (
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-800 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <span>{keyCardError}</span>
+          </div>
+        )}
+
+        {keyCardSuccess && (
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{keyCardSuccess}</span>
+          </div>
+        )}
 
         {/* Key Display & Audit Details */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">

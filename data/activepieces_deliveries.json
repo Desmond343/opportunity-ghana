@@ -1,5 +1,209 @@
 [
   {
+    "id": "rep_1791847095641",
+    "runId": "ap_run_1791847095617_2b76e5ea",
+    "timestamp": "2026-10-12T23:18:15.618Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-clarendon-oxford-2027",
+          "opp-erasmus-mundus-2027",
+          "opp-stipendium-hungaricum-2027",
+          "opp-swedish-institute-2027",
+          "opp-master-mind-flanders-2027"
+        ],
+        "opportunitiesTitles": [
+          "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+          "Erasmus Mundus Joint Masters Scholarships (EMJM) 2027/2028",
+          "Stipendium Hungaricum Scholarship Programme 2027/2028 (Hungary)",
+          "Swedish Institute Scholarships for Global Professionals (SISGP) 2027/2028 (Sweden)",
+          "Government of Flanders Master Mind Scholarships 2027/2028 (Belgium)"
+        ],
+        "timestamp": "2026-10-12T23:18:15.618Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-clarendon-oxford-2027",
+          "opp-erasmus-mundus-2027",
+          "opp-stipendium-hungaricum-2027",
+          "opp-swedish-institute-2027",
+          "opp-master-mind-flanders-2027"
+        ],
+        "opportunitiesTitles": [
+          "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+          "Erasmus Mundus Joint Masters Scholarships (EMJM) 2027/2028",
+          "Stipendium Hungaricum Scholarship Programme 2027/2028 (Hungary)",
+          "Swedish Institute Scholarships for Global Professionals (SISGP) 2027/2028 (Sweden)",
+          "Government of Flanders Master Mind Scholarships 2027/2028 (Belgium)"
+        ],
+        "timestamp": "2026-10-12T23:18:15.618Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp_sub_1791752052687_i7byg",
+          "opp-chevening-uk-2027",
+          "opp-commonwealth-masters-2027"
+        ],
+        "opportunitiesTitles": [
+          "Ghana Climate Tech Innovation Fellowship 2026",
+          "Chevening Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth Master’s Scholarships 2027/2028 (United Kingdom)"
+        ],
+        "timestamp": "2026-10-12T23:18:15.618Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-clarendon-oxford-2027",
+          "opp-erasmus-mundus-2027",
+          "opp-stipendium-hungaricum-2027",
+          "opp-swedish-institute-2027",
+          "opp-master-mind-flanders-2027"
+        ],
+        "opportunitiesTitles": [
+          "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+          "Erasmus Mundus Joint Masters Scholarships (EMJM) 2027/2028",
+          "Stipendium Hungaricum Scholarship Programme 2027/2028 (Hungary)",
+          "Swedish Institute Scholarships for Global Professionals (SISGP) 2027/2028 (Sweden)",
+          "Government of Flanders Master Mind Scholarships 2027/2028 (Belgium)"
+        ],
+        "timestamp": "2026-10-12T23:18:15.618Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-commonwealth-phd-2027",
+          "opp-gates-cambridge-2027",
+          "opp-knight-hennessy-stanford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+          "Gates Cambridge Scholarships 2027/2028 (University of Cambridge)",
+          "Knight-Hennessy Scholars 2027 (Stanford University)"
+        ],
+        "timestamp": "2026-10-12T23:18:15.618Z"
+      }
+    ]
+  },
+  {
+    "id": "rep_1791847074317",
+    "runId": "ap_run_1791847074293_48e87f8e",
+    "timestamp": "2026-10-12T23:17:54.293Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-rhodes-west-africa-oxford-2027",
+          "opp-pau-african-union-2027",
+          "opp-mandela-rhodes-south-africa-2027",
+          "opp-world-bank-jjwbgsp-2027",
+          "opp-reach-oxford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Rhodes Scholarships for West Africa 2027/2028 (University of Oxford)",
+          "Pan African University (PAU) Scholarships 2027/2028 (African Union Commission)",
+          "Mandela Rhodes Scholarships 2027/2028 (South Africa)",
+          "Joint Japan/World Bank Graduate Scholarship Program (JJ/WBGSP) 2027/2028",
+          "Reach Oxford Scholarships 2027/2028 (University of Oxford)"
+        ],
+        "timestamp": "2026-10-12T23:17:54.293Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-rhodes-west-africa-oxford-2027",
+          "opp-pau-african-union-2027",
+          "opp-mandela-rhodes-south-africa-2027",
+          "opp-world-bank-jjwbgsp-2027",
+          "opp-reach-oxford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Rhodes Scholarships for West Africa 2027/2028 (University of Oxford)",
+          "Pan African University (PAU) Scholarships 2027/2028 (African Union Commission)",
+          "Mandela Rhodes Scholarships 2027/2028 (South Africa)",
+          "Joint Japan/World Bank Graduate Scholarship Program (JJ/WBGSP) 2027/2028",
+          "Reach Oxford Scholarships 2027/2028 (University of Oxford)"
+        ],
+        "timestamp": "2026-10-12T23:17:54.293Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-world-bank-pioneers-programme",
+          "intern-undp-ghana-communications-intern"
+        ],
+        "opportunitiesTitles": [
+          "World Bank Group Pioneers Internship Programme (West & Central Africa)",
+          "Communications & Youth Social Media Intern (UNDP / UNIC Accra)"
+        ],
+        "timestamp": "2026-10-12T23:17:54.293Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-rhodes-west-africa-oxford-2027",
+          "opp-pau-african-union-2027",
+          "opp-mandela-rhodes-south-africa-2027",
+          "opp-world-bank-jjwbgsp-2027",
+          "opp-reach-oxford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Rhodes Scholarships for West Africa 2027/2028 (University of Oxford)",
+          "Pan African University (PAU) Scholarships 2027/2028 (African Union Commission)",
+          "Mandela Rhodes Scholarships 2027/2028 (South Africa)",
+          "Joint Japan/World Bank Graduate Scholarship Program (JJ/WBGSP) 2027/2028",
+          "Reach Oxford Scholarships 2027/2028 (University of Oxford)"
+        ],
+        "timestamp": "2026-10-12T23:17:54.293Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp_sub_1791752052687_i7byg",
+          "opp-chevening-uk-2027",
+          "opp-commonwealth-masters-2027"
+        ],
+        "opportunitiesTitles": [
+          "Ghana Climate Tech Innovation Fellowship 2026",
+          "Chevening Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth Master’s Scholarships 2027/2028 (United Kingdom)"
+        ],
+        "timestamp": "2026-10-12T23:17:54.293Z"
+      }
+    ]
+  },
+  {
     "id": "rep_1791844009181",
     "runId": "ap_run_1791844009162_7aa5ae5e",
     "timestamp": "2026-10-12T22:26:49.162Z",

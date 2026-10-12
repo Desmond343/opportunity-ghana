@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
+import { adminDb } from './firebaseAdmin.ts';
 
 export const PRODUCTION_ACTIVEPIECES_BASE_URL = 'https://opportunityghana.site';
 
@@ -86,11 +87,172 @@ const DEFAULT_CONFIG: ActivepiecesConfig = {
   totalErrors: 0
 };
 
+// In-memory cache of Activepieces configuration for fast and serverless lookups
+let inMemoryConfig: ActivepiecesConfig | null = null;
+
+// Helpers to serialize and deserialize to Firestore REST format
+function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
+  const fields: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) continue;
+    if (value === null) {
+      fields[key] = { nullValue: null };
+    } else if (typeof value === 'string') {
+      fields[key] = { stringValue: value };
+    } else if (typeof value === 'number') {
+      fields[key] = Number.isInteger(value) ? { integerValue: String(value) } : { doubleValue: value };
+    } else if (typeof value === 'boolean') {
+      fields[key] = { booleanValue: value };
+    } else if (Array.isArray(value)) {
+      fields[key] = {
+        arrayValue: {
+          values: value.map((v) =>
+            typeof v === 'object' && v !== null ? { mapValue: { fields: toFirestoreFields(v) } } : { stringValue: String(v) }
+          )
+        }
+      };
+    } else if (typeof value === 'object') {
+      fields[key] = { mapValue: { fields: toFirestoreFields(value) } };
+    }
+  }
+  return fields;
+}
+
+function fromFirestoreFields(fields: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, valObj] of Object.entries(fields)) {
+    if ('stringValue' in valObj) result[key] = valObj.stringValue;
+    else if ('integerValue' in valObj) result[key] = parseInt(valObj.integerValue, 10);
+    else if ('doubleValue' in valObj) result[key] = valObj.doubleValue;
+    else if ('booleanValue' in valObj) result[key] = valObj.booleanValue;
+    else if ('nullValue' in valObj) result[key] = null;
+    else if ('mapValue' in valObj) result[key] = fromFirestoreFields(valObj.mapValue?.fields || {});
+    else if ('arrayValue' in valObj) {
+      result[key] = (valObj.arrayValue?.values || []).map((item: any) => {
+        if ('mapValue' in item) return fromFirestoreFields(item.mapValue?.fields || {});
+        if ('stringValue' in item) return item.stringValue;
+        return item;
+      });
+    }
+  }
+  return result;
+}
+
 /**
- * Loads current Activepieces configuration from disk or defaults.
+ * Persists Activepieces configuration to Cloud Firestore (with local file/memory backup).
+ * Never persists raw plaintext keys.
+ */
+export async function saveActivepiecesConfigToFirestore(
+  config: ActivepiecesConfig,
+  adminToken?: string
+): Promise<boolean> {
+  let persisted = false;
+
+  const cleanConfig = { ...config };
+  delete cleanConfig.apiKey; // Never store plaintext key in database
+
+  // 1. Try Firebase Admin SDK
+  if (adminDb) {
+    try {
+      await adminDb.collection('settings').doc('activepieces_config').set(cleanConfig, { merge: true });
+      persisted = true;
+      console.info('[Activepieces] Config successfully persisted to Cloud Firestore via adminDb.');
+    } catch (adminErr: any) {
+      console.warn('[Activepieces] adminDb Firestore write note:', adminErr?.message || adminErr);
+    }
+  }
+
+  // 2. Try Firestore REST API with administrator's Bearer token if adminDb failed or lacked service account
+  if (!persisted && adminToken) {
+    try {
+      const restUrl = `https://firestore.googleapis.com/v1/projects/opportunity-ghana/databases/(default)/documents/settings/activepieces_config`;
+      const resp = await fetch(restUrl, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ fields: toFirestoreFields(cleanConfig) })
+      });
+      if (resp.ok) {
+        persisted = true;
+        console.info('[Activepieces] Config successfully persisted to Cloud Firestore via REST with admin token.');
+      } else {
+        const errText = await resp.text().catch(() => '');
+        console.warn(`[Activepieces] Firestore REST save failed (${resp.status}):`, errText);
+      }
+    } catch (restErr: any) {
+      console.warn('[Activepieces] Firestore REST save note:', restErr?.message || restErr);
+    }
+  }
+
+  // 3. Fallback: Save to local filesystem if writable
+  try {
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(cleanConfig, null, 2), 'utf8');
+    persisted = true;
+  } catch (fsErr) {
+    // Expected on serverless environments with read-only filesystems
+  }
+
+  inMemoryConfig = cleanConfig;
+  return persisted;
+}
+
+/**
+ * Loads current Activepieces configuration from Firestore or disk/defaults.
+ */
+export async function fetchActivepiecesConfigFromFirestore(adminToken?: string): Promise<ActivepiecesConfig> {
+  // 1. Try adminDb
+  if (adminDb) {
+    try {
+      const docSnap = await adminDb.collection('settings').doc('activepieces_config').get();
+      if (docSnap.exists) {
+        const data = docSnap.data() as any;
+        const merged: ActivepiecesConfig = { ...DEFAULT_CONFIG, ...data };
+        delete merged.apiKey;
+        inMemoryConfig = merged;
+        return merged;
+      }
+    } catch (err: any) {
+      console.debug('[Activepieces] adminDb config fetch note:', err?.message || err);
+    }
+  }
+
+  // 2. Try Firestore REST API
+  if (adminToken) {
+    try {
+      const restUrl = `https://firestore.googleapis.com/v1/projects/opportunity-ghana/databases/(default)/documents/settings/activepieces_config`;
+      const resp = await fetch(restUrl, {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (resp.ok) {
+        const data = (await resp.json()) as any;
+        if (data.fields) {
+          const parsed = fromFirestoreFields(data.fields);
+          const merged: ActivepiecesConfig = { ...DEFAULT_CONFIG, ...parsed };
+          delete merged.apiKey;
+          inMemoryConfig = merged;
+          return merged;
+        }
+      }
+    } catch (err: any) {
+      console.debug('[Activepieces] REST config fetch note:', err?.message || err);
+    }
+  }
+
+  // 3. Fallback to local file / memory
+  return getActivepiecesConfig();
+}
+
+/**
+ * Loads current Activepieces configuration from memory, disk, or defaults.
  * Automatically performs secure one-way migration for legacy plaintext keys.
  */
 export function getActivepiecesConfig(): ActivepiecesConfig {
+  if (inMemoryConfig) {
+    return inMemoryConfig;
+  }
+
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const raw = fs.readFileSync(CONFIG_FILE, 'utf8');
@@ -125,6 +287,7 @@ export function getActivepiecesConfig(): ActivepiecesConfig {
         }
       }
 
+      inMemoryConfig = merged;
       return merged;
     }
   } catch (err) {
@@ -134,22 +297,73 @@ export function getActivepiecesConfig(): ActivepiecesConfig {
 }
 
 /**
- * Generates a new cryptographically secure API key on the server.
+ * Generates a new cryptographically secure API key on the server (Async with Cloud Firestore persistence).
  * Returns the raw key ONLY once so the admin can copy it.
  * Only the SHA-256 hash and non-sensitive key metadata are stored.
  */
-export function generateNewApiKey(adminUser?: { name?: string; email?: string }): {
-  rawKey: string;
-  keyInfo: ActivepiecesApiKeyInfo;
-} {
+export async function generateNewApiKeyAsync(
+  adminUser?: { name?: string; email?: string },
+  adminToken?: string
+): Promise<{ rawKey: string; keyInfo: ActivepiecesApiKeyInfo }> {
+  // First load latest config (from Firestore if available, otherwise disk/memory)
+  const config = await fetchActivepiecesConfigFromFirestore(adminToken);
+
   // Generate 32 bytes of cryptographically secure random bytes = 64 hex characters
   const rawKey = `og_live_${crypto.randomBytes(32).toString('hex')}`;
   const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
   const now = new Date().toISOString();
 
   const keyInfo: ActivepiecesApiKeyInfo = {
-    keyPrefix: rawKey.slice(0, 12), // e.g. "og_live_a1b2"
-    keySuffix: rawKey.slice(-4),    // e.g. "c3d4"
+    keyPrefix: rawKey.slice(0, 12),
+    keySuffix: rawKey.slice(-4),
+    keyHash,
+    status: 'active',
+    createdAt: now,
+    revokedAt: null,
+    lastUsedAt: null,
+    createdByName: adminUser?.name || 'Administrator',
+    createdByEmail: adminUser?.email || 'admin@opportunityghana.com'
+  };
+
+  const previous = config.previousApiKeys ? [...config.previousApiKeys] : [];
+  if (config.currentApiKey) {
+    previous.unshift({
+      ...config.currentApiKey,
+      status: 'revoked',
+      revokedAt: now
+    });
+  }
+
+  const updatedConfig: ActivepiecesConfig = {
+    ...config,
+    currentApiKey: keyInfo,
+    previousApiKeys: previous.slice(0, 20),
+    apiKey: undefined
+  };
+
+  const persisted = await saveActivepiecesConfigToFirestore(updatedConfig, adminToken);
+  if (!persisted) {
+    throw new Error('Database persistence failure: Unable to write key to Firestore. Please check database permissions or service credentials.');
+  }
+
+  console.info(`[Activepieces] New integration API key successfully generated by ${keyInfo.createdByEmail} (Prefix: ${keyInfo.keyPrefix}...)`);
+  return { rawKey, keyInfo };
+}
+
+/**
+ * Synchronous version for backwards compatibility with tests and local scripts.
+ */
+export function generateNewApiKey(adminUser?: { name?: string; email?: string }): {
+  rawKey: string;
+  keyInfo: ActivepiecesApiKeyInfo;
+} {
+  const rawKey = `og_live_${crypto.randomBytes(32).toString('hex')}`;
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const now = new Date().toISOString();
+
+  const keyInfo: ActivepiecesApiKeyInfo = {
+    keyPrefix: rawKey.slice(0, 12),
+    keySuffix: rawKey.slice(-4),
     keyHash,
     status: 'active',
     createdAt: now,
@@ -162,7 +376,6 @@ export function generateNewApiKey(adminUser?: { name?: string; email?: string })
   const config = getActivepiecesConfig();
   const previous = config.previousApiKeys ? [...config.previousApiKeys] : [];
 
-  // Key Rotation: If an active key existed, automatically revoke it and record in history
   if (config.currentApiKey) {
     previous.unshift({
       ...config.currentApiKey,
@@ -182,7 +395,45 @@ export function generateNewApiKey(adminUser?: { name?: string; email?: string })
 }
 
 /**
- * Revokes the currently active API key immediately.
+ * Revokes the currently active API key immediately (Async with Cloud Firestore persistence).
+ */
+export async function revokeCurrentApiKeyAsync(
+  adminUser?: { name?: string; email?: string },
+  adminToken?: string
+): Promise<{ success: boolean; keyInfo?: ActivepiecesApiKeyInfo; error?: string }> {
+  const config = await fetchActivepiecesConfigFromFirestore(adminToken);
+  if (!config.currentApiKey || config.currentApiKey.status === 'revoked') {
+    return { success: false, error: 'No active API key to revoke' };
+  }
+
+  const now = new Date().toISOString();
+  const revokedKeyInfo: ActivepiecesApiKeyInfo = {
+    ...config.currentApiKey,
+    status: 'revoked',
+    revokedAt: now
+  };
+
+  const previous = config.previousApiKeys ? [...config.previousApiKeys] : [];
+  previous.unshift(revokedKeyInfo);
+
+  const updatedConfig: ActivepiecesConfig = {
+    ...config,
+    currentApiKey: revokedKeyInfo,
+    previousApiKeys: previous.slice(0, 20),
+    apiKey: undefined
+  };
+
+  const persisted = await saveActivepiecesConfigToFirestore(updatedConfig, adminToken);
+  if (!persisted) {
+    return { success: false, error: 'Database persistence failure: Unable to update key revocation status in database.' };
+  }
+
+  console.info(`[Activepieces] API key revoked by ${adminUser?.email || 'Administrator'} (Prefix: ${revokedKeyInfo.keyPrefix}...)`);
+  return { success: true, keyInfo: revokedKeyInfo };
+}
+
+/**
+ * Synchronous revoke version for backwards compatibility with tests.
  */
 export function revokeCurrentApiKey(adminUser?: { name?: string; email?: string }): {
   success: boolean;
@@ -311,10 +562,17 @@ export function saveActivepiecesConfig(updates: Partial<ActivepiecesConfig>): Ac
   // Never store plaintext apiKey
   delete nextConfig.apiKey;
 
+  inMemoryConfig = nextConfig;
+
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(nextConfig, null, 2), 'utf8');
   } catch (err) {
-    console.warn('[Activepieces] Error writing config to disk:', err);
+    // Non-blocking in serverless environments
+  }
+
+  // Sync to Firestore in background if adminDb is available
+  if (adminDb) {
+    adminDb.collection('settings').doc('activepieces_config').set(nextConfig, { merge: true }).catch(() => {});
   }
 
   return nextConfig;

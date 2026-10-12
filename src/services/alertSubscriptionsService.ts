@@ -525,7 +525,7 @@ export const AlertSubscriptionsService = {
    * Generates a new cryptographically secure Activepieces API key.
    * Returns the raw key ONLY once for immediate copying.
    */
-  async generateActivepiecesApiKey(tokenGetter?: () => Promise<string | null>): Promise<{
+  async generateActivepiecesApiKey(tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>): Promise<{
     success: boolean;
     apiKey?: string;
     keyInfo?: any;
@@ -535,27 +535,52 @@ export const AlertSubscriptionsService = {
     let token: string | null = null;
     if (tokenGetter) {
       try {
-        token = await tokenGetter();
-      } catch {}
+        token = await tokenGetter(true);
+      } catch (err: any) {
+        console.warn('[AlertSubscriptionsService] Error obtaining fresh ID token:', err);
+      }
     }
+
+    if (!token) {
+      throw new Error('Administrator authentication is required. Please ensure you are signed in with an authorized administrator account.');
+    }
+
     const res = await fetch('/api/admin/activepieces/api-key/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
+        Authorization: `Bearer ${token}`
       }
     });
+
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to generate API key');
+      let errorMsg = '';
+      try {
+        const errJson = await res.json();
+        errorMsg = errJson.error || errJson.message || '';
+      } catch {
+        const text = await res.text().catch(() => '');
+        errorMsg = text.slice(0, 150);
+      }
+
+      if (res.status === 404) {
+        throw new Error(
+          'API route /api/admin/activepieces/api-key/generate returned 404 (Not Found). The backend serverless functions need to be deployed to Vercel.'
+        );
+      }
+      if (res.status === 401 || res.status === 403) {
+        throw new Error(errorMsg || 'Unauthorized: Administrator privileges are required to generate an Activepieces API key.');
+      }
+      throw new Error(errorMsg || `Failed to generate API key (HTTP ${res.status})`);
     }
+
     return res.json();
   },
 
   /**
    * Revokes the active Activepieces API key immediately.
    */
-  async revokeActivepiecesApiKey(tokenGetter?: () => Promise<string | null>): Promise<{
+  async revokeActivepiecesApiKey(tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>): Promise<{
     success: boolean;
     keyInfo?: any;
     message?: string;
@@ -564,20 +589,45 @@ export const AlertSubscriptionsService = {
     let token: string | null = null;
     if (tokenGetter) {
       try {
-        token = await tokenGetter();
-      } catch {}
+        token = await tokenGetter(true);
+      } catch (err: any) {
+        console.warn('[AlertSubscriptionsService] Error obtaining fresh ID token:', err);
+      }
     }
+
+    if (!token) {
+      throw new Error('Administrator authentication is required. Please ensure you are signed in with an authorized administrator account.');
+    }
+
     const res = await fetch('/api/admin/activepieces/api-key/revoke', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
+        Authorization: `Bearer ${token}`
       }
     });
+
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to revoke API key');
+      let errorMsg = '';
+      try {
+        const errJson = await res.json();
+        errorMsg = errJson.error || errJson.message || '';
+      } catch {
+        const text = await res.text().catch(() => '');
+        errorMsg = text.slice(0, 150);
+      }
+
+      if (res.status === 404) {
+        throw new Error(
+          'API route /api/admin/activepieces/api-key/revoke returned 404 (Not Found). The backend serverless functions need to be deployed to Vercel.'
+        );
+      }
+      if (res.status === 401 || res.status === 403) {
+        throw new Error(errorMsg || 'Unauthorized: Administrator privileges are required to revoke Activepieces API keys.');
+      }
+      throw new Error(errorMsg || `Failed to revoke API key (HTTP ${res.status})`);
     }
+
     return res.json();
   },
 

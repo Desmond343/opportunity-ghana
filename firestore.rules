@@ -156,5 +156,10 @@ service cloud.firestore {
       allow read: if (resource.data.status == 'published') || isAdminOrEditor();
       allow write: if isAdminOrEditor();
     }
+
+    // 15. System Settings and Automation Config: Admin only
+    match /settings/{docId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

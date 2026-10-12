@@ -18,12 +18,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
-    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
-    "alertsCount": 5,
+    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
+    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+    "alertsCount": 7,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.278Z",
-    "updatedAt": "2026-10-12T22:26:49.162Z",
+    "updatedAt": "2026-10-12T23:18:15.618Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -44,7 +44,17 @@
       "opp-knust-mastercard-foundation-2027",
       "opp-ashesi-mcf-scholarships-2027",
       "opp-fulbright-ghana-2027",
-      "opp-daad-epos-germany-2027"
+      "opp-daad-epos-germany-2027",
+      "opp-rhodes-west-africa-oxford-2027",
+      "opp-pau-african-union-2027",
+      "opp-mandela-rhodes-south-africa-2027",
+      "opp-world-bank-jjwbgsp-2027",
+      "opp-reach-oxford-2027",
+      "opp-clarendon-oxford-2027",
+      "opp-erasmus-mundus-2027",
+      "opp-stipendium-hungaricum-2027",
+      "opp-swedish-institute-2027",
+      "opp-master-mind-flanders-2027"
     ]
   },
   {
@@ -63,12 +73,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
-    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
-    "alertsCount": 5,
+    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
+    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+    "alertsCount": 7,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.303Z",
-    "updatedAt": "2026-10-12T22:26:49.162Z",
+    "updatedAt": "2026-10-12T23:18:15.618Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -89,7 +99,17 @@
       "opp-knust-mastercard-foundation-2027",
       "opp-ashesi-mcf-scholarships-2027",
       "opp-fulbright-ghana-2027",
-      "opp-daad-epos-germany-2027"
+      "opp-daad-epos-germany-2027",
+      "opp-rhodes-west-africa-oxford-2027",
+      "opp-pau-african-union-2027",
+      "opp-mandela-rhodes-south-africa-2027",
+      "opp-world-bank-jjwbgsp-2027",
+      "opp-reach-oxford-2027",
+      "opp-clarendon-oxford-2027",
+      "opp-erasmus-mundus-2027",
+      "opp-stipendium-hungaricum-2027",
+      "opp-swedish-institute-2027",
+      "opp-master-mind-flanders-2027"
     ]
   },
   {
@@ -108,12 +128,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
-    "lastAlertTitle": "Deloitte Ghana Graduate Experience Programme (Audit, Tax & Consulting)",
-    "alertsCount": 5,
+    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
+    "lastAlertTitle": "Ghana Climate Tech Innovation Fellowship 2026",
+    "alertsCount": 7,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
-    "updatedAt": "2026-10-12T22:26:49.162Z",
+    "updatedAt": "2026-10-12T23:18:15.618Z",
     "sentOpportunityIds": [
       "intern-afdb-session1-2027",
       "intern-google-swe-accra",
@@ -134,7 +154,12 @@
       "intern-ecobank-junior-bankers-nss",
       "intern-guinness-ghana-nss-programme",
       "intern-newmont-graduate-development-programme",
-      "intern-goldfields-graduate-engineering-trainee"
+      "intern-goldfields-graduate-engineering-trainee",
+      "intern-world-bank-pioneers-programme",
+      "intern-undp-ghana-communications-intern",
+      "opp_sub_1791752052687_i7byg",
+      "opp-chevening-uk-2027",
+      "opp-commonwealth-masters-2027"
     ]
   },
   {
@@ -156,12 +181,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
-    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
-    "alertsCount": 4,
+    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
+    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
+    "alertsCount": 6,
     "unsubscribedAt": null,
     "createdAt": "2026-10-10T18:32:10.774Z",
-    "updatedAt": "2026-10-12T22:26:49.162Z",
+    "updatedAt": "2026-10-12T23:18:15.618Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -182,7 +207,17 @@
       "opp-knust-mastercard-foundation-2027",
       "opp-ashesi-mcf-scholarships-2027",
       "opp-fulbright-ghana-2027",
-      "opp-daad-epos-germany-2027"
+      "opp-daad-epos-germany-2027",
+      "opp-rhodes-west-africa-oxford-2027",
+      "opp-pau-african-union-2027",
+      "opp-mandela-rhodes-south-africa-2027",
+      "opp-world-bank-jjwbgsp-2027",
+      "opp-reach-oxford-2027",
+      "opp-clarendon-oxford-2027",
+      "opp-erasmus-mundus-2027",
+      "opp-stipendium-hungaricum-2027",
+      "opp-swedish-institute-2027",
+      "opp-master-mind-flanders-2027"
     ]
   },
   {
@@ -201,12 +236,12 @@
     "status": "active",
     "active": true,
     "source": "Activepieces Integration Test",
-    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
-    "lastAlertTitle": "Communications & Youth Social Media Intern (UNDP / UNIC Accra)",
-    "alertsCount": 4,
+    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
+    "lastAlertTitle": "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+    "alertsCount": 6,
     "unsubscribedAt": null,
     "createdAt": "2026-10-12T15:48:19.627Z",
-    "updatedAt": "2026-10-12T22:26:49.162Z",
+    "updatedAt": "2026-10-12T23:18:15.618Z",
     "sentOpportunityIds": [
       "job-telecel-solutions-architect",
       "job-calbank-network-security-engineer",
@@ -224,7 +259,13 @@
       "intern-deloitte-graduate-experience-programme",
       "intern-guinness-ghana-nss-programme",
       "intern-undp-ghana-communications-intern",
-      "comp-cyberx-ghana-ctf-championship"
+      "comp-cyberx-ghana-ctf-championship",
+      "opp_sub_1791752052687_i7byg",
+      "opp-chevening-uk-2027",
+      "opp-commonwealth-masters-2027",
+      "opp-commonwealth-phd-2027",
+      "opp-gates-cambridge-2027",
+      "opp-knight-hennessy-stanford-2027"
     ]
   }
 ]
