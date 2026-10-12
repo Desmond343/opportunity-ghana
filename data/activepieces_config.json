@@ -9,8 +9,8 @@
   "emailProvider": "activepieces_email",
   "fromEmail": "alerts@opportunityghana.com",
   "fromName": "Opportunity Ghana Daily Alerts",
-  "lastRunAt": "2026-10-12T15:48:37.962Z",
+  "lastRunAt": "2026-10-12T20:52:16.885Z",
   "lastRunStatus": "success",
-  "totalDelivered": 5,
+  "totalDelivered": 10,
   "totalErrors": 0
 }

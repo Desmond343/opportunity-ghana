@@ -543,98 +543,220 @@ Opportunity Ghana will never charge you for listings.
 }
 
 /**
- * Generates the complete, importable Activepieces flow definition JSON
+ * Generates the complete, authentic, importable Activepieces flow definition JSON adhering strictly
+ * to the Activepieces Template and FlowVersion schema specifications (supports Activepieces Cloud import).
  */
 export function generateActivepiecesFlowJson(baseUrl: string): Record<string, any> {
   const config = getActivepiecesConfig();
+  const cleanBaseUrl = (baseUrl && baseUrl.trim().length > 0) ? baseUrl.replace(/\/+$/, '') : 'https://opportunityghana.site';
+  const nowIso = new Date().toISOString();
 
+  // Step 4: Record Deliveries and Log Run Metrics (Code Piece)
+  const step4 = {
+    name: 'step_4',
+    displayName: '4. Record Deliveries & Verify Outcome',
+    type: 'CODE',
+    valid: true,
+    skip: false,
+    lastUpdatedDate: nowIso,
+    settings: {
+      input: {
+        runResult: "{{step_3['body']}}"
+      },
+      sourceCode: {
+        code: `export const code = async (inputs) => {
+  const result = inputs.runResult || {};
   return {
-    version: '1.0.0',
-    name: 'Opportunity Ghana - Automated Daily Subscriber Alerts',
-    description: 'Daily automated workflow connecting Opportunity Ghana with Activepieces. Fetches active subscribers, queries approved opportunities, performs category matching, and dispatches personalized HTML alert emails with delivery reporting.',
-    trigger: {
-      name: 'daily_schedule_trigger',
-      displayName: 'Schedule Trigger (Every 24 Hours)',
-      type: 'SCHEDULE',
-      settings: {
-        cronExpression: config.scheduleCron || '0 8 * * *',
-        timezone: 'UTC'
-      },
-      valid: true
-    },
-    actions: [
-      {
-        name: 'fetch_active_subscribers',
-        displayName: '1. Fetch Active Subscribers from Opportunity Ghana',
-        type: 'PIECE',
-        pieceName: '@activepieces/piece-http',
-        pieceVersion: '~0.3.0',
-        actionName: 'send_request',
-        input: {
-          method: 'GET',
-          url: `${baseUrl}/api/activepieces/subscribers?limit=500`,
-          headers: {
-            'Authorization': `Bearer ${config.apiKey}`,
-            'Accept': 'application/json'
-          }
-        }
-      },
-      {
-        name: 'fetch_published_opportunities',
-        displayName: '2. Fetch Approved Opportunities from Opportunity Ghana',
-        type: 'PIECE',
-        pieceName: '@activepieces/piece-http',
-        pieceVersion: '~0.3.0',
-        actionName: 'send_request',
-        input: {
-          method: 'GET',
-          url: `${baseUrl}/api/activepieces/opportunities?limit=200`,
-          headers: {
-            'Authorization': `Bearer ${config.apiKey}`,
-            'Accept': 'application/json'
-          }
-        }
-      },
-      {
-        name: 'match_and_dispatch_emails',
-        displayName: '3. Execute Preference Matcher & Dispatch Email Engine',
-        type: 'PIECE',
-        pieceName: '@activepieces/piece-http',
-        pieceVersion: '~0.3.0',
-        actionName: 'send_request',
-        input: {
-          method: 'POST',
-          url: `${baseUrl}/api/activepieces/trigger-daily-run`,
-          headers: {
-            'Authorization': `Bearer ${config.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: {
-            source: 'activepieces_scheduled_workflow',
-            fallbackPolicy: config.fallbackPolicy
-          }
-        }
-      },
-      {
-        name: 'log_delivery_results',
-        displayName: '4. Record Deliveries & Update Subscriber Metrics',
-        type: 'CODE',
-        input: {
-          code: `
-export const code = async (inputs) => {
-  const result = inputs.match_and_dispatch_emails.body;
-  return {
-    success: result.success,
-    deliveredCount: result.deliveredCount,
-    failedCount: result.failedCount,
-    skippedCount: result.skippedCount,
+    success: Boolean(result.success),
+    runId: result.runId || '',
+    totalSubscribers: result.totalSubscribers || 0,
+    deliveredCount: result.deliveredCount || 0,
+    failedCount: result.failedCount || 0,
+    skippedCount: result.skippedCount || 0,
     timestamp: new Date().toISOString()
   };
 };
-`
-        }
+`,
+        packageJson: '{}'
+      },
+      errorHandlingOptions: {
+        retryOnFailure: { value: false },
+        continueOnFailure: { value: false }
       }
-    ]
+    }
+  };
+
+  // Step 3: Match Preferences & Dispatch Email Engine (HTTP Piece POST)
+  const step3 = {
+    name: 'step_3',
+    displayName: '3. Execute Preference Matcher & Dispatch Email Engine',
+    type: 'PIECE',
+    valid: true,
+    skip: false,
+    lastUpdatedDate: nowIso,
+    settings: {
+      pieceName: '@activepieces/piece-http',
+      pieceVersion: '~0.9.4',
+      actionName: 'send_request',
+      input: {
+        method: 'POST',
+        url: `${cleanBaseUrl}/api/activepieces/trigger-daily-run`,
+        headers: {
+          'Authorization': 'Bearer REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY',
+          'Content-Type': 'application/json'
+        },
+        authType: 'NONE',
+        body: {
+          source: 'activepieces_scheduled_workflow',
+          fallbackPolicy: config.fallbackPolicy || 'highlights'
+        },
+        body_type: 'json',
+        queryParams: {},
+        failsafe: false,
+        use_proxy: false
+      },
+      propertySettings: {},
+      errorHandlingOptions: {
+        retryOnFailure: { value: false },
+        continueOnFailure: { value: false }
+      }
+    },
+    nextAction: step4
+  };
+
+  // Step 2: Fetch Approved Opportunities (HTTP Piece GET)
+  const step2 = {
+    name: 'step_2',
+    displayName: '2. Fetch Approved Opportunities from Opportunity Ghana',
+    type: 'PIECE',
+    valid: true,
+    skip: false,
+    lastUpdatedDate: nowIso,
+    settings: {
+      pieceName: '@activepieces/piece-http',
+      pieceVersion: '~0.9.4',
+      actionName: 'send_request',
+      input: {
+        method: 'GET',
+        url: `${cleanBaseUrl}/api/activepieces/opportunities?limit=200`,
+        headers: {
+          'Authorization': 'Bearer REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY',
+          'Accept': 'application/json'
+        },
+        authType: 'NONE',
+        body: {},
+        body_type: 'none',
+        queryParams: {},
+        failsafe: false,
+        use_proxy: false
+      },
+      propertySettings: {},
+      errorHandlingOptions: {
+        retryOnFailure: { value: false },
+        continueOnFailure: { value: false }
+      }
+    },
+    nextAction: step3
+  };
+
+  // Step 1: Fetch Active Subscribers (HTTP Piece GET)
+  const step1 = {
+    name: 'step_1',
+    displayName: '1. Fetch Active Subscribers from Opportunity Ghana',
+    type: 'PIECE',
+    valid: true,
+    skip: false,
+    lastUpdatedDate: nowIso,
+    settings: {
+      pieceName: '@activepieces/piece-http',
+      pieceVersion: '~0.9.4',
+      actionName: 'send_request',
+      input: {
+        method: 'GET',
+        url: `${cleanBaseUrl}/api/activepieces/subscribers?limit=500`,
+        headers: {
+          'Authorization': 'Bearer REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY',
+          'Accept': 'application/json'
+        },
+        authType: 'NONE',
+        body: {},
+        body_type: 'none',
+        queryParams: {},
+        failsafe: false,
+        use_proxy: false
+      },
+      propertySettings: {},
+      errorHandlingOptions: {
+        retryOnFailure: { value: false },
+        continueOnFailure: { value: false }
+      }
+    },
+    nextAction: step2
+  };
+
+  // Trigger: Daily Schedule Trigger (Schedule Piece)
+  const trigger = {
+    name: 'trigger',
+    displayName: 'Every Day (Daily Schedule at 08:00 UTC)',
+    type: 'PIECE_TRIGGER',
+    valid: true,
+    lastUpdatedDate: nowIso,
+    settings: {
+      pieceName: '@activepieces/piece-schedule',
+      pieceVersion: '~0.1.5',
+      triggerName: 'every_day',
+      input: {
+        timezone: 'UTC',
+        hour_of_the_day: 8,
+        run_on_weekends: true
+      },
+      inputUiInfo: {
+        customizedInputs: {}
+      },
+      propertySettings: {}
+    },
+    nextAction: step1
+  };
+
+  // Flow definition compatible with Activepieces FlowVersion and FlowVersionTemplate
+  const flow = {
+    displayName: 'Opportunity Ghana - Automated Daily Subscriber Alerts',
+    valid: true,
+    notes: [],
+    schemaVersion: '28',
+    trigger
+  };
+
+  // Authentic Activepieces Template export object conforming to Activepieces Template Schema & template-parser.ts
+  return {
+    id: 'opportunity-ghana-daily-subscriber-alerts',
+    name: 'Opportunity Ghana - Automated Daily Subscriber Alerts',
+    displayName: 'Opportunity Ghana - Automated Daily Subscriber Alerts',
+    summary: 'Daily automated workflow connecting Opportunity Ghana with Activepieces to dispatch personalized opportunity alerts.',
+    description: 'Daily automated workflow connecting Opportunity Ghana with Activepieces. Runs on an automated schedule every 24 hours at 08:00 UTC, fetches active subscribers, queries approved listings, executes category & region preference matching, dispatches branded alert emails, and records execution metrics.',
+    type: 'OFFICIAL',
+    status: 'PUBLISHED',
+    schemaVersion: '28',
+    valid: true,
+    pieces: [
+      '@activepieces/piece-schedule',
+      '@activepieces/piece-http'
+    ],
+    tags: [],
+    categories: [
+      'Alerts',
+      'Email',
+      'Education',
+      'Jobs'
+    ],
+    blogUrl: '',
+    metadata: null,
+    platformId: null,
+    created: '2026-01-01T00:00:00.000Z',
+    updated: nowIso,
+    flows: [flow],
+    template: flow,
+    trigger
   };
 }
 

@@ -1,5 +1,116 @@
 [
   {
+    "id": "rep_1791838336903",
+    "runId": "ap_run_1791838336885_c6650ed6",
+    "timestamp": "2026-10-12T20:52:16.885Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-government-of-ireland-postgrad-2027",
+          "opp-mandela-washington-fellowship-2027",
+          "opp-swiss-government-excellence-2027",
+          "opp-edinburgh-mastercard-foundation-2027",
+          "opp-eiffel-excellence-france-2027"
+        ],
+        "opportunitiesTitles": [
+          "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+          "Mandela Washington Fellowship for Young African Leaders 2027 (USA)",
+          "Swiss Government Excellence Scholarships 2027/2028 (Switzerland)",
+          "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
+          "Eiffel Excellence Scholarship Programme 2027/2028 (France)"
+        ],
+        "timestamp": "2026-10-12T20:52:16.885Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-government-of-ireland-postgrad-2027",
+          "opp-mandela-washington-fellowship-2027",
+          "opp-swiss-government-excellence-2027",
+          "opp-edinburgh-mastercard-foundation-2027",
+          "opp-eiffel-excellence-france-2027"
+        ],
+        "opportunitiesTitles": [
+          "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+          "Mandela Washington Fellowship for Young African Leaders 2027 (USA)",
+          "Swiss Government Excellence Scholarships 2027/2028 (Switzerland)",
+          "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
+          "Eiffel Excellence Scholarship Programme 2027/2028 (France)"
+        ],
+        "timestamp": "2026-10-12T20:52:16.885Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-giz-data-science-accra",
+          "intern-stanbic-graduate-trainee-accra",
+          "intern-absa-gen-a-graduate-programme",
+          "intern-nestle-graduate-trainee-accra",
+          "intern-farmerline-agritech-fellowship"
+        ],
+        "opportunitiesTitles": [
+          "Data Science & Digitalisation Intern (GIZ Country Office)",
+          "Stanbic Bank Ghana Graduate Trainee Programme",
+          "Absa Bank Ghana Gen A Graduate Programme (STEAM & Banking)",
+          "Nestlé Ghana Graduate Trainee Programme (Commercial, Finance & Supply Chain)",
+          "Farmerline Agritech & Field Operations Fellowship (Kumasi & Accra)"
+        ],
+        "timestamp": "2026-10-12T20:52:16.885Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-government-of-ireland-postgrad-2027",
+          "opp-mandela-washington-fellowship-2027",
+          "opp-swiss-government-excellence-2027",
+          "opp-edinburgh-mastercard-foundation-2027",
+          "opp-eiffel-excellence-france-2027"
+        ],
+        "opportunitiesTitles": [
+          "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+          "Mandela Washington Fellowship for Young African Leaders 2027 (USA)",
+          "Swiss Government Excellence Scholarships 2027/2028 (Switzerland)",
+          "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
+          "Eiffel Excellence Scholarship Programme 2027/2028 (France)"
+        ],
+        "timestamp": "2026-10-12T20:52:16.885Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-giz-data-science-accra",
+          "intern-stanbic-graduate-trainee-accra",
+          "intern-absa-gen-a-graduate-programme",
+          "intern-nestle-graduate-trainee-accra",
+          "intern-unicef-ghana-advocacy"
+        ],
+        "opportunitiesTitles": [
+          "Data Science & Digitalisation Intern (GIZ Country Office)",
+          "Stanbic Bank Ghana Graduate Trainee Programme",
+          "Absa Bank Ghana Gen A Graduate Programme (STEAM & Banking)",
+          "Nestlé Ghana Graduate Trainee Programme (Commercial, Finance & Supply Chain)",
+          "National Advocacy & Research Intern (UNICEF Ghana Country Office)"
+        ],
+        "timestamp": "2026-10-12T20:52:16.885Z"
+      }
+    ]
+  },
+  {
     "id": "rep_1791820117981",
     "runId": "ap_run_1791820117962_dcff3a21",
     "timestamp": "2026-10-12T15:48:37.962Z",

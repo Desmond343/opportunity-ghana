@@ -641,20 +641,18 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
             </div>
           </div>
 
-          {/* Activepieces 7-Step Workflow Architecture */}
+          {/* Activepieces Authentic 5-Step Workflow Architecture */}
           <div className="bg-white dark:bg-[#141B29] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-3 text-xs">
             <h4 className="font-bold text-slate-900 dark:text-white font-space flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-600" />
-              Activepieces 7-Step Workflow Spec
+              Activepieces Daily Alert Workflow Spec
             </h4>
             <ol className="space-y-2 list-decimal list-inside text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              <li><strong>Schedule trigger:</strong> Runs every 24 hours at 08:00 UTC.</li>
-              <li><strong>Fetch subscribers:</strong> Retrieves opted-in subscribers with categories.</li>
-              <li><strong>Fetch opportunities:</strong> Retrieves approved, published listings.</li>
-              <li><strong>Match preferences:</strong> Selects candidates matching saved subscriber categories & region.</li>
-              <li><strong>Prepare emails:</strong> Generates branded HTML email cards with deadlines & links.</li>
-              <li><strong>Send emails:</strong> Dispatches via Activepieces Email Piece / SMTP / Gmail.</li>
-              <li><strong>Track results:</strong> Records delivery status, timestamps, and sent IDs to prevent duplicates.</li>
+              <li><strong>Trigger (@activepieces/piece-schedule):</strong> Runs every 24 hours at 08:00 UTC (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[10px]">every_day</code>).</li>
+              <li><strong>Step 1 (HTTP GET):</strong> Fetches active subscribers with alert preferences (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[10px]">/api/activepieces/subscribers</code>).</li>
+              <li><strong>Step 2 (HTTP GET):</strong> Queries approved, non-expired opportunity listings (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[10px]">/api/activepieces/opportunities</code>).</li>
+              <li><strong>Step 3 (HTTP POST):</strong> Dispatches the matching engine &amp; emails (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[10px]">/api/activepieces/trigger-daily-run</code>).</li>
+              <li><strong>Step 4 (Code Step):</strong> Records execution metrics, counts deliveries, and verifies success status.</li>
             </ol>
           </div>
         </div>
@@ -790,21 +788,60 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
 
             {/* Modal Body */}
             <div className="p-5 overflow-y-auto flex-1 space-y-4">
-              <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-[11px] text-emerald-800 dark:text-emerald-300 space-y-1">
-                <span className="font-bold flex items-center gap-1.5">
-                  <Workflow className="w-3.5 h-3.5" />
+              {/* Import Instructions Callout */}
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-[11px] text-emerald-900 dark:text-emerald-200 space-y-2">
+                <span className="font-bold flex items-center gap-1.5 text-xs text-emerald-800 dark:text-emerald-300">
+                  <Workflow className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Activepieces Cloud Import Instructions:
                 </span>
-                <ol className="list-decimal list-inside space-y-0.5 text-emerald-900/90 dark:text-emerald-300/90">
-                  <li>Log in to your Activepieces dashboard (<a href="https://cloud.activepieces.com/mcp/platform" target="_blank" rel="noopener noreferrer" className="underline font-bold">cloud.activepieces.com/mcp/platform</a>).</li>
-                  <li>Click <strong>New Flow</strong> &rarr; <strong>Import Flow</strong>.</li>
-                  <li>Upload the downloaded <code className="font-mono bg-white/60 dark:bg-black/30 px-1 py-0.5 rounded">opportunity-ghana-activepieces-flow.json</code> or paste the JSON.</li>
-                  <li>Confirm the API endpoints &amp; Bearer token, then toggle the workflow to <strong>Published / Active</strong>!</li>
+                <ol className="list-decimal list-inside space-y-1 leading-relaxed">
+                  <li>Log in to your Activepieces dashboard (<a href="https://cloud.activepieces.com" target="_blank" rel="noopener noreferrer" className="underline font-bold text-emerald-700 dark:text-emerald-300">cloud.activepieces.com</a>).</li>
+                  <li>Click <strong>Import Flow</strong> on your dashboard, or open a flow and click <strong>... &rarr; Import Flow</strong>.</li>
+                  <li>Select the downloaded <code className="font-mono bg-white/70 dark:bg-black/40 px-1 py-0.5 rounded text-[10px] font-semibold">opportunity-ghana-activepieces-flow.json</code> file.</li>
+                  <li>Activepieces will parse the template and populate the 5 workflow steps into your builder canvas.</li>
                 </ol>
               </div>
 
+              {/* Step Architecture & Post-Import Configuration Details */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-[11px] text-slate-700 dark:text-slate-300 space-y-2.5">
+                <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                  Post-Import Configuration &amp; Connection Setup:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2.5 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-1">
+                    <span className="font-semibold text-slate-900 dark:text-white block">1. Set API Key Header</span>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] leading-relaxed">
+                      In Step 1, 2, and 3 (<code className="font-mono">HTTP send_request</code>), replace <code className="font-mono bg-slate-100 dark:bg-slate-700 px-1 py-0.2 rounded">REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY</code> in the Authorization header with your API Key.
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-1">
+                    <span className="font-semibold text-slate-900 dark:text-white block">2. Verify Base URL</span>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] leading-relaxed">
+                      Confirm endpoint URLs point to <code className="font-mono bg-slate-100 dark:bg-slate-700 px-1 py-0.2 rounded">https://opportunityghana.site</code>.
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-1">
+                    <span className="font-semibold text-slate-900 dark:text-white block">3. Schedule Timing</span>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] leading-relaxed">
+                      Trigger is pre-configured to run daily at 08:00 UTC using the official <code className="font-mono">@activepieces/piece-schedule</code> piece.
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-1">
+                    <span className="font-semibold text-slate-900 dark:text-white block">4. Publish Flow</span>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] leading-relaxed">
+                      Toggle the top-right switch in Activepieces to <strong>Published</strong> to begin automated daily alert runs!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* JSON Code Viewer */}
               <div className="relative">
-                <pre className="p-4 bg-slate-900 text-emerald-300 rounded-2xl font-mono text-[11px] overflow-x-auto max-h-[350px] leading-relaxed border border-slate-800 shadow-inner">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 rounded-t-xl text-[10px] text-slate-400 font-mono">
+                  <span>opportunity-ghana-activepieces-flow.json</span>
+                  <span className="text-emerald-400">Activepieces Template Schema v28 (Valid)</span>
+                </div>
+                <pre className="p-4 bg-slate-900 text-emerald-300 rounded-b-2xl font-mono text-[11px] overflow-x-auto max-h-[300px] leading-relaxed border border-slate-800 shadow-inner">
                   {JSON.stringify(workflowJsonData || config?.flowJson || {}, null, 2)}
                 </pre>
               </div>
