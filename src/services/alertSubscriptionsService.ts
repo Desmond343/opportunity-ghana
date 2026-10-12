@@ -463,5 +463,61 @@ export const AlertSubscriptionsService = {
       const filtered = existing.filter((s) => s.id !== id && s.email !== id);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered));
     } catch {}
+  },
+
+  /**
+   * Activepieces Automation platform API methods
+   */
+  async getActivepiecesConfig(tokenGetter?: () => Promise<string | null>) {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/config', {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) throw new Error('Failed to load Activepieces configuration');
+    return res.json();
+  },
+
+  async updateActivepiecesConfig(updates: Record<string, any>, tokenGetter?: () => Promise<string | null>) {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/config', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Failed to update Activepieces configuration');
+    return res.json();
+  },
+
+  async triggerActivepiecesTestRun(tokenGetter?: () => Promise<string | null>) {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/test-run', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) throw new Error('Failed to trigger Activepieces test execution');
+    return res.json();
   }
 };

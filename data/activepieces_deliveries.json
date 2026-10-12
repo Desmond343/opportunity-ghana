@@ -1,0 +1,113 @@
+[
+  {
+    "id": "rep_1791820117981",
+    "runId": "ap_run_1791820117962_dcff3a21",
+    "timestamp": "2026-10-12T15:48:37.962Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-chevening-uk-2027",
+          "opp-commonwealth-masters-2027",
+          "opp-commonwealth-phd-2027",
+          "opp-gates-cambridge-2027",
+          "opp-knight-hennessy-stanford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Chevening Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth Master’s Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+          "Gates Cambridge Scholarships 2027/2028 (University of Cambridge)",
+          "Knight-Hennessy Scholars 2027 (Stanford University)"
+        ],
+        "timestamp": "2026-10-12T15:48:37.962Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-chevening-uk-2027",
+          "opp-commonwealth-masters-2027",
+          "opp-commonwealth-phd-2027",
+          "opp-gates-cambridge-2027",
+          "opp-knight-hennessy-stanford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Chevening Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth Master’s Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+          "Gates Cambridge Scholarships 2027/2028 (University of Cambridge)",
+          "Knight-Hennessy Scholars 2027 (Stanford University)"
+        ],
+        "timestamp": "2026-10-12T15:48:37.962Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-afdb-session1-2027",
+          "intern-google-swe-accra",
+          "intern-mtn-global-graduate-programme",
+          "intern-imf-fund-internship-program-2027",
+          "intern-telecel-nextgen-graduate-programme"
+        ],
+        "opportunitiesTitles": [
+          "African Development Bank 2027 Internship Programme (Session 1)",
+          "Software Engineering Student Internship (Accra AI & Systems Lab)",
+          "MTN Ghana Global Graduate Trainee Programme (Rotational Leadership Track)",
+          "International Monetary Fund (IMF) Fund Internship Program (FIP 2027)",
+          "Telecel Ghana NextGen Graduate Programme (Commercial & Digital Streams)"
+        ],
+        "timestamp": "2026-10-12T15:48:37.962Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-chevening-uk-2027",
+          "opp-commonwealth-masters-2027",
+          "opp-commonwealth-phd-2027",
+          "opp-gates-cambridge-2027",
+          "opp-knight-hennessy-stanford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Chevening Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth Master’s Scholarships 2027/2028 (United Kingdom)",
+          "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+          "Gates Cambridge Scholarships 2027/2028 (University of Cambridge)",
+          "Knight-Hennessy Scholars 2027 (Stanford University)"
+        ],
+        "timestamp": "2026-10-12T15:48:37.962Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-telecel-solutions-architect",
+          "job-calbank-network-security-engineer",
+          "intern-google-swe-accra",
+          "intern-mtn-global-graduate-programme",
+          "intern-telecel-nextgen-graduate-programme"
+        ],
+        "opportunitiesTitles": [
+          "Digital Solutions Architect (Enterprise & Cloud)",
+          "Senior Network & Security Infrastructure Engineer",
+          "Software Engineering Student Internship (Accra AI & Systems Lab)",
+          "MTN Ghana Global Graduate Trainee Programme (Rotational Leadership Track)",
+          "Telecel Ghana NextGen Graduate Programme (Commercial & Digital Streams)"
+        ],
+        "timestamp": "2026-10-12T15:48:37.962Z"
+      }
+    ]
+  }
+]

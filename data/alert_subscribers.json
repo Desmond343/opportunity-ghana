@@ -18,12 +18,19 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
+    "lastAlertSentAt": "2026-10-12T15:48:37.962Z",
     "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
-    "alertsCount": 1,
+    "alertsCount": 2,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.278Z",
-    "updatedAt": "2026-10-07T17:45:27.349Z"
+    "updatedAt": "2026-10-12T15:48:37.962Z",
+    "sentOpportunityIds": [
+      "opp-chevening-uk-2027",
+      "opp-commonwealth-masters-2027",
+      "opp-commonwealth-phd-2027",
+      "opp-gates-cambridge-2027",
+      "opp-knight-hennessy-stanford-2027"
+    ]
   },
   {
     "id": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
@@ -41,12 +48,19 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
+    "lastAlertSentAt": "2026-10-12T15:48:37.962Z",
     "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
-    "alertsCount": 1,
+    "alertsCount": 2,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.303Z",
-    "updatedAt": "2026-10-07T17:45:27.349Z"
+    "updatedAt": "2026-10-12T15:48:37.962Z",
+    "sentOpportunityIds": [
+      "opp-chevening-uk-2027",
+      "opp-commonwealth-masters-2027",
+      "opp-commonwealth-phd-2027",
+      "opp-gates-cambridge-2027",
+      "opp-knight-hennessy-stanford-2027"
+    ]
   },
   {
     "id": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
@@ -64,12 +78,19 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-07T17:45:27.349Z",
-    "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
-    "alertsCount": 1,
+    "lastAlertSentAt": "2026-10-12T15:48:37.962Z",
+    "lastAlertTitle": "African Development Bank 2027 Internship Programme (Session 1)",
+    "alertsCount": 2,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
-    "updatedAt": "2026-10-07T17:45:27.349Z"
+    "updatedAt": "2026-10-12T15:48:37.962Z",
+    "sentOpportunityIds": [
+      "intern-afdb-session1-2027",
+      "intern-google-swe-accra",
+      "intern-mtn-global-graduate-programme",
+      "intern-imf-fund-internship-program-2027",
+      "intern-telecel-nextgen-graduate-programme"
+    ]
   },
   {
     "id": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
@@ -90,11 +111,48 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": null,
-    "lastAlertTitle": null,
-    "alertsCount": 0,
+    "lastAlertSentAt": "2026-10-12T15:48:37.962Z",
+    "lastAlertTitle": "Chevening Scholarships 2027/2028 (United Kingdom)",
+    "alertsCount": 1,
     "unsubscribedAt": null,
     "createdAt": "2026-10-10T18:32:10.774Z",
-    "updatedAt": "2026-10-10T18:32:13.626Z"
+    "updatedAt": "2026-10-12T15:48:37.962Z",
+    "sentOpportunityIds": [
+      "opp-chevening-uk-2027",
+      "opp-commonwealth-masters-2027",
+      "opp-commonwealth-phd-2027",
+      "opp-gates-cambridge-2027",
+      "opp-knight-hennessy-stanford-2027"
+    ]
+  },
+  {
+    "id": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+    "email": "activepieces_user@example.com",
+    "phone": "+233241112233",
+    "whatsappEnabled": true,
+    "categories": [
+      "Technology",
+      "Internships"
+    ],
+    "regions": [
+      "Greater Accra"
+    ],
+    "frequency": "daily",
+    "status": "active",
+    "active": true,
+    "source": "Activepieces Integration Test",
+    "lastAlertSentAt": "2026-10-12T15:48:37.962Z",
+    "lastAlertTitle": "Digital Solutions Architect (Enterprise & Cloud)",
+    "alertsCount": 1,
+    "unsubscribedAt": null,
+    "createdAt": "2026-10-12T15:48:19.627Z",
+    "updatedAt": "2026-10-12T15:48:37.962Z",
+    "sentOpportunityIds": [
+      "job-telecel-solutions-architect",
+      "job-calbank-network-security-engineer",
+      "intern-google-swe-accra",
+      "intern-mtn-global-graduate-programme",
+      "intern-telecel-nextgen-graduate-programme"
+    ]
   }
 ]

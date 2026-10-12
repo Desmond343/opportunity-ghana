@@ -1,0 +1,16 @@
+{
+  "webhookUrl": "",
+  "apiKey": "og_ap_3c681a9d5f3bbcfaa4e196d282619cd6",
+  "webhookSecret": "acb97f6e0b07beb32da078e1a6f088b1c170e9a300233f1f",
+  "scheduleCron": "0 8 * * *",
+  "scheduleTime": "08:00 UTC (Daily)",
+  "enabled": true,
+  "fallbackPolicy": "highlights",
+  "emailProvider": "activepieces_email",
+  "fromEmail": "alerts@opportunityghana.com",
+  "fromName": "Opportunity Ghana Daily Alerts",
+  "lastRunAt": "2026-10-12T15:48:37.962Z",
+  "lastRunStatus": "success",
+  "totalDelivered": 5,
+  "totalErrors": 0
+}

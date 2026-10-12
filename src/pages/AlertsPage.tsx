@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bell, Check, ShieldCheck, Smartphone, Mail, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Check, ShieldCheck, Smartphone, Mail, Sparkles, UserMinus } from 'lucide-react';
 import { OPPORTUNITY_CATEGORIES, GHANA_REGIONS } from '../data/categories';
 import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
 import { useAuth } from '../services/authContext';
@@ -9,12 +9,43 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState(true);
-  const [frequency, setFrequency] = useState<'instant' | 'daily' | 'weekly'>('instant');
+  const [frequency, setFrequency] = useState<'instant' | 'daily' | 'weekly'>('daily');
   const [selectedCats, setSelectedCats] = useState<string[]>(['Scholarships', 'Jobs', 'Internships']);
   const [selectedRegion, setSelectedRegion] = useState('All Ghana');
   const [saved, setSaved] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [unsubscribing, setUnsubscribing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [unsubscribedStatus, setUnsubscribedStatus] = useState(false);
+
+  useEffect(() => {
+    // Check URL parameters for email prefill or instant unsubscribe action
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get('email');
+      const action = params.get('action');
+
+      if (urlEmail) {
+        setEmail(urlEmail);
+        if (action === 'unsubscribe') {
+          handleAutoUnsubscribe(urlEmail);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const handleAutoUnsubscribe = async (targetEmail: string) => {
+    setUnsubscribing(true);
+    try {
+      const res = await AlertSubscriptionsService.unsubscribe(targetEmail);
+      setUnsubscribedStatus(true);
+      setFeedbackMessage(res.message || 'You have been successfully unsubscribed from daily email alerts.');
+    } catch (err: any) {
+      console.warn('Auto-unsubscribe failed:', err);
+    } finally {
+      setUnsubscribing(false);
+    }
+  };
 
   const toggleCategory = (cat: string) => {
     setSelectedCats((prev) =>
@@ -64,6 +95,13 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
           Receive verified opportunity alerts via Email and WhatsApp as soon as an opening is checked and published by our editors.
         </p>
       </div>
+
+      {unsubscribedStatus && (
+        <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-2xl text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <UserMinus className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+          <span>{feedbackMessage || 'You have been unsubscribed from daily alerts. You can update your preferences below anytime to resubscribe.'}</span>
+        </div>
+      )}
 
       {saved && (
         <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
@@ -184,13 +222,26 @@ export const AlertsPage: React.FC<{ onNavigate: (path: string) => void }> = () =
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
-        >
-          {submitting ? 'Saving Preferences...' : 'Save & Activate Opportunity Alerts'}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            {submitting ? 'Saving Preferences...' : 'Save & Activate Opportunity Alerts'}
+          </button>
+
+          {email && (
+            <button
+              type="button"
+              disabled={unsubscribing || submitting}
+              onClick={() => handleAutoUnsubscribe(email)}
+              className="px-4 py-3 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              {unsubscribing ? 'Processing...' : 'Unsubscribe'}
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
