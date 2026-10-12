@@ -519,5 +519,141 @@ export const AlertSubscriptionsService = {
     });
     if (!res.ok) throw new Error('Failed to trigger Activepieces test execution');
     return res.json();
+  },
+
+  /**
+   * Fetches the raw Activepieces workflow JSON with Firebase ID token authentication
+   */
+  async fetchActivepiecesFlowJson(tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
+    if (!tokenGetter) {
+      return {
+        success: false,
+        error: 'Authentication required. Please sign in with an administrator account.'
+      };
+    }
+
+    let token: string | null = null;
+    try {
+      token = await tokenGetter(false);
+    } catch {}
+
+    if (!token) {
+      try {
+        token = await tokenGetter(true);
+      } catch {}
+    }
+
+    if (!token) {
+      return {
+        success: false,
+        error: 'Authentication required. Please sign in with an administrator account to access the automation workflow.'
+      };
+    }
+
+    try {
+      let res = await fetch('/api/admin/activepieces/flow.json', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+
+      // If token expired, attempt automatic refresh once
+      if (res.status === 401) {
+        try {
+          const freshToken = await tokenGetter(true);
+          if (freshToken) {
+            token = freshToken;
+            res = await fetch('/api/admin/activepieces/flow.json', {
+              headers: {
+                Authorization: `Bearer ${freshToken}`,
+                Accept: 'application/json'
+              }
+            });
+          }
+        } catch {}
+      }
+
+      if (res.status === 401) {
+        return {
+          success: false,
+          error: 'Your login session has expired. Please sign in again with an administrator account.'
+        };
+      }
+
+      if (res.status === 403) {
+        return {
+          success: false,
+          error: 'Access denied: Administrator privileges required to access the Activepieces workflow.'
+        };
+      }
+
+      if (!res.ok) {
+        let errJson: any = null;
+        try {
+          errJson = await res.json();
+        } catch {}
+        return {
+          success: false,
+          error: errJson?.error || `Failed to fetch workflow (${res.status} ${res.statusText})`
+        };
+      }
+
+      const data = await res.json();
+      return { success: true, data };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Network error fetching workflow definition'
+      };
+    }
+  },
+
+  /**
+   * Securely downloads the Activepieces workflow JSON file to the user's computer
+   */
+  async downloadActivepiecesFlow(tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>): Promise<{
+    success: boolean;
+    data?: any;
+    filename?: string;
+    error?: string;
+  }> {
+    const fetchRes = await this.fetchActivepiecesFlowJson(tokenGetter);
+    if (!fetchRes.success || !fetchRes.data) {
+      return {
+        success: false,
+        error: fetchRes.error || 'Failed to download workflow'
+      };
+    }
+
+    const filename = 'opportunity-ghana-activepieces-flow.json';
+    try {
+      const jsonString = JSON.stringify(fetchRes.data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return {
+        success: true,
+        data: fetchRes.data,
+        filename
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        data: fetchRes.data,
+        error: 'Workflow retrieved, but browser file download could not be initiated.'
+      };
+    }
   }
 };

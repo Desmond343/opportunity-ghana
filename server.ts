@@ -34,6 +34,18 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
+// CORS Middleware with Authorization and Content-Disposition exposure
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -88,19 +100,34 @@ const upload = multer({
 
 // Middleware: Verify Firebase ID Token for Admin / Editor (Custom Claims or Firestore user doc role)
 async function verifyAdminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // Prevent any caching of administrative endpoint responses
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
+  // Extract Bearer token case-insensitively from Authorization header or secondary query parameter
+  const authHeader = (req.headers.authorization || req.headers['authorization']) as string | undefined;
+  let token = '';
+
+  if (authHeader && /^Bearer\s+/i.test(authHeader)) {
+    token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  } else if (req.query && typeof req.query.token === 'string') {
+    // Secondary fallback for direct browser download links with token parameter
+    token = req.query.token.trim();
+  }
+
+  if (!token) {
+    console.warn(`[AdminAuth] 401 Unauthorized on ${req.method} ${req.path}: Missing or empty Authorization header.`);
     return res.status(401).json({
-      error: 'Unauthorized: Missing or invalid Authorization header. A valid Firebase ID token is required.'
+      error: 'Unauthorized: Missing or invalid Authorization header. A valid Firebase ID token is required.',
+      code: 'auth/missing-token'
     });
   }
 
-  const token = authHeader.split('Bearer ')[1].trim();
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: Empty token provided.' });
-  }
-
-  // Handle local development admin bypass or tokens
+  // Handle local development admin/user test tokens
   if (token === 'admin-bypass' || token === 'demo-admin-token') {
     (req as any).user = {
       uid: 'admin-local',
@@ -109,6 +136,41 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
       role: 'admin'
     };
     return next();
+  }
+  if (token === 'user-bypass' || token === 'demo-user-token') {
+    console.warn(`[AdminAuth] 403 Forbidden on ${req.method} ${req.path}: Non-admin account lacks administrator credentials.`);
+    return res.status(403).json({
+      error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.',
+      code: 'auth/forbidden'
+    });
+  }
+
+  // Check for basic token malformation before invoking verifiers
+  if (!token.includes('.') || token.split('.').length < 2) {
+    console.warn(`[AdminAuth] 401 Unauthorized on ${req.method} ${req.path}: Malformed token structure.`);
+    return res.status(401).json({
+      error: 'Unauthorized: Malformed or invalid Firebase ID token.',
+      code: 'auth/argument-error'
+    });
+  }
+
+  // Fast pre-check for expired JWT payloads
+  try {
+    const parts = token.split('.');
+    const payloadStr = Buffer.from(parts[1], 'base64').toString('utf8');
+    const payload = JSON.parse(payloadStr);
+    if (payload && payload.exp && typeof payload.exp === 'number') {
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (payload.exp < nowSec) {
+        console.warn(`[AdminAuth] 401 Unauthorized on ${req.method} ${req.path}: Token expired at ${new Date(payload.exp * 1000).toISOString()}`);
+        return res.status(401).json({
+          error: 'Unauthorized: Firebase ID token has expired. Please refresh your token or sign in again.',
+          code: 'auth/id-token-expired'
+        });
+      }
+    }
+  } catch (parseErr: any) {
+    console.warn(`[AdminAuth] Token payload parsing warning on ${req.method} ${req.path}:`, parseErr.message);
   }
 
   if (adminAuth) {
@@ -125,21 +187,42 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
               isAuthorized = true;
             }
           }
-        } catch (docErr) {
-          console.debug('User role lookup note:', docErr);
+        } catch (docErr: any) {
+          console.debug('[AdminAuth] Firestore user role lookup note:', docErr?.message);
         }
       }
 
       if (!isAuthorized) {
+        console.warn(`[AdminAuth] 403 Forbidden on ${req.method} ${req.path}: User ${decoded.email || decoded.uid} lacks administrator credentials.`);
         return res.status(403).json({
-          error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.'
+          error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.',
+          code: 'auth/forbidden'
         });
       }
 
       (req as any).user = decoded;
       return next();
     } catch (err: any) {
-      // Continue to verifyUserToken fallback
+      console.warn(`[AdminAuth] Firebase Admin verifyIdToken warning on ${req.method} ${req.path} (${err.code || 'unknown'}): ${err.message}`);
+      if (err.code === 'auth/id-token-expired') {
+        return res.status(401).json({
+          error: 'Unauthorized: Firebase ID token has expired. Please refresh your token or sign in again.',
+          code: 'auth/id-token-expired'
+        });
+      }
+      if (err.code === 'auth/id-token-revoked') {
+        return res.status(401).json({
+          error: 'Unauthorized: Firebase ID token has been revoked.',
+          code: 'auth/id-token-revoked'
+        });
+      }
+      if (err.code === 'auth/argument-error') {
+        return res.status(401).json({
+          error: 'Unauthorized: Malformed or invalid Firebase ID token.',
+          code: 'auth/argument-error'
+        });
+      }
+      // Continue to verifyUserToken fallback for network or REST cases
     }
   }
 
@@ -157,16 +240,20 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
     }
 
     if (verified) {
+      console.warn(`[AdminAuth] 403 Forbidden on ${req.method} ${req.path}: Fallback verified user ${verified.email} has non-admin role: ${verified.role}`);
       return res.status(403).json({
-        error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.'
+        error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.',
+        code: 'auth/forbidden'
       });
     }
   } catch (restErr: any) {
-    console.debug('REST token verification notice:', restErr.message);
+    console.warn(`[AdminAuth] REST token verification error on ${req.method} ${req.path}:`, restErr.message);
   }
 
+  console.warn(`[AdminAuth] 401 Unauthorized on ${req.method} ${req.path}: Authentication token could not be verified.`);
   return res.status(401).json({
-    error: 'Unauthorized: Invalid or expired authentication token.'
+    error: 'Unauthorized: Invalid or expired authentication token.',
+    code: 'auth/invalid-token'
   });
 }
 
@@ -2366,12 +2453,20 @@ app.post('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
 // GET /api/admin/activepieces/flow.json - Downloadable or importable JSON for Activepieces workflow builder
 app.get('/api/admin/activepieces/flow.json', verifyAdminAuth, (req, res) => {
   try {
+    const user = (req as any).user || {};
     const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
     const flowJson = generateActivepiecesFlowJson(baseUrl);
-    res.setHeader('Content-Type', 'application/json');
+
+    console.info(`[Activepieces] Authorized admin (${user.email || user.uid || 'admin'}) accessed/downloaded Activepieces flow.json`);
+
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="opportunity-ghana-activepieces-flow.json"');
-    return res.send(JSON.stringify(flowJson, null, 2));
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+
+    return res.status(200).send(JSON.stringify(flowJson, null, 2));
   } catch (err: any) {
+    console.error('[Activepieces] Error generating flow JSON:', err.message);
     return res.status(500).json({ error: 'Failed to generate Activepieces flow definition' });
   }
 });

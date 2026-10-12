@@ -37,6 +37,28 @@ export async function verifyUserToken(token: string): Promise<AuthenticatedUser 
   let email = '';
   let customClaimsRole: string | undefined;
 
+  // Pre-check: Check token expiration and malformed structure if JWT format
+  if (token.includes('.')) {
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) {
+        console.warn('[authMiddleware] Token rejected: malformed JWT structure.');
+        return null;
+      }
+      const payloadStr = Buffer.from(parts[1], 'base64').toString('utf8');
+      const payload = JSON.parse(payloadStr);
+      if (payload && payload.exp && typeof payload.exp === 'number') {
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (payload.exp < nowSec) {
+          console.warn(`[authMiddleware] Token rejected: token expired at ${new Date(payload.exp * 1000).toISOString()} (current time: ${new Date().toISOString()}).`);
+          return null;
+        }
+      }
+    } catch {
+      // If parsing fails, proceed to formal verification which will handle or reject it
+    }
+  }
+
   // 1. Try Firebase Admin SDK verification
   if (adminAuth) {
     try {
@@ -49,7 +71,11 @@ export async function verifyUserToken(token: string): Promise<AuthenticatedUser 
         customClaimsRole = 'editor';
       }
     } catch (e: any) {
-      // If adminAuth verification failed, try REST API fallback below
+      if (e.code === 'auth/id-token-expired') {
+        console.warn('[authMiddleware] adminAuth verification failed: Token is expired.');
+        return null;
+      }
+      // If adminAuth verification failed for other reasons, try REST API fallback below
       // console.debug('adminAuth.verifyIdToken failed:', e.message);
     }
   }

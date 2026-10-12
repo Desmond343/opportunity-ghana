@@ -18,7 +18,11 @@ import {
   FileCode,
   Info,
   Check,
-  Copy
+  Copy,
+  Code,
+  Eye,
+  X,
+  FileJson
 } from 'lucide-react';
 
 interface ActivepiecesTabProps {
@@ -26,11 +30,15 @@ interface ActivepiecesTabProps {
 }
 
 export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTriggerSuccess }) => {
-  const { getIdToken } = useAuth();
+  const { currentUser, getIdToken, isAdmin, isEditorOrAdmin } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [downloadingFlow, setDownloadingFlow] = useState(false);
+  const [copyingFlow, setCopyingFlow] = useState(false);
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
+  const [workflowJsonData, setWorkflowJsonData] = useState<any>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const [config, setConfig] = useState<any>(null);
@@ -156,8 +164,88 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const handleDownloadFlow = () => {
-    window.open('/api/admin/activepieces/flow.json', '_blank');
+  const handleDownloadFlow = async () => {
+    setActionSuccess(null);
+    setActionError(null);
+
+    if (!currentUser) {
+      setActionError('You are currently signed out. Please sign in with an administrator account to download the automation workflow.');
+      return;
+    }
+
+    setDownloadingFlow(true);
+    try {
+      const res = await AlertSubscriptionsService.downloadActivepiecesFlow(getIdToken);
+      if (res.success) {
+        if (res.data) setWorkflowJsonData(res.data);
+        setActionSuccess('Activepieces workflow JSON (opportunity-ghana-activepieces-flow.json) downloaded successfully! You can now import it directly into Activepieces.');
+        setTimeout(() => setActionSuccess(null), 6000);
+      } else {
+        setActionError(res.error || 'Failed to download workflow definition.');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'An unexpected error occurred while downloading the workflow.');
+    } finally {
+      setDownloadingFlow(false);
+    }
+  };
+
+  const handleCopyFlow = async () => {
+    setActionSuccess(null);
+    setActionError(null);
+
+    if (!currentUser) {
+      setActionError('You are currently signed out. Please sign in with an administrator account to copy the automation workflow.');
+      return;
+    }
+
+    setCopyingFlow(true);
+    try {
+      let flowData = workflowJsonData || config?.flowJson;
+      if (!flowData) {
+        const res = await AlertSubscriptionsService.fetchActivepiecesFlowJson(getIdToken);
+        if (res.success && res.data) {
+          flowData = res.data;
+          setWorkflowJsonData(res.data);
+        } else {
+          setActionError(res.error || 'Failed to fetch workflow JSON for copying.');
+          setCopyingFlow(false);
+          return;
+        }
+      }
+
+      await navigator.clipboard.writeText(JSON.stringify(flowData, null, 2));
+      setCopiedKey('flow-json');
+      setActionSuccess('Activepieces workflow JSON copied to clipboard! You can paste it directly into Activepieces.');
+      setTimeout(() => {
+        setCopiedKey(null);
+        setActionSuccess(null);
+      }, 5000);
+    } catch (err: any) {
+      setActionError(err.message || 'Failed to copy workflow to clipboard.');
+    } finally {
+      setCopyingFlow(false);
+    }
+  };
+
+  const handleViewFlow = async () => {
+    setActionError(null);
+    if (!currentUser) {
+      setActionError('You are currently signed out. Please sign in with an administrator account to inspect the automation workflow.');
+      return;
+    }
+
+    if (!workflowJsonData && !config?.flowJson) {
+      try {
+        const res = await AlertSubscriptionsService.fetchActivepiecesFlowJson(getIdToken);
+        if (res.success && res.data) {
+          setWorkflowJsonData(res.data);
+        }
+      } catch (e: any) {
+        console.warn('Flow preview fetch note:', e.message);
+      }
+    }
+    setShowWorkflowModal(true);
   };
 
   if (loading) {
@@ -198,10 +286,26 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
             </a>
             <button
               onClick={handleDownloadFlow}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-800 border border-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer"
+              disabled={downloadingFlow}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-800 border border-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-60"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Download Flow JSON Template</span>
+              <Download className={`w-3.5 h-3.5 text-emerald-200 ${downloadingFlow ? 'animate-bounce' : ''}`} />
+              <span>{downloadingFlow ? 'Downloading...' : 'Download Flow JSON'}</span>
+            </button>
+            <button
+              onClick={handleCopyFlow}
+              disabled={copyingFlow}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-900/90 hover:bg-emerald-900 border border-emerald-600/70 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-60"
+            >
+              {copiedKey === 'flow-json' ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5 text-emerald-200" />}
+              <span>{copiedKey === 'flow-json' ? 'Copied to Clipboard!' : 'Copy Flow JSON'}</span>
+            </button>
+            <button
+              onClick={handleViewFlow}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-200" />
+              <span>Inspect Flow JSON</span>
             </button>
             <button
               onClick={handleTestRun}
@@ -501,6 +605,32 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
                   </button>
                 </div>
               </div>
+
+              <div>
+                <span className="font-semibold text-slate-500 block mb-1">4. Download Workflow Template (Admin Protected):</span>
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px]">
+                  <span className="text-purple-700 dark:text-purple-400 font-bold">GET</span>
+                  <span className="truncate flex-1">{endpoints?.flowImport}</span>
+                  <button
+                    onClick={() => copyToClipboard(endpoints?.flowImport || '', 'flowImport')}
+                    className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                    title="Copy URL"
+                  >
+                    {copiedKey === 'flowImport' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={handleDownloadFlow}
+                    disabled={downloadingFlow}
+                    className="text-emerald-600 hover:text-emerald-700 cursor-pointer ml-1"
+                    title="Download Workflow File"
+                  >
+                    <Download className={`w-3.5 h-3.5 ${downloadingFlow ? 'animate-bounce' : ''}`} />
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Protected endpoint: Requires Firebase ID Token with Administrator privileges.
+                </p>
+              </div>
             </div>
 
             <div className="p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-xl space-y-1">
@@ -612,6 +742,89 @@ export const ActivepiecesAutomationTab: React.FC<ActivepiecesTabProps> = ({ onTr
           </div>
         )}
       </div>
+
+      {/* Workflow JSON Template Inspector Modal */}
+      {showWorkflowModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#141B29] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <FileCode className="w-4 h-4 text-emerald-100" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white font-space">
+                    Activepieces Automation Workflow Spec
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Importable JSON structure for Activepieces Cloud workflow builder
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyFlow}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copiedKey === 'flow-json' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedKey === 'flow-json' ? 'Copied!' : 'Copy JSON'}</span>
+                </button>
+                <button
+                  onClick={handleDownloadFlow}
+                  disabled={downloadingFlow}
+                  className="px-3 py-1.5 rounded-xl bg-[#006B3F] hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  <Download className={`w-3.5 h-3.5 ${downloadingFlow ? 'animate-bounce' : ''}`} />
+                  <span>{downloadingFlow ? 'Downloading...' : 'Download'}</span>
+                </button>
+                <button
+                  onClick={() => setShowWorkflowModal(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto flex-1 space-y-4">
+              <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-[11px] text-emerald-800 dark:text-emerald-300 space-y-1">
+                <span className="font-bold flex items-center gap-1.5">
+                  <Workflow className="w-3.5 h-3.5" />
+                  Activepieces Cloud Import Instructions:
+                </span>
+                <ol className="list-decimal list-inside space-y-0.5 text-emerald-900/90 dark:text-emerald-300/90">
+                  <li>Log in to your Activepieces dashboard (<a href="https://cloud.activepieces.com/mcp/platform" target="_blank" rel="noopener noreferrer" className="underline font-bold">cloud.activepieces.com/mcp/platform</a>).</li>
+                  <li>Click <strong>New Flow</strong> &rarr; <strong>Import Flow</strong>.</li>
+                  <li>Upload the downloaded <code className="font-mono bg-white/60 dark:bg-black/30 px-1 py-0.5 rounded">opportunity-ghana-activepieces-flow.json</code> or paste the JSON.</li>
+                  <li>Confirm the API endpoints &amp; Bearer token, then toggle the workflow to <strong>Published / Active</strong>!</li>
+                </ol>
+              </div>
+
+              <div className="relative">
+                <pre className="p-4 bg-slate-900 text-emerald-300 rounded-2xl font-mono text-[11px] overflow-x-auto max-h-[350px] leading-relaxed border border-slate-800 shadow-inner">
+                  {JSON.stringify(workflowJsonData || config?.flowJson || {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/40">
+              <span className="text-[11px] text-slate-500 font-medium">
+                Target: Opportunity Ghana Automated Daily Alert Engine
+              </span>
+              <button
+                onClick={() => setShowWorkflowModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
