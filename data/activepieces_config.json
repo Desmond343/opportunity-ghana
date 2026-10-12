@@ -1,6 +1,5 @@
 {
   "webhookUrl": "",
-  "apiKey": "og_ap_3c681a9d5f3bbcfaa4e196d282619cd6",
   "webhookSecret": "acb97f6e0b07beb32da078e1a6f088b1c170e9a300233f1f",
   "scheduleCron": "0 8 * * *",
   "scheduleTime": "08:00 UTC (Daily)",
@@ -9,8 +8,175 @@
   "emailProvider": "activepieces_email",
   "fromEmail": "alerts@opportunityghana.com",
   "fromName": "Opportunity Ghana Daily Alerts",
-  "lastRunAt": "2026-10-12T20:52:16.885Z",
+  "lastRunAt": "2026-10-12T22:26:49.162Z",
   "lastRunStatus": "success",
-  "totalDelivered": 10,
-  "totalErrors": 0
+  "totalDelivered": 20,
+  "totalErrors": 0,
+  "currentApiKey": {
+    "keyPrefix": "og_live_98da",
+    "keySuffix": "4044",
+    "keyHash": "cd64ea5cf22932f5de1ad8ff535a6025ad0d1306a3d8846f4d790459137c314e",
+    "status": "active",
+    "createdAt": "2026-10-12T22:27:02.311Z",
+    "revokedAt": null,
+    "lastUsedAt": "2026-10-12T22:27:02.313Z",
+    "createdByName": "Test Administrator",
+    "createdByEmail": "admin@opportunityghana.com"
+  },
+  "previousApiKeys": [
+    {
+      "keyPrefix": "og_live_b360",
+      "keySuffix": "9696",
+      "keyHash": "228ac25da1dd83d6f672255a0c2eb8f974ba47e44a2c59b6fc9c36741bdf9b81",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:27:02.308Z",
+      "revokedAt": "2026-10-12T22:27:02.311Z",
+      "lastUsedAt": "2026-10-12T22:27:02.310Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_b360",
+      "keySuffix": "9696",
+      "keyHash": "228ac25da1dd83d6f672255a0c2eb8f974ba47e44a2c59b6fc9c36741bdf9b81",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:27:02.308Z",
+      "revokedAt": "2026-10-12T22:27:02.311Z",
+      "lastUsedAt": "2026-10-12T22:27:02.310Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_37d0",
+      "keySuffix": "18bf",
+      "keyHash": "46609e5ad8cfed7ae72d112717eae73ad86f9ca8febdd5855a093404b44de86e",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:26:49.353Z",
+      "revokedAt": "2026-10-12T22:27:02.308Z",
+      "lastUsedAt": null,
+      "createdByName": "Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_e4ba",
+      "keySuffix": "1386",
+      "keyHash": "59e63bd964044e28e94fbd55c83e3c56023d3e39d7e7226b6d2e47c8a7d69b29",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:26:49.009Z",
+      "revokedAt": "2026-10-12T22:26:49.353Z",
+      "lastUsedAt": "2026-10-12T22:26:49.162Z",
+      "createdByName": "Live Test Admin",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_538c",
+      "keySuffix": "77f8",
+      "keyHash": "f99dd4062d9b60db06b63a5f68363fb65183d74894db852e3b6542ddd853481a",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:26:48.081Z",
+      "revokedAt": "2026-10-12T22:26:49.009Z",
+      "lastUsedAt": "2026-10-12T22:26:48.082Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_c0a6",
+      "keySuffix": "4ebf",
+      "keyHash": "e89c7059c442a1a672cea2f006cc269fdc17b7c264737962e91281e2fa06940a",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:26:48.077Z",
+      "revokedAt": "2026-10-12T22:26:48.081Z",
+      "lastUsedAt": "2026-10-12T22:26:48.079Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_c0a6",
+      "keySuffix": "4ebf",
+      "keyHash": "e89c7059c442a1a672cea2f006cc269fdc17b7c264737962e91281e2fa06940a",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:26:48.077Z",
+      "revokedAt": "2026-10-12T22:26:48.080Z",
+      "lastUsedAt": "2026-10-12T22:26:48.079Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_ef58",
+      "keySuffix": "59a1",
+      "keyHash": "feb99ae1cb4294aca1554281a76ed399528c0fef5df283c749776cb6357be4e8",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:25:15.471Z",
+      "revokedAt": "2026-10-12T22:26:48.077Z",
+      "lastUsedAt": null,
+      "createdByName": "Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_a7ab",
+      "keySuffix": "68b9",
+      "keyHash": "6265b301d2f9ea5d8cad95f3c6c15f42130ef4b8413934446d7a798bf08f55a5",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:25:15.093Z",
+      "revokedAt": "2026-10-12T22:25:15.471Z",
+      "lastUsedAt": "2026-10-12T22:25:15.260Z",
+      "createdByName": "Live Test Admin",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_6771",
+      "keySuffix": "ebb0",
+      "keyHash": "f53ecaa094bf5b23d16d74121f46b403cc7ba28c586d9c0cd83de1093b77c9f6",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:24:59.209Z",
+      "revokedAt": "2026-10-12T22:25:15.093Z",
+      "lastUsedAt": null,
+      "createdByName": "Live Test Admin",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_0a85",
+      "keySuffix": "5c62",
+      "keyHash": "657cb22f858161a042a10b1b20c173c77552303c585bef1ecf1dee590e84cb86",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:24:36.453Z",
+      "revokedAt": "2026-10-12T22:24:59.209Z",
+      "lastUsedAt": "2026-10-12T22:24:36.454Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_9634",
+      "keySuffix": "8c07",
+      "keyHash": "0743101bdd9faa462bee0722f64918f8ac72a195da7d1fb7d9561457031d1433",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:24:36.450Z",
+      "revokedAt": "2026-10-12T22:24:36.453Z",
+      "lastUsedAt": "2026-10-12T22:24:36.452Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_live_9634",
+      "keySuffix": "8c07",
+      "keyHash": "0743101bdd9faa462bee0722f64918f8ac72a195da7d1fb7d9561457031d1433",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:24:36.450Z",
+      "revokedAt": "2026-10-12T22:24:36.453Z",
+      "lastUsedAt": "2026-10-12T22:24:36.452Z",
+      "createdByName": "Test Administrator",
+      "createdByEmail": "admin@opportunityghana.com"
+    },
+    {
+      "keyPrefix": "og_ap_3c68",
+      "keySuffix": "9cd6",
+      "keyHash": "6b07dc95d0878a54d40877ddadde1e90554b67dee57eaab1f4b8f1679d6275cf",
+      "status": "revoked",
+      "createdAt": "2026-10-12T22:24:36.446Z",
+      "revokedAt": "2026-10-12T22:24:36.450Z",
+      "lastUsedAt": null,
+      "createdByName": "Legacy Migration",
+      "createdByEmail": "admin@opportunityghana.com"
+    }
+  ]
 }

@@ -3,9 +3,22 @@ import path from 'path';
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
+export const PRODUCTION_ACTIVEPIECES_BASE_URL = 'https://opportunityghana.site';
+
+export interface ActivepiecesApiKeyInfo {
+  keyPrefix: string;
+  keySuffix: string;
+  keyHash: string; // SHA-256 hash of the full API key
+  status: 'active' | 'revoked';
+  createdAt: string;
+  revokedAt: string | null;
+  lastUsedAt: string | null;
+  createdByName?: string;
+  createdByEmail?: string;
+}
+
 export interface ActivepiecesConfig {
   webhookUrl: string;
-  apiKey: string;
   webhookSecret: string;
   scheduleCron: string;
   scheduleTime: string;
@@ -18,6 +31,10 @@ export interface ActivepiecesConfig {
   lastRunStatus: 'idle' | 'success' | 'partial' | 'failed';
   totalDelivered: number;
   totalErrors: number;
+  // Cryptographically secure API Key management
+  currentApiKey?: ActivepiecesApiKeyInfo;
+  previousApiKeys?: ActivepiecesApiKeyInfo[];
+  apiKey?: string; // Legacy plaintext field kept solely for transparent migration
 }
 
 export interface DeliveryDetail {
@@ -49,18 +66,12 @@ if (!fs.existsSync(path.dirname(CONFIG_FILE))) {
   fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
 }
 
-// Generate default secure API key if not specified
-function generateApiKey(): string {
-  return `og_ap_${crypto.randomBytes(16).toString('hex')}`;
-}
-
 function generateSecret(): string {
   return crypto.randomBytes(24).toString('hex');
 }
 
 const DEFAULT_CONFIG: ActivepiecesConfig = {
   webhookUrl: process.env.ACTIVEPIECES_WEBHOOK_URL || '',
-  apiKey: process.env.ACTIVEPIECES_API_KEY || generateApiKey(),
   webhookSecret: process.env.ACTIVEPIECES_WEBHOOK_SECRET || generateSecret(),
   scheduleCron: '0 8 * * *', // Daily at 08:00 AM UTC
   scheduleTime: '08:00 UTC (Daily)',
@@ -76,14 +87,45 @@ const DEFAULT_CONFIG: ActivepiecesConfig = {
 };
 
 /**
- * Loads current Activepieces configuration from disk or defaults
+ * Loads current Activepieces configuration from disk or defaults.
+ * Automatically performs secure one-way migration for legacy plaintext keys.
  */
 export function getActivepiecesConfig(): ActivepiecesConfig {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const raw = fs.readFileSync(CONFIG_FILE, 'utf8');
-      const parsed = JSON.parse(raw);
-      return { ...DEFAULT_CONFIG, ...parsed };
+      const parsed: ActivepiecesConfig = JSON.parse(raw);
+      const merged = { ...DEFAULT_CONFIG, ...parsed };
+
+      // Transparent Migration: If legacy plaintext apiKey exists and no currentApiKey hash is stored,
+      // hash it immediately into a secure record and persist the sanitized config.
+      if (parsed.apiKey && (!parsed.currentApiKey || !parsed.currentApiKey.keyHash)) {
+        const legacyKey = parsed.apiKey.trim();
+        const keyHash = crypto.createHash('sha256').update(legacyKey).digest('hex');
+        const migratedKeyInfo: ActivepiecesApiKeyInfo = {
+          keyPrefix: legacyKey.slice(0, 10),
+          keySuffix: legacyKey.slice(-4),
+          keyHash,
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          revokedAt: null,
+          lastUsedAt: null,
+          createdByName: 'Legacy Migration',
+          createdByEmail: 'admin@opportunityghana.com'
+        };
+
+        merged.currentApiKey = migratedKeyInfo;
+        delete merged.apiKey; // Delete plaintext key from config
+
+        try {
+          fs.writeFileSync(CONFIG_FILE, JSON.stringify(merged, null, 2), 'utf8');
+          console.info('[Activepieces] Successfully migrated legacy plaintext API key to secure SHA-256 hash storage.');
+        } catch (migErr) {
+          console.warn('[Activepieces] Failed to write migrated config to disk:', migErr);
+        }
+      }
+
+      return merged;
     }
   } catch (err) {
     console.warn('[Activepieces] Error reading config file:', err);
@@ -92,38 +134,182 @@ export function getActivepiecesConfig(): ActivepiecesConfig {
 }
 
 /**
- * Returns public-safe configuration with secrets masked for Admin UI display
+ * Generates a new cryptographically secure API key on the server.
+ * Returns the raw key ONLY once so the admin can copy it.
+ * Only the SHA-256 hash and non-sensitive key metadata are stored.
  */
-export function getPublicActivepiecesConfig(): Omit<ActivepiecesConfig, 'webhookSecret'> & {
+export function generateNewApiKey(adminUser?: { name?: string; email?: string }): {
+  rawKey: string;
+  keyInfo: ActivepiecesApiKeyInfo;
+} {
+  // Generate 32 bytes of cryptographically secure random bytes = 64 hex characters
+  const rawKey = `og_live_${crypto.randomBytes(32).toString('hex')}`;
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const now = new Date().toISOString();
+
+  const keyInfo: ActivepiecesApiKeyInfo = {
+    keyPrefix: rawKey.slice(0, 12), // e.g. "og_live_a1b2"
+    keySuffix: rawKey.slice(-4),    // e.g. "c3d4"
+    keyHash,
+    status: 'active',
+    createdAt: now,
+    revokedAt: null,
+    lastUsedAt: null,
+    createdByName: adminUser?.name || 'Administrator',
+    createdByEmail: adminUser?.email || 'admin@opportunityghana.com'
+  };
+
+  const config = getActivepiecesConfig();
+  const previous = config.previousApiKeys ? [...config.previousApiKeys] : [];
+
+  // Key Rotation: If an active key existed, automatically revoke it and record in history
+  if (config.currentApiKey) {
+    previous.unshift({
+      ...config.currentApiKey,
+      status: 'revoked',
+      revokedAt: now
+    });
+  }
+
+  saveActivepiecesConfig({
+    currentApiKey: keyInfo,
+    previousApiKeys: previous.slice(0, 20),
+    apiKey: undefined
+  });
+
+  console.info(`[Activepieces] New integration API key generated by ${keyInfo.createdByEmail} (Prefix: ${keyInfo.keyPrefix}...)`);
+  return { rawKey, keyInfo };
+}
+
+/**
+ * Revokes the currently active API key immediately.
+ */
+export function revokeCurrentApiKey(adminUser?: { name?: string; email?: string }): {
+  success: boolean;
+  keyInfo?: ActivepiecesApiKeyInfo;
+  error?: string;
+} {
+  const config = getActivepiecesConfig();
+  if (!config.currentApiKey || config.currentApiKey.status === 'revoked') {
+    return { success: false, error: 'No active API key to revoke' };
+  }
+
+  const now = new Date().toISOString();
+  const revokedKeyInfo: ActivepiecesApiKeyInfo = {
+    ...config.currentApiKey,
+    status: 'revoked',
+    revokedAt: now
+  };
+
+  const previous = config.previousApiKeys ? [...config.previousApiKeys] : [];
+  previous.unshift(revokedKeyInfo);
+
+  saveActivepiecesConfig({
+    currentApiKey: revokedKeyInfo,
+    previousApiKeys: previous.slice(0, 20),
+    apiKey: undefined
+  });
+
+  console.info(`[Activepieces] API key revoked by ${adminUser?.email || 'Administrator'} (Prefix: ${revokedKeyInfo.keyPrefix}...)`);
+  return { success: true, keyInfo: revokedKeyInfo };
+}
+
+/**
+ * Updates the lastUsedAt timestamp for the active API key.
+ */
+export function recordApiKeyUsed(keyHash: string) {
+  try {
+    const config = getActivepiecesConfig();
+    if (config.currentApiKey && config.currentApiKey.keyHash === keyHash) {
+      config.currentApiKey.lastUsedAt = new Date().toISOString();
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
+    }
+  } catch (err) {
+    // Non-blocking telemetry
+  }
+}
+
+/**
+ * Returns public-safe configuration with secrets masked for Admin UI display.
+ * Never leaks raw API keys or key hashes.
+ */
+export function getPublicActivepiecesConfig(): Omit<ActivepiecesConfig, 'webhookSecret' | 'currentApiKey' | 'previousApiKeys' | 'apiKey'> & {
   hasWebhookUrl: boolean;
   apiKeyMasked: string;
   webhookSecretMasked: string;
+  apiKeyInfo: {
+    status: 'active' | 'revoked' | 'not_generated';
+    keyPrefix: string;
+    keySuffix: string;
+    maskedDisplay: string;
+    createdAt: string | null;
+    revokedAt: string | null;
+    lastUsedAt: string | null;
+    createdByName?: string;
+    createdByEmail?: string;
+  };
 } {
   const config = getActivepiecesConfig();
-  const keyLen = config.apiKey.length;
-  const maskedKey = keyLen > 10 ? `${config.apiKey.slice(0, 8)}...${config.apiKey.slice(-4)}` : '••••••••';
+  const current = config.currentApiKey;
+
+  const apiKeyInfo = {
+    status: current ? current.status : ('not_generated' as const),
+    keyPrefix: current ? current.keyPrefix : '',
+    keySuffix: current ? current.keySuffix : '',
+    maskedDisplay: current
+      ? `${current.keyPrefix}••••••••${current.keySuffix}`
+      : 'No API key generated yet',
+    createdAt: current ? current.createdAt : null,
+    revokedAt: current ? current.revokedAt : null,
+    lastUsedAt: current ? current.lastUsedAt : null,
+    createdByName: current?.createdByName,
+    createdByEmail: current?.createdByEmail
+  };
+
   const maskedSecret = config.webhookSecret ? '••••••••••••' : '';
 
   return {
-    ...config,
+    webhookUrl: config.webhookUrl,
+    scheduleCron: config.scheduleCron,
+    scheduleTime: config.scheduleTime,
+    enabled: config.enabled,
+    fallbackPolicy: config.fallbackPolicy,
+    emailProvider: config.emailProvider,
+    fromEmail: config.fromEmail,
+    fromName: config.fromName,
+    lastRunAt: config.lastRunAt,
+    lastRunStatus: config.lastRunStatus,
+    totalDelivered: config.totalDelivered,
+    totalErrors: config.totalErrors,
     hasWebhookUrl: Boolean(config.webhookUrl && config.webhookUrl.trim().length > 0),
-    apiKeyMasked: maskedKey,
-    webhookSecretMasked: maskedSecret
+    apiKeyMasked: apiKeyInfo.maskedDisplay,
+    webhookSecretMasked: maskedSecret,
+    apiKeyInfo
   };
 }
 
 /**
- * Updates Activepieces configuration and persists to disk
+ * Updates Activepieces configuration and persists to disk.
+ * Never overwrites API keys via generic config save unless explicitly handled.
  */
 export function saveActivepiecesConfig(updates: Partial<ActivepiecesConfig>): ActivepiecesConfig {
   const current = getActivepiecesConfig();
   const nextConfig: ActivepiecesConfig = {
     ...current,
     ...updates,
-    // Preserve existing apiKey if not explicitly changed
-    apiKey: updates.apiKey && updates.apiKey.trim() ? updates.apiKey.trim() : current.apiKey,
     webhookSecret: updates.webhookSecret && updates.webhookSecret.trim() ? updates.webhookSecret.trim() : current.webhookSecret
   };
+
+  // If updates explicitly provide currentApiKey, assign it
+  if (updates.currentApiKey !== undefined) {
+    nextConfig.currentApiKey = updates.currentApiKey;
+  }
+  if (updates.previousApiKeys !== undefined) {
+    nextConfig.previousApiKeys = updates.previousApiKeys;
+  }
+
+  // Never store plaintext apiKey
+  delete nextConfig.apiKey;
 
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(nextConfig, null, 2), 'utf8');
@@ -186,36 +372,65 @@ export function saveDeliveryReport(report: DeliveryReport) {
 }
 
 /**
- * Middleware to authenticate Activepieces API requests via Bearer token or x-api-key header
+ * Middleware to authenticate Activepieces API requests via Authorization: Bearer <API_KEY> header
+ * (with backward-compatible support for x-api-key header).
+ * Enforces cryptographic SHA-256 hash validation and checks active/revoked status.
  */
 export function verifyActivepiecesAuth(req: Request, res: Response, next: NextFunction) {
-  const config = getActivepiecesConfig();
-  const expectedKey = config.apiKey;
-
-  // Extract from Authorization header or x-api-key header or query param
+  // Extract token from Authorization: Bearer <API_KEY> or x-api-key
   const authHeader = req.headers.authorization || '';
   const xApiKey = (req.headers['x-api-key'] as string) || '';
-  const queryKey = (req.query.api_key as string) || '';
 
   let providedKey = '';
-  if (authHeader.startsWith('Bearer ')) {
-    providedKey = authHeader.substring(7).trim();
+  if (/^Bearer\s+/i.test(authHeader)) {
+    providedKey = authHeader.replace(/^Bearer\s+/i, '').trim();
   } else if (xApiKey) {
     providedKey = xApiKey.trim();
-  } else if (queryKey) {
-    providedKey = queryKey.trim();
   }
 
-  // Also support admin authorization tokens for internal admin-triggered runs
-  if (providedKey === 'admin-bypass' || providedKey === 'demo-admin-token') {
-    return next();
-  }
-
-  if (!providedKey || providedKey !== expectedKey) {
+  if (!providedKey) {
     return res.status(401).json({
-      error: 'Unauthorized: Invalid or missing Activepieces API key. Please check your credentials.'
+      error: 'Unauthorized: Missing Activepieces API key. Please provide Authorization: Bearer <API_KEY> header.',
+      code: 'auth/missing-api-key'
     });
   }
+
+  const config = getActivepiecesConfig();
+  const currentKey = config.currentApiKey;
+
+  if (!currentKey || !currentKey.keyHash) {
+    return res.status(401).json({
+      error: 'Unauthorized: No Activepieces API key configured on the server. Please generate an API key in the Opportunity Ghana Admin Portal.',
+      code: 'auth/no-active-key'
+    });
+  }
+
+  if (currentKey.status === 'revoked') {
+    return res.status(401).json({
+      error: 'Unauthorized: The Activepieces API key has been revoked. Please generate a replacement key in the Opportunity Ghana Admin Portal.',
+      code: 'auth/key-revoked'
+    });
+  }
+
+  // Calculate SHA-256 hash of provided key
+  const providedHash = crypto.createHash('sha256').update(providedKey).digest('hex');
+
+  // Constant-time comparison against expected keyHash
+  const expectedHashBuf = Buffer.from(currentKey.keyHash, 'hex');
+  const providedHashBuf = Buffer.from(providedHash, 'hex');
+
+  if (
+    expectedHashBuf.length !== providedHashBuf.length ||
+    !crypto.timingSafeEqual(expectedHashBuf, providedHashBuf)
+  ) {
+    return res.status(401).json({
+      error: 'Unauthorized: Invalid Activepieces API key. Please check your credentials.',
+      code: 'auth/invalid-key'
+    });
+  }
+
+  // Authenticated successfully! Record usage timestamp asynchronously
+  recordApiKeyUsed(currentKey.keyHash);
 
   return next();
 }
@@ -267,7 +482,7 @@ export async function triggerActivepiecesSubscriberWebhook(
         'Content-Type': 'application/json',
         'X-Opportunity-Ghana-Event': event,
         'X-Opportunity-Ghana-Signature': signature,
-        'X-Opportunity-Ghana-Key': config.apiKey.slice(0, 10)
+        'X-Opportunity-Ghana-Key': config.currentApiKey?.keyPrefix || 'og_live'
       },
       body: JSON.stringify(payload)
     });
@@ -546,9 +761,10 @@ Opportunity Ghana will never charge you for listings.
  * Generates the complete, authentic, importable Activepieces flow definition JSON adhering strictly
  * to the Activepieces Template and FlowVersion schema specifications (supports Activepieces Cloud import).
  */
-export function generateActivepiecesFlowJson(baseUrl: string): Record<string, any> {
+export function generateActivepiecesFlowJson(baseUrl?: string): Record<string, any> {
   const config = getActivepiecesConfig();
-  const cleanBaseUrl = (baseUrl && baseUrl.trim().length > 0) ? baseUrl.replace(/\/+$/, '') : 'https://opportunityghana.site';
+  // Mandatory production base URL: Enforce https://opportunityghana.site everywhere in the generated Activepieces workflow
+  const cleanBaseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
   const nowIso = new Date().toISOString();
 
   // Step 4: Record Deliveries and Log Run Metrics (Code Piece)
@@ -638,7 +854,7 @@ export function generateActivepiecesFlowJson(baseUrl: string): Record<string, an
       actionName: 'send_request',
       input: {
         method: 'GET',
-        url: `${cleanBaseUrl}/api/activepieces/opportunities?limit=200`,
+        url: `${cleanBaseUrl}/api/activepieces/opportunities`,
         headers: {
           'Authorization': 'Bearer REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY',
           'Accept': 'application/json'
@@ -646,7 +862,9 @@ export function generateActivepiecesFlowJson(baseUrl: string): Record<string, an
         authType: 'NONE',
         body: {},
         body_type: 'none',
-        queryParams: {},
+        queryParams: {
+          limit: '200'
+        },
         failsafe: false,
         use_proxy: false
       },
@@ -673,7 +891,7 @@ export function generateActivepiecesFlowJson(baseUrl: string): Record<string, an
       actionName: 'send_request',
       input: {
         method: 'GET',
-        url: `${cleanBaseUrl}/api/activepieces/subscribers?limit=500`,
+        url: `${cleanBaseUrl}/api/activepieces/subscribers`,
         headers: {
           'Authorization': 'Bearer REPLACE_WITH_OPPORTUNITY_GHANA_API_KEY',
           'Accept': 'application/json'
@@ -681,7 +899,9 @@ export function generateActivepiecesFlowJson(baseUrl: string): Record<string, an
         authType: 'NONE',
         body: {},
         body_type: 'none',
-        queryParams: {},
+        queryParams: {
+          limit: '500'
+        },
         failsafe: false,
         use_proxy: false
       },

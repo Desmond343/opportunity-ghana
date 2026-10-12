@@ -522,6 +522,92 @@ export const AlertSubscriptionsService = {
   },
 
   /**
+   * Generates a new cryptographically secure Activepieces API key.
+   * Returns the raw key ONLY once for immediate copying.
+   */
+  async generateActivepiecesApiKey(tokenGetter?: () => Promise<string | null>): Promise<{
+    success: boolean;
+    apiKey?: string;
+    keyInfo?: any;
+    message?: string;
+    error?: string;
+  }> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/api-key/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to generate API key');
+    }
+    return res.json();
+  },
+
+  /**
+   * Revokes the active Activepieces API key immediately.
+   */
+  async revokeActivepiecesApiKey(tokenGetter?: () => Promise<string | null>): Promise<{
+    success: boolean;
+    keyInfo?: any;
+    message?: string;
+    error?: string;
+  }> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/api-key/revoke', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to revoke API key');
+    }
+    return res.json();
+  },
+
+  /**
+   * Retrieves current API key status metadata.
+   */
+  async getActivepiecesApiKeyStatus(tokenGetter?: () => Promise<string | null>): Promise<{
+    success: boolean;
+    keyInfo?: any;
+    error?: string;
+  }> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch {}
+    }
+    const res = await fetch('/api/admin/activepieces/api-key/status', {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch API key status');
+    }
+    return res.json();
+  },
+
+  /**
    * Fetches the raw Activepieces workflow JSON with Firebase ID token authentication
    */
   async fetchActivepiecesFlowJson(tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>): Promise<{

@@ -1,5 +1,221 @@
 [
   {
+    "id": "rep_1791844009181",
+    "runId": "ap_run_1791844009162_7aa5ae5e",
+    "timestamp": "2026-10-12T22:26:49.162Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-getfund-scholarship-2027",
+          "opp-knust-mastercard-foundation-2027",
+          "opp-ashesi-mcf-scholarships-2027",
+          "opp-fulbright-ghana-2027",
+          "opp-daad-epos-germany-2027"
+        ],
+        "opportunitiesTitles": [
+          "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+          "Mastercard Foundation Scholars Program at KNUST 2027/2028 (Kumasi, Ghana)",
+          "Ashesi University Comprehensive Scholarships & Mastercard Foundation Program 2027/2028",
+          "Fulbright Foreign Student Program 2027/2028 (Ghana to United States)",
+          "DAAD EPOS Development-Related Postgraduate Scholarships 2027/2028 (Germany)"
+        ],
+        "timestamp": "2026-10-12T22:26:49.162Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-getfund-scholarship-2027",
+          "opp-knust-mastercard-foundation-2027",
+          "opp-ashesi-mcf-scholarships-2027",
+          "opp-fulbright-ghana-2027",
+          "opp-daad-epos-germany-2027"
+        ],
+        "opportunitiesTitles": [
+          "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+          "Mastercard Foundation Scholars Program at KNUST 2027/2028 (Kumasi, Ghana)",
+          "Ashesi University Comprehensive Scholarships & Mastercard Foundation Program 2027/2028",
+          "Fulbright Foreign Student Program 2027/2028 (Ghana to United States)",
+          "DAAD EPOS Development-Related Postgraduate Scholarships 2027/2028 (Germany)"
+        ],
+        "timestamp": "2026-10-12T22:26:49.162Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-deloitte-graduate-experience-programme",
+          "intern-ecobank-junior-bankers-nss",
+          "intern-guinness-ghana-nss-programme",
+          "intern-newmont-graduate-development-programme",
+          "intern-goldfields-graduate-engineering-trainee"
+        ],
+        "opportunitiesTitles": [
+          "Deloitte Ghana Graduate Experience Programme (Audit, Tax & Consulting)",
+          "Ecobank Ghana Junior Bankers & National Service Internship Programme",
+          "Guinness Ghana (Diageo) National Service & Graduate Internship Programme",
+          "Newmont Ghana Graduate Development Programme (Mining, Metallurgy & Engineering)",
+          "Gold Fields Ghana Graduate Engineering Trainee Scheme (Tarkwa Mine)"
+        ],
+        "timestamp": "2026-10-12T22:26:49.162Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-getfund-scholarship-2027",
+          "opp-knust-mastercard-foundation-2027",
+          "opp-ashesi-mcf-scholarships-2027",
+          "opp-fulbright-ghana-2027",
+          "opp-daad-epos-germany-2027"
+        ],
+        "opportunitiesTitles": [
+          "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+          "Mastercard Foundation Scholars Program at KNUST 2027/2028 (Kumasi, Ghana)",
+          "Ashesi University Comprehensive Scholarships & Mastercard Foundation Program 2027/2028",
+          "Fulbright Foreign Student Program 2027/2028 (Ghana to United States)",
+          "DAAD EPOS Development-Related Postgraduate Scholarships 2027/2028 (Germany)"
+        ],
+        "timestamp": "2026-10-12T22:26:49.162Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-undp-ghana-communications-intern",
+          "comp-cyberx-ghana-ctf-championship"
+        ],
+        "opportunitiesTitles": [
+          "Communications & Youth Social Media Intern (UNDP / UNIC Accra)",
+          "CyberX Ghana National Cybersecurity Challenge & CTF"
+        ],
+        "timestamp": "2026-10-12T22:26:49.162Z"
+      }
+    ]
+  },
+  {
+    "id": "rep_1791843915281",
+    "runId": "ap_run_1791843915261_38c41f73",
+    "timestamp": "2026-10-12T22:25:15.261Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-oxford-weidenfeld-hoffmann-2027",
+          "opp-mo-ibrahim-leadership-fellowship-2027",
+          "opp-gsa-local-tertiary-2027",
+          "opp-gnpc-foundation-tertiary-2027",
+          "opp-mtn-bright-scholarship-2027"
+        ],
+        "opportunitiesTitles": [
+          "Weidenfeld-Hoffmann Scholarships and Leadership Programme 2027 (University of Oxford)",
+          "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)",
+          "Ghana Scholarships Authority Local Tertiary Scholarships 2027/2028",
+          "GNPC Foundation Local Tertiary Scholarships 2027/2028",
+          "MTN Ghana Foundation Bright Scholarship Scheme 2027/2028"
+        ],
+        "timestamp": "2026-10-12T22:25:15.261Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-oxford-weidenfeld-hoffmann-2027",
+          "opp-mo-ibrahim-leadership-fellowship-2027",
+          "opp-gsa-local-tertiary-2027",
+          "opp-gnpc-foundation-tertiary-2027",
+          "opp-mtn-bright-scholarship-2027"
+        ],
+        "opportunitiesTitles": [
+          "Weidenfeld-Hoffmann Scholarships and Leadership Programme 2027 (University of Oxford)",
+          "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)",
+          "Ghana Scholarships Authority Local Tertiary Scholarships 2027/2028",
+          "GNPC Foundation Local Tertiary Scholarships 2027/2028",
+          "MTN Ghana Foundation Bright Scholarship Scheme 2027/2028"
+        ],
+        "timestamp": "2026-10-12T22:25:15.261Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-unicef-ghana-advocacy",
+          "intern-who-global-health-programme-2027",
+          "intern-mest-ai-startup-traineeship-2027",
+          "intern-pwc-trust-ambassador-vacation",
+          "intern-kpmg-graduate-trainee-accra"
+        ],
+        "opportunitiesTitles": [
+          "National Advocacy & Research Intern (UNICEF Ghana Country Office)",
+          "World Health Organization (WHO) Global Internship Programme",
+          "MEST Africa AI Startup Entrepreneurship Traineeship (Cohort 2027)",
+          "PwC Ghana Undergraduate Vacation Internship & Trust Ambassador Programme",
+          "KPMG Ghana Graduate Trainee Programme (Audit, Tax & Advisory)"
+        ],
+        "timestamp": "2026-10-12T22:25:15.261Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-oxford-weidenfeld-hoffmann-2027",
+          "opp-mo-ibrahim-leadership-fellowship-2027",
+          "opp-gsa-local-tertiary-2027",
+          "opp-gnpc-foundation-tertiary-2027",
+          "opp-mtn-bright-scholarship-2027"
+        ],
+        "opportunitiesTitles": [
+          "Weidenfeld-Hoffmann Scholarships and Leadership Programme 2027 (University of Oxford)",
+          "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)",
+          "Ghana Scholarships Authority Local Tertiary Scholarships 2027/2028",
+          "GNPC Foundation Local Tertiary Scholarships 2027/2028",
+          "MTN Ghana Foundation Bright Scholarship Scheme 2027/2028"
+        ],
+        "timestamp": "2026-10-12T22:25:15.261Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "intern-mest-ai-startup-traineeship-2027",
+          "intern-pwc-trust-ambassador-vacation",
+          "intern-kpmg-graduate-trainee-accra",
+          "intern-deloitte-graduate-experience-programme",
+          "intern-guinness-ghana-nss-programme"
+        ],
+        "opportunitiesTitles": [
+          "MEST Africa AI Startup Entrepreneurship Traineeship (Cohort 2027)",
+          "PwC Ghana Undergraduate Vacation Internship & Trust Ambassador Programme",
+          "KPMG Ghana Graduate Trainee Programme (Audit, Tax & Advisory)",
+          "Deloitte Ghana Graduate Experience Programme (Audit, Tax & Consulting)",
+          "Guinness Ghana (Diageo) National Service & Graduate Internship Programme"
+        ],
+        "timestamp": "2026-10-12T22:25:15.261Z"
+      }
+    ]
+  },
+  {
     "id": "rep_1791838336903",
     "runId": "ap_run_1791838336885_c6650ed6",
     "timestamp": "2026-10-12T20:52:16.885Z",

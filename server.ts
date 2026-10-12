@@ -21,7 +21,10 @@ import {
   verifyActivepiecesAuth,
   triggerActivepiecesSubscriberWebhook,
   generateActivepiecesFlowJson,
-  executeActivepiecesAlertRun
+  executeActivepiecesAlertRun,
+  generateNewApiKey,
+  revokeCurrentApiKey,
+  PRODUCTION_ACTIVEPIECES_BASE_URL
 } from './server/activepiecesService.ts';
 
 const ALL_VERIFIED_INITIAL = [
@@ -2266,7 +2269,7 @@ app.get('/api/activepieces/subscribers', verifyActivepiecesAuth, async (req, res
 
     const total = activeList.length;
     const paginated = activeList.slice((page - 1) * limit, page * limit);
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
+    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
 
     const formatted = paginated.map((sub) => ({
       id: sub.id,
@@ -2341,7 +2344,7 @@ app.get('/api/activepieces/opportunities', verifyActivepiecesAuth, async (req, r
     // Sort newest updated / published first
     opportunities.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime());
 
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
+    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
     const results = opportunities.slice(0, limit).map((opp) => ({
       id: opp.id,
       slug: opp.slug,
@@ -2376,7 +2379,7 @@ app.get('/api/activepieces/opportunities', verifyActivepiecesAuth, async (req, r
 app.post('/api/activepieces/trigger-daily-run', verifyActivepiecesAuth, async (req, res) => {
   try {
     const { fallbackPolicy, simulateOnly } = req.body || {};
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
+    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
 
     const result = await executeActivepiecesAlertRun(
       baseUrl,
@@ -2400,8 +2403,7 @@ app.get('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
   try {
     const safeConfig = getPublicActivepiecesConfig();
     const reports = getDeliveryReports(20);
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
-    const flowJson = generateActivepiecesFlowJson(baseUrl);
+    const flowJson = generateActivepiecesFlowJson(PRODUCTION_ACTIVEPIECES_BASE_URL);
 
     return res.json({
       success: true,
@@ -2409,11 +2411,11 @@ app.get('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
       reports,
       flowJson,
       endpoints: {
-        subscribers: `${baseUrl}/api/activepieces/subscribers`,
-        opportunities: `${baseUrl}/api/activepieces/opportunities`,
-        triggerDailyRun: `${baseUrl}/api/activepieces/trigger-daily-run`,
+        subscribers: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/subscribers`,
+        opportunities: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/opportunities`,
+        triggerDailyRun: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/trigger-daily-run`,
         webhookTarget: safeConfig.webhookUrl || 'Not configured yet',
-        flowImport: `${baseUrl}/api/admin/activepieces/flow.json`
+        flowImport: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/admin/activepieces/flow.json`
       }
     });
   } catch (err: any) {
@@ -2422,13 +2424,88 @@ app.get('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
   }
 });
 
+// POST /api/admin/activepieces/api-key/generate - Admin endpoint to generate a new cryptographically secure API key
+app.post('/api/admin/activepieces/api-key/generate', verifyAdminAuth, (req, res) => {
+  try {
+    const user = (req as any).user || {};
+    const result = generateNewApiKey({
+      name: user.name || 'Administrator',
+      email: user.email || 'admin@opportunityghana.com'
+    });
+
+    return res.json({
+      success: true,
+      apiKey: result.rawKey,
+      keyInfo: {
+        status: result.keyInfo.status,
+        keyPrefix: result.keyInfo.keyPrefix,
+        keySuffix: result.keyInfo.keySuffix,
+        maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
+        createdAt: result.keyInfo.createdAt,
+        revokedAt: result.keyInfo.revokedAt,
+        lastUsedAt: result.keyInfo.lastUsedAt,
+        createdByName: result.keyInfo.createdByName,
+        createdByEmail: result.keyInfo.createdByEmail
+      },
+      message: 'New Activepieces API key generated successfully. Copy this key now, as it will never be displayed again.'
+    });
+  } catch (err: any) {
+    console.error('[Activepieces Key Generate Error]', err);
+    return res.status(500).json({ success: false, error: 'Failed to generate Activepieces API key' });
+  }
+});
+
+// POST /api/admin/activepieces/api-key/revoke - Admin endpoint to revoke current API key
+app.post('/api/admin/activepieces/api-key/revoke', verifyAdminAuth, (req, res) => {
+  try {
+    const user = (req as any).user || {};
+    const result = revokeCurrentApiKey({
+      name: user.name || 'Administrator',
+      email: user.email || 'admin@opportunityghana.com'
+    });
+
+    if (!result.success) {
+      return res.status(400).json({ success: false, error: result.error || 'Failed to revoke API key' });
+    }
+
+    return res.json({
+      success: true,
+      keyInfo: result.keyInfo ? {
+        status: result.keyInfo.status,
+        keyPrefix: result.keyInfo.keyPrefix,
+        keySuffix: result.keyInfo.keySuffix,
+        maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
+        createdAt: result.keyInfo.createdAt,
+        revokedAt: result.keyInfo.revokedAt,
+        lastUsedAt: result.keyInfo.lastUsedAt
+      } : undefined,
+      message: 'Activepieces API key has been revoked. All incoming integration requests using this key will now be rejected.'
+    });
+  } catch (err: any) {
+    console.error('[Activepieces Key Revoke Error]', err);
+    return res.status(500).json({ success: false, error: 'Failed to revoke Activepieces API key' });
+  }
+});
+
+// GET /api/admin/activepieces/api-key/status - Admin endpoint to retrieve current key status
+app.get('/api/admin/activepieces/api-key/status', verifyAdminAuth, (req, res) => {
+  try {
+    const safeConfig = getPublicActivepiecesConfig();
+    return res.json({
+      success: true,
+      keyInfo: safeConfig.apiKeyInfo
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: 'Failed to fetch API key status' });
+  }
+});
+
 // POST /api/admin/activepieces/config - Admin route to update Activepieces settings
 app.post('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
   try {
-    const { webhookUrl, apiKey, webhookSecret, scheduleCron, scheduleTime, enabled, fallbackPolicy, emailProvider, fromEmail, fromName } = req.body || {};
-    const updated = saveActivepiecesConfig({
+    const { webhookUrl, webhookSecret, scheduleCron, scheduleTime, enabled, fallbackPolicy, emailProvider, fromEmail, fromName } = req.body || {};
+    saveActivepiecesConfig({
       ...(webhookUrl !== undefined ? { webhookUrl: webhookUrl.trim() } : {}),
-      ...(apiKey !== undefined && apiKey.trim() ? { apiKey: apiKey.trim() } : {}),
       ...(webhookSecret !== undefined && webhookSecret.trim() ? { webhookSecret: webhookSecret.trim() } : {}),
       ...(scheduleCron !== undefined ? { scheduleCron: scheduleCron.trim() } : {}),
       ...(scheduleTime !== undefined ? { scheduleTime: scheduleTime.trim() } : {}),
@@ -2454,8 +2531,8 @@ app.post('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
 app.get('/api/admin/activepieces/flow.json', verifyAdminAuth, (req, res) => {
   try {
     const user = (req as any).user || {};
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
-    const flowJson = generateActivepiecesFlowJson(baseUrl);
+    // Always generate workflow with canonical production base URL
+    const flowJson = generateActivepiecesFlowJson(PRODUCTION_ACTIVEPIECES_BASE_URL);
 
     console.info(`[Activepieces] Authorized admin (${user.email || user.uid || 'admin'}) accessed/downloaded Activepieces flow.json`);
 

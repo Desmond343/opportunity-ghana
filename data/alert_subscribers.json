@@ -18,12 +18,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T20:52:16.885Z",
-    "lastAlertTitle": "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
-    "alertsCount": 3,
+    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
+    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+    "alertsCount": 5,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.278Z",
-    "updatedAt": "2026-10-12T20:52:16.885Z",
+    "updatedAt": "2026-10-12T22:26:49.162Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -34,7 +34,17 @@
       "opp-mandela-washington-fellowship-2027",
       "opp-swiss-government-excellence-2027",
       "opp-edinburgh-mastercard-foundation-2027",
-      "opp-eiffel-excellence-france-2027"
+      "opp-eiffel-excellence-france-2027",
+      "opp-oxford-weidenfeld-hoffmann-2027",
+      "opp-mo-ibrahim-leadership-fellowship-2027",
+      "opp-gsa-local-tertiary-2027",
+      "opp-gnpc-foundation-tertiary-2027",
+      "opp-mtn-bright-scholarship-2027",
+      "opp-getfund-scholarship-2027",
+      "opp-knust-mastercard-foundation-2027",
+      "opp-ashesi-mcf-scholarships-2027",
+      "opp-fulbright-ghana-2027",
+      "opp-daad-epos-germany-2027"
     ]
   },
   {
@@ -53,12 +63,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T20:52:16.885Z",
-    "lastAlertTitle": "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
-    "alertsCount": 3,
+    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
+    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+    "alertsCount": 5,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.303Z",
-    "updatedAt": "2026-10-12T20:52:16.885Z",
+    "updatedAt": "2026-10-12T22:26:49.162Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -69,7 +79,17 @@
       "opp-mandela-washington-fellowship-2027",
       "opp-swiss-government-excellence-2027",
       "opp-edinburgh-mastercard-foundation-2027",
-      "opp-eiffel-excellence-france-2027"
+      "opp-eiffel-excellence-france-2027",
+      "opp-oxford-weidenfeld-hoffmann-2027",
+      "opp-mo-ibrahim-leadership-fellowship-2027",
+      "opp-gsa-local-tertiary-2027",
+      "opp-gnpc-foundation-tertiary-2027",
+      "opp-mtn-bright-scholarship-2027",
+      "opp-getfund-scholarship-2027",
+      "opp-knust-mastercard-foundation-2027",
+      "opp-ashesi-mcf-scholarships-2027",
+      "opp-fulbright-ghana-2027",
+      "opp-daad-epos-germany-2027"
     ]
   },
   {
@@ -88,12 +108,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T20:52:16.885Z",
-    "lastAlertTitle": "Data Science & Digitalisation Intern (GIZ Country Office)",
-    "alertsCount": 3,
+    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
+    "lastAlertTitle": "Deloitte Ghana Graduate Experience Programme (Audit, Tax & Consulting)",
+    "alertsCount": 5,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
-    "updatedAt": "2026-10-12T20:52:16.885Z",
+    "updatedAt": "2026-10-12T22:26:49.162Z",
     "sentOpportunityIds": [
       "intern-afdb-session1-2027",
       "intern-google-swe-accra",
@@ -104,7 +124,17 @@
       "intern-stanbic-graduate-trainee-accra",
       "intern-absa-gen-a-graduate-programme",
       "intern-nestle-graduate-trainee-accra",
-      "intern-farmerline-agritech-fellowship"
+      "intern-farmerline-agritech-fellowship",
+      "intern-unicef-ghana-advocacy",
+      "intern-who-global-health-programme-2027",
+      "intern-mest-ai-startup-traineeship-2027",
+      "intern-pwc-trust-ambassador-vacation",
+      "intern-kpmg-graduate-trainee-accra",
+      "intern-deloitte-graduate-experience-programme",
+      "intern-ecobank-junior-bankers-nss",
+      "intern-guinness-ghana-nss-programme",
+      "intern-newmont-graduate-development-programme",
+      "intern-goldfields-graduate-engineering-trainee"
     ]
   },
   {
@@ -126,12 +156,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T20:52:16.885Z",
-    "lastAlertTitle": "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
-    "alertsCount": 2,
+    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
+    "lastAlertTitle": "GETFund Tertiary & Postgraduate Scholarships Scheme 2027/2028",
+    "alertsCount": 4,
     "unsubscribedAt": null,
     "createdAt": "2026-10-10T18:32:10.774Z",
-    "updatedAt": "2026-10-12T20:52:16.885Z",
+    "updatedAt": "2026-10-12T22:26:49.162Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -142,7 +172,17 @@
       "opp-mandela-washington-fellowship-2027",
       "opp-swiss-government-excellence-2027",
       "opp-edinburgh-mastercard-foundation-2027",
-      "opp-eiffel-excellence-france-2027"
+      "opp-eiffel-excellence-france-2027",
+      "opp-oxford-weidenfeld-hoffmann-2027",
+      "opp-mo-ibrahim-leadership-fellowship-2027",
+      "opp-gsa-local-tertiary-2027",
+      "opp-gnpc-foundation-tertiary-2027",
+      "opp-mtn-bright-scholarship-2027",
+      "opp-getfund-scholarship-2027",
+      "opp-knust-mastercard-foundation-2027",
+      "opp-ashesi-mcf-scholarships-2027",
+      "opp-fulbright-ghana-2027",
+      "opp-daad-epos-germany-2027"
     ]
   },
   {
@@ -161,12 +201,12 @@
     "status": "active",
     "active": true,
     "source": "Activepieces Integration Test",
-    "lastAlertSentAt": "2026-10-12T20:52:16.885Z",
-    "lastAlertTitle": "Data Science & Digitalisation Intern (GIZ Country Office)",
-    "alertsCount": 2,
+    "lastAlertSentAt": "2026-10-12T22:26:49.162Z",
+    "lastAlertTitle": "Communications & Youth Social Media Intern (UNDP / UNIC Accra)",
+    "alertsCount": 4,
     "unsubscribedAt": null,
     "createdAt": "2026-10-12T15:48:19.627Z",
-    "updatedAt": "2026-10-12T20:52:16.885Z",
+    "updatedAt": "2026-10-12T22:26:49.162Z",
     "sentOpportunityIds": [
       "job-telecel-solutions-architect",
       "job-calbank-network-security-engineer",
@@ -177,7 +217,14 @@
       "intern-stanbic-graduate-trainee-accra",
       "intern-absa-gen-a-graduate-programme",
       "intern-nestle-graduate-trainee-accra",
-      "intern-unicef-ghana-advocacy"
+      "intern-unicef-ghana-advocacy",
+      "intern-mest-ai-startup-traineeship-2027",
+      "intern-pwc-trust-ambassador-vacation",
+      "intern-kpmg-graduate-trainee-accra",
+      "intern-deloitte-graduate-experience-programme",
+      "intern-guinness-ghana-nss-programme",
+      "intern-undp-ghana-communications-intern",
+      "comp-cyberx-ghana-ctf-championship"
     ]
   }
 ]
