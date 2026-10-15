@@ -115,7 +115,6 @@ export interface Opportunity {
   imageSourceUrl?: string;
   imageSourceName?: string;
   imageLicense?: string;
-  detailPath?: string; // Optional direct custom detail route (e.g. /institutions/slug)
 
   // Application
   requirements: string[];
@@ -222,10 +221,7 @@ export type CertificateType =
   | 'Digital Skill Badge'
   | 'Statement of Participation'
   | 'Certificate of Completion'
-  | 'None'
-  | 'free'
-  | 'paid'
-  | (string & {});
+  | 'None';
 
 export interface Resource {
   id: string;
@@ -234,7 +230,6 @@ export interface Resource {
   description: string;
   providerId: string;
   providerName?: string;
-  institution?: string;
   providerLogo?: string;
   providerWebsiteUrl?: string;
   providerWebsite?: string;
@@ -246,7 +241,6 @@ export interface Resource {
   location?: string;
   duration: string;
   estimatedWorkload?: string;
-  workload?: string;
   cost: number;
   currency: string;
   isFree: boolean;
@@ -254,11 +248,9 @@ export interface Resource {
   costDescription?: string;
   pricingFrequency?: 'one-time' | 'monthly' | 'annual' | 'free';
   freeStatus?: string;
-  freeAccessType?: string;
   hasCertificate: boolean;
   certificateType?: CertificateType;
   certificateStatus?: string;
-  certificateDetails?: string;
   certificateCost?: string;
   financialAid?: boolean;
   financialAidUrl?: string;

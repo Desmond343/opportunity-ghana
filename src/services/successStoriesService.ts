@@ -1,5 +1,5 @@
 import { SuccessStory, SuccessStoryStatus, SuccessStoryMetrics } from '../types/database';
-import { db, isFirebaseConfigured, withFirestoreTimeout } from './firebase';
+import { db, isFirebaseConfigured } from './firebase';
 import { collection, getDocs, query, where, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -59,7 +59,7 @@ export const SuccessStoriesService = {
     if (isFirebaseConfigured && db) {
       try {
         const q = query(collection(db, 'success_stories'), where('status', '==', 'published'));
-        const snap = await withFirestoreTimeout(getDocs(q), 2500);
+        const snap = await getDocs(q);
         const count = snap.size;
         cachedPublishedCount = count;
         try {
@@ -68,10 +68,8 @@ export const SuccessStoriesService = {
           // ignore
         }
         return count;
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore count query notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore count query error:', err);
       }
     }
 
@@ -115,7 +113,7 @@ export const SuccessStoriesService = {
     if (isFirebaseConfigured && db) {
       try {
         const q = query(collection(db, 'success_stories'), where('status', '==', 'published'));
-        const snap = await withFirestoreTimeout(getDocs(q), 2500);
+        const snap = await getDocs(q);
         const list = snap.docs.map(d => ({ id: d.id, ...d.data() } as SuccessStory));
         list.sort((a, b) => {
           const dateA = new Date(a.publishedAt || a.createdAt || 0).getTime();
@@ -125,10 +123,8 @@ export const SuccessStoriesService = {
         const result = limitCount ? list.slice(0, limitCount) : list;
         cachedPublishedCount = list.length;
         return result;
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore query published stories notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore query published stories error:', err);
       }
     }
 
@@ -147,14 +143,12 @@ export const SuccessStoriesService = {
     if (isAdmin && isFirebaseConfigured && db) {
       try {
         const docRef = doc(db, 'success_stories', slug);
-        const snap = await withFirestoreTimeout(getDoc(docRef), 2500);
+        const snap = await getDoc(docRef);
         if (snap.exists()) {
           return { id: snap.id, ...snap.data() } as SuccessStory;
         }
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore getStoryBySlug notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore getStoryBySlug error:', err);
       }
     }
 
@@ -198,7 +192,7 @@ export const SuccessStoriesService = {
     // Firestore fallback for admin
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await withFirestoreTimeout(getDocs(collection(db, 'success_stories')), 2500);
+        const snap = await getDocs(collection(db, 'success_stories'));
         const stories = snap.docs.map(d => ({ id: d.id, ...d.data() } as SuccessStory));
         stories.sort((a, b) => {
           const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
@@ -216,10 +210,8 @@ export const SuccessStoriesService = {
         };
         cachedPublishedCount = metrics.published;
         return { stories, metrics };
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore admin get stories notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore admin get stories error:', err);
       }
     }
 

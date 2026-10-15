@@ -67,15 +67,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   return (
     <article
-      onClick={() => {
-        if (opportunity.detailPath) {
-          onNavigate(opportunity.detailPath);
-        } else if (opportunity.category === 'Admissions' && (opportunity.id.startsWith('inst-') || opportunity.organizationId?.startsWith('inst-'))) {
-          onNavigate(`/institutions/${opportunity.slug}`);
-        } else {
-          onNavigate(`/opportunities/${opportunity.slug}`);
-        }
-      }}
+      onClick={() => onNavigate(`/opportunities/${opportunity.slug}`)}
       className={`floating-glass-tablet specular-rim-highlight group relative rounded-xl sm:rounded-2xl cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200 ${
         isActuallyFeatured ? 'featured-tablet' : ''
       }`}
@@ -251,9 +243,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         <div className="flex items-center gap-1.5">
           <VerificationBadge status={opportunity.verificationStatus} />
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-white/90 dark:bg-slate-800/90 group-hover:bg-[#006B3F] dark:group-hover:bg-emerald-600 text-slate-700 dark:text-slate-100 group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-[#006B3F] dark:group-hover:border-emerald-500 shadow-2xs transition-all">
-            <span className="hidden sm:inline">
-              {opportunity.category === 'Admissions' ? 'Admissions' : 'View'}
-            </span>
+            <span className="hidden sm:inline">View</span>
             <ArrowUpRight className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 group-hover:text-[#FCD116] transition-colors" />
           </span>
         </div>

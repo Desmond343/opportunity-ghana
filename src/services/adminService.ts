@@ -6,7 +6,7 @@ import { ResourcesService } from './resourcesService';
 import { SkillsService } from './skillsService';
 import { calculateDeadlineInfo } from './deadlineService';
 import { SuccessStoriesService } from './successStoriesService';
-import { db, isFirebaseConfigured, withFirestoreTimeout } from './firebase';
+import { db, isFirebaseConfigured } from './firebase';
 import { collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 const ORG_STORAGE_KEY = 'opp_gh_orgs_store';
@@ -36,16 +36,14 @@ export const AdminService = {
   async loadOrganizationsFromFirestore(): Promise<Organization[]> {
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await withFirestoreTimeout(getDocs(collection(db, 'organizations')), 2500);
+        const snap = await getDocs(collection(db, 'organizations'));
         const list = snap.docs
           .map(d => ({ id: d.id, ...d.data() } as Organization))
           .filter(o => !o.id.startsWith('org-demo-'));
         localStorage.setItem(ORG_STORAGE_KEY, JSON.stringify(list));
         return list;
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore loadOrganizations notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore loadOrganizations error:', err);
       }
     }
     return this.getOrganizations();
@@ -142,14 +140,12 @@ export const AdminService = {
     let list: Submission[] = [];
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await withFirestoreTimeout(getDocs(collection(db, 'submissions')), 2500);
+        const snap = await getDocs(collection(db, 'submissions'));
         list = snap.docs
           .map(d => ({ id: d.id, ...d.data() } as Submission))
           .filter(s => !s.id.startsWith('sub-0'));
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore loadSubmissions notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore loadSubmissions error:', err);
       }
     }
 
@@ -451,16 +447,14 @@ export const AdminService = {
   async loadReportsFromFirestore(): Promise<ContentReport[]> {
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await withFirestoreTimeout(getDocs(collection(db, 'reports')), 2500);
+        const snap = await getDocs(collection(db, 'reports'));
         const list = snap.docs
           .map(d => ({ id: d.id, ...d.data() } as ContentReport))
           .filter(r => !r.id.startsWith('rep-0'));
         localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(list));
         return list;
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore loadReports notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore loadReports error:', err);
       }
     }
     return this.getReports();
@@ -506,16 +500,14 @@ export const AdminService = {
   async loadUsersFromFirestore(): Promise<User[]> {
     if (isFirebaseConfigured && db) {
       try {
-        const snap = await withFirestoreTimeout(getDocs(collection(db, 'users')), 2500);
+        const snap = await getDocs(collection(db, 'users'));
         const list = snap.docs
           .map(d => ({ id: d.id, ...d.data() } as User))
           .filter(u => !u.email?.includes('example.com') && !u.id.startsWith('user-0'));
         localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(list));
         return list;
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore loadUsers notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore loadUsers error:', err);
       }
     }
     return this.getUsers();

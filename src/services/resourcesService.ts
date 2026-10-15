@@ -1,5 +1,5 @@
 import { Resource, OpportunityStatus, VerificationStatus } from '../types/database';
-import { db, isFirebaseConfigured, withFirestoreTimeout } from './firebase';
+import { db, isFirebaseConfigured } from './firebase';
 import { sanitizeForFirestore } from './firebase/firestoreService';
 import { auth } from './firebase/authService';
 import { FirebaseStorageService, validateImageFile } from './firebase/storageService';
@@ -240,17 +240,15 @@ export const ResourcesService = {
     const canonicalId = LEGACY_RESOURCE_ID_MAP[id] || id;
     if (isFirebaseConfigured && db) {
       try {
-        const docSnap = await withFirestoreTimeout(getDoc(doc(db, 'resources', canonicalId)), 2500);
+        const docSnap = await getDoc(doc(db, 'resources', canonicalId));
         if (docSnap.exists()) {
           const item = { id: docSnap.id, ...docSnap.data() } as Resource;
           if (!item.id.startsWith('res-demo-') && !item.title.includes('[DEMO RECORD]')) {
             return item;
           }
         }
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore getById resource notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore getById resource error:', err);
       }
     }
     const items = getStoredResources();
@@ -955,17 +953,15 @@ export const ResourcesService = {
     if (isFirebaseConfigured && db) {
       try {
         const q = query(collection(db, 'resources'), where('submittedBy', '==', userId));
-        const snap = await withFirestoreTimeout(getDocs(q), 2500);
+        const snap = await getDocs(q);
         if (!snap.empty) {
           const remoteItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as Resource));
           const otherItems = getStoredResources().filter(r => r.submittedBy !== userId && r.createdByUserId !== userId);
           items = remoteItems;
           saveStoredResources([...remoteItems, ...otherItems]);
         }
-      } catch (err: any) {
-        if (err?.message !== 'firestore_timeout' && err?.code !== 'unavailable') {
-          console.warn('Firestore getUserSubmissions notice:', err?.message || err);
-        }
+      } catch (err) {
+        console.warn('Firestore getUserSubmissions error:', err);
       }
     }
 

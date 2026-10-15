@@ -5,25 +5,18 @@
     <!-- Ignore Vite HMR WebSocket connection errors in AI Studio iframe environment (HMR: Disabled) -->
     <script>
       (function() {
-        var isIgnoredError = function(val) {
+        var isViteError = function(val) {
           if (!val) return false;
           var str = typeof val === 'string' ? val : (val.message || val.stack || (val.reason && (val.reason.message || val.reason)) || '');
           str = String(str);
-          return str.indexOf('[vite]') !== -1 ||
-                 str.indexOf('WebSocket') !== -1 ||
-                 str.indexOf('websocket') !== -1 ||
-                 str.indexOf('ws://') !== -1 ||
-                 str.indexOf('wss://') !== -1 ||
-                 str.indexOf('Could not reach Cloud Firestore backend') !== -1 ||
-                 str.indexOf("Backend didn't respond within 10 seconds") !== -1 ||
-                 (str.indexOf('@firebase/firestore') !== -1 && (str.indexOf('offline mode') !== -1 || str.indexOf('healthy Internet connection') !== -1));
+          return str.indexOf('[vite]') !== -1 || str.indexOf('WebSocket') !== -1 || str.indexOf('websocket') !== -1 || str.indexOf('ws://') !== -1 || str.indexOf('wss://') !== -1;
         };
 
         var origError = console.error;
         console.error = function() {
           var args = Array.prototype.slice.call(arguments);
           for (var i = 0; i < args.length; i++) {
-            if (isIgnoredError(args[i])) {
+            if (isViteError(args[i])) {
               return;
             }
           }
@@ -31,7 +24,7 @@
         };
 
         window.addEventListener('error', function(event) {
-          if (isIgnoredError(event.message) || isIgnoredError(event.error)) {
+          if (isViteError(event.message) || isViteError(event.error)) {
             event.stopImmediatePropagation();
             event.preventDefault();
             return false;
@@ -39,7 +32,7 @@
         }, true);
 
         window.addEventListener('unhandledrejection', function(event) {
-          if (isIgnoredError(event.reason)) {
+          if (isViteError(event.reason)) {
             event.stopImmediatePropagation();
             event.preventDefault();
             return false;
