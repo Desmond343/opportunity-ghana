@@ -12,6 +12,7 @@ import { ResourceDetailPage } from './pages/ResourceDetailPage';
 import { SubmitResourcePage } from './pages/SubmitResourcePage';
 import { InstitutionsPage } from './pages/InstitutionsPage';
 import { InstitutionDetailPage } from './pages/InstitutionDetailPage';
+import { getInstitutionBySlug } from './data/institutions';
 import { CareersPage } from './pages/CareersPage';
 import { SkillDetailPage } from './pages/SkillDetailPage';
 import { ToolsPage } from './pages/ToolsPage';
@@ -109,6 +110,10 @@ export function AppContent() {
     // 5. Opportunities Detail: /opportunities/:slug
     if (pathname.startsWith('/opportunities/') && pathname !== '/opportunities') {
       const slug = pathname.replace('/opportunities/', '').replace(/\/$/, '');
+      const inst = getInstitutionBySlug(slug);
+      if (inst) {
+        return <InstitutionDetailPage slug={inst.slug} onNavigate={navigate} />;
+      }
       return <OpportunityDetailPage slug={slug} onNavigate={navigate} />;
     }
 

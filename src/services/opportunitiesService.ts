@@ -10,6 +10,7 @@ import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from '../data/verifiedJobsAndInter
 import { VERIFIED_REAL_COMPETITIONS } from '../data/verifiedCompetitions';
 import { ensureUniqueOpportunityImages } from '../utils/cardBackgrounds';
 import { detectDuplicates } from './duplicateDetection';
+import { ALL_PLATFORM_VERIFIED_OPPORTUNITIES, matchesOpportunityCategory } from '../data/allPlatformOpportunities';
 import { 
   collection, 
   getDocs, 
@@ -24,11 +25,7 @@ import {
 
 const LOCAL_STORAGE_KEY = 'opp_gh_opportunities_store';
 
-export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = [
-  ...VERIFIED_REAL_SCHOLARSHIPS,
-  ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS,
-  ...VERIFIED_REAL_COMPETITIONS
-];
+export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = ALL_PLATFORM_VERIFIED_OPPORTUNITIES;
 
 function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
   if (opp.status !== 'archived' && opp.status !== 'draft') {
@@ -47,9 +44,10 @@ function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
 
 function getStoredOpportunities(): Opportunity[] {
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Purge any old demo/mock records from storage
         let cleaned = parsed.filter(o => 
@@ -79,15 +77,16 @@ function getStoredOpportunities(): Opportunity[] {
           }
         }
 
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
-        return ensureUniqueOpportunityImages(cleaned.map(syncWithDeadlineAutomation));
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+          return ensureUniqueOpportunityImages(cleaned.map(syncWithDeadlineAutomation));
+        }
       }
     }
   } catch (e) {
     console.error('Failed to load local opportunities storage', e);
   }
 
-  // Initial populate with verified real scholarships, jobs, internships, and competitions
+  // Initial populate with verified real scholarships, jobs, internships, institutions, and cohorts
   const initial = ensureUniqueOpportunityImages(ALL_VERIFIED_INITIAL_OPPORTUNITIES.map(syncWithDeadlineAutomation));
   saveStoredOpportunities(initial);
   return initial;
@@ -95,13 +94,15 @@ function getStoredOpportunities(): Opportunity[] {
 
 function saveStoredOpportunities(items: Opportunity[]) {
   try {
-    const cleaned = items.filter(o => 
-      o && 
-      o.id && 
-      !o.id.startsWith('opp-demo-') && 
-      !o.title?.includes('[DEMO RECORD]')
-    );
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const cleaned = items.filter(o => 
+        o && 
+        o.id && 
+        !o.id.startsWith('opp-demo-') && 
+        !o.title?.includes('[DEMO RECORD]')
+      );
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+    }
   } catch (e) {
     console.error('Failed to save opportunities', e);
   }
@@ -137,10 +138,7 @@ export const OpportunitiesService = {
     if (isFirebaseConfigured && db) {
       try {
         const oppsRef = collection(db, 'opportunities');
-        let q = query(oppsRef);
-        if (filters?.category && filters.category !== 'All') {
-          q = query(oppsRef, where('category', '==', filters.category));
-        }
+        const q = query(oppsRef);
         const timeout = new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('timeout')), 3000)
         );
@@ -189,20 +187,14 @@ export const OpportunitiesService = {
         items = items.filter(o => o.verificationStatus === filters.verificationStatus);
       }
       if (filters.category && filters.category !== 'All') {
-        const catQuery = filters.category.toLowerCase();
-        items = items.filter(o => {
-          if (o.category.toLowerCase() === catQuery) return true;
-          // Support searching 'Study Abroad' to include international study abroad programs
-          if (catQuery === 'study abroad') {
-            return o.category.toLowerCase() === 'study abroad' ||
-              (o.locationType === 'abroad') ||
-              (o.category.toLowerCase() === 'scholarships' && o.country && o.country.toLowerCase() !== 'ghana');
-          }
-          return false;
-        });
+        items = items.filter(o => matchesOpportunityCategory(o, filters.category!));
       }
       if (filters.region && filters.region !== 'All Regions' && filters.region !== 'All Ghana') {
-        items = items.filter(o => o.region?.toLowerCase() === filters.region!.toLowerCase());
+        const rQuery = filters.region.toLowerCase().trim();
+        items = items.filter(o => {
+          const r = (o.region || '').toLowerCase().trim();
+          return r === rQuery || r.includes(rQuery) || r.includes('all 16') || r.includes('all ghana');
+        });
       }
       if (filters.locationType && filters.locationType !== 'all') {
         const locType = filters.locationType.toLowerCase();

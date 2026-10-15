@@ -115,6 +115,7 @@ export interface Opportunity {
   imageSourceUrl?: string;
   imageSourceName?: string;
   imageLicense?: string;
+  detailPath?: string; // Optional direct custom detail route (e.g. /institutions/slug)
 
   // Application
   requirements: string[];
