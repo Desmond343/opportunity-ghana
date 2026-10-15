@@ -143,12 +143,12 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
           </p>
 
           {/* Title */}
-          <h3 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug font-space">
+          <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-50 group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors line-clamp-2 leading-snug font-serif text-left">
             {resource.title}
           </h3>
 
           {/* Description */}
-          <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+          <p className="text-[15px] sm:text-[16px] text-[#333333] dark:text-slate-200 line-clamp-3 leading-relaxed font-serif text-left">
             {resource.description}
           </p>
         </div>

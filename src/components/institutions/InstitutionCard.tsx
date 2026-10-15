@@ -126,18 +126,18 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
           <div className="flex items-baseline gap-2 mb-1">
             <h3
               onClick={() => onNavigate(`/institutions/${institution.slug}`)}
-              className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors cursor-pointer leading-snug drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)] font-space line-clamp-1"
+              className="text-base sm:text-lg font-semibold text-[#111111] dark:text-slate-50 group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors cursor-pointer leading-snug font-serif line-clamp-1"
             >
               {institution.name}
             </h3>
-            <span className="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 bg-white/92 dark:bg-slate-800/90 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-white/90 dark:border-slate-700 rounded shadow-xs shrink-0">
+            <span className="editorial-supporting font-semibold px-2 py-0.5 bg-white/92 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded shadow-xs shrink-0">
               {institution.shortName}
             </span>
           </div>
 
           {/* Location */}
-          <p className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-slate-700 dark:text-slate-200 mb-2 drop-shadow-[0_1px_1px_rgba(255,255,255,0.75)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-            <MapPin className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
+          <p className="flex items-center gap-1.5 editorial-supporting text-slate-700 dark:text-slate-200 mb-2 font-serif">
+            <MapPin className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
             <span className="truncate">
               {institution.location.city}, {institution.location.region} Region
             </span>

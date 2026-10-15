@@ -26,6 +26,7 @@ import {
   BookOpen,
   Share2
 } from 'lucide-react';
+import { EditorialParagraphs } from '../components/common/EditorialArticle';
 
 interface InstitutionDetailPageProps {
   slug: string;
@@ -194,10 +195,10 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h1 className="editorial-heading-1 text-[#111111] dark:text-white leading-tight font-serif">
                   {institution.name} ({institution.shortName})
                 </h1>
-                <p className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300 mt-2">
+                <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-2 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-400 shrink-0" />
                   <span>
                     {institution.location.campus} • {institution.location.city},{' '}
@@ -206,9 +207,9 @@ export const InstitutionDetailPage: React.FC<InstitutionDetailPageProps> = ({ sl
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-                {institution.accreditationDetails}
-              </p>
+              <div className="pt-1">
+                <EditorialParagraphs text={institution.accreditationDetails} className="max-w-3xl" />
+              </div>
             </div>
 
             {/* Quick CTAs */}

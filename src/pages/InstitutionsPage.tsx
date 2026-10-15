@@ -115,10 +115,10 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               GTEC Accredited Master Source Directory
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
+            <h1 className="editorial-heading-1 text-white font-serif mb-3">
               Tertiary Institutions & Admissions in Ghana
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+            <p className="text-slate-200 text-[16px] sm:text-[17px] leading-[1.6] mb-6 font-serif">
               Research, verify, and apply to accredited public universities, technical universities, chartered private institutions, colleges of education, and nursing training colleges in Ghana.
             </p>
 

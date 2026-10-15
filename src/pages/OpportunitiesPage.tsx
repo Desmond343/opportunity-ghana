@@ -113,7 +113,7 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
       {/* Top Banner / Heading */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+          <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
             {filters.category === 'Jobs'
               ? 'Verified Jobs in Ghana & Remote Roles'
               : filters.category === 'Internships'
@@ -122,7 +122,7 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
               ? 'Verified Scholarships for Ghanaian Students'
               : 'Browse Opportunities'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 font-serif max-w-3xl">
             {filters.category === 'Jobs'
               ? 'Current, verified employment opportunities with verified employer career portals and Ghanaian eligibility.'
               : filters.category === 'Internships'

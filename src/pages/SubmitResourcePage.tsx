@@ -241,10 +241,10 @@ export const SubmitResourcePage: React.FC<SubmitResourcePageProps> = ({ onNaviga
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+            <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
               Submit a Learning Resource
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+            <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 max-w-2xl leading-relaxed font-serif">
               Help Ghanaian youths, students, and professionals discover high-impact learning opportunities. Every submission is vetted by our team before publishing.
             </p>
           </div>
