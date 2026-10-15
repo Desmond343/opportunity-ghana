@@ -4,18 +4,37 @@ import {
   collection,
   doc,
   getDoc,
+  setLogLevel,
   CollectionReference,
   DocumentData,
   Firestore
 } from 'firebase/firestore';
 import { app, isFirebaseConfigured, firebaseConfig } from './config';
 
+// Silence Firestore internal connection watchdog notices (offline/resilient preview mode)
+try {
+  setLogLevel('silent');
+} catch {
+  // Ignore in environments where setLogLevel is restricted
+}
+
+/**
+ * Universal timeout wrapper for Firestore reads to prevent hanging in offline or network-restricted environments
+ */
+export function withFirestoreTimeout<T>(promise: Promise<T>, ms = 2500): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('firestore_timeout')), ms)
+    )
+  ]);
+}
+
 function createFirestoreInstance(): Firestore | null {
   if (!app || !isFirebaseConfigured) return null;
   try {
     return initializeFirestore(app, {
       experimentalAutoDetectLongPolling: true,
-      experimentalForceLongPolling: true,
       ignoreUndefinedProperties: true
     });
   } catch {
