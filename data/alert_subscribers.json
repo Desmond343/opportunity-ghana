@@ -18,12 +18,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
-    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
-    "alertsCount": 7,
+    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
+    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
+    "alertsCount": 9,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.278Z",
-    "updatedAt": "2026-10-12T23:18:15.618Z",
+    "updatedAt": "2026-10-15T01:53:53.635Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -54,7 +54,17 @@
       "opp-erasmus-mundus-2027",
       "opp-stipendium-hungaricum-2027",
       "opp-swedish-institute-2027",
-      "opp-master-mind-flanders-2027"
+      "opp-master-mind-flanders-2027",
+      "opp-lester-pearson-toronto-2027",
+      "opp-singa-singapore-2027",
+      "job-google-swe-accra",
+      "job-mtn-bi-commercial-accra",
+      "job-telecel-solutions-architect",
+      "job-giz-govid-technical-advisor",
+      "job-nestle-maintenance-engineer-tema",
+      "job-farmerline-senior-data-engineer",
+      "job-newmont-it-analyst-ahafo",
+      "job-paystack-devrel-ghana-remote"
     ]
   },
   {
@@ -73,12 +83,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
-    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
-    "alertsCount": 7,
+    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
+    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
+    "alertsCount": 9,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.303Z",
-    "updatedAt": "2026-10-12T23:18:15.618Z",
+    "updatedAt": "2026-10-15T01:53:53.635Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -109,7 +119,17 @@
       "opp-erasmus-mundus-2027",
       "opp-stipendium-hungaricum-2027",
       "opp-swedish-institute-2027",
-      "opp-master-mind-flanders-2027"
+      "opp-master-mind-flanders-2027",
+      "opp-lester-pearson-toronto-2027",
+      "opp-singa-singapore-2027",
+      "job-google-swe-accra",
+      "job-mtn-bi-commercial-accra",
+      "job-telecel-solutions-architect",
+      "job-giz-govid-technical-advisor",
+      "job-nestle-maintenance-engineer-tema",
+      "job-farmerline-senior-data-engineer",
+      "job-newmont-it-analyst-ahafo",
+      "job-paystack-devrel-ghana-remote"
     ]
   },
   {
@@ -128,12 +148,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
-    "lastAlertTitle": "Ghana Climate Tech Innovation Fellowship 2026",
-    "alertsCount": 7,
+    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
+    "lastAlertTitle": "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+    "alertsCount": 9,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
-    "updatedAt": "2026-10-12T23:18:15.618Z",
+    "updatedAt": "2026-10-15T01:53:53.635Z",
     "sentOpportunityIds": [
       "intern-afdb-session1-2027",
       "intern-google-swe-accra",
@@ -159,7 +179,13 @@
       "intern-undp-ghana-communications-intern",
       "opp_sub_1791752052687_i7byg",
       "opp-chevening-uk-2027",
-      "opp-commonwealth-masters-2027"
+      "opp-commonwealth-masters-2027",
+      "opp-commonwealth-phd-2027",
+      "opp-gates-cambridge-2027",
+      "opp-knight-hennessy-stanford-2027",
+      "opp-government-of-ireland-postgrad-2027",
+      "opp-swiss-government-excellence-2027",
+      "opp-edinburgh-mastercard-foundation-2027"
     ]
   },
   {
@@ -181,12 +207,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
-    "lastAlertTitle": "Clarendon Fund Graduate Scholarships 2027/2028 (University of Oxford)",
-    "alertsCount": 6,
+    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
+    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
+    "alertsCount": 8,
     "unsubscribedAt": null,
     "createdAt": "2026-10-10T18:32:10.774Z",
-    "updatedAt": "2026-10-12T23:18:15.618Z",
+    "updatedAt": "2026-10-15T01:53:53.635Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -217,7 +243,17 @@
       "opp-erasmus-mundus-2027",
       "opp-stipendium-hungaricum-2027",
       "opp-swedish-institute-2027",
-      "opp-master-mind-flanders-2027"
+      "opp-master-mind-flanders-2027",
+      "opp-lester-pearson-toronto-2027",
+      "opp-singa-singapore-2027",
+      "job-google-swe-accra",
+      "job-mtn-bi-commercial-accra",
+      "job-telecel-solutions-architect",
+      "job-giz-govid-technical-advisor",
+      "job-nestle-maintenance-engineer-tema",
+      "job-farmerline-senior-data-engineer",
+      "job-newmont-it-analyst-ahafo",
+      "job-paystack-devrel-ghana-remote"
     ]
   },
   {
@@ -236,12 +272,12 @@
     "status": "active",
     "active": true,
     "source": "Activepieces Integration Test",
-    "lastAlertSentAt": "2026-10-12T23:18:15.618Z",
-    "lastAlertTitle": "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
-    "alertsCount": 6,
+    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
+    "lastAlertTitle": "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
+    "alertsCount": 8,
     "unsubscribedAt": null,
     "createdAt": "2026-10-12T15:48:19.627Z",
-    "updatedAt": "2026-10-12T23:18:15.618Z",
+    "updatedAt": "2026-10-15T01:53:53.635Z",
     "sentOpportunityIds": [
       "job-telecel-solutions-architect",
       "job-calbank-network-security-engineer",
@@ -265,7 +301,13 @@
       "opp-commonwealth-masters-2027",
       "opp-commonwealth-phd-2027",
       "opp-gates-cambridge-2027",
-      "opp-knight-hennessy-stanford-2027"
+      "opp-knight-hennessy-stanford-2027",
+      "opp-government-of-ireland-postgrad-2027",
+      "opp-mandela-washington-fellowship-2027",
+      "opp-swiss-government-excellence-2027",
+      "opp-edinburgh-mastercard-foundation-2027",
+      "opp-eiffel-excellence-france-2027",
+      "opp-oxford-weidenfeld-hoffmann-2027"
     ]
   }
 ]

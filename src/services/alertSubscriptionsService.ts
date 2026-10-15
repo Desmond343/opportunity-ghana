@@ -560,7 +560,7 @@ export const AlertSubscriptionsService = {
         errorMsg = errJson.error || errJson.message || '';
       } catch {
         const text = await res.text().catch(() => '');
-        errorMsg = text.slice(0, 150);
+        errorMsg = text.slice(0, 200).trim();
       }
 
       if (res.status === 404) {
@@ -571,7 +571,7 @@ export const AlertSubscriptionsService = {
       if (res.status === 401 || res.status === 403) {
         throw new Error(errorMsg || 'Unauthorized: Administrator privileges are required to generate an Activepieces API key.');
       }
-      throw new Error(errorMsg || `Failed to generate API key (HTTP ${res.status})`);
+      throw new Error(errorMsg ? `Failed to generate API key: ${errorMsg}` : `Failed to generate API key (HTTP ${res.status})`);
     }
 
     return res.json();
@@ -614,7 +614,7 @@ export const AlertSubscriptionsService = {
         errorMsg = errJson.error || errJson.message || '';
       } catch {
         const text = await res.text().catch(() => '');
-        errorMsg = text.slice(0, 150);
+        errorMsg = text.slice(0, 200).trim();
       }
 
       if (res.status === 404) {
@@ -625,7 +625,7 @@ export const AlertSubscriptionsService = {
       if (res.status === 401 || res.status === 403) {
         throw new Error(errorMsg || 'Unauthorized: Administrator privileges are required to revoke Activepieces API keys.');
       }
-      throw new Error(errorMsg || `Failed to revoke API key (HTTP ${res.status})`);
+      throw new Error(errorMsg ? `Failed to revoke API key: ${errorMsg}` : `Failed to revoke API key (HTTP ${res.status})`);
     }
 
     return res.json();

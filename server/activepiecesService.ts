@@ -61,10 +61,15 @@ export interface DeliveryReport {
 
 const CONFIG_FILE = path.resolve(process.cwd(), 'data', 'activepieces_config.json');
 const DELIVERIES_FILE = path.resolve(process.cwd(), 'data', 'activepieces_deliveries.json');
+const TMP_CONFIG_FILE = path.resolve('/tmp', 'activepieces_config.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(path.dirname(CONFIG_FILE))) {
-  fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
+// Ensure data directory exists safely without crashing read-only serverless filesystems
+try {
+  if (!fs.existsSync(path.dirname(CONFIG_FILE))) {
+    fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
+  }
+} catch {
+  // Read-only filesystem in serverless environments (e.g. Vercel)
 }
 
 function generateSecret(): string {
@@ -89,14 +94,15 @@ const DEFAULT_CONFIG: ActivepiecesConfig = {
 
 // In-memory cache of Activepieces configuration for fast and serverless lookups
 let inMemoryConfig: ActivepiecesConfig | null = null;
+let lastPersistenceError: string | null = null;
 
 // Helpers to serialize and deserialize to Firestore REST format
-function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
+export function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
   const fields: Record<string, any> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value === undefined) continue;
     if (value === null) {
-      fields[key] = { nullValue: null };
+      fields[key] = { nullValue: 'NULL_VALUE' };
     } else if (typeof value === 'string') {
       fields[key] = { stringValue: value };
     } else if (typeof value === 'number') {
@@ -104,13 +110,17 @@ function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
     } else if (typeof value === 'boolean') {
       fields[key] = { booleanValue: value };
     } else if (Array.isArray(value)) {
-      fields[key] = {
-        arrayValue: {
-          values: value.map((v) =>
-            typeof v === 'object' && v !== null ? { mapValue: { fields: toFirestoreFields(v) } } : { stringValue: String(v) }
-          )
-        }
-      };
+      if (value.length === 0) {
+        fields[key] = { arrayValue: {} };
+      } else {
+        fields[key] = {
+          arrayValue: {
+            values: value.map((v) =>
+              typeof v === 'object' && v !== null ? { mapValue: { fields: toFirestoreFields(v) } } : { stringValue: String(v) }
+            )
+          }
+        };
+      }
     } else if (typeof value === 'object') {
       fields[key] = { mapValue: { fields: toFirestoreFields(value) } };
     }
@@ -118,7 +128,7 @@ function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
   return fields;
 }
 
-function fromFirestoreFields(fields: Record<string, any>): Record<string, any> {
+export function fromFirestoreFields(fields: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
   for (const [key, valObj] of Object.entries(fields)) {
     if ('stringValue' in valObj) result[key] = valObj.stringValue;
@@ -147,9 +157,13 @@ export async function saveActivepiecesConfigToFirestore(
   adminToken?: string
 ): Promise<boolean> {
   let persisted = false;
+  lastPersistenceError = null;
 
   const cleanConfig = { ...config };
   delete cleanConfig.apiKey; // Never store plaintext key in database
+
+  let adminDbError: string | null = null;
+  let restError: string | null = null;
 
   // 1. Try Firebase Admin SDK
   if (adminDb) {
@@ -158,43 +172,68 @@ export async function saveActivepiecesConfigToFirestore(
       persisted = true;
       console.info('[Activepieces] Config successfully persisted to Cloud Firestore via adminDb.');
     } catch (adminErr: any) {
-      console.warn('[Activepieces] adminDb Firestore write note:', adminErr?.message || adminErr);
+      adminDbError = adminErr?.message || String(adminErr);
+      console.warn('[Activepieces] adminDb Firestore write note:', adminDbError);
     }
+  } else {
+    adminDbError = 'adminDb instance not initialized or lacks service account';
   }
 
   // 2. Try Firestore REST API with administrator's Bearer token if adminDb failed or lacked service account
   if (!persisted && adminToken) {
     try {
       const restUrl = `https://firestore.googleapis.com/v1/projects/opportunity-ghana/databases/(default)/documents/settings/activepieces_config`;
-      const resp = await fetch(restUrl, {
+      const serializedFields = toFirestoreFields(cleanConfig);
+      const maskQuery = Object.keys(serializedFields).map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
+      const urlWithMask = `${restUrl}?${maskQuery}`;
+
+      const resp = await fetch(urlWithMask, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${adminToken}`
         },
-        body: JSON.stringify({ fields: toFirestoreFields(cleanConfig) })
+        body: JSON.stringify({ fields: serializedFields })
       });
       if (resp.ok) {
         persisted = true;
         console.info('[Activepieces] Config successfully persisted to Cloud Firestore via REST with admin token.');
       } else {
         const errText = await resp.text().catch(() => '');
+        restError = `HTTP ${resp.status}: ${errText.slice(0, 300)}`;
         console.warn(`[Activepieces] Firestore REST save failed (${resp.status}):`, errText);
       }
     } catch (restErr: any) {
-      console.warn('[Activepieces] Firestore REST save note:', restErr?.message || restErr);
+      restError = restErr?.message || String(restErr);
+      console.warn('[Activepieces] Firestore REST save note:', restError);
     }
   }
 
-  // 3. Fallback: Save to local filesystem if writable
+  // 3. Fallback: Save to local filesystem or /tmp cache if writable
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(cleanConfig, null, 2), 'utf8');
     persisted = true;
   } catch (fsErr) {
-    // Expected on serverless environments with read-only filesystems
+    try {
+      fs.writeFileSync(TMP_CONFIG_FILE, JSON.stringify(cleanConfig, null, 2), 'utf8');
+      // In local development or test mode, /tmp storage is accepted as persisted
+      if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+        persisted = true;
+      }
+    } catch {
+      // Ignore /tmp write failure
+    }
   }
 
   inMemoryConfig = cleanConfig;
+
+  if (!persisted) {
+    lastPersistenceError = [
+      adminDbError ? `adminDb: ${adminDbError}` : null,
+      restError ? `REST: ${restError}` : null
+    ].filter(Boolean).join(' | ');
+  }
+
   return persisted;
 }
 
@@ -343,7 +382,8 @@ export async function generateNewApiKeyAsync(
 
   const persisted = await saveActivepiecesConfigToFirestore(updatedConfig, adminToken);
   if (!persisted) {
-    throw new Error('Database persistence failure: Unable to write key to Firestore. Please check database permissions or service credentials.');
+    const detail = lastPersistenceError ? ` (${lastPersistenceError})` : '';
+    throw new Error(`Database persistence failure: Unable to write key to Firestore${detail}. Please check database permissions or service credentials.`);
   }
 
   console.info(`[Activepieces] New integration API key successfully generated by ${keyInfo.createdByEmail} (Prefix: ${keyInfo.keyPrefix}...)`);
@@ -425,7 +465,8 @@ export async function revokeCurrentApiKeyAsync(
 
   const persisted = await saveActivepiecesConfigToFirestore(updatedConfig, adminToken);
   if (!persisted) {
-    return { success: false, error: 'Database persistence failure: Unable to update key revocation status in database.' };
+    const detail = lastPersistenceError ? `: ${lastPersistenceError}` : '';
+    return { success: false, error: `Database persistence failure: Unable to update key revocation status in database${detail}` };
   }
 
   console.info(`[Activepieces] API key revoked by ${adminUser?.email || 'Administrator'} (Prefix: ${revokedKeyInfo.keyPrefix}...)`);

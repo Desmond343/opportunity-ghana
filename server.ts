@@ -38,7 +38,7 @@ const ALL_VERIFIED_INITIAL = [
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
 
 // CORS Middleware with Authorization and Content-Disposition exposure
 app.use((req, res, next) => {
@@ -54,7 +54,13 @@ app.use((req, res, next) => {
 
 // Normalize incoming request path for Vercel Serverless Function rewrites
 app.use((req, res, next) => {
-  if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/@') && !req.url.startsWith('/src')) {
+  const forwardedUri = (req.headers['x-forwarded-uri'] || req.headers['x-matched-path']) as string | undefined;
+  if (forwardedUri && forwardedUri.startsWith('/api') && (req.url === '/api' || req.url === '/api/' || !req.url.startsWith('/api'))) {
+    req.url = forwardedUri;
+  } else if ((req.url === '/api' || req.url === '/api/') && req.query && req.query.path) {
+    const subpath = Array.isArray(req.query.path) ? req.query.path.join('/') : String(req.query.path);
+    req.url = '/api/' + subpath.replace(/^\/+/, '');
+  } else if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/@') && !req.url.startsWith('/src')) {
     req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
   }
   next();
@@ -63,16 +69,20 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Setup local uploads storage directory
+// Setup local uploads storage directory safely for read-only serverless environments
 const uploadBaseDir = path.resolve(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadBaseDir)) {
-  fs.mkdirSync(uploadBaseDir, { recursive: true });
-}
-for (const sub of ['opportunities', 'resources', 'users', 'public']) {
-  const subDir = path.join(uploadBaseDir, sub);
-  if (!fs.existsSync(subDir)) {
-    fs.mkdirSync(subDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadBaseDir)) {
+    fs.mkdirSync(uploadBaseDir, { recursive: true });
   }
+  for (const sub of ['opportunities', 'resources', 'users', 'public']) {
+    const subDir = path.join(uploadBaseDir, sub);
+    if (!fs.existsSync(subDir)) {
+      fs.mkdirSync(subDir, { recursive: true });
+    }
+  }
+} catch {
+  // Read-only filesystem in serverless environments (e.g. Vercel)
 }
 
 // Serve uploaded static files directly
@@ -82,9 +92,16 @@ const uploadDiskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const rawEntity = (req.body && req.body.entityType) || 'resources';
     const safeEntity = ['opportunities', 'resources', 'users', 'public'].includes(rawEntity) ? rawEntity : 'resources';
-    const destDir = path.join(uploadBaseDir, safeEntity);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
+    let destDir = path.join(uploadBaseDir, safeEntity);
+    try {
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+    } catch {
+      destDir = path.join('/tmp', 'uploads', safeEntity);
+      try {
+        if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+      } catch {}
     }
     cb(null, destDir);
   },
@@ -3049,6 +3066,19 @@ const isMainModule = Boolean(
 if (isMainModule && !process.env.VERCEL) {
   setupVite();
 }
+
+// Global error handler middleware to guarantee structured JSON responses for API routes
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(`[Opportunity Ghana Error] ${req.method} ${req.url}:`, err?.message || err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500).json({
+    success: false,
+    error: err?.message || 'An unexpected internal server error occurred',
+    code: err?.code || 'internal-error'
+  });
+});
 
 export { app };
 export default app;

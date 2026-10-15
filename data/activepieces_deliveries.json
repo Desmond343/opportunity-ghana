@@ -1,5 +1,211 @@
 [
   {
+    "id": "rep_1792029233665",
+    "runId": "ap_run_1792029233635_5d179884",
+    "timestamp": "2026-10-15T01:53:53.635Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-giz-govid-technical-advisor",
+          "job-nestle-maintenance-engineer-tema",
+          "job-farmerline-senior-data-engineer",
+          "job-newmont-it-analyst-ahafo",
+          "job-paystack-devrel-ghana-remote"
+        ],
+        "opportunitiesTitles": [
+          "Technical Advisor: Governance for Inclusive Development (GOVID)",
+          "Maintenance Engineer (Industrial Electrical & Automation)",
+          "Senior Data Engineer (Mergdata Agritech Platform)",
+          "End User Computing Analyst (IT & Digital Operations)",
+          "Developer Support Engineer (Ghana & West Africa - Remote)"
+        ],
+        "timestamp": "2026-10-15T01:53:53.635Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-giz-govid-technical-advisor",
+          "job-nestle-maintenance-engineer-tema",
+          "job-farmerline-senior-data-engineer",
+          "job-newmont-it-analyst-ahafo",
+          "job-paystack-devrel-ghana-remote"
+        ],
+        "opportunitiesTitles": [
+          "Technical Advisor: Governance for Inclusive Development (GOVID)",
+          "Maintenance Engineer (Industrial Electrical & Automation)",
+          "Senior Data Engineer (Mergdata Agritech Platform)",
+          "End User Computing Analyst (IT & Digital Operations)",
+          "Developer Support Engineer (Ghana & West Africa - Remote)"
+        ],
+        "timestamp": "2026-10-15T01:53:53.635Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-government-of-ireland-postgrad-2027",
+          "opp-swiss-government-excellence-2027",
+          "opp-edinburgh-mastercard-foundation-2027"
+        ],
+        "opportunitiesTitles": [
+          "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+          "Swiss Government Excellence Scholarships 2027/2028 (Switzerland)",
+          "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)"
+        ],
+        "timestamp": "2026-10-15T01:53:53.635Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-giz-govid-technical-advisor",
+          "job-nestle-maintenance-engineer-tema",
+          "job-farmerline-senior-data-engineer",
+          "job-newmont-it-analyst-ahafo",
+          "job-paystack-devrel-ghana-remote"
+        ],
+        "opportunitiesTitles": [
+          "Technical Advisor: Governance for Inclusive Development (GOVID)",
+          "Maintenance Engineer (Industrial Electrical & Automation)",
+          "Senior Data Engineer (Mergdata Agritech Platform)",
+          "End User Computing Analyst (IT & Digital Operations)",
+          "Developer Support Engineer (Ghana & West Africa - Remote)"
+        ],
+        "timestamp": "2026-10-15T01:53:53.635Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-edinburgh-mastercard-foundation-2027",
+          "opp-eiffel-excellence-france-2027",
+          "opp-oxford-weidenfeld-hoffmann-2027"
+        ],
+        "opportunitiesTitles": [
+          "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
+          "Eiffel Excellence Scholarship Programme 2027/2028 (France)",
+          "Weidenfeld-Hoffmann Scholarships and Leadership Programme 2027 (University of Oxford)"
+        ],
+        "timestamp": "2026-10-15T01:53:53.635Z"
+      }
+    ]
+  },
+  {
+    "id": "rep_1791848716964",
+    "runId": "ap_run_1791848716939_65384ed1",
+    "timestamp": "2026-10-12T23:45:16.939Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-lester-pearson-toronto-2027",
+          "opp-singa-singapore-2027",
+          "job-google-swe-accra",
+          "job-mtn-bi-commercial-accra",
+          "job-telecel-solutions-architect"
+        ],
+        "opportunitiesTitles": [
+          "Lester B. Pearson International Scholarship 2027/2028 (University of Toronto)",
+          "Singapore International Graduate Award (SINGA) 2027/2028",
+          "Software Engineer - AI & Foundations (Accra Research Lab)",
+          "Commercial Performance & Business Intelligence Specialist",
+          "Digital Solutions Architect (Enterprise & Cloud)"
+        ],
+        "timestamp": "2026-10-12T23:45:16.939Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-lester-pearson-toronto-2027",
+          "opp-singa-singapore-2027",
+          "job-google-swe-accra",
+          "job-mtn-bi-commercial-accra",
+          "job-telecel-solutions-architect"
+        ],
+        "opportunitiesTitles": [
+          "Lester B. Pearson International Scholarship 2027/2028 (University of Toronto)",
+          "Singapore International Graduate Award (SINGA) 2027/2028",
+          "Software Engineer - AI & Foundations (Accra Research Lab)",
+          "Commercial Performance & Business Intelligence Specialist",
+          "Digital Solutions Architect (Enterprise & Cloud)"
+        ],
+        "timestamp": "2026-10-12T23:45:16.939Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-commonwealth-phd-2027",
+          "opp-gates-cambridge-2027",
+          "opp-knight-hennessy-stanford-2027"
+        ],
+        "opportunitiesTitles": [
+          "Commonwealth PhD Scholarships 2027/2028 (United Kingdom)",
+          "Gates Cambridge Scholarships 2027/2028 (University of Cambridge)",
+          "Knight-Hennessy Scholars 2027 (Stanford University)"
+        ],
+        "timestamp": "2026-10-12T23:45:16.939Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-lester-pearson-toronto-2027",
+          "opp-singa-singapore-2027",
+          "job-google-swe-accra",
+          "job-mtn-bi-commercial-accra",
+          "job-telecel-solutions-architect"
+        ],
+        "opportunitiesTitles": [
+          "Lester B. Pearson International Scholarship 2027/2028 (University of Toronto)",
+          "Singapore International Graduate Award (SINGA) 2027/2028",
+          "Software Engineer - AI & Foundations (Accra Research Lab)",
+          "Commercial Performance & Business Intelligence Specialist",
+          "Digital Solutions Architect (Enterprise & Cloud)"
+        ],
+        "timestamp": "2026-10-12T23:45:16.939Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-government-of-ireland-postgrad-2027",
+          "opp-mandela-washington-fellowship-2027",
+          "opp-swiss-government-excellence-2027"
+        ],
+        "opportunitiesTitles": [
+          "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
+          "Mandela Washington Fellowship for Young African Leaders 2027 (USA)",
+          "Swiss Government Excellence Scholarships 2027/2028 (Switzerland)"
+        ],
+        "timestamp": "2026-10-12T23:45:16.939Z"
+      }
+    ]
+  },
+  {
     "id": "rep_1791847095641",
     "runId": "ap_run_1791847095617_2b76e5ea",
     "timestamp": "2026-10-12T23:18:15.618Z",
