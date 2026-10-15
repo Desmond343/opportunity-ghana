@@ -309,5 +309,27 @@
       "opp-eiffel-excellence-france-2027",
       "opp-oxford-weidenfeld-hoffmann-2027"
     ]
+  },
+  {
+    "id": "sub_dGVzdF92ZXJpZnlAZXhhbXBs_mva3a2a3",
+    "email": "test_verify@example.com",
+    "phone": "",
+    "whatsappEnabled": false,
+    "categories": [
+      "scholarships"
+    ],
+    "regions": [
+      "All Ghana"
+    ],
+    "frequency": "daily",
+    "status": "unsubscribed",
+    "active": false,
+    "source": "Homepage Daily Alerts",
+    "lastAlertSentAt": null,
+    "lastAlertTitle": null,
+    "alertsCount": 0,
+    "unsubscribedAt": "2026-10-15T22:07:16.290Z",
+    "createdAt": "2026-10-15T22:07:12.651Z",
+    "updatedAt": "2026-10-15T22:07:16.290Z"
   }
 ]
