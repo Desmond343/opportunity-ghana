@@ -6,13 +6,11 @@ import { SavedService } from '../../services/savedService';
 interface MobileBottomNavProps {
   currentPath: string;
   onNavigate: (path: string) => void;
-  onOpenSearch: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentPath,
-  onNavigate,
-  onOpenSearch
+  onNavigate
 }) => {
   const { currentUser } = useAuth();
   const [savedCount, setSavedCount] = useState(() => SavedService.getSavedIds().length);
@@ -36,8 +34,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     {
       label: 'Search',
       icon: Search,
-      action: onOpenSearch,
-      isActive: currentPath === '/opportunities' && window.location.search.includes('search')
+      path: '/opportunities',
+      isActive: currentPath === '/opportunities' || currentPath.startsWith('/opportunities')
     },
     {
       label: 'Saved',
@@ -74,11 +72,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             <button
               key={index}
               onClick={() => {
-                if (item.action) {
-                  item.action();
-                } else if (item.path) {
-                  onNavigate(item.path);
-                }
+                onNavigate(item.path);
               }}
               className={`flex flex-col items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer touch-manipulation select-none py-1 ${
                 active
