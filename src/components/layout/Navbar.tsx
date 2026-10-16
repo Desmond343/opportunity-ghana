@@ -3,6 +3,7 @@ import { useAuth } from '../../services/authContext';
 import { SavedService } from '../../services/savedService';
 import { usePublishedStoriesCount } from '../../services/successStoriesService';
 import {
+  Search,
   ShieldCheck,
   User,
   LogOut,
@@ -19,9 +20,10 @@ import { ThemeToggle } from '../common/ThemeToggle';
 interface NavbarProps {
   currentPath: string;
   onNavigate: (path: string) => void;
+  onOpenSearch?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenSearch }) => {
   const { currentUser, logout, isEditorOrAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -113,7 +115,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           <div className="hidden md:flex items-center gap-2.5">
             <InstallAppPrompt variant="navbar" />
 
-
+            {/* Quick Search trigger */}
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                aria-label="Search opportunities"
+                className="p-2.5 text-slate-500 dark:text-slate-400 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                title="Search Opportunities"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            )}
 
             {/* Saved Opportunities Direct Shortcut */}
             <button
@@ -274,7 +286,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
             <InstallAppPrompt variant="navbar" />
             <ThemeToggle />
 
-
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                aria-label="Search"
+                className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

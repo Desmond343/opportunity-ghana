@@ -6,7 +6,6 @@ import { useAuth } from '../services/authContext';
 import { Badge } from '../components/common/Badge';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
-import { EditorialParagraphs } from '../components/common/EditorialArticle';
 import {
   ChevronLeft,
   Briefcase,
@@ -169,14 +168,14 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
             </div>
 
             {/* Skill Title */}
-            <h1 className="editorial-heading-1 text-[#111111] dark:text-white font-serif leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-space tracking-tight leading-tight">
               {skill.name}
             </h1>
 
             {/* Overview / Subtitle */}
-            <div className="pt-1">
-              <EditorialParagraphs text={skill.description} />
-            </div>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              {skill.description}
+            </p>
           </div>
 
           {/* Action CTAs: Save, Share */}
@@ -226,26 +225,28 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
         <div className="lg:col-span-2 space-y-8">
           {/* Detailed Overview */}
           {skill.detailedDescription && (
-            <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs">
-              <h2 className="editorial-heading-2 text-slate-900 dark:text-white font-serif flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 space-y-3.5 shadow-2xs">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white font-space flex items-center gap-2">
                 <Compass className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
                 <span>Competency Overview</span>
               </h2>
-              <EditorialParagraphs text={skill.detailedDescription} />
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                {skill.detailedDescription}
+              </p>
             </section>
           )}
 
           {/* What This Skill Is Used For */}
           {skill.whatItIsUsedFor && skill.whatItIsUsedFor.length > 0 && (
             <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs">
-              <h2 className="editorial-heading-2 text-slate-900 dark:text-white font-serif flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white font-space flex items-center gap-2">
                 <Target className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
                 <span>What This Skill Is Used For</span>
               </h2>
-              <ul className="space-y-3 pt-1">
+              <ul className="space-y-2.5">
                 {skill.whatItIsUsedFor.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 shrink-0 mt-2.5" />
+                  <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -256,11 +257,13 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
           {/* Ghana Market Relevance */}
           {skill.whyUsefulInGhana && (
             <section className="bg-gradient-to-br from-emerald-50/70 to-teal-50/40 dark:from-emerald-950/40 dark:to-teal-950/20 rounded-2xl p-6 sm:p-7 border border-emerald-200/80 dark:border-emerald-800/60 space-y-3 shadow-2xs">
-              <h2 className="editorial-heading-2 text-emerald-950 dark:text-emerald-200 font-serif flex items-center gap-2">
+              <h2 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 font-space flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
                 <span>Ghana &amp; African Job Market Relevance</span>
               </h2>
-              <EditorialParagraphs text={skill.whyUsefulInGhana} />
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                {skill.whyUsefulInGhana}
+              </p>
             </section>
           )}
 

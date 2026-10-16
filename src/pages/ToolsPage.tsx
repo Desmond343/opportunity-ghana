@@ -19,10 +19,10 @@ export const ToolsPage: React.FC<{ onNavigate: (path: string) => void }> = ({ on
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
-        <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
-          Career &amp; Opportunity Tools
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+          Career & Opportunity Tools
         </h1>
-        <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 max-w-2xl leading-relaxed font-serif">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
           Interactive utilities to calculate scholarship eligibility, track approaching deadlines, and verify application requirements.
         </p>
       </div>

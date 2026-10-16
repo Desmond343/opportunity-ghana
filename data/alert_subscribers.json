@@ -18,12 +18,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
-    "alertsCount": 9,
+    "lastAlertSentAt": "2026-10-16T00:27:53.973Z",
+    "lastAlertTitle": "Tax & Regulatory Services Associate",
+    "alertsCount": 10,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.278Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
+    "updatedAt": "2026-10-16T00:27:53.973Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -64,7 +64,12 @@
       "job-nestle-maintenance-engineer-tema",
       "job-farmerline-senior-data-engineer",
       "job-newmont-it-analyst-ahafo",
-      "job-paystack-devrel-ghana-remote"
+      "job-paystack-devrel-ghana-remote",
+      "job-pwc-tax-associate-accra",
+      "job-mpharma-account-senior-associate",
+      "job-zeepay-aml-compliance-analyst",
+      "job-guinness-packaging-technologist",
+      "job-stanbic-credit-risk-manager"
     ]
   },
   {
@@ -83,12 +88,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
-    "alertsCount": 9,
+    "lastAlertSentAt": "2026-10-16T00:27:53.973Z",
+    "lastAlertTitle": "Tax & Regulatory Services Associate",
+    "alertsCount": 10,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.303Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
+    "updatedAt": "2026-10-16T00:27:53.973Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -129,7 +134,12 @@
       "job-nestle-maintenance-engineer-tema",
       "job-farmerline-senior-data-engineer",
       "job-newmont-it-analyst-ahafo",
-      "job-paystack-devrel-ghana-remote"
+      "job-paystack-devrel-ghana-remote",
+      "job-pwc-tax-associate-accra",
+      "job-mpharma-account-senior-associate",
+      "job-zeepay-aml-compliance-analyst",
+      "job-guinness-packaging-technologist",
+      "job-stanbic-credit-risk-manager"
     ]
   },
   {
@@ -148,12 +158,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Government of Ireland Postgraduate Scholarship Programme 2027/2028",
-    "alertsCount": 9,
+    "lastAlertSentAt": "2026-10-16T00:27:53.973Z",
+    "lastAlertTitle": "Eiffel Excellence Scholarship Programme 2027/2028 (France)",
+    "alertsCount": 10,
     "unsubscribedAt": null,
     "createdAt": "2026-10-07T17:45:27.307Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
+    "updatedAt": "2026-10-16T00:27:53.973Z",
     "sentOpportunityIds": [
       "intern-afdb-session1-2027",
       "intern-google-swe-accra",
@@ -185,7 +195,10 @@
       "opp-knight-hennessy-stanford-2027",
       "opp-government-of-ireland-postgrad-2027",
       "opp-swiss-government-excellence-2027",
-      "opp-edinburgh-mastercard-foundation-2027"
+      "opp-edinburgh-mastercard-foundation-2027",
+      "opp-eiffel-excellence-france-2027",
+      "opp-oxford-weidenfeld-hoffmann-2027",
+      "opp-mo-ibrahim-leadership-fellowship-2027"
     ]
   },
   {
@@ -207,12 +220,12 @@
     "status": "active",
     "active": true,
     "source": "Homepage Daily Alerts",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Technical Advisor: Governance for Inclusive Development (GOVID)",
-    "alertsCount": 8,
+    "lastAlertSentAt": "2026-10-16T00:27:53.973Z",
+    "lastAlertTitle": "Tax & Regulatory Services Associate",
+    "alertsCount": 9,
     "unsubscribedAt": null,
     "createdAt": "2026-10-10T18:32:10.774Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
+    "updatedAt": "2026-10-16T00:27:53.973Z",
     "sentOpportunityIds": [
       "opp-chevening-uk-2027",
       "opp-commonwealth-masters-2027",
@@ -253,7 +266,12 @@
       "job-nestle-maintenance-engineer-tema",
       "job-farmerline-senior-data-engineer",
       "job-newmont-it-analyst-ahafo",
-      "job-paystack-devrel-ghana-remote"
+      "job-paystack-devrel-ghana-remote",
+      "job-pwc-tax-associate-accra",
+      "job-mpharma-account-senior-associate",
+      "job-zeepay-aml-compliance-analyst",
+      "job-guinness-packaging-technologist",
+      "job-stanbic-credit-risk-manager"
     ]
   },
   {
@@ -272,12 +290,12 @@
     "status": "active",
     "active": true,
     "source": "Activepieces Integration Test",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
-    "alertsCount": 8,
+    "lastAlertSentAt": "2026-10-16T00:27:53.973Z",
+    "lastAlertTitle": "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)",
+    "alertsCount": 9,
     "unsubscribedAt": null,
     "createdAt": "2026-10-12T15:48:19.627Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
+    "updatedAt": "2026-10-16T00:27:53.973Z",
     "sentOpportunityIds": [
       "job-telecel-solutions-architect",
       "job-calbank-network-security-engineer",
@@ -307,7 +325,10 @@
       "opp-swiss-government-excellence-2027",
       "opp-edinburgh-mastercard-foundation-2027",
       "opp-eiffel-excellence-france-2027",
-      "opp-oxford-weidenfeld-hoffmann-2027"
+      "opp-oxford-weidenfeld-hoffmann-2027",
+      "opp-mo-ibrahim-leadership-fellowship-2027",
+      "opp-gsa-local-tertiary-2027",
+      "opp-gnpc-foundation-tertiary-2027"
     ]
   }
 ]

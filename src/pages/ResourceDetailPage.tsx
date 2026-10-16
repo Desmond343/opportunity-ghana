@@ -7,7 +7,6 @@ import { Badge } from '../components/common/Badge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
 import { resolveResourceMedia } from '../utils/cardBackgrounds';
-import { EditorialParagraphs } from '../components/common/EditorialArticle';
 import {
   ChevronRight,
   BookOpen,
@@ -308,24 +307,24 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
               <VerificationBadge status={resource.verificationStatus || 'verified'} />
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#111111] dark:text-slate-100 font-serif leading-snug">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space leading-tight">
               {resource.title}
             </h1>
 
-            <div className="editorial-supporting text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-2 mt-1">
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-2 font-medium">
               <span>Offered by</span>
               {resource.providerWebsiteUrl ? (
                 <a
                   href={resource.providerWebsiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="editorial-link font-medium inline-flex items-center gap-1"
+                  className="text-slate-900 dark:text-slate-100 font-bold hover:text-emerald-700 dark:hover:text-emerald-400 inline-flex items-center gap-1 underline underline-offset-2"
                 >
                   <span>{resource.providerName || 'Certified Academy'}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                 </a>
               ) : (
-                <span className="font-medium text-slate-800 dark:text-slate-200">{resource.providerName || 'Certified Academy'}</span>
+                <strong className="text-slate-800 dark:text-slate-200">{resource.providerName || 'Certified Academy'}</strong>
               )}
 
               {resource.format && (
@@ -451,12 +450,14 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
         {/* Left 2 Columns: Curriculum Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Curriculum Overview */}
-          <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
-            <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif flex items-center gap-2">
+          <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
               <span>Course Curriculum Overview</span>
             </h2>
-            <EditorialParagraphs text={resource.description || 'Verified course curriculum from official educational partner.'} />
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+              {resource.description || 'Verified course curriculum from official educational partner.'}
+            </p>
           </section>
 
           {/* Learning Outcomes / What You Will Learn */}
@@ -464,17 +465,17 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
             <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif">
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
                   What You Will Learn &amp; Master
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 {learningOutcomes.map((outcome, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-100/80 dark:border-emerald-800/40 flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]"
+                    className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-100/80 dark:border-emerald-800/40 flex items-start gap-2.5 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
                   >
-                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-1" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <span>{outcome}</span>
                   </div>
                 ))}
@@ -484,15 +485,15 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
 
           {/* Who Should Enroll / Target Audience */}
           {targetAudiences.length > 0 && (
-            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
-              <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif flex items-center gap-2">
+            <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-3 shadow-xs">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 <span>Who Should Enroll in This Course?</span>
               </h2>
-              <ul className="space-y-3 pt-1">
+              <ul className="space-y-2 pt-1">
                 {targetAudiences.map((audience, idx) => (
-                  <li key={idx} className="flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 mt-2.5 shrink-0" />
+                  <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 mt-2 shrink-0" />
                     <span>{audience}</span>
                   </li>
                 ))}

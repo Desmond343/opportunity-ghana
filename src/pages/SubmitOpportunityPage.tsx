@@ -288,10 +288,10 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Opportunities</span>
           </button>
-          <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
             Submit an Opportunity for Review
           </h1>
-          <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 max-w-2xl leading-relaxed font-serif">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Know of a genuine scholarship, corporate job, internship cohort, or research fellowship open to Ghanaians? Submit it for administrative verification.
           </p>
         </div>

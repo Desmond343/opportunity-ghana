@@ -143,12 +143,12 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
           </div>
 
           {/* Skill Title */}
-          <h3 className="text-base sm:text-lg font-semibold text-[#111111] dark:text-white group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors font-serif leading-snug text-left">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors font-space leading-snug">
             {skill.name}
           </h3>
 
           {/* Short Description */}
-          <p className="text-[15px] sm:text-[16px] text-[#333333] dark:text-slate-200 line-clamp-3 leading-relaxed font-serif text-left">
+          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
             {skill.description}
           </p>
 

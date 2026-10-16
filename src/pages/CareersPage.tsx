@@ -67,10 +67,10 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
             Workforce Intelligence &amp; Competencies
           </span>
         </div>
-        <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
           Ghana Skills &amp; Career Competencies Library
         </h1>
-        <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 max-w-3xl leading-relaxed font-serif">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
           Explore verified skills across technology, business, agriculture, vocational trades, healthcare, hospitality, education, and creative industries. Discover practical tools, Ghanaian market context, and career pathways.
         </p>
       </div>

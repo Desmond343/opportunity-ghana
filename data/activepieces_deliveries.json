@@ -1,5 +1,108 @@
 [
   {
+    "id": "rep_1792110474006",
+    "runId": "ap_run_1792110473973_724dea3a",
+    "timestamp": "2026-10-16T00:27:53.973Z",
+    "totalSubscribers": 5,
+    "deliveredCount": 5,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "details": [
+      {
+        "subscriberId": "sub_a29maS5hbm5hbkBleGFtcGxl_muyeemlq",
+        "email": "kofi.annan@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-pwc-tax-associate-accra",
+          "job-mpharma-account-senior-associate",
+          "job-zeepay-aml-compliance-analyst",
+          "job-guinness-packaging-technologist",
+          "job-stanbic-credit-risk-manager"
+        ],
+        "opportunitiesTitles": [
+          "Tax & Regulatory Services Associate",
+          "Hospital & Wholesale Account Senior Associate",
+          "Senior AML & Regulatory Compliance Analyst",
+          "Packaging Quality Technologist (Achimota Brewery)",
+          "Senior Commercial Credit Risk Manager"
+        ],
+        "timestamp": "2026-10-16T00:27:53.973Z"
+      },
+      {
+        "subscriberId": "sub_ZWZ1YS5tZW5zYWhAdWcuZWR1_muyeemmf",
+        "email": "efua.mensah@ug.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-pwc-tax-associate-accra",
+          "job-mpharma-account-senior-associate",
+          "job-zeepay-aml-compliance-analyst",
+          "job-guinness-packaging-technologist",
+          "job-stanbic-credit-risk-manager"
+        ],
+        "opportunitiesTitles": [
+          "Tax & Regulatory Services Associate",
+          "Hospital & Wholesale Account Senior Associate",
+          "Senior AML & Regulatory Compliance Analyst",
+          "Packaging Quality Technologist (Achimota Brewery)",
+          "Senior Commercial Credit Risk Manager"
+        ],
+        "timestamp": "2026-10-16T00:27:53.973Z"
+      },
+      {
+        "subscriberId": "sub_a3dhbWUuYm9hdGVuZ0BrbnVz_muyeemmj",
+        "email": "kwame.boateng@knust.edu.gh",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-eiffel-excellence-france-2027",
+          "opp-oxford-weidenfeld-hoffmann-2027",
+          "opp-mo-ibrahim-leadership-fellowship-2027"
+        ],
+        "opportunitiesTitles": [
+          "Eiffel Excellence Scholarship Programme 2027/2028 (France)",
+          "Weidenfeld-Hoffmann Scholarships and Leadership Programme 2027 (University of Oxford)",
+          "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)"
+        ],
+        "timestamp": "2026-10-16T00:27:53.973Z"
+      },
+      {
+        "subscriberId": "sub_dGVzdEBvcHBvcnR1bml0eWdo_mv2qe9sm",
+        "email": "test@opportunityghana.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "job-pwc-tax-associate-accra",
+          "job-mpharma-account-senior-associate",
+          "job-zeepay-aml-compliance-analyst",
+          "job-guinness-packaging-technologist",
+          "job-stanbic-credit-risk-manager"
+        ],
+        "opportunitiesTitles": [
+          "Tax & Regulatory Services Associate",
+          "Hospital & Wholesale Account Senior Associate",
+          "Senior AML & Regulatory Compliance Analyst",
+          "Packaging Quality Technologist (Achimota Brewery)",
+          "Senior Commercial Credit Risk Manager"
+        ],
+        "timestamp": "2026-10-16T00:27:53.973Z"
+      },
+      {
+        "subscriberId": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
+        "email": "activepieces_user@example.com",
+        "status": "delivered",
+        "opportunitiesSent": [
+          "opp-mo-ibrahim-leadership-fellowship-2027",
+          "opp-gsa-local-tertiary-2027",
+          "opp-gnpc-foundation-tertiary-2027"
+        ],
+        "opportunitiesTitles": [
+          "Ibrahim Leadership Fellowships 2027 (AfDB, UNECA, ITC)",
+          "Ghana Scholarships Authority Local Tertiary Scholarships 2027/2028",
+          "GNPC Foundation Local Tertiary Scholarships 2027/2028"
+        ],
+        "timestamp": "2026-10-16T00:27:53.973Z"
+      }
+    ]
+  },
+  {
     "id": "rep_1792029233665",
     "runId": "ap_run_1792029233635_5d179884",
     "timestamp": "2026-10-15T01:53:53.635Z",

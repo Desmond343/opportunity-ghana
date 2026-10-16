@@ -261,15 +261,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
               </div>
 
-              {/* Article-Style Main Headline */}
-              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-semibold text-[#111111] dark:text-white leading-tight font-serif text-left">
+              {/* Large Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] dark:text-white tracking-tight leading-[1.08] font-space">
                 Discover Opportunities.
-                <span className="text-[#006B3F] dark:text-emerald-400 block mt-1">Build Your Future in Ghana.</span>
+                <span className="text-[#006B3F] dark:text-emerald-400 block mt-1.5 sm:mt-2">Build Your Future.</span>
               </h1>
 
-              {/* Supporting Editorial Paragraph */}
-              <p className="text-[16px] sm:text-[17px] text-[#333333] dark:text-slate-200 max-w-xl leading-[1.6] font-normal font-serif text-left">
-                Find scholarships, jobs, internships, fellowships, grants, and free certified training programmes across Ghana — all gathered and verified in one editorial directory.
+              {/* Supporting Text */}
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed font-normal">
+                Find <span className="font-semibold text-slate-900 dark:text-white">scholarships</span>, <span className="font-semibold text-slate-900 dark:text-white">jobs</span>, <span className="font-semibold text-slate-900 dark:text-white">internships</span>, <span className="font-semibold text-slate-900 dark:text-white">fellowships</span>, <span className="font-semibold text-slate-900 dark:text-white">grants</span>, training programs and more — all in one verified place.
               </p>
 
               {/* Hero Action Buttons */}
