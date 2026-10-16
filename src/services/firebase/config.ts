@@ -1,5 +1,4 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import firebaseAppletConfig from '../../../firebase-applet-config.json';
 
 /**
@@ -41,27 +40,11 @@ export const isFirebaseConfigured = Boolean(
 );
 
 let appInstance: FirebaseApp | null = null;
-let analyticsInstance: Analytics | null = null;
 
 if (isFirebaseConfigured) {
   try {
     appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
     console.info('[Opportunity Ghana] Firebase initialized successfully with project:', firebaseConfig.projectId);
-
-    // Initialize Firebase Analytics in supported browser environments
-    if (typeof window !== 'undefined' && appInstance) {
-      isSupported().then((supported) => {
-        if (supported && appInstance) {
-          try {
-            analyticsInstance = getAnalytics(appInstance);
-          } catch {
-            // Non-blocking analytics
-          }
-        }
-      }).catch(() => {
-        // Analytics is optional and non-blocking
-      });
-    }
   } catch (error) {
     console.warn('[Opportunity Ghana] Error during Firebase initializeApp:', error);
     appInstance = null;
@@ -71,7 +54,9 @@ if (isFirebaseConfigured) {
 }
 
 export const app: FirebaseApp | null = appInstance;
-export const analytics: Analytics | null = analyticsInstance;
-export default app;
+
+// Firebase Analytics is optional and triggers Firebase Installations network requests.
+// We export null to prevent background 400 installations/request-failed errors.
+export const analytics = null;
 
 
