@@ -8,6 +8,8 @@ import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineSe
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from '../data/verifiedJobsAndInternships';
 import { VERIFIED_REAL_COMPETITIONS } from '../data/verifiedCompetitions';
+import { ALL_INSTITUTIONS } from '../data/institutions/index';
+import { Institution } from '../types/institution';
 import { ensureUniqueOpportunityImages } from '../utils/cardBackgrounds';
 import { detectDuplicates } from './duplicateDetection';
 import { 
@@ -23,6 +25,189 @@ import {
 } from 'firebase/firestore';
 
 const LOCAL_STORAGE_KEY = 'opp_gh_opportunities_store';
+
+export function convertInstitutionToOpportunity(inst: Institution): Opportunity {
+  const primaryCycle = inst.admissionCycles?.[0];
+  const deadline = primaryCycle?.extendedDeadline || primaryCycle?.applicationCloseDate || '2026-11-30';
+  
+  return {
+    id: inst.id,
+    slug: inst.slug,
+    title: `${inst.name} Admissions (${inst.primaryAcademicYear || '2026/2027'})`,
+    description: inst.accreditationDetails || `${inst.name} is a GTEC-accredited institution in ${inst.location.city || ''}, ${inst.location.region} Region. Official admission cycles are currently active for undergraduate, mature, and postgraduate applicants.`,
+    category: 'Admissions',
+    subcategory: inst.institutionType,
+    opportunityType: inst.institutionType,
+    organizationId: inst.id,
+    organizationName: inst.name,
+    organizationLogo: inst.logoUrl || inst.coverImageUrl,
+    imageUrl: inst.coverImageUrl,
+    location: `${inst.location.city || ''}, ${inst.location.region || 'Ghana'}`.trim(),
+    region: inst.location.region || 'Greater Accra',
+    country: 'Ghana',
+    locationType: 'ghana',
+    destinationCountry: 'Ghana',
+    eligibleCountries: ['Ghana', 'International'],
+    isGhanaEligible: true,
+    educationLevel: 'Undergraduate / Tertiary',
+    studyLevel: 'Undergraduate',
+    fundingType: inst.institutionType.includes('Public') ? 'Subsidised Public Tuition' : 'Private Tuition',
+    benefits: [
+      'GTEC-Accredited Degree Programmes',
+      inst.isChartered ? 'Presidential Charter Status' : 'Recognised Degree Awarding Body',
+      `Academic Year: ${inst.primaryAcademicYear || '2026/2027'}`
+    ],
+    requirements: primaryCycle?.eligibility || [
+      'WASSCE / SSSCE Credit Passes (A1-C6) in 3 core and 3 relevant elective subjects',
+      'Mature applicants and Diploma / HND top-up routes available'
+    ],
+    applicationUrl: inst.applicationPortalUrl || inst.admissionsPageUrl || inst.officialWebsiteUrl,
+    officialApplicationUrl: inst.applicationPortalUrl || inst.admissionsPageUrl,
+    applicationMethod: 'external_portal',
+    applicationInstructions: inst.highlightNotice || 'Purchase the official application e-voucher through designated bank branches or authorized USSD codes, then complete your application online.',
+    deadline: deadline,
+    status: 'published',
+    verificationStatus: 'verified',
+    publishedAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+    featured: Boolean(inst.isFeatured),
+    customNavigationPath: `/institutions/${inst.slug}`,
+    institutionSlug: inst.slug,
+    tags: [
+      'Admissions',
+      'University',
+      'Tertiary',
+      inst.institutionType,
+      inst.shortName || '',
+      inst.location.region,
+      inst.institutionType.includes('Public') ? 'Government Programmes' : ''
+    ].filter(Boolean) as string[],
+    views: 140,
+    saves: 20
+  };
+}
+
+export function getInstitutionOpportunities(): Opportunity[] {
+  return ALL_INSTITUTIONS.map(convertInstitutionToOpportunity);
+}
+
+export function matchesCategory(o: Opportunity, category?: string): boolean {
+  if (!category || category === 'All') return true;
+  const cat = category.toLowerCase().trim();
+  const oCat = (o.category || '').toLowerCase().trim();
+
+  // Direct category string equality
+  if (oCat === cat) return true;
+
+  const title = (o.title || '').toLowerCase();
+  const desc = (o.description || '').toLowerCase();
+  const type = (o.opportunityType || '').toLowerCase();
+  const org = (o.organizationName || '').toLowerCase();
+  const subcat = (o.subcategory || '').toLowerCase();
+  const tags = Array.isArray(o.tags) ? o.tags.map(t => t.toLowerCase()) : [];
+  const text = `${title} ${desc} ${type} ${org} ${subcat} ${tags.join(' ')}`;
+
+  if (cat === 'admissions') {
+    return (
+      oCat === 'admissions' ||
+      Boolean(o.institutionSlug) ||
+      tags.includes('admissions') ||
+      /\b(admissions|admission|tertiary entry|wassce entry|polytechnic entry|degree entry)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'entrepreneurship') {
+    return (
+      oCat === 'entrepreneurship' ||
+      tags.some(t => /entrepreneur|startup|venture|incubator|accelerator|pitch/i.test(t)) ||
+      /\b(startup|startups|entrepreneur|entrepreneurship|venture capital|incubator|accelerator|pitch competition|business plan competition|seed capital|seed fund|agritech challenge|hacklab|mest africa|kic agritech|mcdan youth connect|totalenergies startupper|social venture|founder|incubation|acceleration)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'graduate programmes') {
+    return (
+      oCat === 'graduate programmes' ||
+      tags.some(t => /graduate|trainee/i.test(t)) ||
+      /\b(graduate trainee|graduate programme|graduate program|graduate development|graduate experience|graduate scheme|management trainee|national service & graduate|junior bankers|graduate internship)\b/i.test(text) ||
+      (oCat === 'internships' && /\bgraduate\b/i.test(text)) ||
+      (o.studyLevel && /master|phd|postgraduate/i.test(o.studyLevel)) ||
+      (oCat === 'scholarships' && /\b(masters|master's|postgraduate|phd|doctoral)\b/i.test(text))
+    );
+  }
+
+  if (cat === 'government programmes') {
+    return (
+      oCat === 'government programmes' ||
+      tags.some(t => /government|public sector|ministry|gea|neip|yea|ghana scholarship secretariat|getfund|mofa|ges|csa|nsa|gtec|princof/i.test(t)) ||
+      /\b(ministry|ges|ghana education service|csa|cyber security authority|nsa|national sports authority|national theatre|mofa|gtec|princof|ministry of health|getfund|ghana scholarship secretariat|scholarship secretariat|nea|gea|neip|yea|public university|public technical|public college|public nursing|statutory|national service scheme|nss)\b/i.test(text) ||
+      (Boolean(o.institutionSlug) && o.opportunityType?.includes('Public'))
+    );
+  }
+
+  if (cat === 'study abroad') {
+    return (
+      oCat === 'study abroad' ||
+      o.locationType === 'abroad' ||
+      (Boolean(o.country) && o.country.toLowerCase() !== 'ghana') ||
+      /\b(study abroad|international scholarship|erasmus|chevening|commonwealth|daad|turkiye|stipendium hungaricum|china|fulbright|mastercard foundation scholars abroad)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'competitions') {
+    return (
+      oCat === 'competitions' ||
+      /\b(competition|contest|hackathon|tournament|challenge|pitch|championship|pageant|quiz|slam)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'scholarships') {
+    return (
+      oCat === 'scholarships' ||
+      /\b(scholarship|tuition aid|bursary|fellowship|financial grant|study grant)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'jobs') {
+    return (
+      oCat === 'jobs' ||
+      o.opportunityType === 'Full-time' ||
+      o.opportunityType === 'Part-time' ||
+      o.opportunityType === 'Contract'
+    );
+  }
+
+  if (cat === 'internships') {
+    return (
+      oCat === 'internships' ||
+      /\b(internship|national service|nss|trainee|attachment|student placement)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'grants') {
+    return (
+      oCat === 'grants' ||
+      o.fundingType?.toLowerCase().includes('grant') ||
+      /\b(grant|seed fund|non-repayable|seed capital|funding)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'fellowships') {
+    return (
+      oCat === 'fellowships' ||
+      /\b(fellowship|fellow|residency|yali)\b/i.test(text)
+    );
+  }
+
+  if (cat === 'training') {
+    return (
+      oCat === 'training' ||
+      /\b(training|bootcamp|upskilling|workshop|cohort|course|capacity building)\b/i.test(text)
+    );
+  }
+
+  return false;
+}
 
 export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
@@ -47,40 +232,42 @@ function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
 
 function getStoredOpportunities(): Opportunity[] {
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Purge any old demo/mock records from storage
-        let cleaned = parsed.filter(o => 
-          o && 
-          o.id && 
-          !o.id.startsWith('opp-demo-') && 
-          !o.title?.includes('[DEMO RECORD]') &&
-          !o.applicationUrl?.includes('example.com')
-        );
-
-        // Merge in verified opportunities (scholarships, jobs, and internships)
-        for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
-          const existingIdx = cleaned.findIndex(o => 
-            o.id === verified.id || 
-            o.slug === verified.slug
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Purge any old demo/mock records from storage
+          let cleaned = parsed.filter(o => 
+            o && 
+            o.id && 
+            !o.id.startsWith('opp-demo-') && 
+            !o.title?.includes('[DEMO RECORD]') &&
+            !o.applicationUrl?.includes('example.com')
           );
-          if (existingIdx >= 0) {
-            // Update fields with freshest verified data
-            cleaned[existingIdx] = {
-              ...cleaned[existingIdx],
-              ...verified,
-              views: cleaned[existingIdx].views || 0,
-              saves: cleaned[existingIdx].saves || 0
-            };
-          } else {
-            cleaned.push(verified);
-          }
-        }
 
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
-        return ensureUniqueOpportunityImages(cleaned.map(syncWithDeadlineAutomation));
+          // Merge in verified opportunities (scholarships, jobs, and internships)
+          for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
+            const existingIdx = cleaned.findIndex(o => 
+              o.id === verified.id || 
+              o.slug === verified.slug
+            );
+            if (existingIdx >= 0) {
+              // Update fields with freshest verified data
+              cleaned[existingIdx] = {
+                ...cleaned[existingIdx],
+                ...verified,
+                views: cleaned[existingIdx].views || 0,
+                saves: cleaned[existingIdx].saves || 0
+              };
+            } else {
+              cleaned.push(verified);
+            }
+          }
+
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+          return ensureUniqueOpportunityImages(cleaned.map(syncWithDeadlineAutomation));
+        }
       }
     }
   } catch (e) {
@@ -95,13 +282,15 @@ function getStoredOpportunities(): Opportunity[] {
 
 function saveStoredOpportunities(items: Opportunity[]) {
   try {
-    const cleaned = items.filter(o => 
-      o && 
-      o.id && 
-      !o.id.startsWith('opp-demo-') && 
-      !o.title?.includes('[DEMO RECORD]')
-    );
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const cleaned = items.filter(o => 
+        o && 
+        o.id && 
+        !o.id.startsWith('opp-demo-') && 
+        !o.title?.includes('[DEMO RECORD]')
+      );
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+    }
   } catch (e) {
     console.error('Failed to save opportunities', e);
   }
@@ -137,10 +326,7 @@ export const OpportunitiesService = {
     if (isFirebaseConfigured && db) {
       try {
         const oppsRef = collection(db, 'opportunities');
-        let q = query(oppsRef);
-        if (filters?.category && filters.category !== 'All') {
-          q = query(oppsRef, where('category', '==', filters.category));
-        }
+        const q = query(oppsRef);
         const timeout = new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('timeout')), 3000)
         );
@@ -172,6 +358,14 @@ export const OpportunitiesService = {
       }
     }
 
+    // Merge verified tertiary institutions into the platform directory
+    const institutionOpps = getInstitutionOpportunities();
+    for (const instOpp of institutionOpps) {
+      if (!items.some(it => it.id === instOpp.id || it.slug === instOpp.slug)) {
+        items.push(instOpp);
+      }
+    }
+
     // By default, public website displays ONLY published & active (or closed) records, NOT drafts/pending/rejected
     if (!filters?.includeUnpublished) {
       items = items.filter(o =>
@@ -189,20 +383,14 @@ export const OpportunitiesService = {
         items = items.filter(o => o.verificationStatus === filters.verificationStatus);
       }
       if (filters.category && filters.category !== 'All') {
-        const catQuery = filters.category.toLowerCase();
-        items = items.filter(o => {
-          if (o.category.toLowerCase() === catQuery) return true;
-          // Support searching 'Study Abroad' to include international study abroad programs
-          if (catQuery === 'study abroad') {
-            return o.category.toLowerCase() === 'study abroad' ||
-              (o.locationType === 'abroad') ||
-              (o.category.toLowerCase() === 'scholarships' && o.country && o.country.toLowerCase() !== 'ghana');
-          }
-          return false;
-        });
+        items = items.filter(o => matchesCategory(o, filters.category));
       }
       if (filters.region && filters.region !== 'All Regions' && filters.region !== 'All Ghana') {
-        items = items.filter(o => o.region?.toLowerCase() === filters.region!.toLowerCase());
+        const rFilter = filters.region.toLowerCase();
+        items = items.filter(o => {
+          const oRegion = o.region?.toLowerCase() || '';
+          return oRegion === rFilter || oRegion.includes('all') || (o.location?.toLowerCase().includes(rFilter));
+        });
       }
       if (filters.locationType && filters.locationType !== 'all') {
         const locType = filters.locationType.toLowerCase();
@@ -302,7 +490,8 @@ export const OpportunitiesService = {
             o.experienceLevel || '',
             o.educationLevel || '',
             o.skills?.join(' ') || '',
-            o.responsibilities?.join(' ') || ''
+            o.responsibilities?.join(' ') || '',
+            o.tags?.join(' ') || ''
           ].join(' ').toLowerCase();
 
           // If exact match
@@ -334,7 +523,14 @@ export const OpportunitiesService = {
       }
     }
     const items = getStoredOpportunities();
-    return items.find(o => o.id === id) || null;
+    const found = items.find(o => o.id === id || o.slug === id);
+    if (found) return found;
+
+    const inst = ALL_INSTITUTIONS.find(i => i.id === id || i.slug === id);
+    if (inst) {
+      return convertInstitutionToOpportunity(inst);
+    }
+    return null;
   },
 
   async getBySlug(slug: string): Promise<Opportunity | null> {
@@ -354,7 +550,14 @@ export const OpportunitiesService = {
       }
     }
     const items = getStoredOpportunities();
-    return items.find(o => o.slug === slug) || null;
+    const found = items.find(o => o.slug === slug || o.id === slug);
+    if (found) return found;
+
+    const inst = ALL_INSTITUTIONS.find(i => i.slug === slug || i.id === slug);
+    if (inst) {
+      return convertInstitutionToOpportunity(inst);
+    }
+    return null;
   },
 
   async saveOpportunity(

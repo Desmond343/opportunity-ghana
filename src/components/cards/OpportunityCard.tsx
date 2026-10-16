@@ -67,7 +67,15 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   return (
     <article
-      onClick={() => onNavigate(`/opportunities/${opportunity.slug}`)}
+      onClick={() => {
+        if (opportunity.customNavigationPath) {
+          onNavigate(opportunity.customNavigationPath);
+        } else if (opportunity.category === 'Admissions' && opportunity.institutionSlug) {
+          onNavigate(`/institutions/${opportunity.institutionSlug}`);
+        } else {
+          onNavigate(`/opportunities/${opportunity.slug}`);
+        }
+      }}
       className={`floating-glass-tablet specular-rim-highlight group relative rounded-xl sm:rounded-2xl cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200 ${
         isActuallyFeatured ? 'featured-tablet' : ''
       }`}

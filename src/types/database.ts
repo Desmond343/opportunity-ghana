@@ -179,6 +179,9 @@ export interface Opportunity {
   featured?: boolean;
   featuredInSlideshow?: boolean;
   slideshowPriority?: number;
+  customNavigationPath?: string;
+  institutionSlug?: string;
+  tags?: string[];
 }
 
 export type ResourceType =

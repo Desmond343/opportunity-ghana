@@ -54,6 +54,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
       setLoading(true);
       try {
         const item = await OpportunitiesService.getBySlug(slug);
+        if (item?.institutionSlug) {
+          onNavigate(`/institutions/${item.institutionSlug}`);
+          return;
+        }
         setOpportunity(item);
         if (item) {
           setIsSaved(SavedService.isSaved(item.id));
