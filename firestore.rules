@@ -61,31 +61,61 @@ service cloud.firestore {
     }
 
     // 3. Opportunities collection:
-    // Public read for published listings.
-    // Authenticated users can submit new opportunities with status == 'pending' or 'pending_review'.
+    // Only published listings are publicly readable. Pending/rejected submissions are restricted to author or admins.
+    // Authenticated users can submit new opportunities strictly in 'pending' status with their verified auth UID.
+    // Ordinary users CANNOT set submissions to 'published' or 'approved'.
     // Admin/editor have full permissions to review, approve, publish, edit, or delete.
     match /opportunities/{opportunityId} {
-      allow read: if true;
+      allow read: if (resource.data.status == 'published') ||
+                     isAdminOrEditor() ||
+                     (isAuthenticated() && (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid));
       allow create: if isAdminOrEditor() || (
         isAuthenticated() &&
         (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
-        (request.resource.data.submittedBy == request.auth.uid || request.resource.data.createdByUserId == request.auth.uid || request.resource.data.organizationId == request.auth.uid)
+        request.resource.data.submissionStatus == 'pending' &&
+        (request.resource.data.submittedBy == request.auth.uid || request.resource.data.createdByUserId == request.auth.uid)
       );
-      allow update, delete: if isAdminOrEditor();
+      allow update: if isAdminOrEditor() || (
+        isAuthenticated() &&
+        (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid) &&
+        (resource.data.status == 'pending' || resource.data.status == 'pending_review' || resource.data.submissionStatus == 'changes_requested') &&
+        (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
+        (request.resource.data.submissionStatus == 'pending' || request.resource.data.submissionStatus == 'changes_requested')
+      );
+      allow delete: if isAdmin() || (
+        isAuthenticated() &&
+        (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid) &&
+        (resource.data.status == 'pending' || resource.data.status == 'pending_review' || resource.data.status == 'rejected')
+      );
     }
 
     // 4. Resources collection:
-    // Public can read verified resources and courses.
-    // Authenticated users can submit new resources with status == 'pending_review'.
+    // Only published/approved resources are publicly readable. Pending/rejected submissions are restricted to author or admins.
+    // Authenticated users can submit new resources strictly in 'pending' status with their verified auth UID.
+    // Ordinary users CANNOT set submissions to 'published' or 'approved'.
     // Admin/editor have full permissions to review, approve, publish, edit, or delete.
     match /resources/{resourceId} {
-      allow read: if true;
+      allow read: if (resource.data.status == 'published' || resource.data.status == 'approved') ||
+                     isAdminOrEditor() ||
+                     (isAuthenticated() && (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid));
       allow create: if isAdminOrEditor() || (
         isAuthenticated() &&
-        (request.resource.data.status == 'pending_review' || request.resource.data.status == 'pending') &&
-        (request.resource.data.createdByUserId == request.auth.uid || request.resource.data.submittedBy == request.auth.uid)
+        (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
+        request.resource.data.submissionStatus == 'pending' &&
+        (request.resource.data.submittedBy == request.auth.uid || request.resource.data.createdByUserId == request.auth.uid)
       );
-      allow update, delete: if isAdminOrEditor();
+      allow update: if isAdminOrEditor() || (
+        isAuthenticated() &&
+        (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid) &&
+        (resource.data.status == 'pending' || resource.data.status == 'pending_review' || resource.data.submissionStatus == 'changes_requested') &&
+        (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
+        (request.resource.data.submissionStatus == 'pending' || request.resource.data.submissionStatus == 'changes_requested')
+      );
+      allow delete: if isAdmin() || (
+        isAuthenticated() &&
+        (resource.data.submittedBy == request.auth.uid || resource.data.createdByUserId == request.auth.uid) &&
+        (resource.data.status == 'pending' || resource.data.status == 'pending_review' || resource.data.status == 'rejected')
+      );
     }
 
     // 5. Skills collection

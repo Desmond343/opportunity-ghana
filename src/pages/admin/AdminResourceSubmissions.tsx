@@ -134,44 +134,44 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs">
+      <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#006B3F] border border-emerald-100 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center font-bold">
                 <Inbox className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-black text-slate-900 font-space tracking-tight">
+              <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 font-space tracking-tight">
                 Resource Submissions Queue
               </h1>
               {pendingCount > 0 && (
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold font-mono">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 text-xs font-extrabold font-mono">
                   {pendingCount} Pending
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 max-w-2xl leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
               Review and verify user-submitted courses, learning guides, and practical cohorts before publishing them to the public Opportunity Ghana portal.
             </p>
           </div>
 
           <button
             onClick={loadData}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors self-start sm:self-auto cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors self-start sm:self-auto cursor-pointer"
           >
             <span>Refresh Queue</span>
           </button>
         </div>
 
         {actionSuccessMessage && (
-          <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 text-[#006B3F] rounded-2xl text-xs font-bold animate-in fade-in flex items-center gap-2">
+          <div className="mt-4 p-3.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[#006B3F] dark:text-emerald-300 rounded-2xl text-xs font-bold animate-in fade-in flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{actionSuccessMessage}</span>
           </div>
         )}
 
         {/* Filter and Search Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 mt-6">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800 mt-6">
           <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
             {[
               { id: 'pending', label: `Pending (${pendingCount})` },
@@ -186,7 +186,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   filterStatus === tab.id
                     ? 'bg-[#006B3F] text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'
                 }`}
               >
                 {tab.label}
@@ -201,14 +201,14 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, submitter..."
-              className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none"
+              className="w-full pl-8 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
             />
           </div>
         </div>
       </div>
 
       {/* Submissions Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         {loading ? (
           <div className="py-16 text-center space-y-3">
             <div className="w-8 h-8 border-3 border-[#006B3F] border-t-transparent rounded-full animate-spin mx-auto" />
@@ -226,7 +226,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-bold">
+                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold">
                   <th className="py-3 px-4">Resource Title</th>
                   <th className="py-3 px-3">Category</th>
                   <th className="py-3 px-3">Submitter</th>
@@ -235,7 +235,7 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredSubmissions.map((sub) => {
                   const isPending = sub.status === 'pending' || (sub.status as string) === 'pending_review';
                   const isApproved = sub.status === 'published' || (sub.status as string) === 'approved';
@@ -243,12 +243,12 @@ export const AdminResourceSubmissions: React.FC<AdminResourceSubmissionsProps> =
                   const isChanges = (sub.status as string) === 'changes_requested';
 
                   return (
-                    <tr key={sub.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={sub.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-3.5 px-4 max-w-xs">
-                        <div className="font-bold text-slate-900 truncate" title={sub.title}>
+                        <div className="font-bold text-slate-900 dark:text-slate-100 truncate" title={sub.title}>
                           {sub.title}
                         </div>
-                        <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
                           {sub.providerName || 'Provider not stated'}
                         </div>
                       </td>
