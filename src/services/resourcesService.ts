@@ -200,14 +200,7 @@ export const ResourcesService = {
 
     // Default to published or approved only for public views
     if (!filters?.includeUnpublished) {
-      items = items.filter(r =>
-        (r.status === 'published' || (r.status as string) === 'approved') &&
-        r.submissionStatus !== 'pending' &&
-        r.submissionStatus !== 'rejected' &&
-        r.status !== 'pending' &&
-        (r.status as string) !== 'pending_review' &&
-        (r.status as string) !== 'rejected'
-      );
+      items = items.filter(r => r.status === 'published' || (r.status as string) === 'approved');
     }
 
     if (filters) {
@@ -394,14 +387,11 @@ export const ResourcesService = {
   },
 
   /**
-   * Rebuilt User Learning Resource Submission Flow using Firebase.
-   * Uploads photos directly to Firebase Storage with real-time progress.
-   * Saves strictly with initial status: 'pending_review' and submissionStatus: 'pending'.
-   * Does NOT appear on public website until approved by admin.
+   * Normal Authenticated User Resource Submission
+   * Submits a resource in 'pending_review' status with moderation status 'pending'
    */
   async submitUserResource(
     submissionData: {
-      id?: string;
       title: string;
       description: string;
       category: string;
@@ -410,7 +400,6 @@ export const ResourcesService = {
       level?: Resource['level'];
       providerName?: string;
       location?: string;
-      duration?: string;
       enrollmentUrl: string;
       isFree: boolean;
       cost?: number;
@@ -420,105 +409,96 @@ export const ResourcesService = {
       contactInfo?: string;
       imageUrl?: string;
       imagePath?: string;
-      slug?: string;
     },
     user: {
       uid: string;
       email: string;
       name: string;
     },
-    imageFile?: File | null,
-    onProgress?: (progressPercent: number) => void
+    imageFile?: File | null
   ): Promise<Resource> {
-    if (!submissionData.title?.trim() || submissionData.title.trim().length < 5) {
-      throw new Error('Please enter a resource title of at least 5 characters.');
-    }
-    if (!submissionData.providerName?.trim()) {
-      throw new Error('Please specify the institution, academy, or provider name.');
-    }
-    if (!submissionData.category?.trim()) {
-      throw new Error('Please select a resource category.');
+    if (!submissionData.title?.trim()) {
+      throw new Error('Please enter a resource title.');
     }
     if (!submissionData.description?.trim() || submissionData.description.trim().length < 25) {
-      throw new Error('Please provide an informative description of at least 25 characters.');
+      throw new Error('Please provide a descriptive overview of at least 25 characters.');
     }
     if (!submissionData.enrollmentUrl?.trim() || !submissionData.enrollmentUrl.trim().startsWith('http')) {
       throw new Error('Please enter a valid website link starting with http:// or https://');
     }
 
-    const id = submissionData.id || `res_sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const now = new Date().toISOString();
-
-    let imageUrl = submissionData.imageUrl;
-    let imagePath = submissionData.imagePath;
-
-    // 1. Upload photo directly to Firebase Storage with real-time progress
     if (imageFile) {
       const val = validateImageFile(imageFile);
       if (!val.valid) {
         throw new Error(val.error || 'Invalid image file.');
       }
-      const uploaded = await FirebaseStorageService.uploadResourcePhoto(id, imageFile, onProgress);
-      imageUrl = uploaded.imageUrl;
-      imagePath = uploaded.imagePath;
     }
 
-    const rawSlug = submissionData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'resource';
-    const slug = submissionData.slug || `${rawSlug}-${id.substring(8, 14)}`;
+    const formData = new FormData();
+    formData.append('title', submissionData.title.trim());
+    formData.append('description', submissionData.description.trim());
+    formData.append('category', submissionData.category || 'Technology');
+    formData.append('resourceType', submissionData.resourceType || 'course');
+    if (submissionData.level) formData.append('level', submissionData.level);
+    if (submissionData.format) formData.append('format', submissionData.format);
+    if (submissionData.location) formData.append('location', submissionData.location.trim());
+    formData.append('providerName', submissionData.providerName?.trim() || 'Community Contributor');
+    formData.append('enrollmentUrl', submissionData.enrollmentUrl.trim());
+    formData.append('isFree', String(Boolean(submissionData.isFree)));
+    formData.append('cost', String(submissionData.isFree ? 0 : Number(submissionData.cost || 0)));
+    formData.append('currency', submissionData.currency || 'GHS');
+    formData.append('hasCertificate', String(Boolean(submissionData.hasCertificate)));
+    if (submissionData.contactInfo) formData.append('contactInfo', submissionData.contactInfo.trim());
 
-    const newResource: Resource = {
-      id,
-      slug,
-      title: submissionData.title.trim(),
-      description: submissionData.description.trim(),
-      providerId: 'external_submission',
-      providerName: (submissionData.providerName || 'Community Contributor').trim(),
-      category: submissionData.category || 'Technology',
-      resourceType: submissionData.resourceType || 'course',
-      level: submissionData.level || 'All Levels',
-      format: submissionData.format || 'Self-paced Online',
-      location: (submissionData.location || 'Online / Ghana').trim(),
-      duration: submissionData.duration || 'Flexible',
-      enrollmentUrl: submissionData.enrollmentUrl.trim(),
-      sourceUrl: submissionData.enrollmentUrl.trim(),
-      isFree: Boolean(submissionData.isFree),
-      cost: submissionData.isFree ? 0 : Number(submissionData.cost || 0),
-      currency: submissionData.currency || 'GHS',
-      hasCertificate: Boolean(submissionData.hasCertificate),
-      skills: Array.isArray(submissionData.skills) ? submissionData.skills : [],
-      contactInfo: submissionData.contactInfo?.trim(),
-      imageUrl,
-      imagePath,
-      // Strict moderation workflow: always initial status 'pending_review'
-      status: 'pending_review',
-      submissionStatus: 'pending',
-      verificationStatus: 'needs_verification',
-      verificationNotes: `Submitted by ${user.name || 'User'} (${user.email}) on ${now}. Awaiting editorial verification.`,
-      isUserSubmitted: true,
-      submittedBy: user.uid,
-      submittedByName: user.name || 'User',
-      submittedByEmail: user.email,
-      createdByUserId: user.uid,
-      createdByName: user.name || 'User',
-      createdByEmail: user.email,
-      submittedAt: now,
-      createdAt: now,
-      updatedAt: now,
-      views: 0,
-      saves: 0
-    };
+    if (submissionData.skills && submissionData.skills.length > 0) {
+      formData.append('skills', JSON.stringify(submissionData.skills));
+    }
 
-    // 2. Persist directly to Firestore
-    if (isFirebaseConfigured && db) {
-      try {
-        const cleanData = sanitizeForFirestore(newResource);
-        await setDoc(doc(db, 'resources', id), cleanData, { merge: true });
-      } catch (err: any) {
-        console.warn('[ResourcesService] Direct Firestore save notice:', err?.message || err);
+    formData.append('createdByUserId', user.uid);
+    formData.append('createdByName', user.name || 'User');
+    formData.append('createdByEmail', user.email);
+    formData.append('submittedBy', user.uid);
+    formData.append('submittedByName', user.name || 'User');
+    formData.append('submittedByEmail', user.email);
+
+    if (imageFile) {
+      formData.append('image', imageFile);
+    } else if (submissionData.imageUrl) {
+      formData.append('imageUrl', submissionData.imageUrl);
+      if (submissionData.imagePath) formData.append('imagePath', submissionData.imagePath);
+    }
+
+    let token: string | null = null;
+    try {
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken().catch(() => null);
       }
+    } catch {}
+
+    const res = await fetch('/api/submissions/resource', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      let errDetail = 'Could not submit resource. Please check fields and try again.';
+      try {
+        const body = await res.json();
+        if (body.error) errDetail = body.error;
+      } catch {}
+      throw new Error(errDetail);
     }
 
-    // 3. Cache locally in client
+    const json = await res.json();
+    if (!json.success || !json.submission) {
+      throw new Error(json.error || 'Server did not confirm receipt of your submission.');
+    }
+
+    const newResource: Resource = json.submission;
+
     const items = getStoredResources();
     const existingIdx = items.findIndex(i => i.id === newResource.id);
     if (existingIdx >= 0) {
@@ -528,22 +508,51 @@ export const ResourcesService = {
     }
     saveStoredResources(items);
 
-    // 4. Synchronize with backend API route
-    try {
-      let token: string | null = null;
-      if (auth?.currentUser) {
-        token = await auth.currentUser.getIdToken().catch(() => null);
+    if (isFirebaseConfigured && db) {
+      try {
+        const cleanData = sanitizeForFirestore(newResource);
+        await setDoc(doc(db, 'resources', newResource.id), cleanData, { merge: true });
+      } catch (err) {
+        console.debug('Firestore client mirror notice:', err);
       }
-      await fetch('/api/submissions/resource', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(newResource)
-      });
-    } catch (apiErr) {
-      console.warn('[ResourcesService] Server sync note:', apiErr);
+    }
+
+    // Mirror to unified submissions store
+    try {
+      const rawSub = localStorage.getItem('opp_gh_submissions_store');
+      let subList: any[] = [];
+      if (rawSub) {
+        try { subList = JSON.parse(rawSub) || []; } catch {}
+      }
+      const submissionRecord = {
+        id: 'sub_' + newResource.id,
+        type: 'resource',
+        title: newResource.title,
+        organizationName: newResource.providerName || 'Community Submitter',
+        submittedByEmail: user.email,
+        submittedByName: user.name,
+        submittedByUserId: user.uid,
+        category: newResource.category,
+        location: newResource.location,
+        data: newResource,
+        status: 'pending',
+        createdAt: newResource.submittedAt || new Date().toISOString(),
+        updatedAt: newResource.updatedAt || new Date().toISOString()
+      };
+      const foundIdx = subList.findIndex((s: any) => s.id === submissionRecord.id);
+      if (foundIdx >= 0) {
+        subList[foundIdx] = submissionRecord;
+      } else {
+        subList.unshift(submissionRecord);
+      }
+      localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
+
+      if (isFirebaseConfigured && db) {
+        const cleanSub = sanitizeForFirestore(submissionRecord);
+        setDoc(doc(db, 'submissions', submissionRecord.id), cleanSub, { merge: true }).catch(() => {});
+      }
+    } catch (e) {
+      console.warn('Failed to mirror resource to submissions store:', e);
     }
 
     AuditService.log({
@@ -553,8 +562,7 @@ export const ResourcesService = {
       action: 'created',
       performedByEmail: user.email,
       performedByName: user.name,
-      details: `User submitted new resource for administrative verification: "${newResource.title}". Status: pending review.`,
-      newStatus: 'pending'
+      details: `User submitted new resource for administrative verification: "${newResource.title}". Status: pending review.`
     });
 
     return newResource;

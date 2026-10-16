@@ -179,6 +179,9 @@ export interface Opportunity {
   featured?: boolean;
   featuredInSlideshow?: boolean;
   slideshowPriority?: number;
+  customNavigationPath?: string;
+  institutionSlug?: string;
+  tags?: string[];
 }
 
 export type ResourceType =
@@ -221,7 +224,10 @@ export type CertificateType =
   | 'Digital Skill Badge'
   | 'Statement of Participation'
   | 'Certificate of Completion'
-  | 'None';
+  | 'free'
+  | 'paid'
+  | 'None'
+  | (string & {});
 
 export interface Resource {
   id: string;
@@ -230,6 +236,7 @@ export interface Resource {
   description: string;
   providerId: string;
   providerName?: string;
+  institution?: string;
   providerLogo?: string;
   providerWebsiteUrl?: string;
   providerWebsite?: string;
@@ -240,6 +247,7 @@ export interface Resource {
   format: 'Self-paced Online' | 'Live Online' | 'In-person' | 'Hybrid' | 'Recorded' | 'Cohort-based';
   location?: string;
   duration: string;
+  workload?: string;
   estimatedWorkload?: string;
   cost: number;
   currency: string;
@@ -248,8 +256,10 @@ export interface Resource {
   costDescription?: string;
   pricingFrequency?: 'one-time' | 'monthly' | 'annual' | 'free';
   freeStatus?: string;
+  freeAccessType?: string;
   hasCertificate: boolean;
   certificateType?: CertificateType;
+  certificateDetails?: string;
   certificateStatus?: string;
   certificateCost?: string;
   financialAid?: boolean;

@@ -17,6 +17,7 @@ import {
   Search,
   BookOpen
 } from 'lucide-react';
+import { EditorialParagraphs } from '../components/common/EditorialArticle';
 
 interface SuccessStoriesPageProps {
   onNavigate: (path: string) => void;
@@ -94,10 +95,10 @@ export const SuccessStoriesPage: React.FC<SuccessStoriesPageProps> = ({
           <Award className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
           <span>Authenticated Alumnus Journeys</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
+        <h1 className="editorial-heading-1 text-[#111111] dark:text-white font-serif">
           Real People. Real Opportunities. Real Journeys.
         </h1>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+        <p className="editorial-supporting text-slate-600 dark:text-slate-300 leading-relaxed font-serif">
           Discover how Ghanaian students, graduates, and professionals turned verified scholarships, internships, and courses into life-changing milestones.
         </p>
 
@@ -321,11 +322,11 @@ export const SuccessStoriesPage: React.FC<SuccessStoriesPageProps> = ({
             )}
 
             {/* Main Narrative Body */}
-            <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-space">
+            <div className="space-y-4">
+              <h3 className="editorial-heading-2 text-slate-900 dark:text-white font-serif">
                 {selectedStory.title}
               </h3>
-              <p>{selectedStory.content}</p>
+              <EditorialParagraphs text={selectedStory.content} />
             </div>
 
             {/* Key Takeaways & Practical Advice */}

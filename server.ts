@@ -880,9 +880,6 @@ function extractCleanImageUrl(val: any): string | undefined {
 
 // User Opportunity Submission Endpoint (Supports direct multipart image upload and JSON)
 app.post('/api/submissions/opportunity', (req, res, next) => {
-  if (req.is('application/json')) {
-    return next();
-  }
   upload.any()(req as any, res as any, (err: any) => {
     if (err) {
       console.warn('[Submission Opportunity Upload Error]', err.message);
@@ -1047,9 +1044,6 @@ app.post('/api/submissions/opportunity', (req, res, next) => {
 
 // User Resource Submission Endpoint (Supports direct multipart image upload and JSON)
 app.post('/api/submissions/resource', (req, res, next) => {
-  if (req.is('application/json')) {
-    return next();
-  }
   upload.any()(req as any, res as any, (err: any) => {
     if (err) {
       console.warn('[Submission Resource Upload Error]', err.message);

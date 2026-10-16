@@ -3,6 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --font-serif: "Times New Roman", Times, serif;
+  --font-sans: "Times New Roman", Times, serif;
+  --font-space: "Times New Roman", Times, serif;
   --color-ghana-green: #006B3F;
   --color-ghana-green-hover: #005632;
   --color-ghana-green-light: #E6F0EB;
@@ -15,9 +18,9 @@
   --color-ghana-black: #111111;
   --color-ghana-neutral-bg: #F7F9F8;
   --color-ghana-border: #E5E7EB;
-  --color-ghana-text: #111111;
-  --color-ghana-secondary-text: #5F6368;
-  --color-ghana-muted-text: #737373;
+  --color-ghana-text: #222222;
+  --color-ghana-secondary-text: #555555;
+  --color-ghana-muted-text: #666666;
 }
 
 @layer base {
@@ -31,23 +34,24 @@
     --ghana-red: #CE1126;
     --ghana-red-hover: #B50E20;
     --ghana-red-light: #FCE8EA;
-    --ghana-black: #111111;
+    --ghana-black: #222222;
     --background: #FFFFFF;
     --background-secondary: #F8FAFC;
     --card-surface: #FFFFFF;
     --card-subpanel: #F1F5F9;
     --border: #E2E8F0;
     --border-subtle: #F1F5F9;
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #64748B;
-    --text-metadata: #64748B;
-    --text-heading: #0F172A;
-    --text-link: #006B3F;
+    --text-primary: #222222;
+    --text-secondary: #444444;
+    --text-muted: #666666;
+    --text-metadata: #555555;
+    --text-heading: #111111;
+    --text-link: #0056B3;
     --text-accent: #006B3F;
     --text-disabled: #94A3B8;
 
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Times New Roman', Times, serif;
+    letter-spacing: normal;
   }
 
   .dark {
@@ -67,18 +71,28 @@
     --card-subpanel: #1A2234;
     --border: #1F293D;
     --border-subtle: #192131;
-    --text-primary: #F8FAFC;
+    --text-primary: #E2E8F0;
     --text-secondary: #CBD5E1;
     --text-muted: #94A3B8;
     --text-metadata: #94A3B8;
     --text-heading: #FFFFFF;
-    --text-link: #34D399;
+    --text-link: #60A5FA;
     --text-accent: #10B981;
     --text-disabled: #64748B;
   }
 
   html {
     color-scheme: light;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: normal;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 17px;
+    }
   }
 
   html.dark {
@@ -88,18 +102,179 @@
   body {
     background-color: var(--background-secondary);
     color: var(--text-primary);
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: left;
+    letter-spacing: normal;
+    line-height: 1.6;
     transition: background-color 0.25s ease, color 0.25s ease;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  body, *, *::before, *::after {
-    transition-duration: 0.01ms !important;
+  /* Editorial Headings System: Simple, traditional article style */
+  h1, .editorial-heading-1 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 600;
+    color: var(--text-heading);
+    letter-spacing: normal;
+    text-transform: none !important;
+    text-shadow: none !important;
+  }
+  @media (min-width: 768px) {
+    h1, .editorial-heading-1 {
+      font-size: 32px;
+    }
+  }
+
+  h2, .editorial-heading-2 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 21px;
+    line-height: 1.3;
+    font-weight: 600;
+    color: var(--text-heading);
+    letter-spacing: normal;
+    text-transform: none !important;
+    text-shadow: none !important;
+  }
+  @media (min-width: 768px) {
+    h2, .editorial-heading-2 {
+      font-size: 24px;
+    }
+  }
+
+  h3, .editorial-heading-3 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--text-heading);
+    letter-spacing: normal;
+    text-transform: none !important;
+    text-shadow: none !important;
+  }
+  @media (min-width: 768px) {
+    h3, .editorial-heading-3 {
+      font-size: 26px;
+    }
+  }
+
+  p {
+    line-height: 1.6;
+    letter-spacing: normal;
   }
 }
 
+/* Override font-space to traditional serif */
 .font-space {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Times New Roman', Times, serif !important;
+  letter-spacing: normal !important;
+  text-transform: none;
+}
+
+/* =========================================================================
+   TRADITIONAL EDITORIAL & SPORTS NEWSPAPER ARTICLE TYPOGRAPHY
+   Reference: Clean, professional journalism formatting
+   ========================================================================= */
+
+.editorial-prose,
+.article-prose {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #222222;
+  text-align: left;
+  letter-spacing: normal;
+}
+@media (min-width: 768px) {
+  .editorial-prose,
+  .article-prose {
+    font-size: 17px;
+  }
+}
+.dark .editorial-prose,
+.dark .article-prose {
+  color: #E2E8F0;
+}
+
+/* Paragraph spacing: 12-16px between paragraphs */
+.editorial-prose p,
+.editorial-p,
+.article-prose p {
+  margin-bottom: 14px;
+  line-height: 1.6;
+  letter-spacing: normal;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #222222;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+@media (min-width: 768px) {
+  .editorial-prose p,
+  .editorial-p,
+  .article-prose p {
+    font-size: 17px;
+  }
+}
+.dark .editorial-prose p,
+.dark .editorial-p,
+.dark .article-prose p {
+  color: #E2E8F0;
+}
+.editorial-prose p:last-child,
+.article-prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* Traditional Editorial Links: standard clean blue with underline */
+.editorial-link,
+.editorial-prose a,
+.article-prose a {
+  color: #0056B3;
+  text-decoration: underline;
+  text-underline-offset: 2.5px;
+  font-weight: 400;
+  transition: color 0.15s ease;
+}
+.editorial-link:hover,
+.editorial-prose a:hover,
+.article-prose a:hover {
+  color: #003875;
+}
+.dark .editorial-link,
+.dark .editorial-prose a,
+.dark .article-prose a {
+  color: #60A5FA;
+}
+.dark .editorial-link:hover,
+.dark .editorial-prose a:hover,
+.dark .article-prose a:hover {
+  color: #93C5FD;
+}
+
+/* Supporting Information: 15px mobile, 16px desktop */
+.editorial-supporting,
+.editorial-meta {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #555555;
+  letter-spacing: normal;
+}
+@media (min-width: 768px) {
+  .editorial-supporting,
+  .editorial-meta {
+    font-size: 16px;
+  }
+}
+.dark .editorial-supporting,
+.dark .editorial-meta {
+  color: #94A3B8;
 }
 
 /* Reusable Ghana Brand Button System */

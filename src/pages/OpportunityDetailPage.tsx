@@ -9,6 +9,7 @@ import { Badge } from '../components/common/Badge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
 import { calculateDeadlineInfo, useDeadlineInfo } from '../services/deadlineService';
 import { resolveOpportunityMedia } from '../utils/cardBackgrounds';
+import { EditorialParagraphs } from '../components/common/EditorialArticle';
 import {
   MapPin,
   Calendar,
@@ -53,6 +54,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
       setLoading(true);
       try {
         const item = await OpportunitiesService.getBySlug(slug);
+        if (item?.institutionSlug) {
+          onNavigate(`/institutions/${item.institutionSlug}`);
+          return;
+        }
         setOpportunity(item);
         if (item) {
           setIsSaved(SavedService.isSaved(item.id));
@@ -333,10 +338,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 <Badge variant="blue">{opportunity.opportunityType}</Badge>
                 <VerificationBadge status={opportunity.verificationStatus} />
               </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-snug font-space">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-[#111111] dark:text-slate-100 leading-snug font-serif">
                 {opportunity.title}
               </h1>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1 flex items-center gap-1.5">
+              <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 flex items-center gap-1.5 flex-wrap">
                 <Building className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <span>{opportunity.organizationName}</span>
                 <span className="text-slate-300 dark:text-slate-600">•</span>
@@ -488,12 +493,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         <div className="lg:col-span-2 space-y-8">
           {/* Detailed Overview */}
           <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+            <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif">
               {opportunity.category === 'Jobs' ? 'Position Overview' : opportunity.category === 'Internships' ? 'Internship Overview' : 'About This Opportunity'}
             </h2>
-            <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed space-y-3">
-              <p>{opportunity.description}</p>
-            </div>
+            <EditorialParagraphs text={opportunity.description} />
           </section>
 
           {/* Key Responsibilities */}
@@ -501,14 +504,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif">
                   Key Responsibilities & Duties
                 </h2>
               </div>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3 pt-1">
                 {opportunity.responsibilities.map((resp, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-[#006B3F] dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 shrink-0 mt-2.5" />
                     <span>{resp}</span>
                   </li>
                 ))}
@@ -521,7 +524,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif">
                   Required Skills & Competencies
                 </h2>
               </div>
@@ -529,7 +532,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 {opportunity.skills.map((skill, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs hover:bg-[#E8F5EF] dark:hover:bg-emerald-950/60 hover:text-[#006B3F] dark:hover:text-emerald-300 transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-2xs hover:bg-[#E8F5EF] dark:hover:bg-emerald-950/60 hover:text-[#006B3F] dark:hover:text-emerald-300 transition-colors"
                   >
                     {skill}
                   </span>
@@ -543,14 +546,14 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-space">
+                <h2 className="editorial-heading-2 text-slate-900 dark:text-slate-100 font-serif">
                   {opportunity.category === 'Jobs' ? 'Compensation & Benefits' : opportunity.category === 'Internships' ? 'Internship Benefits & Learning Outcomes' : 'Benefits & Entitlements'}
                 </h2>
               </div>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3 pt-1">
                 {opportunity.benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 shrink-0 mt-2.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -563,34 +566,34 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-[#111111] dark:text-slate-100 font-space">
+                <h2 className="editorial-heading-2 text-[#111111] dark:text-slate-100 font-serif">
                   Who Can Apply (Eligibility)
                 </h2>
               </div>
-              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-700/50">
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-700/50">
                 ✓ Ghana Eligible
               </span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F7F9F8] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-700/70 space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
-              <p className="font-bold text-[#111111] dark:text-slate-100">
+            <div className="p-4 rounded-2xl bg-[#F7F9F8] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-700/70 space-y-2">
+              <p className="font-semibold text-[#111111] dark:text-slate-100 editorial-supporting">
                 Target Nationality & Citizenship:
               </p>
-              <p className="text-slate-600 dark:text-slate-300">
+              <p className="editorial-prose text-slate-700 dark:text-slate-300">
                 {opportunity.nationality || 'Ghanaian citizens and permanent residents in Ghana.'}
               </p>
               {opportunity.academicYear && (
-                <p className="pt-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                <p className="editorial-meta text-slate-500 dark:text-slate-400 pt-1">
                   Official Academic Cycle: <strong>{opportunity.academicYear}</strong>
                 </p>
               )}
             </div>
 
             {opportunity.requirements && opportunity.requirements.length > 0 && (
-              <ul className="space-y-2.5 pt-2">
+              <ul className="space-y-3 pt-2">
                 {opportunity.requirements.map((req, i) => (
-                  <li key={i} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 shrink-0 mt-2" />
+                  <li key={i} className="flex items-start gap-3 editorial-prose text-[#222222] dark:text-[#E2E8F0]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 shrink-0 mt-2.5" />
                     <span>{req}</span>
                   </li>
                 ))}
@@ -603,13 +606,13 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             <section className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
-                <h2 className="text-lg font-bold text-[#111111] dark:text-slate-100 font-space">
+                <h2 className="editorial-heading-2 text-[#111111] dark:text-slate-100 font-serif">
                   How to Apply (Official Guidelines)
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-[#F7F9F8] dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/70">
-                {opportunity.applicationInstructions}
-              </p>
+              <div className="bg-[#F7F9F8] dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200/70 dark:border-slate-700/70">
+                <EditorialParagraphs text={opportunity.applicationInstructions} />
+              </div>
             </section>
           )}
 

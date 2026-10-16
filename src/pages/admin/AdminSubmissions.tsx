@@ -403,18 +403,18 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
   return (
     <div className="space-y-6">
       {/* Top Banner & Stats (Requirement 4, 19) */}
-      <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-2xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-[#E8F5EF] text-[#006B3F] border border-emerald-200 flex items-center justify-center font-bold">
                 <Inbox className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight font-space">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-space">
                   Submissions & Verification Queue
                 </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Review user and organization submissions before publishing live to Opportunity Ghana.
                 </p>
               </div>
@@ -425,7 +425,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
           <button
             onClick={loadAllData}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors self-start sm:self-auto cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors self-start sm:self-auto cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh Queue</span>
@@ -438,20 +438,20 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
             onClick={() => setStatusFilter('pending')}
             className={`p-4 rounded-2xl border transition-all cursor-pointer ${
               statusFilter === 'pending'
-                ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 ring-2 ring-amber-400/20 shadow-xs'
-                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 hover:bg-slate-100/70 dark:hover:bg-slate-800'
+                ? 'bg-amber-50/80 border-amber-300 ring-2 ring-amber-400/20 shadow-xs'
+                : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                 Pending Reviews
               </span>
-              <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-pulse" />
+              <Clock className="w-4 h-4 text-amber-600 animate-pulse" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black text-amber-700 dark:text-amber-300 mt-2 font-space">
+            <p className="text-2xl sm:text-3xl font-black text-amber-700 mt-2 font-space">
               {totalPendingCount}
             </p>
-            <p className="text-[10px] text-amber-900 dark:text-amber-200/80 font-medium mt-1">
+            <p className="text-[10px] text-amber-900 font-medium mt-1">
               {pendingOpportunitiesCount} opps • {pendingResourcesCount} resources
             </p>
           </div>
@@ -461,18 +461,18 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
               setTypeFilter('opportunity');
               setStatusFilter('pending');
             }}
-            className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-all cursor-pointer"
+            className="p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:bg-slate-100/70 transition-all cursor-pointer"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Pending Opps
               </span>
               <Compass className="w-4 h-4 text-slate-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-2 font-space">
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-space">
               {pendingOpportunitiesCount}
             </p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Scholarships, jobs & grants</p>
+            <p className="text-[10px] text-slate-500 mt-1">Scholarships, jobs & grants</p>
           </div>
 
           <div
@@ -480,38 +480,38 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
               setTypeFilter('resource');
               setStatusFilter('pending');
             }}
-            className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-all cursor-pointer"
+            className="p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:bg-slate-100/70 transition-all cursor-pointer"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Pending Courses
               </span>
               <BookOpen className="w-4 h-4 text-slate-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-2 font-space">
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-space">
               {pendingResourcesCount}
             </p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Bootcamps & certifications</p>
+            <p className="text-[10px] text-slate-500 mt-1">Bootcamps & certifications</p>
           </div>
 
           <div
             onClick={() => setStatusFilter('approved')}
             className={`p-4 rounded-2xl border transition-all cursor-pointer ${
               statusFilter === 'approved'
-                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-400/20 shadow-xs'
-                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 hover:bg-slate-100/70 dark:hover:bg-slate-800'
+                ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-400/20 shadow-xs'
+                : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
                 Published & Live
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 mt-2 font-space">
+            <p className="text-2xl sm:text-3xl font-black text-emerald-700 mt-2 font-space">
               {unifiedItems.filter((i) => i.status === 'approved').length}
             </p>
-            <p className="text-[10px] text-emerald-800 dark:text-emerald-300 mt-1">Approved submissions</p>
+            <p className="text-[10px] text-emerald-800 mt-1">Approved submissions</p>
           </div>
         </div>
       </div>
@@ -520,19 +520,19 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
         <div
           className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2 border shadow-xs animate-in fade-in ${
             actionNotification.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800'
-              : 'bg-rose-50 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 border-rose-200 dark:border-rose-800'
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+              : 'bg-rose-50 text-rose-900 border-rose-200'
           }`}
         >
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{actionNotification.message}</span>
         </div>
       )}
 
       {/* Filter and Control Bar (Requirement 18: Filters by Status, Type, Category, Date) */}
-      <div className="bg-white dark:bg-[#141B29] p-4 sm:p-5 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-4 transition-colors">
+      <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-2xs space-y-4">
         {/* Top Filter Buttons for Type & Status */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           {/* Status Tabs */}
           <div className="flex flex-wrap items-center gap-1.5">
             {[
@@ -546,14 +546,14 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                 onClick={() => setStatusFilter(st.id as any)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === st.id
-                    ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-2xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
                 }`}
               >
                 <span>{st.label}</span>
                 <span
                   className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                    statusFilter === st.id ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    statusFilter === st.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
                   }`}
                 >
                   {st.count}
@@ -563,7 +563,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
           </div>
 
           {/* Type Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
             {[
               { id: 'all', label: 'All Types' },
               { id: 'opportunity', label: 'Opportunities' },
@@ -575,8 +575,8 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                 onClick={() => setTypeFilter(t.id as any)}
                 className={`px-2.5 py-1 rounded-lg text-xs transition-all cursor-pointer ${
                   typeFilter === t.id
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-bold shadow-2xs'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                    ? 'bg-white text-slate-900 font-bold shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
                 {t.label}
@@ -595,7 +595,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, provider, submitter name or email..."
-              className="w-full pl-9 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
+              className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none"
             />
           </div>
 
@@ -604,7 +604,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:bg-white focus:outline-none"
             >
               <option value="all">All Categories</option>
               {OPPORTUNITY_CATEGORIES.map((c) => (
@@ -625,7 +625,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as any)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:bg-white focus:outline-none"
             >
               <option value="all">All Dates</option>
               <option value="today">Submitted Today</option>
@@ -637,7 +637,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
       </div>
 
       {/* Submissions Table / Cards List (Requirements 5, 29, 30, 31) */}
-      <div className="bg-white dark:bg-[#141B29] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs overflow-hidden">
         {loading ? (
           <div className="py-20 text-center space-y-3">
             <div className="w-8 h-8 border-3 border-[#006B3F] border-t-transparent rounded-full animate-spin mx-auto" />
@@ -655,7 +655,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold">
+                <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-bold">
                   <th className="py-3 px-4">Title & Item</th>
                   <th className="py-3 px-3">Type</th>
                   <th className="py-3 px-3">Category</th>
@@ -665,15 +665,15 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                   <th className="py-3 px-4 text-right">Review Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100">
                 {filteredSubmissions.map((sub) => {
                   return (
-                    <tr key={`${sub.type}-${sub.id}`} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={`${sub.type}-${sub.id}`} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 max-w-xs">
-                        <div className="font-bold text-slate-900 dark:text-slate-100 truncate" title={sub.title}>
+                        <div className="font-bold text-slate-900 truncate" title={sub.title}>
                           {sub.title}
                         </div>
-                        <div className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                        <div className="text-[11px] text-slate-400 truncate mt-0.5">
                           {sub.providerName} • {sub.location || 'Ghana / Online'}
                         </div>
                       </td>
@@ -682,58 +682,58 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
                             sub.type === 'opportunity'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                              ? 'bg-emerald-50 text-[#006B3F] border border-emerald-200'
                               : sub.type === 'resource'
-                              ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                              ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200'
                           }`}
                         >
-                          {sub.type === 'opportunity' && <Compass className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />}
-                          {sub.type === 'resource' && <BookOpen className="w-3 h-3 text-purple-600 dark:text-purple-400" />}
-                          {sub.type === 'partner' && <Building className="w-3 h-3 text-slate-500 dark:text-slate-400" />}
+                          {sub.type === 'opportunity' && <Compass className="w-3 h-3 text-[#006B3F]" />}
+                          {sub.type === 'resource' && <BookOpen className="w-3 h-3 text-purple-600" />}
+                          {sub.type === 'partner' && <Building className="w-3 h-3 text-slate-500" />}
                           <span>{sub.type}</span>
                         </span>
                       </td>
 
                       <td className="py-3.5 px-3">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-[11px]">
+                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
                           {sub.category}
                         </span>
                       </td>
 
                       <td className="py-3.5 px-3">
-                        <div className="font-medium text-slate-800 dark:text-slate-200">{sub.submittedByName}</div>
-                        <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono truncate max-w-[130px]">
+                        <div className="font-medium text-slate-800">{sub.submittedByName}</div>
+                        <div className="text-[11px] text-slate-400 font-mono truncate max-w-[130px]">
                           {sub.submittedByEmail}
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px] whitespace-nowrap">
+                      <td className="py-3.5 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                         {new Date(sub.submittedAt).toLocaleDateString('en-GB')}
                       </td>
 
                       <td className="py-3.5 px-3 whitespace-nowrap">
                         {sub.status === 'pending' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                            <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                            <Clock className="w-3 h-3 text-amber-600" />
                             Pending Review
                           </span>
                         )}
                         {sub.status === 'approved' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-[#006B3F] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                            <CheckCircle2 className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#006B3F] border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3 text-[#006B3F]" />
                             Published
                           </span>
                         )}
                         {sub.status === 'rejected' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                            <XCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200">
+                            <XCircle className="w-3 h-3 text-rose-600" />
                             Rejected
                           </span>
                         )}
                         {sub.status === 'changes_requested' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                            <AlertCircle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                            <AlertCircle className="w-3 h-3 text-blue-600" />
                             Changes Requested
                           </span>
                         )}
@@ -742,7 +742,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <button
                           onClick={() => handleOpenReview(sub)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#006B3F] dark:hover:bg-[#006B3F] hover:text-white dark:hover:text-white text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#006B3F] hover:text-white text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-2xs"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Review</span>
@@ -760,7 +760,7 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
       {/* DETAILED SUBMISSION INSPECTION & REVIEW MODAL (Requirements 6, 7, 8, 10, 11, 12, 22, 24) */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-3xl bg-white dark:bg-[#141B29] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-6 animate-in fade-in zoom-in-95 duration-200 transition-colors">
+          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-6 animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="bg-slate-900 text-white p-5 sm:p-6 flex items-center justify-between">
               <div className="space-y-1">
@@ -932,22 +932,22 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                 /* READ-ONLY COMPLETE SUBMISSION VIEW (Requirements 6 & 7) */
                 <div className="space-y-5">
                   {/* Metadata Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                     <div>
-                      <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Type</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200 capitalize">{selectedItem.type}</span>
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Type</span>
+                      <span className="font-bold text-slate-800 capitalize">{selectedItem.type}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Category</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.category}</span>
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Category</span>
+                      <span className="font-bold text-slate-800">{selectedItem.category}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Provider</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">{selectedItem.providerName}</span>
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Provider</span>
+                      <span className="font-bold text-slate-800 truncate block">{selectedItem.providerName}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Location</span>
-                      <span className="font-bold text-[#006B3F] dark:text-emerald-400 truncate block">
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Location</span>
+                      <span className="font-bold text-[#006B3F] truncate block">
                         {selectedItem.location || 'Ghana'}
                       </span>
                     </div>
@@ -957,27 +957,27 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
                   {selectedItem.originalOpp && (
                     <div className="space-y-4">
                       {/* Grid 1: Academic & Geographic Scope */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                         <div>
-                          <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Destination Country</span>
-                          <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.originalOpp.country || 'Ghana'}</span>
+                          <span className="text-slate-400 block text-[10px] font-semibold uppercase">Destination Country</span>
+                          <span className="font-bold text-slate-800">{selectedItem.originalOpp.country || 'Ghana'}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Region in Ghana</span>
-                          <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.originalOpp.region || 'Nationwide'}</span>
+                          <span className="text-slate-400 block text-[10px] font-semibold uppercase">Region in Ghana</span>
+                          <span className="font-bold text-slate-800">{selectedItem.originalOpp.region || 'Nationwide'}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Study / Career Level</span>
-                          <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.originalOpp.educationLevel || selectedItem.originalOpp.studyLevel || 'All Levels'}</span>
+                          <span className="text-slate-400 block text-[10px] font-semibold uppercase">Study / Career Level</span>
+                          <span className="font-bold text-slate-800">{selectedItem.originalOpp.educationLevel || selectedItem.originalOpp.studyLevel || 'All Levels'}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Field of Study</span>
-                          <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">{selectedItem.originalOpp.fieldOfStudy || 'All Disciplines'}</span>
+                          <span className="text-slate-400 block text-[10px] font-semibold uppercase">Field of Study</span>
+                          <span className="font-bold text-slate-800 truncate block">{selectedItem.originalOpp.fieldOfStudy || 'All Disciplines'}</span>
                         </div>
                       </div>
 
                       {/* Grid 2: Funding & Key Dates */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                         <div>
                           <span className="text-slate-400 block text-[10px] font-semibold uppercase">Funding Type</span>
                           <span className="font-bold text-[#006B3F]">{selectedItem.originalOpp.fundingType || 'N/A'}</span>
@@ -1082,24 +1082,24 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
 
                   {/* Resource Specific Fields */}
                   {selectedItem.originalRes && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                       <div>
-                        <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Level</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.originalRes.level || 'All Levels'}</span>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Level</span>
+                        <span className="font-bold text-slate-800">{selectedItem.originalRes.level || 'All Levels'}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Format</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">{selectedItem.originalRes.format}</span>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Format</span>
+                        <span className="font-bold text-slate-800">{selectedItem.originalRes.format}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Pricing</span>
-                        <span className="font-bold text-[#006B3F] dark:text-emerald-400">
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Pricing</span>
+                        <span className="font-bold text-[#006B3F]">
                           {selectedItem.originalRes.isFree ? '100% Free' : `${selectedItem.originalRes.cost} ${selectedItem.originalRes.currency}`}
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-slate-500 block text-[10px] font-semibold uppercase">Certificate</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Certificate</span>
+                        <span className="font-bold text-slate-800">
                           {selectedItem.originalRes.hasCertificate ? 'Yes (Included)' : 'No'}
                         </span>
                       </div>
@@ -1108,18 +1108,18 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
 
                   {/* Description Box */}
                   <div className="space-y-1.5">
-                    <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                       Submitted Description
                     </h4>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 whitespace-pre-line">
+                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200 whitespace-pre-line">
                       {selectedItem.originalOpp?.description || selectedItem.originalRes?.description || 'No description provided.'}
                     </p>
                   </div>
 
                   {/* Application Link with Test Button */}
                   {selectedItem.applicationUrl && (
-                    <div className="flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 text-xs">
-                      <div className="truncate pr-3 font-mono text-emerald-950 dark:text-emerald-200">
+                    <div className="flex items-center justify-between p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs">
+                      <div className="truncate pr-3 font-mono text-emerald-950">
                         <span className="font-bold mr-1">Link:</span> {selectedItem.applicationUrl}
                       </div>
                       <a
@@ -1137,20 +1137,20 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
               )}
 
               {/* Submitter & Audit Info (Requirement 17: Traceability) */}
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                <h4 className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#006B3F]" />
                   <span>Submitter & Audit Trail</span>
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-400">
-                  <div>Name: <strong className="text-slate-800 dark:text-slate-200">{selectedItem.submittedByName}</strong></div>
-                  <div>Email: <strong className="text-slate-800 dark:text-slate-200">{selectedItem.submittedByEmail}</strong></div>
-                  <div>Submitted Date: <span className="font-mono text-slate-600 dark:text-slate-400">{new Date(selectedItem.submittedAt).toLocaleString('en-GB')}</span></div>
-                  <div>Database ID: <span className="font-mono text-slate-500 dark:text-slate-400">{selectedItem.id}</span></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
+                  <div>Name: <strong className="text-slate-800">{selectedItem.submittedByName}</strong></div>
+                  <div>Email: <strong className="text-slate-800">{selectedItem.submittedByEmail}</strong></div>
+                  <div>Submitted Date: <span className="font-mono text-slate-600">{new Date(selectedItem.submittedAt).toLocaleString('en-GB')}</span></div>
+                  <div>Database ID: <span className="font-mono text-slate-500">{selectedItem.id}</span></div>
                 </div>
 
                 {selectedItem.rejectionReason && (
-                  <div className="mt-2 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-800 dark:text-rose-300 text-[11px]">
+                  <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-[11px]">
                     <strong>Recorded Rejection Reason:</strong> {selectedItem.rejectionReason}
                   </div>
                 )}
@@ -1158,12 +1158,12 @@ export const AdminSubmissions: React.FC<AdminSubmissionsProps> = ({ onNavigate }
             </div>
 
             {/* Modal Actions & Confirmation Bars */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setSelectedItem(null)}
                 disabled={isProcessing}
-                className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Close
               </button>

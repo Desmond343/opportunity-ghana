@@ -103,13 +103,13 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({ story, onNav
           </div>
 
           {/* Story Title */}
-          <h3 className="text-base sm:text-lg font-bold text-[#111111] dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2 font-space">
+          <h3 className="text-base sm:text-lg font-semibold text-[#111111] dark:text-white group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors leading-snug line-clamp-2 font-serif text-left">
             {story.title}
           </h3>
 
           {/* Excerpt / Quote */}
-          <div className="relative pl-3 border-l-2 border-[#006B3F]/40 dark:border-emerald-500/50">
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3 italic">
+          <div className="relative pl-3 border-l-2 border-[#0056B3]/40 dark:border-sky-500/50">
+            <p className="text-[15px] sm:text-[16px] text-[#333333] dark:text-slate-200 leading-relaxed line-clamp-3 font-serif not-italic text-left">
               &ldquo;{story.quote || story.content}&rdquo;
             </p>
           </div>

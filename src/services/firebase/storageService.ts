@@ -1,6 +1,7 @@
 import {
   getStorage,
   ref,
+  uploadBytes,
   uploadBytesResumable,
   getDownloadURL,
   deleteObject,
@@ -11,11 +12,12 @@ import { auth } from './authService';
 
 export const storage: FirebaseStorage | null = (app && isFirebaseConfigured) ? getStorage(app) : null;
 if (storage) {
+  // Lower maximum retry time to prevent hanging for 10 minutes on unprovisioned/blocked buckets
   try {
-    storage.maxUploadRetryTime = 10000;
-    storage.maxOperationRetryTime = 10000;
+    storage.maxUploadRetryTime = 5000;
+    storage.maxOperationRetryTime = 5000;
   } catch (e) {
-    console.debug('[Storage] Custom retry config note:', e);
+    console.debug('[Storage] Custom retry config ignored:', e);
   }
 }
 
@@ -47,80 +49,42 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
     return {
       valid: false,
-      error: 'Image file size must be 5 MB or smaller.'
+      error: 'Image must be 5 MB or smaller.'
     };
   }
   return { valid: true };
 }
 
-export function sanitizeFilename(name: string): string {
+function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase();
 }
 
 /**
- * Upload directly to Firebase Storage via client SDK with real-time byte progress.
- * If client storage fails or is blocked, attempts authenticated server fallback to Firebase Admin Storage.
+ * Robust upload engine that sends files to the backend endpoint with real-time byte progress events
  */
-async function uploadToFirebaseStorage(
+async function uploadViaServer(
   entityType: 'opportunities' | 'resources' | 'users' | 'public',
   entityId: string,
   file: File,
   onProgress?: (progressPercent: number) => void
 ): Promise<{ imageUrl: string; imagePath: string }> {
-  const validation = validateImageFile(file);
-  if (!validation.valid) {
-    throw new Error(validation.error || 'Invalid image file.');
+  // Check offline capability
+  if (typeof window !== 'undefined' && !window.navigator.onLine) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (onProgress) onProgress(100);
+        resolve({
+          imageUrl: reader.result as string,
+          imagePath: `local_${entityType}/${entityId}/${Date.now()}_${sanitizeFilename(file.name)}`
+        });
+      };
+      reader.onerror = () => reject(new Error('Failed to read image file in offline mode.'));
+      reader.readAsDataURL(file);
+    });
   }
 
-  const cleanName = sanitizeFilename(file.name);
-  const storagePath = `${entityType}/${entityId}/${Date.now()}_${cleanName}`;
-
-  // 1. Try Direct Client Firebase Storage upload
-  if (storage && isFirebaseConfigured) {
-    try {
-      const storageRef = ref(storage, storagePath);
-      const metadata = {
-        contentType: file.type || 'image/jpeg',
-        customMetadata: {
-          entityType,
-          entityId,
-          originalName: file.name
-        }
-      };
-
-      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-
-      await new Promise<void>((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            if (snapshot.totalBytes > 0 && onProgress) {
-              const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-              onProgress(Math.min(percent, 99));
-            }
-          },
-          (error) => {
-            console.warn('[Firebase Storage Client Upload Warning]', error.message);
-            reject(error);
-          },
-          () => {
-            if (onProgress) onProgress(100);
-            resolve();
-          }
-        );
-      });
-
-      const imageUrl = await getDownloadURL(storageRef);
-      return {
-        imageUrl,
-        imagePath: storagePath
-      };
-    } catch (clientErr: any) {
-      console.warn('[Firebase Storage] Direct client upload failed, attempting backend storage upload:', clientErr.message);
-    }
-  }
-
-  // 2. Server Upload to Firebase Storage fallback
+  // Retrieve Firebase Auth ID Token if user is currently signed in
   let token: string | null = null;
   try {
     if (auth?.currentUser) {
@@ -138,9 +102,11 @@ async function uploadToFirebaseStorage(
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
 
+    // Capture REAL-TIME upload progress from the browser's XMLHttpRequest upload channel
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && event.total > 0 && onProgress) {
         const percent = Math.round((event.loaded / event.total) * 100);
+        // Cap intermediate progress at 99% until server finishes writing to disk
         onProgress(Math.min(percent, 99));
       }
     };
@@ -153,16 +119,16 @@ async function uploadToFirebaseStorage(
             if (onProgress) onProgress(100);
             resolve({
               imageUrl: response.imageUrl,
-              imagePath: response.imagePath || storagePath
+              imagePath: response.imagePath
             });
           } else {
             reject(new Error(response.error || 'Server rejected file upload.'));
           }
-        } catch {
+        } catch (e) {
           reject(new Error('Unexpected response format from image upload service.'));
         }
       } else {
-        let errorMsg = "Could not upload image to Firebase Storage. Please try again.";
+        let errorMsg = "We couldn't upload this photo. Please try again.";
         try {
           const parsed = JSON.parse(xhr.responseText);
           if (parsed.error) errorMsg = parsed.error;
@@ -172,17 +138,19 @@ async function uploadToFirebaseStorage(
     };
 
     xhr.onerror = () => {
-      reject(new Error('Network error during image upload to Firebase Storage. Please check your connection.'));
+      console.error('[Opportunity Ghana Storage] Network failure during upload');
+      reject(new Error('Network error during photo upload. Please check your connection and try again.'));
     };
 
     xhr.ontimeout = () => {
-      reject(new Error('Image upload timed out. Please try again.'));
+      console.error('[Opportunity Ghana Storage] Upload request timed out');
+      reject(new Error('Photo upload timed out. Please try again.'));
     };
 
     const formData = new FormData();
+    // Critical: append metadata fields BEFORE the file so multipart streaming parses them first!
     formData.append('entityType', entityType);
     formData.append('entityId', entityId);
-    formData.append('storagePath', storagePath);
     formData.append('file', file);
 
     xhr.send(formData);
@@ -195,44 +163,46 @@ export const FirebaseStorageService = {
   },
 
   /**
-   * Uploads an opportunity photo to Firebase Storage with real-time progress reporting
+   * Uploads an opportunity photo with real-time progress reporting and reliable persistence
    */
   async uploadOpportunityPhoto(
     opportunityId: string,
     file: File,
     onProgress?: (progressPercent: number) => void
   ): Promise<{ imageUrl: string; imagePath: string }> {
-    return uploadToFirebaseStorage('opportunities', opportunityId, file, onProgress);
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error || 'Invalid image file.');
+    }
+
+    return uploadViaServer('opportunities', opportunityId, file, onProgress);
   },
 
   /**
-   * Uploads a resource photo to Firebase Storage with real-time progress reporting
+   * Uploads a resource photo with real-time progress reporting and reliable persistence
    */
   async uploadResourcePhoto(
     resourceId: string,
     file: File,
     onProgress?: (progressPercent: number) => void
   ): Promise<{ imageUrl: string; imagePath: string }> {
-    return uploadToFirebaseStorage('resources', resourceId, file, onProgress);
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error || 'Invalid image file.');
+    }
+
+    return uploadViaServer('resources', resourceId, file, onProgress);
   },
 
   /**
-   * Safely deletes an image file from Firebase Storage
+   * Safely deletes an image file from storage and server
    */
   async deleteFile(filePath?: string): Promise<void> {
-    if (!filePath || filePath.startsWith('data:') || filePath.startsWith('blob:')) {
+    if (!filePath || filePath.startsWith('local_') || filePath.startsWith('data:')) {
       return;
     }
 
-    // 1. Delete from Firebase Storage via client SDK
-    if (storage && isFirebaseConfigured) {
-      try {
-        const fileRef = ref(storage, filePath);
-        await deleteObject(fileRef).catch(() => {});
-      } catch {}
-    }
-
-    // 2. Also notify backend cleanup
+    // 1. Delete from local server upload if stored on disk
     try {
       let token: string | null = null;
       if (auth?.currentUser) {
@@ -246,12 +216,22 @@ export const FirebaseStorageService = {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ imagePath: filePath })
-      }).catch(() => {});
-    } catch {}
+      }).catch((e) => console.warn('[Opportunity Ghana Storage] File delete notice:', e));
+    } catch (err) {
+      console.warn('[Opportunity Ghana Storage] Error triggering file delete:', err);
+    }
+
+    // 2. Also clean up in Firebase Storage if configured
+    if (storage && isFirebaseConfigured) {
+      try {
+        const fileRef = ref(storage, filePath);
+        await deleteObject(fileRef).catch(() => {});
+      } catch {}
+    }
   },
 
   /**
-   * Uploads a user applicant document to Firebase Storage
+   * Uploads an applicant resume or document to the user's private folder in storage
    */
   async uploadUserDocument(
     userId: string,
@@ -259,12 +239,12 @@ export const FirebaseStorageService = {
     filename: string
   ): Promise<string> {
     const asFile = file instanceof File ? file : new File([file], filename, { type: file.type });
-    const result = await uploadToFirebaseStorage('users', userId, asFile);
+    const result = await uploadViaServer('users', userId, asFile);
     return result.imageUrl;
   },
 
   /**
-   * Uploads a public media asset to Firebase Storage
+   * Uploads an organization logo or public opportunity media asset
    */
   async uploadPublicAsset(
     file: File | Blob,
@@ -272,7 +252,7 @@ export const FirebaseStorageService = {
     folder: 'logos' | 'banners' = 'logos'
   ): Promise<string> {
     const asFile = file instanceof File ? file : new File([file], filename, { type: file.type });
-    const result = await uploadToFirebaseStorage('public', folder, asFile);
+    const result = await uploadViaServer('public', folder, asFile);
     return result.imageUrl;
   }
 };

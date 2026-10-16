@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../services/authContext';
 import { OpportunitiesService } from '../services/opportunitiesService';
+import { FirebaseStorageService } from '../services/firebase/storageService';
 import { OPPORTUNITY_CATEGORIES, GHANA_REGIONS, EDUCATION_LEVELS } from '../data/categories';
 import { ImageUploadField } from '../components/common/ImageUploadField';
 import { Opportunity } from '../types/database';
+import { DeadlineBadge } from '../components/common/DeadlineBadge';
+import { calculateDeadlineInfo } from '../services/deadlineService';
 import {
+  Compass,
   CheckCircle2,
   AlertCircle,
   ArrowLeft,
@@ -17,10 +21,7 @@ import {
   Calendar,
   Briefcase,
   ExternalLink,
-  DollarSign,
-  Send,
-  Loader2,
-  FileText
+  DollarSign
 } from 'lucide-react';
 
 interface SubmitOpportunityPageProps {
@@ -68,7 +69,6 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
-  const [submittedOppTitle, setSubmittedOppTitle] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
   // Authentication Wall
@@ -116,7 +116,7 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
     );
   }
 
-  // Submission Completed Success Screen
+  // Submission Completed Confirmation Screen (Requirement 3)
   if (submittedSuccess) {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
@@ -130,10 +130,10 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
               Pending Admin Review
             </span>
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-space pt-1">
-              Opportunity Submitted for Verification!
+              Your submission has been received and is awaiting review.
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-              Thank you, <strong>{currentUser.name}</strong>. Your submission, <strong>"{submittedOppTitle}"</strong>, has been securely recorded with status <em>pending</em> in our editorial queue.
+              Thank you, <strong>{currentUser.name}</strong>. Your submitted opportunity, <strong>"{title}"</strong>, has been recorded into our editorial queue with status <span className="font-bold text-amber-700 dark:text-amber-400">Pending Review</span>.
             </p>
           </div>
 
@@ -146,7 +146,7 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
               <li>Our verification team validates the hosting provider, official application links, and deadlines.</li>
               <li>An administrator will review and either <strong>Approve & Publish</strong> or contact you.</li>
               <li>Once approved, your opportunity will automatically become publicly visible and searchable on Opportunity Ghana.</li>
-              <li>Pending submissions are protected and not visible on public pages until approved.</li>
+              <li>You can monitor the live status of this submission directly from your profile.</li>
             </ul>
           </div>
 
@@ -165,7 +165,6 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
                 setDeadline('');
                 setSubmittedSuccess(false);
                 setSelectedFile(null);
-                setSubmittedOppTitle('');
               }}
               className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
             >
@@ -175,7 +174,7 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
               onClick={() => onNavigate('/opportunities')}
               className="w-full sm:w-auto px-5 py-2.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xs font-semibold cursor-pointer"
             >
-              Back to Opportunities
+              Back to Directory
             </button>
           </div>
         </div>
@@ -185,12 +184,11 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevent repeated clicks
     setFormError(null);
 
     // Validation
-    if (!title.trim() || title.trim().length < 5) {
-      setFormError('Please provide an opportunity title of at least 5 characters.');
+    if (!title.trim()) {
+      setFormError('Please provide an opportunity title.');
       return;
     }
     if (!organizationName.trim()) {
@@ -198,14 +196,14 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
       return;
     }
     if (!category.trim()) {
-      setFormError('Please select an opportunity category.');
+      setFormError('Please select a category.');
       return;
     }
     if (!description.trim() || description.trim().length < 25) {
       setFormError('Please provide an informative description of at least 25 characters.');
       return;
     }
-    if (!applicationUrl.trim() || !/^https?:\/\//i.test(applicationUrl.trim())) {
+    if (!applicationUrl.trim() || !applicationUrl.startsWith('http')) {
       setFormError('Please provide a valid application URL beginning with http:// or https://');
       return;
     }
@@ -216,7 +214,7 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
 
     try {
       setIsSubmitting(true);
-      if (selectedFile) setUploadProgress(10);
+      if (selectedFile) setUploadProgress(35);
 
       const benefits = benefitsString
         .split(',')
@@ -257,22 +255,21 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
         contactInfo: contactInfo.trim()
       };
 
-      const result = await OpportunitiesService.submitUserOpportunity(
+      await OpportunitiesService.submitUserOpportunity(
         opportunityData,
         {
           uid: currentUser.id,
           email: currentUser.email,
           name: currentUser.name
         },
-        selectedFile,
-        (progress) => setUploadProgress(progress)
+        selectedFile
       );
 
-      setSubmittedOppTitle(result.title);
+      if (selectedFile) setUploadProgress(100);
       setSubmittedSuccess(true);
     } catch (err: any) {
       console.error('Error submitting opportunity:', err);
-      setFormError(err?.message || 'Failed to submit opportunity. Please check all fields and try again.');
+      setFormError(err?.message || 'Failed to submit opportunity. Please check all fields.');
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);
@@ -291,80 +288,65 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Opportunities</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+          <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
             Submit an Opportunity for Review
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 max-w-2xl leading-relaxed font-serif">
             Know of a genuine scholarship, corporate job, internship cohort, or research fellowship open to Ghanaians? Submit it for administrative verification.
           </p>
         </div>
 
         <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 text-xs font-semibold shrink-0">
           <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
-          <span>Moderated Listing</span>
+          <span>Reviewed before publishing</span>
         </div>
       </div>
 
       {formError && (
-        <div className="p-4 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-2xl flex items-start gap-3 text-rose-800 dark:text-rose-200 text-xs animate-in fade-in">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="font-bold">Submission Error</p>
-            <p className="mt-0.5">{formError}</p>
-          </div>
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-200 rounded-2xl text-xs flex items-center gap-3">
+          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+          <span>{formError}</span>
         </div>
       )}
 
       {/* Main Submission Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-8 transition-colors">
         {/* Section 1: Basic Information */}
-        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
-                1. Basic Opportunity Details
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Official title, offering provider, category, and overview.
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <Compass className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+              1. Basic Opportunity Information
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="md:col-span-2 space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Opportunity Title <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                disabled={isSubmitting}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Mastercard Foundation Scholars Program at KNUST 2026/2027"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. Mastercard Foundation Scholars Program at KNUST (2026/2027)"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Offering Organization / Institution <span className="text-rose-500">*</span>
+                Organization / Provider Name <span className="text-rose-500">*</span>
               </label>
-              <div className="relative">
-                <Building className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                <input
-                  type="text"
-                  required
-                  disabled={isSubmitting}
-                  value={organizationName}
-                  onChange={(e) => setOrganizationName(e.target.value)}
-                  placeholder="e.g. Kwame Nkrumah University of Science and Technology"
-                  className="w-full pl-9 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
-                />
-              </div>
+              <input
+                type="text"
+                required
+                value={organizationName}
+                onChange={(e) => setOrganizationName(e.target.value)}
+                placeholder="e.g. Kwame Nkrumah University of Science and Technology"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -372,117 +354,86 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
                 Category <span className="text-rose-500">*</span>
               </label>
               <select
-                disabled={isSubmitting}
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               >
-                {OPPORTUNITY_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
+                {OPPORTUNITY_CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.name} className="dark:bg-slate-900">
+                    {cat.name}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Subcategory / Track
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Opportunity Type</label>
               <input
                 type="text"
-                disabled={isSubmitting}
-                value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
-                placeholder="e.g. STEM Undergraduate, FinTech Cohort, Healthcare"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                value={opportunityType}
+                onChange={(e) => setOpportunityType(e.target.value)}
+                placeholder="e.g. Full-time, Fully Funded, Undergraduate, Internship"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Opportunity Type / Work Mode
-              </label>
-              <select
-                disabled={isSubmitting}
-                value={opportunityType}
-                onChange={(e) => setOpportunityType(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
-              >
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Internship">Internship</option>
-                <option value="Fellowship">Fellowship</option>
-                <option value="Remote">Remote</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="In-person">In-person</option>
-              </select>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Subcategory / Industry Tag</label>
+              <input
+                type="text"
+                value={subcategory}
+                onChange={(e) => setSubcategory(e.target.value)}
+                placeholder="e.g. Engineering, Agriculture, Healthcare, Tech"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
             </div>
 
-            <div className="md:col-span-2 space-y-1.5">
+            <div className="sm:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Detailed Description <span className="text-rose-500">*</span>
+                Comprehensive Description <span className="text-rose-500">*</span>
               </label>
               <textarea
                 required
-                rows={5}
-                disabled={isSubmitting}
+                rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the objective, target beneficiaries, eligibility highlights, key program benefits, and application details..."
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all resize-y disabled:opacity-60"
+                placeholder="Describe the opportunity, who should apply, the mission, scope of activities, and what makes it valuable..."
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none leading-relaxed"
               />
-              <span className="text-[11px] text-slate-400">
-                Minimum 25 characters. Include clear information to assist applicants.
-              </span>
             </div>
           </div>
         </div>
 
         {/* Section 2: Location & Eligibility */}
-        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <Globe className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
-                2. Location & Eligibility Criteria
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Target regions in Ghana, academic level, and study focus.
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <Globe className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+              2. Location & Applicant Eligibility
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                City / Location
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">City / Institution Location</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Kumasi, Ghana or Remote"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. Kumasi, Ghana / Remote"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Target Region
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Ghana Region Focus</label>
               <select
-                disabled={isSubmitting}
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               >
-                <option value="All Ghana">All Ghana (National)</option>
                 {GHANA_REGIONS.map((r) => (
-                  <option key={r} value={r}>
+                  <option key={r} value={r} className="dark:bg-slate-900">
                     {r}
                   </option>
                 ))}
@@ -490,30 +441,25 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Country
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Country</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. Ghana, United Kingdom, USA"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Target Education Level
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Education Level Required</label>
               <select
-                disabled={isSubmitting}
                 value={educationLevel}
                 onChange={(e) => setEducationLevel(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               >
                 {EDUCATION_LEVELS.map((lvl) => (
-                  <option key={lvl} value={lvl}>
+                  <option key={lvl} value={lvl} className="dark:bg-slate-900">
                     {lvl}
                   </option>
                 ))}
@@ -521,178 +467,121 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Field of Study
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Field of Study</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={fieldOfStudy}
                 onChange={(e) => setFieldOfStudy(e.target.value)}
-                placeholder="e.g. Computer Science, Engineering, Agriculture"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. STEM, Business, Arts, All Fields"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Nationality Eligibility
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Target Nationality</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
-                placeholder="e.g. Ghanaian citizens only or African nationals"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
-              />
-            </div>
-
-            <div className="md:col-span-3 space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Eligibility Requirements (comma-separated)
-              </label>
-              <input
-                type="text"
-                disabled={isSubmitting}
-                value={requirementsString}
-                onChange={(e) => setRequirementsString(e.target.value)}
-                placeholder="e.g. WASSCE Certificate, Minimum grade 18, Ghana Card, Letter of Recommendation"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. Ghanaian citizens only, African nationals"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Funding & Benefits */}
-        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <DollarSign className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
-                3. Funding, Benefits & Package
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Grant amount, tuition coverage, stipend, and scholar package.
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <DollarSign className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+              3. Funding Structure & Package Benefits
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Funding Type
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Funding Coverage Type</label>
               <select
-                disabled={isSubmitting}
                 value={fundingType}
                 onChange={(e) => setFundingType(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               >
-                <option value="Fully Funded">Fully Funded</option>
-                <option value="Partially Funded">Partially Funded</option>
-                <option value="Paid">Paid (Competitive Salary / Stipend)</option>
-                <option value="Tuition Waiver">Tuition Waiver</option>
-                <option value="Unpaid">Unpaid Volunteer</option>
+                <option value="Fully Funded" className="dark:bg-slate-900">Fully Funded (Tuition + Stipend + Living)</option>
+                <option value="Partially Funded" className="dark:bg-slate-900">Partially Funded / Tuition Waiver</option>
+                <option value="Paid Stipend" className="dark:bg-slate-900">Paid / Monthly Salary</option>
+                <option value="Unpaid" className="dark:bg-slate-900">Unpaid / Self-Sponsored</option>
               </select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Tuition / Grant Details
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Tuition Coverage</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={tuition}
                 onChange={(e) => setTuition(e.target.value)}
-                placeholder="e.g. 100% Tuition Waiver or $10,000 Seed Grant"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. 100% full tuition waiver"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Living Stipend / Allowance
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Monthly Stipend / Allowance</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={stipend}
                 onChange={(e) => setStipend(e.target.value)}
-                placeholder="e.g. GHS 2,500 Monthly Allowance"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. GHS 1,500/month or £1,200/month"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Accommodation / Housing
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Accommodation Support</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={accommodation}
                 onChange={(e) => setAccommodation(e.target.value)}
-                placeholder="e.g. On-Campus Hall of Residence Provided"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. On-campus hall provided"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Key Benefits (comma-separated tags)
-              </label>
+            <div className="sm:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Other Benefits (comma separated)</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={benefitsString}
                 onChange={(e) => setBenefitsString(e.target.value)}
-                placeholder="e.g. Laptop Allowance, Health Insurance, Mentorship, Flight Ticket"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="Laptop provided, Mentorship, Health insurance, Relocation airfare"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Section 4: Application Links & Deadlines */}
-        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <Calendar className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
-                4. Application Links, Deadlines & Verification
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Direct application URL, closing dates, and instructions for applicants.
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <ExternalLink className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+              4. Application Links, Deadlines & Verification
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="md:col-span-2 space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Official Application Portal URL <span className="text-rose-500">*</span>
               </label>
-              <div className="relative">
-                <ExternalLink className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                <input
-                  type="url"
-                  required
-                  disabled={isSubmitting}
-                  value={applicationUrl}
-                  onChange={(e) => setApplicationUrl(e.target.value)}
-                  placeholder="https://admissions.knust.edu.gh/apply or https://careers.company.com/job"
-                  className="w-full pl-9 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
-                />
-              </div>
-              <span className="text-[11px] text-slate-400">
-                Must be the genuine official link. Our editorial team verifies this before publication.
-              </span>
+              <input
+                type="url"
+                required
+                value={applicationUrl}
+                onChange={(e) => setApplicationUrl(e.target.value)}
+                placeholder="https://example.edu.gh/apply"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -702,121 +591,104 @@ export const SubmitOpportunityPage: React.FC<SubmitOpportunityPageProps> = ({ on
               <input
                 type="date"
                 required
-                disabled={isSubmitting}
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
+              {deadline && (() => {
+                const info = calculateDeadlineInfo(`${deadline}T23:59:59Z`);
+                return (
+                  <div className="pt-1 flex items-center gap-2">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Live preview:</span>
+                    <DeadlineBadge deadline={`${deadline}T23:59:59Z`} />
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">({info.formattedDate})</span>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Official Source / Announcement URL</label>
+              <input
+                type="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://university.org/news/scholarships"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Source / Announcement URL
-              </label>
-              <input
-                type="url"
-                disabled={isSubmitting}
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
-                placeholder="https://knust.edu.gh/announcements/scholarships"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
-              />
-            </div>
-
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                How to Apply / Special Instructions
-              </label>
-              <textarea
-                rows={3}
-                disabled={isSubmitting}
-                value={applicationInstructions}
-                onChange={(e) => setApplicationInstructions(e.target.value)}
-                placeholder="e.g. Fill the online form, attach WASSCE transcript, and submit before 5:00 PM GMT. Shortlisted applicants will receive an interview invitation."
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all resize-y disabled:opacity-60"
-              />
-            </div>
-
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Official Inquiry / Contact Email or Phone
-              </label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Your Contact Info (Private to editors)</label>
               <input
                 type="text"
-                disabled={isSubmitting}
                 value={contactInfo}
                 onChange={(e) => setContactInfo(e.target.value)}
-                placeholder="e.g. scholarships@knust.edu.gh or +233 322 060 021"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all disabled:opacity-60"
+                placeholder="e.g. Phone number or WhatsApp in case we need clarification"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Key Documents Required (comma separated)</label>
+              <input
+                type="text"
+                value={requirementsString}
+                onChange={(e) => setRequirementsString(e.target.value)}
+                placeholder="WASSCE Certificate, Recommendation Letters, Statement of Purpose, CV"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Specific Application Instructions</label>
+              <textarea
+                rows={2}
+                value={applicationInstructions}
+                onChange={(e) => setApplicationInstructions(e.target.value)}
+                placeholder="Provide step-by-step guidance on how Ghanaian applicants must submit (e.g. online portal vs paper form via EMS courier)..."
+                className="w-full p-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-[#006B3F] dark:focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Section 5: Featured Image / Poster Upload */}
-        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6 transition-colors">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-space">
-                5. Featured Image / Poster (Firebase Storage)
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Upload the official opportunity flyer or institutional logo (JPG, PNG, WebP up to 5 MB).
-              </p>
-            </div>
+        {/* Section 5: Media / Logo Upload */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider font-space">
+              5. Organization Banner or Logo (Optional)
+            </h2>
           </div>
 
           <ImageUploadField
-            label="Upload Opportunity Poster or Organization Banner"
+            label="Upload Institution Logo or Banner Image"
             onFileSelect={(file) => setSelectedFile(file)}
+            onRemoveCurrent={() => setSelectedFile(null)}
             uploadProgress={uploadProgress}
-            disabled={isSubmitting}
-            helpText="Images are saved persistently into Firebase Storage under opportunities/{id}."
           />
         </div>
 
-        {/* Submitter Info Card */}
-        <div className="p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div>
-            <p className="font-bold text-slate-800 dark:text-slate-200">
-              Submitting as: {currentUser.name} ({currentUser.email})
-            </p>
-            <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
-              Your account identity is securely attached to this submission. Status will start as <strong>pending review</strong>.
-            </p>
-          </div>
-          <span className="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] uppercase tracking-wider self-start sm:self-auto">
-            Verified Submitter
-          </span>
-        </div>
-
-        {/* Form Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => onNavigate('/opportunities')}
-            className="w-full sm:w-auto px-5 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            Cancel
-          </button>
+        {/* Submit Actions */}
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center sm:text-left">
+            By submitting, you confirm that this opportunity is authentic and conforms to Ghanaian verification guidelines.
+          </p>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold rounded-2xl shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-8 py-3 bg-[#006B3F] hover:bg-[#005530] disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Submitting to Firebase...</span>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Submitting for Review...</span>
               </>
             ) : (
               <>
-                <Send className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-[#FCD116]" />
                 <span>Submit Opportunity for Review</span>
               </>
             )}

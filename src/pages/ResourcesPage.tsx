@@ -91,10 +91,10 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
               Verified Training & Credentials
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-space">
+          <h1 className="editorial-heading-1 text-[#111111] dark:text-slate-100 font-serif">
             Courses, Certifications & Professional Training
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="editorial-supporting text-slate-600 dark:text-slate-300 mt-1.5 font-serif max-w-3xl leading-relaxed">
             Discover verified paid and free online courses, cloud certifications, and executive masterclasses. All paid courses feature transparent costs, official syllabi, and verified accessibility for learners in Ghana.
           </p>
         </div>
