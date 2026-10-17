@@ -265,23 +265,24 @@ export function AppContent() {
     }
 
     // 12. Admin routes: /admin/*
-    if (currentPath.startsWith('/admin')) {
+    const normalizedAdminPath = pathname.replace(/\/$/, '') || '/admin';
+    if (normalizedAdminPath.startsWith('/admin')) {
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
-          {currentPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
-          {(currentPath === '/admin/scholarship-research' || currentPath === '/admin/opportunity-research') && <AdminScholarshipResearch onNavigate={navigate} />}
-          {currentPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
-          {currentPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
-          {currentPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
-          {currentPath === '/admin/success-stories' && <AdminSuccessStories onNavigate={navigate} />}
-          {(currentPath === '/admin/subscribers' || currentPath === '/admin/alerts') && <AdminAlertSubscribers onNavigate={navigate} />}
-          {currentPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
-          {currentPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
-          {currentPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}
-          {currentPath === '/admin/resource-submissions' && <AdminResourceSubmissions onNavigate={navigate} />}
-          {currentPath === '/admin/reports' && <AdminReports onNavigate={navigate} />}
-          {currentPath === '/admin/users' && <AdminUsers onNavigate={navigate} />}
-          {currentPath === '/admin/settings' && <AdminSettings onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
+          {(normalizedAdminPath === '/admin/scholarship-research' || normalizedAdminPath === '/admin/opportunity-research') && <AdminScholarshipResearch onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/ai-assistant' && <AdminAIAssistant onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/opportunities' && <AdminOpportunities onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/resources' && <AdminResources onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/success-stories' && <AdminSuccessStories onNavigate={navigate} />}
+          {(normalizedAdminPath === '/admin/subscribers' || normalizedAdminPath === '/admin/alerts') && <AdminAlertSubscribers onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/organizations' && <AdminOrganizations onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/skills' && <AdminSkills onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/submissions' && <AdminSubmissions onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/resource-submissions' && <AdminResourceSubmissions onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/reports' && <AdminReports onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/users' && <AdminUsers onNavigate={navigate} />}
+          {normalizedAdminPath === '/admin/settings' && <AdminSettings onNavigate={navigate} />}
         </AdminLayout>
       );
     }

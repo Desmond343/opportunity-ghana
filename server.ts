@@ -191,7 +191,11 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
   if (adminAuth) {
     try {
       const decoded = await adminAuth.verifyIdToken(token);
-      let isAuthorized = decoded.admin === true || decoded.editor === true;
+      let isAuthorized =
+        decoded.admin === true ||
+        decoded.editor === true ||
+        decoded.role === 'admin' ||
+        decoded.role === 'editor';
 
       if (!isAuthorized && adminDb) {
         try {
@@ -201,22 +205,61 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
             if (data?.role === 'admin' || data?.role === 'editor') {
               isAuthorized = true;
             }
+          } else if (decoded.email) {
+            const emailSnap = await adminDb
+              .collection('users')
+              .where('email', '==', decoded.email.toLowerCase())
+              .limit(1)
+              .get();
+            if (!emailSnap.empty) {
+              const data = emailSnap.docs[0].data();
+              if (data?.role === 'admin' || data?.role === 'editor') {
+                isAuthorized = true;
+              }
+            }
           }
         } catch (docErr: any) {
           console.debug('[AdminAuth] Firestore user role lookup note:', docErr?.message);
         }
       }
 
+      // Fallback check using Firestore REST API with token if adminDb has uncredentialed access
       if (!isAuthorized) {
-        console.warn(`[AdminAuth] 403 Forbidden on ${req.method} ${req.path}: User ${decoded.email || decoded.uid} lacks administrator credentials.`);
-        return res.status(403).json({
-          error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.',
-          code: 'auth/forbidden'
-        });
+        try {
+          const firestoreUrl = `https://firestore.googleapis.com/v1/projects/opportunity-ghana/databases/(default)/documents/users/${decoded.uid}`;
+          const docResp = await fetch(firestoreUrl, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (docResp.ok) {
+            const docData = await docResp.json() as any;
+            const roleField = docData.fields?.role?.stringValue;
+            if (roleField === 'admin' || roleField === 'editor') {
+              isAuthorized = true;
+            }
+          }
+        } catch {}
       }
 
-      (req as any).user = decoded;
-      return next();
+      if (isAuthorized) {
+        // Auto-sync custom claims if verified via document role
+        if (adminAuth && decoded.admin !== true && decoded.editor !== true) {
+          adminAuth.setCustomUserClaims(decoded.uid, { admin: true, role: 'admin' }).catch(() => {});
+        }
+
+        (req as any).user = {
+          uid: decoded.uid,
+          email: decoded.email,
+          name: decoded.name || decoded.email?.split('@')[0] || 'Administrator',
+          role: decoded.admin ? 'admin' : (decoded.editor ? 'editor' : (decoded.role || 'admin'))
+        };
+        return next();
+      }
+
+      console.warn(`[AdminAuth] 403 Forbidden on ${req.method} ${req.path}: User ${decoded.email || decoded.uid} lacks administrator credentials.`);
+      return res.status(403).json({
+        error: 'Forbidden: Insufficient privileges. Account does not possess administrator credentials.',
+        code: 'auth/forbidden'
+      });
     } catch (err: any) {
       console.warn(`[AdminAuth] Firebase Admin verifyIdToken warning on ${req.method} ${req.path} (${err.code || 'unknown'}): ${err.message}`);
       if (err.code === 'auth/id-token-expired') {
@@ -271,6 +314,23 @@ async function verifyAdminAuth(req: express.Request, res: express.Response, next
     code: 'auth/invalid-token'
   });
 }
+
+// ADMIN VERIFICATION: Check administrator session and active authorization
+app.get('/api/admin/verify-admin-status', verifyAdminAuth, (req, res) => {
+  return res.json({
+    success: true,
+    user: (req as any).user,
+    message: 'Administrator session active and verified.'
+  });
+});
+
+app.post('/api/admin/verify-admin-status', verifyAdminAuth, (req, res) => {
+  return res.json({
+    success: true,
+    user: (req as any).user,
+    message: 'Administrator session active and verified.'
+  });
+});
 
 // Photo Upload Route (Handles image uploads for opportunities, resources, users, public assets)
 app.post('/api/upload', (req, res) => {

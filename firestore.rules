@@ -8,12 +8,12 @@ service cloud.firestore {
 
     // Check trusted Firebase Custom Claim for admin
     function hasAdminClaim() {
-      return isAuthenticated() && request.auth.token.admin == true;
+      return isAuthenticated() && (request.auth.token.admin == true || request.auth.token.role == 'admin');
     }
 
     // Check trusted Firebase Custom Claim for editor
     function hasEditorClaim() {
-      return isAuthenticated() && request.auth.token.editor == true;
+      return isAuthenticated() && (request.auth.token.editor == true || request.auth.token.role == 'editor');
     }
 
     // Check Firestore user document role fallback

@@ -29,7 +29,7 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigate, children }) => {
-  const { currentUser, firebaseUser, claims, isAdmin, isEditorOrAdmin, refreshClaims } = useAuth();
+  const { currentUser, firebaseUser, claims, isAdmin, isEditorOrAdmin, refreshClaims, authInitialized } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState<number>(0);
@@ -79,6 +79,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
     { label: 'Users', path: '/admin/users', icon: Users },
     { label: 'Settings & Diagnostics', path: '/admin/settings', icon: Settings }
   ];
+
+  // While Firebase auth state is still initializing on page load, refresh or direct URL navigation, show verification indicator
+  if (!authInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0F17]">
+        <div className="text-center space-y-4">
+          <div className="w-10 h-10 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div>
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 font-space">
+              Opportunity Ghana CMS
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Verifying administrator credentials...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Route protection: Must be authenticated and possess admin or editor claim
   if (!currentUser || !isEditorOrAdmin) {
@@ -216,10 +235,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
             </p>
             {navItems.map((item) => {
               const Icon = item.icon;
+              const [pathname] = currentPath.split('?');
+              const normalizedPath = pathname.replace(/\/$/, '') || '/admin';
               const isActive =
                 item.path === '/admin'
-                  ? currentPath === '/admin'
-                  : currentPath.startsWith(item.path);
+                  ? normalizedPath === '/admin'
+                  : normalizedPath.startsWith(item.path);
 
               return (
                 <button

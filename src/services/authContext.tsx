@@ -9,6 +9,7 @@ interface AuthContextType {
   firebaseUser: any;
   claims: Record<string, any>;
   loading: boolean;
+  authInitialized: boolean;
   isFirebaseActive: boolean;
   loginWithPassword: (email: string, pass: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -21,6 +22,21 @@ interface AuthContextType {
   getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
   isAdmin: boolean;
   isEditorOrAdmin: boolean;
+}
+
+function evaluateVerifiedRole(userClaims: Record<string, any>, profileRole?: string): UserRole {
+  const isClaimAdmin = userClaims.admin === true || userClaims.role === 'admin';
+  const isDocAdmin = profileRole === 'admin';
+  if (isClaimAdmin || isDocAdmin) return 'admin';
+
+  const isClaimEditor = userClaims.editor === true || userClaims.role === 'editor';
+  const isDocEditor = profileRole === 'editor';
+  if (isClaimEditor || isDocEditor) return 'editor';
+
+  if (profileRole === 'moderator' || profileRole === 'organization') {
+    return profileRole;
+  }
+  return 'user';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,10 +54,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           !parsed.id.startsWith('user-mock-') &&
           !parsed.email?.includes('example.com')
         ) {
-          // Never trust stored 'admin' role until verified by Firebase token claims
-          if (parsed.role === 'admin') {
-            parsed.role = 'user';
-          }
           return parsed;
         }
       }
@@ -54,6 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [firebaseUser, setFirebaseUser] = useState<any>(null);
   const [claims, setClaims] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [authInitialized, setAuthInitialized] = useState<boolean>(!isFirebaseConfigured);
 
   const getIdToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
     const authInstance = FirebaseAuthService.getAuthInstance();
@@ -83,10 +96,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Read Firebase auth state and custom claims
   useEffect(() => {
     if (isFirebaseConfigured) {
+      // Safety timeout to ensure authInitialized never gets stuck
+      const timer = setTimeout(() => {
+        setAuthInitialized(true);
+      }, 3000);
+
       const unsubscribe = FirebaseAuthService.onAuthChanged(async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
-          // Immediately ensure currentUser is populated with fbUser.uid so saves never miss userId
           const fallbackUser: User = {
             id: fbUser.uid,
             name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Opportunity Seeker',
@@ -97,7 +114,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
-          setCurrentUser((prev) => (prev && prev.id === fbUser.uid ? prev : fallbackUser));
 
           try {
             // Read custom claims from Firebase ID Token
@@ -105,11 +121,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const userClaims = tokenResult.claims || {};
             setClaims(userClaims);
 
-            const isAdm = userClaims.admin === true;
-            const isEdt = userClaims.editor === true;
-
             const profile = await FirebaseAuthService.getUserProfile(fbUser.uid);
-            const verifiedRole: UserRole = isAdm ? 'admin' : isEdt ? 'editor' : 'user';
+            const verifiedRole = evaluateVerifiedRole(userClaims, profile?.role || currentUser?.role);
 
             if (profile) {
               setCurrentUser({
@@ -125,13 +138,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           } catch (err) {
             console.warn('[Opportunity Ghana] Auth claim evaluation notice:', err);
+            setCurrentUser((prev) => prev || fallbackUser);
+          } finally {
+            clearTimeout(timer);
+            setAuthInitialized(true);
           }
         } else {
           setClaims({});
           setCurrentUser(null);
+          clearTimeout(timer);
+          setAuthInitialized(true);
         }
       });
-      return () => unsubscribe();
+      return () => {
+        clearTimeout(timer);
+        unsubscribe();
+      };
+    } else {
+      setAuthInitialized(true);
     }
   }, []);
 
@@ -147,26 +171,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userClaims = tokenResult.claims || {};
       setClaims(userClaims);
 
-      const isAdm = userClaims.admin === true;
-      const isEdt = userClaims.editor === true;
-      const verifiedRole: UserRole = isAdm ? 'admin' : isEdt ? 'editor' : 'user';
+      const profile = await FirebaseAuthService.getUserProfile(activeUser.uid);
+      const verifiedRole = evaluateVerifiedRole(userClaims, profile?.role || currentUser?.role);
 
       setCurrentUser(prev => {
         if (!prev) return prev;
         return {
           ...prev,
+          ...(profile || {}),
           role: verifiedRole
         };
       });
 
-      return isAdm;
+      const isAuthorized = verifiedRole === 'admin' || verifiedRole === 'editor';
+      return isAuthorized;
     } catch (err) {
       console.warn('[Opportunity Ghana] Token claim refresh error:', err);
       return false;
     } finally {
       setLoading(false);
     }
-  }, [firebaseUser]);
+  }, [firebaseUser, currentUser]);
 
   const loginWithPassword = async (email: string, pass: string) => {
     if (!email || !pass) {
@@ -181,11 +206,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const userClaims = tokenResult.claims || {};
         setClaims(userClaims);
 
-        const isAdm = userClaims.admin === true;
-        const isEdt = userClaims.editor === true;
-        const verifiedRole: UserRole = isAdm ? 'admin' : isEdt ? 'editor' : 'user';
-
         const profile = await FirebaseAuthService.getUserProfile(fbUser.uid);
+        const verifiedRole = evaluateVerifiedRole(userClaims, profile?.role);
+
         if (profile) {
           profile.role = verifiedRole;
           setCurrentUser(profile);
@@ -215,10 +238,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userClaims = tokenResult.claims || {};
       setClaims(userClaims);
 
-      const isAdm = userClaims.admin === true;
-      const isEdt = userClaims.editor === true;
-      const verifiedRole: UserRole = isAdm ? 'admin' : isEdt ? 'editor' : 'user';
-
+      const verifiedRole = evaluateVerifiedRole(userClaims, profile?.role);
       profile.role = verifiedRole;
       setCurrentUser(profile);
     } finally {
@@ -287,9 +307,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return await FirebaseAuthService.confirmPasswordReset(code, newPass);
   }, []);
 
-  // Trusted authorization: Evaluated from Firebase Auth custom claims
-  const isAdmin = Boolean(claims.admin === true);
-  const isEditorOrAdmin = Boolean(claims.admin === true || claims.editor === true);
+  // Authoritative authorization: Evaluated from Firebase Auth custom claims and verified role
+  const isAdmin = Boolean(
+    claims.admin === true ||
+    claims.role === 'admin' ||
+    currentUser?.role === 'admin'
+  );
+  const isEditorOrAdmin = Boolean(
+    claims.admin === true ||
+    claims.editor === true ||
+    claims.role === 'admin' ||
+    claims.role === 'editor' ||
+    currentUser?.role === 'admin' ||
+    currentUser?.role === 'editor'
+  );
 
   return (
     <AuthContext.Provider
@@ -298,6 +329,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         firebaseUser,
         claims,
         loading,
+        authInitialized,
         isFirebaseActive: isFirebaseConfigured,
         loginWithPassword,
         loginWithGoogle,

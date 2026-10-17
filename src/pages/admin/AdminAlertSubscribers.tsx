@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../services/authContext';
 import { AlertSubscriptionsService } from '../../services/alertSubscriptionsService';
-import { AlertSubscription, AlertSubscriberMetrics } from '../../types/database';
+import { AlertSubscription, AlertSubscriberMetrics, GoogleSheetsConfig } from '../../types/database';
 import { OPPORTUNITY_CATEGORIES } from '../../data/categories';
 import {
   Mail,
@@ -28,7 +28,9 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  FileSpreadsheet
+  FileSpreadsheet,
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 
 interface AdminAlertSubscribersProps {
@@ -65,10 +67,72 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
 
+  // Google Sheets Integration State
+  const [sheetsConfig, setSheetsConfig] = useState<GoogleSheetsConfig>({
+    isConnected: false,
+    lastSyncStatus: 'idle',
+    lastSyncCount: 0
+  });
+  const [sheetsLoading, setSheetsLoading] = useState(false);
+  const [sheetsSyncing, setSheetsSyncing] = useState(false);
+
+  const loadSheetsStatus = async () => {
+    try {
+      const res = await AlertSubscriptionsService.getGoogleSheetsStatus(getIdToken);
+      if (res && res.success) {
+        setSheetsConfig(res);
+      }
+    } catch (err) {
+      console.warn('[AdminAlertSubscribers] Error loading sheets status:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadSheetsStatus();
+  }, []);
+
+  const handleConnectGoogleSheets = async () => {
+    setSheetsLoading(true);
+    setActionError(null);
+    try {
+      const res = await AlertSubscriptionsService.getGoogleSheetsAuthUrl(getIdToken);
+      if (res && res.success && res.authUrl) {
+        window.location.href = res.authUrl;
+      } else {
+        setActionError(res.error || 'Google OAuth client credentials are not configured on the server.');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Could not initiate Google Sheets connection');
+    } finally {
+      setSheetsLoading(false);
+    }
+  };
+
+  const handleSyncSubscribers = async () => {
+    setSheetsSyncing(true);
+    setActionSuccess(null);
+    setActionError(null);
+    try {
+      const res = await AlertSubscriptionsService.syncGoogleSheets(getIdToken);
+      if (res && res.success) {
+        setActionSuccess(res.message || 'Subscribers successfully synced to Google Sheets!');
+        loadSheetsStatus();
+        setTimeout(() => setActionSuccess(null), 6000);
+      } else {
+        setActionError(res.error || 'Failed to sync with Google Sheets');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Error syncing with Google Sheets');
+    } finally {
+      setSheetsSyncing(false);
+    }
+  };
+
   // Fetch subscribers from server & database
   const loadSubscribers = async (showRefreshIndicator = false) => {
     if (showRefreshIndicator) setRefreshing(true);
     else setLoading(true);
+    setActionError(null);
 
     try {
       const res = await AlertSubscriptionsService.getAdminSubscribers(
@@ -91,6 +155,8 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
         if (res.metrics) {
           setMetrics(res.metrics);
         }
+      } else if (res && (res as any).error) {
+        setActionError((res as any).error);
       }
     } catch (err: any) {
       console.error('Failed to load alert subscribers:', err);
@@ -254,10 +320,10 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-space">
-            Daily Alert Subscribers
+            Email Subscribers
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Manage all visitors who subscribed to free daily opportunity alerts. View preferences, dispatch digests, and export verified records to Microsoft Excel.
+            Manage all verified visitors who subscribed to opportunity alerts. View preferences, dispatch digests, synchronize with Google Sheets, and export records to Microsoft Excel or CSV.
           </p>
         </div>
 

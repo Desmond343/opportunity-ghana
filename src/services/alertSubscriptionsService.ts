@@ -178,7 +178,7 @@ export const AlertSubscriptionsService = {
       page?: number;
       limit?: number;
     } = {},
-    tokenGetter?: () => Promise<string | null>
+    tokenGetter?: (forceRefresh?: boolean) => Promise<string | null>
   ): Promise<AdminSubscribersResult> {
     const queryParams = new URLSearchParams();
     if (filters.search) queryParams.set('search', filters.search);
@@ -202,15 +202,34 @@ export const AlertSubscriptionsService = {
     }
 
     try {
-      const response = await fetch(`/api/admin/alerts/subscribers?${queryParams.toString()}`, {
+      let response = await fetch(`/api/admin/alerts/subscribers?${queryParams.toString()}`, {
         headers
       });
+
+      // If token expired, force refresh token once and retry
+      if (response.status === 401 && tokenGetter) {
+        try {
+          const freshToken = await tokenGetter(true);
+          if (freshToken) {
+            headers['Authorization'] = `Bearer ${freshToken}`;
+            response = await fetch(`/api/admin/alerts/subscribers?${queryParams.toString()}`, {
+              headers
+            });
+          }
+        } catch {}
+      }
 
       if (response.ok) {
         const data = await response.json();
         return data;
+      } else if (response.status === 401 || response.status === 403) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || `Access restricted (${response.status}): Administrator credentials required.`);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.message && (err.message.includes('Access restricted') || err.message.includes('Forbidden') || err.message.includes('Administrator credentials'))) {
+        throw err;
+      }
       console.warn('[AlertSubscriptionsService] API getAdminSubscribers note:', err);
     }
 
