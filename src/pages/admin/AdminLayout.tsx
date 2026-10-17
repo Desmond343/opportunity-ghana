@@ -71,7 +71,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentPath, onNavigat
     { label: 'Opportunities', path: '/admin/opportunities', icon: Compass },
     { label: 'Resources', path: '/admin/resources', icon: BookOpen },
     { label: 'Success Stories', path: '/admin/success-stories', icon: Award },
-    { label: 'Email Subscribers', path: '/admin/subscribers', icon: Mail },
+    { label: 'Daily Alert Subscribers', path: '/admin/subscribers', icon: Mail },
     { label: 'Organizations', path: '/admin/organizations', icon: Building },
     { label: 'Skills', path: '/admin/skills', icon: Sparkles },
     { label: 'Submissions', path: '/admin/submissions', icon: Inbox },

@@ -6,12 +6,13 @@ import * as XLSX from 'xlsx';
 
 export interface SubscribeParams {
   email: string;
+  phone?: string;
+  whatsappEnabled?: boolean;
   categories?: string[];
   regions?: string[];
   frequency?: 'instant' | 'daily' | 'weekly';
   source?: string;
   userId?: string;
-  consentGiven?: boolean;
 }
 
 export interface SubscribeResult {
@@ -56,8 +57,7 @@ export const AlertSubscriptionsService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...params,
-          email: normalized,
-          consentGiven: params.consentGiven ?? true
+          email: normalized
         })
       });
 
@@ -80,14 +80,14 @@ export const AlertSubscriptionsService = {
       id: fallbackId,
       userId: params.userId,
       email: normalized,
+      phone: params.phone || '',
+      whatsappEnabled: Boolean(params.whatsappEnabled),
       categories: params.categories && params.categories.length > 0 ? params.categories : ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training'],
       regions: params.regions && params.regions.length > 0 ? params.regions : ['All Ghana'],
       frequency: params.frequency || 'daily',
       status: 'active',
       active: true,
       source: params.source || 'Homepage Daily Alerts',
-      consentGiven: params.consentGiven ?? true,
-      consentTimestamp: now,
       lastAlertSentAt: null,
       lastAlertTitle: null,
       alertsCount: 0,
@@ -324,11 +324,11 @@ export const AlertSubscriptionsService = {
   /**
    * Export subscribers to an official Microsoft Excel (.xlsx) spreadsheet.
    * Runs in the browser using XLSX library for instant downloads, formats columns,
-   * handles dates and preferences, and logs the export event to the audit trail.
+   * handles dates and categories, and logs the export event to the audit trail.
    */
   exportToExcel(
     subscribers: AlertSubscription[],
-    filenamePrefix = 'opportunity-ghana-email-subscribers',
+    filenamePrefix = 'opportunity-ghana-daily-alert-subscribers',
     auditUser?: { email: string; name?: string },
     scope: 'all' | 'filtered' = 'all',
     tokenGetter?: () => Promise<string | null>
@@ -349,15 +349,6 @@ export const AlertSubscriptionsService = {
             minute: '2-digit'
           })
         : '';
-      const updatedDate = sub.updatedAt
-        ? new Date(sub.updatedAt).toLocaleString('en-GB', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        : '';
       const lastAlert = sub.lastAlertSentAt
         ? new Date(sub.lastAlertSentAt).toLocaleString('en-GB', {
             year: 'numeric',
@@ -370,15 +361,15 @@ export const AlertSubscriptionsService = {
 
       return {
         'No.': index + 1,
-        'Subscriber ID': sub.id || '',
         'Email Address': sub.email,
         'Status': (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed',
+        'Subscription Date': createdDate,
+        'Dispatch Frequency': (sub.frequency || 'Daily').toUpperCase(),
         'Target Categories': cats,
         'Target Regions': regs,
-        'Dispatch Frequency': (sub.frequency || 'Daily').toUpperCase(),
-        'Subscription Source': sub.source || 'Homepage Daily Alerts',
-        'Date Subscribed': createdDate,
-        'Last Updated': updatedDate,
+        'Phone / WhatsApp': sub.phone || 'None',
+        'WhatsApp Enabled': sub.whatsappEnabled ? 'Yes' : 'No',
+        'Source': sub.source || 'Homepage Daily Alerts',
         'Last Alert Sent': lastAlert,
         'Total Alerts Received': sub.alertsCount || 0
       };
@@ -389,21 +380,21 @@ export const AlertSubscriptionsService = {
     // Column widths
     worksheet['!cols'] = [
       { wch: 6 },
-      { wch: 28 },
       { wch: 34 },
       { wch: 14 },
-      { wch: 38 },
       { wch: 22 },
       { wch: 18 },
+      { wch: 38 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 16 },
       { wch: 26 },
-      { wch: 22 },
-      { wch: 22 },
       { wch: 22 },
       { wch: 20 }
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Email Subscribers');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Alert Subscribers');
 
     // Trigger binary download in browser
     XLSX.writeFile(workbook, filename, { bookType: 'xlsx' });
@@ -411,7 +402,7 @@ export const AlertSubscriptionsService = {
     // Record in Audit Service
     AuditService.record({
       entityType: 'alert_subscribers',
-      entityId: 'export_email_subscribers',
+      entityId: 'export_daily_alert_subscribers',
       entityTitle: `Excel Export (${scope}: ${subscribers.length} subscribers)`,
       action: 'exported',
       performedByEmail: auditUser?.email || 'admin@opportunityghana.com',
@@ -440,278 +431,6 @@ export const AlertSubscriptionsService = {
     }
 
     return filename;
-  },
-
-  /**
-   * Export subscribers to standard Comma-Separated Values (.csv) file.
-   * Cross-platform, utf-8 with BOM for complete compatibility with Microsoft Excel & Google Sheets.
-   */
-  exportToCsv(
-    subscribers: AlertSubscription[],
-    filenamePrefix = 'opportunity-ghana-email-subscribers',
-    auditUser?: { email: string; name?: string },
-    scope: 'all' | 'filtered' = 'all',
-    tokenGetter?: () => Promise<string | null>
-  ): string {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const filename = `${filenamePrefix}-${todayStr}.csv`;
-
-    const headers = [
-      'No.',
-      'Subscriber ID',
-      'Email Address',
-      'Status',
-      'Scholarships',
-      'Grants & Funding',
-      'Jobs',
-      'Internships',
-      'Courses & Training',
-      'Fellowships',
-      'Admissions & Institutions',
-      'Competitions',
-      'Entrepreneurship',
-      'Graduate Programmes',
-      'Government Programmes',
-      'Skills Preferences',
-      'Location Preferences',
-      'Dispatch Frequency',
-      'Subscription Source',
-      'Date Subscribed',
-      'Last Updated'
-    ];
-
-    const escapeCsv = (val: any) => {
-      const str = String(val ?? '');
-      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
-        return `"${str.replace(/"/g, '""')}"`;
-      }
-      return str;
-    };
-
-    const rows = subscribers.map((sub, index) => {
-      const cats = Array.isArray(sub.categories) ? sub.categories : [];
-      const has = (re: RegExp) => cats.some((c: string) => re.test(c)) ? 'Yes' : 'No';
-      const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join('; ') : 'All Ghana';
-      const createdDate = sub.createdAt ? new Date(sub.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
-      const updatedDate = sub.updatedAt ? new Date(sub.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
-
-      return [
-        index + 1,
-        sub.id || '',
-        sub.email,
-        (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed',
-        has(/scholarship/i),
-        has(/grant/i),
-        has(/job/i),
-        has(/intern/i),
-        has(/course|training/i),
-        has(/fellowship/i),
-        has(/admiss/i),
-        has(/compet/i),
-        has(/entrepreneur/i),
-        has(/graduate/i),
-        has(/government/i),
-        has(/skill/i),
-        regs,
-        (sub.frequency || 'Daily').toUpperCase(),
-        sub.source || 'Website',
-        createdDate,
-        updatedDate
-      ].map(escapeCsv).join(',');
-    });
-
-    const csvContent = '\uFEFF' + [headers.map(escapeCsv).join(','), ...rows].join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    // Record in Audit Service
-    AuditService.record({
-      entityType: 'alert_subscribers',
-      entityId: 'export_email_subscribers_csv',
-      entityTitle: `CSV Export (${scope}: ${subscribers.length} subscribers)`,
-      action: 'exported',
-      performedByEmail: auditUser?.email || 'admin@opportunityghana.com',
-      performedByName: auditUser?.name || 'Administrator',
-      details: `Generated and downloaded ${filename} containing ${subscribers.length} subscriber records.`
-    });
-
-    if (tokenGetter) {
-      tokenGetter().then((tok) => {
-        if (tok) {
-          fetch('/api/admin/alerts/audit-export', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${tok}`
-            },
-            body: JSON.stringify({
-              count: subscribers.length,
-              scope,
-              filename
-            })
-          }).catch(() => {});
-        }
-      }).catch(() => {});
-    }
-
-    return filename;
-  },
-
-  // =========================================================================
-  // GOOGLE SHEETS INTEGRATION CLIENT METHODS
-  // =========================================================================
-
-  async getGoogleSheetsStatus(tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/status', {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
-    });
-    return res.json();
-  },
-
-  async getGoogleSheetsAuthUrl(tokenGetter?: () => Promise<string | null>): Promise<{ success: boolean; authUrl?: string; error?: string; redirectUri?: string }> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/auth-url', {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
-    });
-    return res.json();
-  },
-
-  async connectGoogleSheetsToken(accessToken: string, email?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/connect-token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ accessToken, email })
-    });
-    return res.json();
-  },
-
-  async saveGoogleSheetsCredentials(clientId: string, clientSecret: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/config', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ clientId, clientSecret })
-    });
-    return res.json();
-  },
-
-  async createGoogleSpreadsheet(title?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/create-spreadsheet', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ title: title || 'Opportunity Ghana - Email Subscribers' })
-    });
-    return res.json();
-  },
-
-  async selectGoogleSpreadsheet(spreadsheetId: string, sheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/select-spreadsheet', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ spreadsheetId, sheetName })
-    });
-    return res.json();
-  },
-
-  async testGoogleSheetsConnection(tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/test-connection', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
-    });
-    return res.json();
-  },
-
-  async syncGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/sync', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
-    });
-    return res.json();
-  },
-
-  async disconnectGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
-    let token: string | null = null;
-    if (tokenGetter) {
-      try { token = await tokenGetter(); } catch {}
-    }
-
-    const res = await fetch('/api/admin/google-sheets/disconnect', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
-    });
-    return res.json();
   },
 
   getLocalCachedSubscribers(): AlertSubscription[] {

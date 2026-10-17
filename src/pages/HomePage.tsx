@@ -1134,7 +1134,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('/alerts')}
                 className="underline hover:text-white font-semibold cursor-pointer"
               >
-                Customize Email Alert Preferences
+                Configure WhatsApp Alerts
               </button>
             </div>
           </div>
