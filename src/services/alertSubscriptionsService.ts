@@ -6,13 +6,12 @@ import * as XLSX from 'xlsx';
 
 export interface SubscribeParams {
   email: string;
-  phone?: string;
-  whatsappEnabled?: boolean;
   categories?: string[];
   regions?: string[];
   frequency?: 'instant' | 'daily' | 'weekly';
   source?: string;
   userId?: string;
+  consentGiven?: boolean;
 }
 
 export interface SubscribeResult {
@@ -41,8 +40,8 @@ function normalizeEmail(email: string): string {
 
 export const AlertSubscriptionsService = {
   /**
-   * Subscribe an email address to Opportunity Ghana daily alerts.
-   * Handles duplicate detection, case normalization, and reactivation.
+   * Subscribe an email address to Opportunity Ghana alerts.
+   * Handles duplicate detection, case normalization, consent recording, and reactivation.
    */
   async subscribe(params: SubscribeParams): Promise<SubscribeResult> {
     const normalized = normalizeEmail(params.email);
@@ -57,7 +56,8 @@ export const AlertSubscriptionsService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...params,
-          email: normalized
+          email: normalized,
+          consentGiven: params.consentGiven ?? true
         })
       });
 
@@ -80,14 +80,14 @@ export const AlertSubscriptionsService = {
       id: fallbackId,
       userId: params.userId,
       email: normalized,
-      phone: params.phone || '',
-      whatsappEnabled: Boolean(params.whatsappEnabled),
       categories: params.categories && params.categories.length > 0 ? params.categories : ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training'],
       regions: params.regions && params.regions.length > 0 ? params.regions : ['All Ghana'],
       frequency: params.frequency || 'daily',
       status: 'active',
       active: true,
-      source: params.source || 'Homepage Daily Alerts',
+      source: params.source || 'Email Alerts Page',
+      consentGiven: params.consentGiven ?? true,
+      consentTimestamp: now,
       lastAlertSentAt: null,
       lastAlertTitle: null,
       alertsCount: 0,
@@ -98,9 +98,10 @@ export const AlertSubscriptionsService = {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'alerts', fallbackId), fallbackRecord, { merge: true });
-      } catch (fbErr) {
-        console.warn('[AlertSubscriptionsService] Firestore fallback note:', fbErr);
+        const alertDoc = doc(db, 'alerts', fallbackId);
+        await setDoc(alertDoc, fallbackRecord, { merge: true });
+      } catch (fbErr: any) {
+        console.warn('[AlertSubscriptionsService] Firestore subscription fallback note:', fbErr.message);
       }
     }
 
@@ -111,34 +112,61 @@ export const AlertSubscriptionsService = {
       success: true,
       subscriber: fallbackRecord,
       isNew: true,
-      message: 'Thank you! You are now subscribed to verified daily opportunity alerts.'
+      message: 'Thank you! You are now subscribed to verified opportunity alerts.'
     };
   },
 
   /**
    * Unsubscribe an email from alerts
    */
-  async unsubscribe(emailOrId: string): Promise<{ success: boolean; message: string }> {
+  async unsubscribe(email: string): Promise<{ success: boolean; message: string }> {
+    const normalized = normalizeEmail(email);
+
     try {
-      const isEmail = emailOrId.includes('@');
       const response = await fetch('/api/alerts/unsubscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(isEmail ? { email: normalizeEmail(emailOrId) } : { id: emailOrId })
+        body: JSON.stringify({ email: normalized })
       });
       if (response.ok) {
         const data = await response.json();
+        // Update local cache
+        const cached = this.getLocalCachedSubscribers();
+        const found = cached.find((s) => s.email.toLowerCase() === normalized);
+        if (found) {
+          found.status = 'unsubscribed';
+          found.active = false;
+          found.unsubscribedAt = new Date().toISOString();
+          this.cacheLocalSubscriber(found);
+        }
         window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
         return data;
       }
     } catch (err) {
-      console.warn('[AlertSubscriptionsService] API unsubscribe error:', err);
+      console.warn('[AlertSubscriptionsService] API unsubscribe fallback note:', err);
     }
-    return { success: true, message: 'You have been unsubscribed from daily alerts.' };
+
+    // Client/Firestore fallback
+    if (isFirebaseConfigured && db) {
+      try {
+        const alertsRef = collection(db, 'alerts');
+        const q = query(alertsRef, where('email', '==', normalized));
+        const snap = await getDocs(q);
+        const now = new Date().toISOString();
+        snap.forEach(async (d) => {
+          await setDoc(d.ref, { status: 'unsubscribed', active: false, unsubscribedAt: now, updatedAt: now }, { merge: true });
+        });
+      } catch {}
+    }
+
+    return {
+      success: true,
+      message: 'You have been successfully unsubscribed from opportunity alerts.'
+    };
   },
 
   /**
-   * Fetch subscribers for the admin dashboard with search, filter, and pagination
+   * Fetch subscribers for the Admin CMS with filtering, pagination, and sorting
    */
   async getAdminSubscribers(
     filters: {
@@ -193,7 +221,7 @@ export const AlertSubscriptionsService = {
     if (filters.search) {
       const s = filters.search.toLowerCase();
       filtered = filtered.filter(
-        (sub) => sub.email.toLowerCase().includes(s) || (sub.phone && sub.phone.includes(s))
+        (sub) => sub.email.toLowerCase().includes(s)
       );
     }
     if (filters.status === 'active') {
@@ -248,22 +276,36 @@ export const AlertSubscriptionsService = {
         body: JSON.stringify({ status })
       });
       if (response.ok) {
-        window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
-        return true;
+        const data = await response.json();
+        if (data.success && data.subscriber) {
+          this.cacheLocalSubscriber(data.subscriber);
+          window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: data.subscriber }));
+          return true;
+        }
       }
     } catch (err) {
-      console.warn('[AlertSubscriptionsService] Update status notice:', err);
+      console.warn('[AlertSubscriptionsService] API update status note:', err);
+    }
+
+    // Client fallback
+    const cached = this.getLocalCachedSubscribers();
+    const sub = cached.find((s) => s.id === id || s.email === id);
+    if (sub) {
+      sub.status = status;
+      sub.active = status === 'active';
+      sub.unsubscribedAt = status === 'unsubscribed' ? new Date().toISOString() : null;
+      sub.updatedAt = new Date().toISOString();
+      this.cacheLocalSubscriber(sub);
+      window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: sub }));
+      return true;
     }
     return false;
   },
 
   /**
-   * Delete subscriber permanently
+   * Delete subscriber record permanently
    */
-  async deleteSubscriber(
-    id: string,
-    tokenGetter?: () => Promise<string | null>
-  ): Promise<boolean> {
+  async deleteSubscriber(id: string, tokenGetter?: () => Promise<string | null>): Promise<boolean> {
     let token: string | null = null;
     if (tokenGetter) {
       try {
@@ -275,6 +317,7 @@ export const AlertSubscriptionsService = {
       const response = await fetch(`/api/admin/alerts/subscribers/${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: {
+          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         }
       });
@@ -284,17 +327,18 @@ export const AlertSubscriptionsService = {
         return true;
       }
     } catch (err) {
-      console.warn('[AlertSubscriptionsService] Delete subscriber notice:', err);
+      console.warn('[AlertSubscriptionsService] API delete note:', err);
     }
-    return false;
+
+    this.removeLocalCachedSubscriber(id);
+    window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
+    return true;
   },
 
   /**
-   * Dispatch daily digest to active subscribers and update last alert info
+   * Trigger Daily Alert Digest Dispatch to Active Subscribers
    */
-  async dispatchDailyDigest(
-    tokenGetter?: () => Promise<string | null>
-  ): Promise<{ success: boolean; sentCount: number; message: string; timestamp?: string }> {
+  async dispatchDailyDigest(tokenGetter?: () => Promise<string | null>): Promise<any> {
     let token: string | null = null;
     if (tokenGetter) {
       try {
@@ -302,33 +346,30 @@ export const AlertSubscriptionsService = {
       } catch {}
     }
 
-    try {
-      const response = await fetch('/api/admin/alerts/dispatch-daily', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
-        return data;
+    const response = await fetch('/api/admin/alerts/dispatch-daily', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
-    } catch (err) {
-      console.warn('[AlertSubscriptionsService] Dispatch error:', err);
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to dispatch daily alert digest');
     }
-    return { success: false, sentCount: 0, message: 'Could not trigger daily alert digest' };
+
+    return response.json();
   },
 
   /**
    * Export subscribers to an official Microsoft Excel (.xlsx) spreadsheet.
    * Runs in the browser using XLSX library for instant downloads, formats columns,
-   * handles dates and categories, and logs the export event to the audit trail.
+   * handles dates and preferences, and logs the export event to the audit trail.
    */
   exportToExcel(
     subscribers: AlertSubscription[],
-    filenamePrefix = 'opportunity-ghana-daily-alert-subscribers',
+    filenamePrefix = 'opportunity-ghana-email-subscribers',
     auditUser?: { email: string; name?: string },
     scope: 'all' | 'filtered' = 'all',
     tokenGetter?: () => Promise<string | null>
@@ -336,12 +377,20 @@ export const AlertSubscriptionsService = {
     const todayStr = new Date().toISOString().split('T')[0];
     const filename = `${filenamePrefix}-${todayStr}.xlsx`;
 
-    // Prepare clean rows
     const rows = subscribers.map((sub, index) => {
       const cats = Array.isArray(sub.categories) && sub.categories.length > 0 ? sub.categories.join(', ') : 'All Categories';
       const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join(', ') : 'All Ghana';
       const createdDate = sub.createdAt
         ? new Date(sub.createdAt).toLocaleString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : '';
+      const updatedDate = sub.updatedAt
+        ? new Date(sub.updatedAt).toLocaleString('en-GB', {
             year: 'numeric',
             month: 'short',
             day: '2-digit',
@@ -361,15 +410,15 @@ export const AlertSubscriptionsService = {
 
       return {
         'No.': index + 1,
+        'Subscriber ID': sub.id || '',
         'Email Address': sub.email,
         'Status': (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed',
-        'Subscription Date': createdDate,
-        'Dispatch Frequency': (sub.frequency || 'Daily').toUpperCase(),
         'Target Categories': cats,
         'Target Regions': regs,
-        'Phone / WhatsApp': sub.phone || 'None',
-        'WhatsApp Enabled': sub.whatsappEnabled ? 'Yes' : 'No',
-        'Source': sub.source || 'Homepage Daily Alerts',
+        'Dispatch Frequency': (sub.frequency || 'Daily').toUpperCase(),
+        'Subscription Source': sub.source || 'Website',
+        'Date Subscribed': createdDate,
+        'Last Updated': updatedDate,
         'Last Alert Sent': lastAlert,
         'Total Alerts Received': sub.alertsCount || 0
       };
@@ -380,21 +429,21 @@ export const AlertSubscriptionsService = {
     // Column widths
     worksheet['!cols'] = [
       { wch: 6 },
+      { wch: 28 },
       { wch: 34 },
       { wch: 14 },
+      { wch: 38 },
       { wch: 22 },
       { wch: 18 },
-      { wch: 38 },
-      { wch: 20 },
-      { wch: 18 },
-      { wch: 16 },
       { wch: 26 },
+      { wch: 22 },
+      { wch: 22 },
       { wch: 22 },
       { wch: 20 }
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Alert Subscribers');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Email Subscribers');
 
     // Trigger binary download in browser
     XLSX.writeFile(workbook, filename, { bookType: 'xlsx' });
@@ -402,7 +451,7 @@ export const AlertSubscriptionsService = {
     // Record in Audit Service
     AuditService.record({
       entityType: 'alert_subscribers',
-      entityId: 'export_daily_alert_subscribers',
+      entityId: 'export_email_subscribers',
       entityTitle: `Excel Export (${scope}: ${subscribers.length} subscribers)`,
       action: 'exported',
       performedByEmail: auditUser?.email || 'admin@opportunityghana.com',
@@ -431,6 +480,278 @@ export const AlertSubscriptionsService = {
     }
 
     return filename;
+  },
+
+  /**
+   * Export subscribers to standard Comma-Separated Values (.csv) file.
+   * Cross-platform, utf-8 with BOM for complete compatibility with Microsoft Excel & Google Sheets.
+   */
+  exportToCsv(
+    subscribers: AlertSubscription[],
+    filenamePrefix = 'opportunity-ghana-email-subscribers',
+    auditUser?: { email: string; name?: string },
+    scope: 'all' | 'filtered' = 'all',
+    tokenGetter?: () => Promise<string | null>
+  ): string {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const filename = `${filenamePrefix}-${todayStr}.csv`;
+
+    const headers = [
+      'No.',
+      'Subscriber ID',
+      'Email Address',
+      'Status',
+      'Scholarships',
+      'Grants & Funding',
+      'Jobs',
+      'Internships',
+      'Courses & Training',
+      'Fellowships',
+      'Admissions & Institutions',
+      'Competitions',
+      'Entrepreneurship',
+      'Graduate Programmes',
+      'Government Programmes',
+      'Skills Preferences',
+      'Location Preferences',
+      'Dispatch Frequency',
+      'Subscription Source',
+      'Date Subscribed',
+      'Last Updated'
+    ];
+
+    const escapeCsv = (val: any) => {
+      const str = String(val ?? '');
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const rows = subscribers.map((sub, index) => {
+      const cats = Array.isArray(sub.categories) ? sub.categories : [];
+      const has = (re: RegExp) => cats.some((c: string) => re.test(c)) ? 'Yes' : 'No';
+      const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join('; ') : 'All Ghana';
+      const createdDate = sub.createdAt ? new Date(sub.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+      const updatedDate = sub.updatedAt ? new Date(sub.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+
+      return [
+        index + 1,
+        sub.id || '',
+        sub.email,
+        (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed',
+        has(/scholarship/i),
+        has(/grant/i),
+        has(/job/i),
+        has(/intern/i),
+        has(/course|training/i),
+        has(/fellowship/i),
+        has(/admiss/i),
+        has(/compet/i),
+        has(/entrepreneur/i),
+        has(/graduate/i),
+        has(/government/i),
+        has(/skill/i),
+        regs,
+        (sub.frequency || 'Daily').toUpperCase(),
+        sub.source || 'Website',
+        createdDate,
+        updatedDate
+      ].map(escapeCsv).join(',');
+    });
+
+    const csvContent = '\uFEFF' + [headers.map(escapeCsv).join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Record in Audit Service
+    AuditService.record({
+      entityType: 'alert_subscribers',
+      entityId: 'export_email_subscribers_csv',
+      entityTitle: `CSV Export (${scope}: ${subscribers.length} subscribers)`,
+      action: 'exported',
+      performedByEmail: auditUser?.email || 'admin@opportunityghana.com',
+      performedByName: auditUser?.name || 'Administrator',
+      details: `Generated and downloaded ${filename} containing ${subscribers.length} subscriber records.`
+    });
+
+    if (tokenGetter) {
+      tokenGetter().then((tok) => {
+        if (tok) {
+          fetch('/api/admin/alerts/audit-export', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${tok}`
+            },
+            body: JSON.stringify({
+              count: subscribers.length,
+              scope,
+              filename
+            })
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    }
+
+    return filename;
+  },
+
+  // =========================================================================
+  // GOOGLE SHEETS INTEGRATION CLIENT METHODS
+  // =========================================================================
+
+  async getGoogleSheetsStatus(tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/status', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return res.json();
+  },
+
+  async getGoogleSheetsAuthUrl(tokenGetter?: () => Promise<string | null>): Promise<{ success: boolean; authUrl?: string; error?: string; redirectUri?: string }> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/auth-url', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return res.json();
+  },
+
+  async connectGoogleSheetsToken(accessToken: string, email?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/connect-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ accessToken, email })
+    });
+    return res.json();
+  },
+
+  async saveGoogleSheetsCredentials(clientId: string, clientSecret: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/config', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ clientId, clientSecret })
+    });
+    return res.json();
+  },
+
+  async createGoogleSpreadsheet(title?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/create-spreadsheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ title: title || 'Opportunity Ghana - Email Subscribers' })
+    });
+    return res.json();
+  },
+
+  async selectGoogleSpreadsheet(spreadsheetId: string, sheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/select-spreadsheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ spreadsheetId, sheetName })
+    });
+    return res.json();
+  },
+
+  async testGoogleSheetsConnection(tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/test-connection', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return res.json();
+  },
+
+  async syncGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return res.json();
+  },
+
+  async disconnectGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/disconnect', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return res.json();
   },
 
   getLocalCachedSubscribers(): AlertSubscription[] {

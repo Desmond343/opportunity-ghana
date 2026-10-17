@@ -426,6 +426,8 @@ export interface AlertSubscription {
   status: 'active' | 'unsubscribed';
   active: boolean;
   source?: string;
+  consentGiven?: boolean;
+  consentTimestamp?: string;
   lastAlertSentAt?: string | null;
   lastAlertTitle?: string | null;
   alertsCount?: number;
@@ -440,6 +442,24 @@ export interface AlertSubscriberMetrics {
   unsubscribed: number;
   newThisMonth: number;
   newThisWeek: number;
+}
+
+export interface GoogleSheetsConfig {
+  isConnected: boolean;
+  connectedEmail?: string;
+  connectedAt?: string | null;
+  spreadsheetId?: string;
+  spreadsheetName?: string;
+  sheetName?: string;
+  spreadsheetUrl?: string;
+  lastSyncAt?: string | null;
+  lastSyncCount?: number;
+  lastSyncStatus?: 'success' | 'failed' | 'idle';
+  lastSyncError?: string | null;
+  hasCredentials?: boolean;
+  clientIdConfigured?: boolean;
+  clientIdMasked?: string;
+  redirectUri?: string;
 }
 
 export type SuccessStoryStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'archived';
