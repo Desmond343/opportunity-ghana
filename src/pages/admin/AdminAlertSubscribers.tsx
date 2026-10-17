@@ -325,6 +325,48 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
               </>
             )}
           </div>
+
+          {/* Connect Google Sheets / Sync Button (Prominent in Export Controls) */}
+          {!sheetsConfig.isConnected ? (
+            <button
+              onClick={handleConnectGoogleSheets}
+              disabled={sheetsLoading}
+              className="px-3.5 py-2.5 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              title="Connect Google Sheets to organize subscriber data"
+            >
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="4" fill="#0F9D58" />
+                <path d="M6 7H18V9H6V7Z" fill="white" />
+                <path d="M6 11H18V13H6V11Z" fill="white" />
+                <path d="M6 15H18V17H6V15Z" fill="white" />
+                <line x1="12" y1="7" x2="12" y2="17" stroke="#0F9D58" strokeWidth="1.5" />
+              </svg>
+              <span>{sheetsLoading ? 'Connecting...' : 'Connect Google Sheets'}</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleSyncSubscribers}
+                disabled={sheetsSyncing || sheetsLoading}
+                className="px-3.5 py-2.5 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                title="Synchronize subscribers with connected Google Sheet"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${sheetsSyncing ? 'animate-spin' : ''}`} />
+                <span>{sheetsSyncing ? 'Syncing...' : 'Sync Google Sheets'}</span>
+              </button>
+              {sheetsConfig.spreadsheetUrl && (
+                <a
+                  href={sheetsConfig.spreadsheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B29] text-emerald-700 dark:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1 transition-colors"
+                  title="Open connected Google Sheet"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -486,6 +528,29 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
               <option value="email_asc">Sort: Email A–Z</option>
               <option value="email_desc">Sort: Email Z–A</option>
             </select>
+
+            {/* Quick Sheets Sync/Connect in Table Filter Bar */}
+            {!sheetsConfig.isConnected ? (
+              <button
+                onClick={handleConnectGoogleSheets}
+                disabled={sheetsLoading}
+                className="px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-[#006B3F] dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
+                title="Connect Google Sheets"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-[#0F9D58]" />
+                <span>Connect Sheets</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleSyncSubscribers}
+                disabled={sheetsSyncing || sheetsLoading}
+                className="px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-[#006B3F] dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
+                title="Sync Subscribers to Google Sheets"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-[#0F9D58] ${sheetsSyncing ? 'animate-spin' : ''}`} />
+                <span>{sheetsSyncing ? 'Syncing...' : 'Sync to Sheets'}</span>
+              </button>
+            )}
           </div>
         </div>
 
