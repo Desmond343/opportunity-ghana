@@ -265,8 +265,8 @@ export function AppContent() {
     }
 
     // 12. Admin routes: /admin/*
-    const normalizedAdminPath = pathname.replace(/\/$/, '') || '/admin';
-    if (normalizedAdminPath.startsWith('/admin')) {
+    if (pathname.startsWith('/admin')) {
+      const normalizedAdminPath = pathname.replace(/\/+$/, '') || '/admin';
       return (
         <AdminLayout currentPath={currentPath} onNavigate={navigate}>
           {normalizedAdminPath === '/admin' && <AdminDashboard onNavigate={navigate} />}
@@ -291,7 +291,8 @@ export function AppContent() {
     return <HomePage onNavigate={navigate} />;
   };
 
-  const isAdminRoute = currentPath.startsWith('/admin');
+  const [currentPathname] = currentPath.split('?');
+  const isAdminRoute = currentPathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen flex flex-col stage-ambient-surface text-slate-900 dark:text-slate-100 selection:bg-emerald-600 selection:text-white font-sans">
