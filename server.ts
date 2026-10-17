@@ -1724,28 +1724,29 @@ function persistServerAlertSubscribers() {
   }
 }
 
-// 1. PUBLIC: Subscribe email for daily alerts (with duplicate prevention & reactivation)
+// 1. PUBLIC: Subscribe email for daily alerts (Email-only, duplicate prevention, reactivation, preferences & consent)
 app.post('/api/alerts/subscribe', async (req, res) => {
   try {
-    const { email, phone, whatsappEnabled, categories, regions, frequency, source, userId } = req.body || {};
+    const { email, categories, regions, frequency, source, userId, consentGiven } = req.body || {};
 
     if (!email || typeof email !== 'string') {
-      return res.status(400).json({ error: 'A valid email address is required.' });
+      return res.status(400).json({ success: false, error: 'A valid email address is required.' });
     }
 
     const normalized = normalizeAlertEmail(email);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(normalized)) {
-      return res.status(400).json({ error: 'Please enter a valid email address (e.g. name@domain.com).' });
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address (e.g. name@domain.com).' });
     }
 
     const now = new Date().toISOString();
     const existing = serverAlertSubscribersMap.get(normalized);
 
-    // Build categories list
+    // Standard platform opportunity categories supported
+    const defaultCategories = ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training'];
     const finalCategories = Array.isArray(categories) && categories.length > 0
       ? categories
-      : (existing?.categories?.length ? existing.categories : ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training']);
+      : (existing?.categories?.length ? existing.categories : defaultCategories);
 
     const finalRegions = Array.isArray(regions) && regions.length > 0
       ? regions
@@ -1763,17 +1764,19 @@ app.post('/api/alerts/subscribe', async (req, res) => {
       wasReactivated = !wasActive;
       alreadySubscribed = wasActive;
 
+      // Safely update preferences in place without creating duplicate records
       subscriberRecord = {
         ...existing,
+        email: normalized, // normalized
         userId: userId || existing.userId || undefined,
-        phone: phone !== undefined ? phone : existing.phone,
-        whatsappEnabled: whatsappEnabled !== undefined ? Boolean(whatsappEnabled) : existing.whatsappEnabled,
         categories: finalCategories,
         regions: finalRegions,
         frequency: finalFrequency,
         source: finalSource,
         status: 'active',
         active: true,
+        consentGiven: consentGiven !== undefined ? Boolean(consentGiven) : (existing.consentGiven ?? true),
+        consentTimestamp: existing.consentTimestamp || now,
         unsubscribedAt: null,
         updatedAt: now
       };
@@ -1783,14 +1786,14 @@ app.post('/api/alerts/subscribe', async (req, res) => {
         id,
         userId: userId || undefined,
         email: normalized,
-        phone: phone || '',
-        whatsappEnabled: Boolean(whatsappEnabled),
         categories: finalCategories,
         regions: finalRegions,
         frequency: finalFrequency,
         status: 'active',
         active: true,
         source: finalSource,
+        consentGiven: consentGiven !== undefined ? Boolean(consentGiven) : true,
+        consentTimestamp: now,
         lastAlertSentAt: null,
         lastAlertTitle: null,
         alertsCount: 0,
@@ -1815,9 +1818,9 @@ app.post('/api/alerts/subscribe', async (req, res) => {
 
     let message = 'Thank you! You are now subscribed to verified daily opportunity alerts.';
     if (alreadySubscribed) {
-      message = 'Your alert preferences have been updated. You are already subscribed to daily alerts.';
+      message = 'Your alert preferences have been successfully updated. You are already an active subscriber.';
     } else if (wasReactivated) {
-      message = 'Welcome back! Your alert subscription has been reactivated.';
+      message = 'Welcome back! Your email subscription has been successfully reactivated.';
     }
 
     return res.json({
@@ -1830,7 +1833,7 @@ app.post('/api/alerts/subscribe', async (req, res) => {
     });
   } catch (err: any) {
     console.error('Error subscribing email to alerts:', err);
-    return res.status(500).json({ error: 'Failed to save alert subscription. Please try again.' });
+    return res.status(500).json({ success: false, error: 'Failed to save alert subscription. Please try again.' });
   }
 });
 
@@ -2076,10 +2079,11 @@ app.delete('/api/admin/alerts/subscribers/:id', verifyAdminAuth, async (req, res
   }
 });
 
-// 6. ADMIN: Export Daily Alert Subscribers to Real Excel (.xlsx)
+// 6. ADMIN: Export Daily Alert Subscribers to Real Excel (.xlsx) or CSV (.csv)
 app.get('/api/admin/alerts/export', verifyAdminAuth, async (req, res) => {
   try {
     let all = Array.from(serverAlertSubscribersMap.values());
+    const format = ((req.query.format as string) || 'xlsx').toLowerCase();
 
     // Apply any query filters if specified (scope: 'filtered' vs 'all')
     const scope = (req.query.scope as string) || 'filtered';
@@ -2089,7 +2093,6 @@ app.get('/api/admin/alerts/export', verifyAdminAuth, async (req, res) => {
         all = all.filter(
           (s) =>
             (s.email && s.email.toLowerCase().includes(search)) ||
-            (s.phone && s.phone.includes(search)) ||
             (s.source && s.source.toLowerCase().includes(search))
         );
       }
@@ -2116,25 +2119,101 @@ app.get('/api/admin/alerts/export', verifyAdminAuth, async (req, res) => {
 
     // Sort newest first
     all.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    // Prepare table rows for Excel
+    // If CSV format requested
+    if (format === 'csv') {
+      const headers = [
+        'No.',
+        'Subscriber ID',
+        'Email Address',
+        'Status',
+        'Scholarships',
+        'Grants & Funding',
+        'Jobs',
+        'Internships',
+        'Courses & Training',
+        'Fellowships',
+        'Admissions & Institutions',
+        'Competitions',
+        'Entrepreneurship',
+        'Graduate Programmes',
+        'Government Programmes',
+        'Skills Preferences',
+        'Location Preferences',
+        'Dispatch Frequency',
+        'Subscription Source',
+        'Date Subscribed',
+        'Last Updated'
+      ];
+
+      const escapeCsv = (val: any) => {
+        const str = String(val ?? '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      const rows = all.map((s, index) => {
+        const cats = s.categories || [];
+        const has = (re: RegExp) => cats.some((c: string) => re.test(c)) ? 'Yes' : 'No';
+        const regs = Array.isArray(s.regions) && s.regions.length > 0 ? s.regions.join('; ') : 'All Ghana';
+        const createdDate = s.createdAt ? new Date(s.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+        const updatedDate = s.updatedAt ? new Date(s.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+
+        return [
+          index + 1,
+          s.id,
+          s.email,
+          (s.status === 'active' || s.active === true) ? 'Active' : 'Unsubscribed',
+          has(/scholarship/i),
+          has(/grant/i),
+          has(/job/i),
+          has(/intern/i),
+          has(/course|training/i),
+          has(/fellowship/i),
+          has(/admiss/i),
+          has(/compet/i),
+          has(/entrepreneur/i),
+          has(/graduate/i),
+          has(/government/i),
+          has(/skill/i),
+          regs,
+          (s.frequency || 'Daily').toUpperCase(),
+          s.source || 'Homepage Daily Alerts',
+          createdDate,
+          updatedDate
+        ].map(escapeCsv).join(',');
+      });
+
+      const csvContent = '\uFEFF' + [headers.map(escapeCsv).join(','), ...rows].join('\r\n');
+      const filename = `opportunity-ghana-email-subscribers-${todayStr}.csv`;
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csvContent);
+    }
+
+    // Default: Excel (.xlsx) format
     const rows = all.map((s, index) => {
-      const cats = Array.isArray(s.categories) ? s.categories.join(', ') : 'All Categories';
-      const regs = Array.isArray(s.regions) ? s.regions.join(', ') : 'All Ghana';
+      const cats = Array.isArray(s.categories) && s.categories.length > 0 ? s.categories.join(', ') : 'All Categories';
+      const regs = Array.isArray(s.regions) && s.regions.length > 0 ? s.regions.join(', ') : 'All Ghana';
       const createdDate = s.createdAt ? new Date(s.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+      const updatedDate = s.updatedAt ? new Date(s.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
       const lastAlert = s.lastAlertSentAt ? new Date(s.lastAlertSentAt).toISOString().replace('T', ' ').substring(0, 19) : 'Never';
 
       return {
         'No.': index + 1,
+        'Subscriber ID': s.id || '',
         'Email Address': s.email || '',
         'Status': (s.status === 'active' || s.active === true) ? 'Active' : 'Unsubscribed',
-        'Subscription Date': createdDate,
-        'Dispatch Frequency': (s.frequency || 'Daily').toUpperCase(),
         'Target Categories': cats,
         'Target Regions': regs,
-        'Phone / WhatsApp': s.phone || 'None',
-        'WhatsApp Enabled': s.whatsappEnabled ? 'Yes' : 'No',
-        'Source': s.source || 'Homepage Daily Alerts',
+        'Dispatch Frequency': (s.frequency || 'Daily').toUpperCase(),
+        'Subscription Source': s.source || 'Homepage Daily Alerts',
+        'Date Subscribed': createdDate,
+        'Last Updated': updatedDate,
         'Last Alert Sent': lastAlert,
         'Total Alerts Received': s.alertsCount || 0
       };
@@ -2142,35 +2221,33 @@ app.get('/api/admin/alerts/export', verifyAdminAuth, async (req, res) => {
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
 
-    // Set professional column widths
     worksheet['!cols'] = [
       { wch: 6 },  // No.
-      { wch: 32 }, // Email Address
+      { wch: 28 }, // Subscriber ID
+      { wch: 34 }, // Email Address
       { wch: 14 }, // Status
-      { wch: 22 }, // Subscription Date
+      { wch: 38 }, // Target Categories
+      { wch: 22 }, // Target Regions
       { wch: 18 }, // Dispatch Frequency
-      { wch: 35 }, // Target Categories
-      { wch: 20 }, // Target Regions
-      { wch: 20 }, // Phone
-      { wch: 16 }, // WhatsApp
-      { wch: 26 }, // Source
+      { wch: 26 }, // Subscription Source
+      { wch: 22 }, // Date Subscribed
+      { wch: 22 }, // Last Updated
       { wch: 22 }, // Last Alert Sent
       { wch: 20 }  // Total Alerts
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Alert Subscribers');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Email Subscribers');
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    const todayStr = new Date().toISOString().split('T')[0];
-    const filename = `opportunity-ghana-daily-alert-subscribers-${todayStr}.xlsx`;
+    const filename = `opportunity-ghana-email-subscribers-${todayStr}.xlsx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     return res.send(buffer);
   } catch (err: any) {
-    console.error('Error generating Excel export:', err);
-    return res.status(500).json({ error: 'Failed to generate Excel export' });
+    console.error('Error generating subscriber export:', err);
+    return res.status(500).json({ error: 'Failed to generate subscriber export' });
   }
 });
 
@@ -2231,7 +2308,7 @@ app.post('/api/admin/alerts/dispatch-daily', verifyAdminAuth, async (req, res) =
   }
 });
 
-// 8. ADMIN: Record Audit Log for Excel Export
+// 8. ADMIN: Record Audit Log for Subscriber Export
 app.post('/api/admin/alerts/audit-export', verifyAdminAuth, async (req, res) => {
   try {
     const user = (req as any).user || {};
@@ -2241,12 +2318,12 @@ app.post('/api/admin/alerts/audit-export', verifyAdminAuth, async (req, res) => 
       id: `log_export_${Date.now()}`,
       entityType: 'alert_subscribers',
       entityId: 'daily_alerts_export',
-      entityTitle: `Excel Export (${scope || 'all'}: ${count || 0} subscribers)`,
+      entityTitle: `Subscribers Export (${scope || 'all'}: ${count || 0} subscribers)`,
       action: 'exported',
       performedByEmail: user.email || 'administrator@opportunityghana.com',
       performedByName: user.name || 'Administrator',
       timestamp: new Date().toISOString(),
-      details: `Exported ${count || 0} subscribers to ${filename || 'Excel .xlsx'}`
+      details: `Exported ${count || 0} subscribers to ${filename || 'Export file'}`
     };
 
     if (adminDb && isInitialized) {
@@ -2256,6 +2333,917 @@ app.post('/api/admin/alerts/audit-export', verifyAdminAuth, async (req, res) => 
     return res.json({ success: true, auditEntry });
   } catch (err: any) {
     return res.json({ success: false, error: err.message });
+  }
+});
+
+// =========================================================================
+// GOOGLE SHEETS & OAUTH 2.0 INTEGRATION ENDPOINTS
+// Dedicated synchronization and sheet management for Opportunity Ghana CMS
+// =========================================================================
+const GOOGLE_SHEETS_CONFIG_FILE = path.resolve(process.cwd(), 'data', 'google_sheets_config.json');
+
+interface GoogleSheetsConfigState {
+  isConnected: boolean;
+  connectedEmail?: string;
+  connectedAt?: string | null;
+  tokens?: {
+    access_token?: string;
+    refresh_token?: string;
+    expiry_date?: number;
+    token_type?: string;
+  };
+  customCredentials?: {
+    clientId?: string;
+    clientSecret?: string;
+  };
+  spreadsheetId?: string;
+  spreadsheetName?: string;
+  sheetName?: string;
+  spreadsheetUrl?: string;
+  lastSyncAt?: string | null;
+  lastSyncCount?: number;
+  lastSyncStatus?: 'success' | 'failed' | 'idle';
+  lastSyncError?: string | null;
+}
+
+function loadGoogleSheetsConfig(): GoogleSheetsConfigState {
+  const defaults: GoogleSheetsConfigState = {
+    isConnected: false,
+    connectedEmail: '',
+    connectedAt: null,
+    sheetName: 'Email Subscribers',
+    lastSyncStatus: 'idle',
+    lastSyncCount: 0
+  };
+
+  try {
+    if (fs.existsSync(GOOGLE_SHEETS_CONFIG_FILE)) {
+      const raw = fs.readFileSync(GOOGLE_SHEETS_CONFIG_FILE, 'utf8');
+      const parsed = JSON.parse(raw);
+      return { ...defaults, ...parsed };
+    }
+  } catch (err) {
+    console.warn('[GoogleSheets] Could not read config from disk:', err);
+  }
+  return defaults;
+}
+
+let googleSheetsConfigState = loadGoogleSheetsConfig();
+
+function saveGoogleSheetsConfig(updated: GoogleSheetsConfigState) {
+  googleSheetsConfigState = updated;
+  try {
+    if (!fs.existsSync(path.dirname(GOOGLE_SHEETS_CONFIG_FILE))) {
+      fs.mkdirSync(path.dirname(GOOGLE_SHEETS_CONFIG_FILE), { recursive: true });
+    }
+    fs.writeFileSync(GOOGLE_SHEETS_CONFIG_FILE, JSON.stringify(updated, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('[GoogleSheets] Could not write config to disk:', err);
+  }
+
+  // Also persist to Firestore if available
+  if (adminDb && isInitialized) {
+    try {
+      // Avoid storing raw client secret in client-readable paths; store in admin-only settings
+      adminDb.collection('settings').doc('google_sheets_config').set({
+        isConnected: updated.isConnected,
+        connectedEmail: updated.connectedEmail || '',
+        connectedAt: updated.connectedAt || null,
+        spreadsheetId: updated.spreadsheetId || '',
+        spreadsheetName: updated.spreadsheetName || '',
+        sheetName: updated.sheetName || 'Email Subscribers',
+        spreadsheetUrl: updated.spreadsheetUrl || '',
+        lastSyncAt: updated.lastSyncAt || null,
+        lastSyncCount: updated.lastSyncCount || 0,
+        lastSyncStatus: updated.lastSyncStatus || 'idle',
+        lastSyncError: updated.lastSyncError || null,
+        updatedAt: new Date().toISOString()
+      }, { merge: true }).catch(() => {});
+    } catch {}
+  }
+}
+
+function getGoogleOAuthCredentials(): { clientId: string; clientSecret: string } {
+  const envClientId = (process.env.GOOGLE_CLIENT_ID || '').trim();
+  const envClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
+
+  const customId = (googleSheetsConfigState.customCredentials?.clientId || '').trim();
+  const customSecret = (googleSheetsConfigState.customCredentials?.clientSecret || '').trim();
+
+  return {
+    clientId: envClientId || customId,
+    clientSecret: envClientSecret || customSecret
+  };
+}
+
+function getEffectiveGoogleRedirectUri(req: express.Request): string {
+  if (process.env.GOOGLE_REDIRECT_URI && process.env.GOOGLE_REDIRECT_URI.trim()) {
+    return process.env.GOOGLE_REDIRECT_URI.trim();
+  }
+  const host = (req.headers['x-forwarded-host'] as string) || req.get('host') || 'opportunityghana.site';
+  const proto = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'http');
+  return `${proto}://${host}/api/admin/google-sheets/callback`;
+}
+
+async function getOrRefreshGoogleAccessToken(): Promise<string> {
+  const config = googleSheetsConfigState;
+  const creds = getGoogleOAuthCredentials();
+
+  if (!config.tokens?.access_token && !config.tokens?.refresh_token) {
+    throw new Error('Google Sheets is not connected. Please click "Connect Google Sheets" first.');
+  }
+
+  const nowMs = Date.now();
+  const expiry = config.tokens.expiry_date || 0;
+
+  // If token is still valid for at least 3 minutes, use it
+  if (config.tokens.access_token && expiry > nowMs + 180000) {
+    return config.tokens.access_token;
+  }
+
+  // If we have a refresh token and credentials, refresh it
+  if (config.tokens.refresh_token && creds.clientId && creds.clientSecret) {
+    try {
+      const params = new URLSearchParams({
+        client_id: creds.clientId,
+        client_secret: creds.clientSecret,
+        refresh_token: config.tokens.refresh_token,
+        grant_type: 'refresh_token'
+      });
+
+      const resp = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        const newExpiry = nowMs + ((data.expires_in || 3600) * 1000);
+        const updatedConfig: GoogleSheetsConfigState = {
+          ...config,
+          tokens: {
+            ...config.tokens,
+            access_token: data.access_token,
+            expiry_date: newExpiry
+          }
+        };
+        saveGoogleSheetsConfig(updatedConfig);
+        return data.access_token;
+      }
+    } catch (refreshErr: any) {
+      console.warn('[GoogleSheets] Token refresh warning:', refreshErr.message);
+    }
+  }
+
+  // If access_token exists even if close to expiry, attempt with it
+  if (config.tokens.access_token) {
+    return config.tokens.access_token;
+  }
+
+  throw new Error('Google authorization token expired. Please click "Connect Google Sheets" to reconnect.');
+}
+
+// 1. GET /api/admin/google-sheets/status - Get current connection and sync status
+app.get('/api/admin/google-sheets/status', verifyAdminAuth, async (req, res) => {
+  const creds = getGoogleOAuthCredentials();
+  const redirectUri = getEffectiveGoogleRedirectUri(req);
+  const cfg = googleSheetsConfigState;
+
+  const isConnected = Boolean(
+    cfg.isConnected &&
+    (cfg.tokens?.access_token || cfg.tokens?.refresh_token)
+  );
+
+  return res.json({
+    success: true,
+    isConnected,
+    connectedEmail: cfg.connectedEmail || '',
+    connectedAt: cfg.connectedAt || null,
+    spreadsheetId: cfg.spreadsheetId || '',
+    spreadsheetName: cfg.spreadsheetName || '',
+    sheetName: cfg.sheetName || 'Email Subscribers',
+    spreadsheetUrl: cfg.spreadsheetUrl || (cfg.spreadsheetId ? `https://docs.google.com/spreadsheets/d/${cfg.spreadsheetId}` : ''),
+    lastSyncAt: cfg.lastSyncAt || null,
+    lastSyncCount: cfg.lastSyncCount || 0,
+    lastSyncStatus: cfg.lastSyncStatus || 'idle',
+    lastSyncError: cfg.lastSyncError || null,
+    hasCredentials: Boolean(creds.clientId && creds.clientSecret),
+    clientIdConfigured: Boolean(creds.clientId),
+    clientIdMasked: creds.clientId ? `${creds.clientId.slice(0, 8)}...${creds.clientId.slice(-8)}` : '',
+    redirectUri
+  });
+});
+
+// 2. GET /api/admin/google-sheets/auth-url - Initiate Google OAuth flow
+app.get('/api/admin/google-sheets/auth-url', verifyAdminAuth, async (req, res) => {
+  try {
+    const creds = getGoogleOAuthCredentials();
+    const redirectUri = getEffectiveGoogleRedirectUri(req);
+
+    if (!creds.clientId || !creds.clientSecret) {
+      return res.status(400).json({
+        success: false,
+        error: 'Google OAuth Client credentials are not configured.',
+        details: 'Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your environment or configure them in the Google Sheets panel below.',
+        redirectUri
+      });
+    }
+
+    const statePayload = {
+      uid: (req as any).user?.uid || 'admin',
+      ts: Date.now(),
+      rand: Math.random().toString(36).substring(2, 10)
+    };
+    const state = Buffer.from(JSON.stringify(statePayload)).toString('base64url');
+
+    const scopes = [
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ].join(' ');
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(creds.clientId)}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `response_type=code&` +
+      `scope=${encodeURIComponent(scopes)}&` +
+      `access_type=offline&` +
+      `prompt=consent&` +
+      `state=${encodeURIComponent(state)}`;
+
+    if (req.query.direct === 'true') {
+      return res.redirect(authUrl);
+    }
+
+    return res.json({
+      success: true,
+      authUrl,
+      redirectUri
+    });
+  } catch (err: any) {
+    console.error('Error creating Google auth URL:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Failed to generate auth URL' });
+  }
+});
+
+// 3. GET /api/admin/google-sheets/callback - Handle official Google OAuth 2.0 redirect callback
+app.get('/api/admin/google-sheets/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    console.warn('[GoogleSheets OAuth Callback] Google returned error:', error);
+    return res.redirect(`/admin/subscribers?sheets_error=${encodeURIComponent(String(error))}`);
+  }
+
+  if (!code || typeof code !== 'string') {
+    return res.redirect('/admin/subscribers?sheets_error=missing_authorization_code');
+  }
+
+  try {
+    const creds = getGoogleOAuthCredentials();
+    const redirectUri = getEffectiveGoogleRedirectUri(req);
+
+    if (!creds.clientId || !creds.clientSecret) {
+      return res.redirect('/admin/subscribers?sheets_error=missing_server_credentials');
+    }
+
+    // Exchange authorization code for tokens
+    const tokenParams = new URLSearchParams({
+      code,
+      client_id: creds.clientId,
+      client_secret: creds.clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code'
+    });
+
+    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: tokenParams.toString()
+    });
+
+    if (!tokenResp.ok) {
+      const errBody = await tokenResp.text();
+      console.error('[GoogleSheets Callback] Token exchange failed:', errBody);
+      return res.redirect(`/admin/subscribers?sheets_error=${encodeURIComponent('Token exchange failed: ' + errBody.slice(0, 100))}`);
+    }
+
+    const tokenData = await tokenResp.json();
+    const nowMs = Date.now();
+    const expiryDate = nowMs + ((tokenData.expires_in || 3600) * 1000);
+
+    // Fetch authorized user profile info
+    let connectedEmail = '';
+    try {
+      const userResp = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` }
+      });
+      if (userResp.ok) {
+        const userData = await userResp.json();
+        connectedEmail = userData.email || '';
+      }
+    } catch (uErr: any) {
+      console.warn('[GoogleSheets Callback] Could not fetch user email:', uErr.message);
+    }
+
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      isConnected: true,
+      connectedEmail: connectedEmail || googleSheetsConfigState.connectedEmail || 'Google Administrator',
+      connectedAt: new Date().toISOString(),
+      tokens: {
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token || googleSheetsConfigState.tokens?.refresh_token,
+        expiry_date: expiryDate,
+        token_type: tokenData.token_type || 'Bearer'
+      },
+      lastSyncStatus: 'idle',
+      lastSyncError: null
+    };
+
+    saveGoogleSheetsConfig(updatedConfig);
+    console.info(`[GoogleSheets] Successfully connected Google account: ${connectedEmail}`);
+
+    return res.redirect('/admin/subscribers?sheets_connected=true');
+  } catch (err: any) {
+    console.error('[GoogleSheets Callback] Error handling callback:', err);
+    return res.redirect(`/admin/subscribers?sheets_error=${encodeURIComponent(err.message || 'Authorization error')}`);
+  }
+});
+
+// 4. POST /api/admin/google-sheets/connect-token - Direct connection via client Google Auth token
+app.post('/api/admin/google-sheets/connect-token', verifyAdminAuth, async (req, res) => {
+  try {
+    const { accessToken, refreshToken, email } = req.body || {};
+    if (!accessToken || typeof accessToken !== 'string') {
+      return res.status(400).json({ success: false, error: 'Valid access token is required.' });
+    }
+
+    // Verify token with Google
+    let verifiedEmail = email || '';
+    try {
+      const userResp = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (userResp.ok) {
+        const uData = await userResp.json();
+        verifiedEmail = uData.email || verifiedEmail;
+      }
+    } catch {}
+
+    const nowMs = Date.now();
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      isConnected: true,
+      connectedEmail: verifiedEmail || 'Google Administrator',
+      connectedAt: new Date().toISOString(),
+      tokens: {
+        access_token: accessToken,
+        refresh_token: refreshToken || googleSheetsConfigState.tokens?.refresh_token,
+        expiry_date: nowMs + 3600 * 1000,
+        token_type: 'Bearer'
+      },
+      lastSyncStatus: 'idle',
+      lastSyncError: null
+    };
+
+    saveGoogleSheetsConfig(updatedConfig);
+
+    return res.json({
+      success: true,
+      message: 'Google Sheets successfully connected!',
+      connectedEmail: updatedConfig.connectedEmail,
+      connectedAt: updatedConfig.connectedAt
+    });
+  } catch (err: any) {
+    console.error('Error connecting with direct token:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Failed to connect token' });
+  }
+});
+
+// 5. POST /api/admin/google-sheets/config - Save custom Client ID / Secret in settings
+app.post('/api/admin/google-sheets/config', verifyAdminAuth, async (req, res) => {
+  try {
+    const { clientId, clientSecret } = req.body || {};
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      customCredentials: {
+        clientId: (clientId || '').trim(),
+        clientSecret: (clientSecret || '').trim()
+      }
+    };
+    saveGoogleSheetsConfig(updatedConfig);
+    return res.json({
+      success: true,
+      message: 'Google OAuth credentials saved successfully.',
+      hasCredentials: Boolean(updatedConfig.customCredentials?.clientId && updatedConfig.customCredentials?.clientSecret)
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 6. POST /api/admin/google-sheets/create-spreadsheet - Create structured destination spreadsheet
+app.post('/api/admin/google-sheets/create-spreadsheet', verifyAdminAuth, async (req, res) => {
+  try {
+    const accessToken = await getOrRefreshGoogleAccessToken();
+    const customTitle = req.body?.title || 'Opportunity Ghana - Email Subscribers';
+
+    // 1. Create spreadsheet with default "Email Subscribers" tab and frozen top row
+    const createResp = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        properties: {
+          title: customTitle
+        },
+        sheets: [
+          {
+            properties: {
+              title: 'Email Subscribers',
+              gridProperties: {
+                frozenRowCount: 1
+              }
+            }
+          }
+        ]
+      })
+    });
+
+    if (!createResp.ok) {
+      const errText = await createResp.text();
+      throw new Error(`Failed to create spreadsheet: ${errText}`);
+    }
+
+    const createdData = await createResp.json();
+    const spreadsheetId = createdData.spreadsheetId;
+    const sheetTitle = 'Email Subscribers';
+    const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}`;
+
+    // 2. Set Header Row with all opportunity categories & subscriber fields
+    const headers = [
+      'Subscriber ID',
+      'Email Address',
+      'Subscription Status',
+      'Scholarships',
+      'Grants & Funding',
+      'Jobs',
+      'Internships',
+      'Courses & Training',
+      'Fellowships',
+      'Admissions & Institutions',
+      'Competitions',
+      'Entrepreneurship',
+      'Graduate Programmes',
+      'Government Programmes',
+      'Skills Preferences',
+      'Location Preferences',
+      'Dispatch Frequency',
+      'Subscription Source',
+      'Date Subscribed',
+      'Last Updated'
+    ];
+
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetTitle)}!A1:T1?valueInputOption=USER_ENTERED`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        range: `${sheetTitle}!A1:T1`,
+        majorDimension: 'ROWS',
+        values: [headers]
+      })
+    });
+
+    // 3. Format header styling (Ghana dark green background #006B3F with bold white text)
+    try {
+      const sheetId = createdData.sheets?.[0]?.properties?.sheetId || 0;
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          requests: [
+            {
+              repeatCell: {
+                range: {
+                  sheetId,
+                  startRowIndex: 0,
+                  endRowIndex: 1
+                },
+                cell: {
+                  userEnteredFormat: {
+                    backgroundColor: { red: 0, green: 0.42, blue: 0.25 }, // #006B3F
+                    textFormat: {
+                      foregroundColor: { red: 1, green: 1, blue: 1 },
+                      bold: true,
+                      fontSize: 10
+                    },
+                    horizontalAlignment: 'LEFT'
+                  }
+                },
+                fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
+              }
+            },
+            {
+              autoResizeDimensions: {
+                dimensions: {
+                  sheetId,
+                  dimension: 'COLUMNS',
+                  startIndex: 0,
+                  endIndex: 20
+                }
+              }
+            }
+          ]
+        })
+      });
+    } catch (fmtErr: any) {
+      console.warn('[GoogleSheets] Header styling note:', fmtErr.message);
+    }
+
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      spreadsheetId,
+      spreadsheetName: customTitle,
+      sheetName: sheetTitle,
+      spreadsheetUrl
+    };
+    saveGoogleSheetsConfig(updatedConfig);
+
+    return res.json({
+      success: true,
+      message: `Spreadsheet "${customTitle}" created successfully!`,
+      spreadsheetId,
+      spreadsheetName: customTitle,
+      sheetName: sheetTitle,
+      spreadsheetUrl
+    });
+  } catch (err: any) {
+    console.error('Error creating spreadsheet:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Could not create spreadsheet' });
+  }
+});
+
+// 7. POST /api/admin/google-sheets/select-spreadsheet - Select existing spreadsheet & tab
+app.post('/api/admin/google-sheets/select-spreadsheet', verifyAdminAuth, async (req, res) => {
+  try {
+    const accessToken = await getOrRefreshGoogleAccessToken();
+    const rawIdOrUrl = (req.body?.spreadsheetId || '').trim();
+    const customSheetName = (req.body?.sheetName || '').trim();
+
+    if (!rawIdOrUrl) {
+      return res.status(400).json({ success: false, error: 'Spreadsheet ID or URL is required.' });
+    }
+
+    // Extract ID if full Google Sheets URL provided
+    let spreadsheetId = rawIdOrUrl;
+    const urlMatch = rawIdOrUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    if (urlMatch && urlMatch[1]) {
+      spreadsheetId = urlMatch[1];
+    }
+
+    // Verify access to spreadsheet and fetch sheet tabs
+    const metaResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    if (!metaResp.ok) {
+      const errText = await metaResp.text();
+      return res.status(400).json({
+        success: false,
+        error: `Could not access spreadsheet (${metaResp.status}). Ensure the connected Google account has edit permissions for this spreadsheet.`
+      });
+    }
+
+    const meta = await metaResp.json();
+    const spreadsheetName = meta.properties?.title || 'Connected Spreadsheet';
+    const sheetsList = (meta.sheets || []).map((s: any) => s.properties?.title || 'Sheet1');
+
+    const sheetName = customSheetName && sheetsList.includes(customSheetName)
+      ? customSheetName
+      : (sheetsList.includes('Email Subscribers') ? 'Email Subscribers' : sheetsList[0] || 'Sheet1');
+
+    const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}`;
+
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      spreadsheetId,
+      spreadsheetName,
+      sheetName,
+      spreadsheetUrl
+    };
+    saveGoogleSheetsConfig(updatedConfig);
+
+    return res.json({
+      success: true,
+      message: `Connected to spreadsheet "${spreadsheetName}".`,
+      spreadsheetId,
+      spreadsheetName,
+      sheetName,
+      spreadsheetUrl,
+      availableSheets: sheetsList
+    });
+  } catch (err: any) {
+    console.error('Error selecting spreadsheet:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Could not select spreadsheet' });
+  }
+});
+
+// 8. POST /api/admin/google-sheets/test-connection - Verify permissions and sheet access
+app.post('/api/admin/google-sheets/test-connection', verifyAdminAuth, async (req, res) => {
+  try {
+    const accessToken = await getOrRefreshGoogleAccessToken();
+    const cfg = googleSheetsConfigState;
+
+    if (!cfg.spreadsheetId) {
+      return res.status(400).json({
+        success: false,
+        error: 'No spreadsheet selected. Please select or create a destination spreadsheet first.'
+      });
+    }
+
+    const metaResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    if (!metaResp.ok) {
+      const errText = await metaResp.text();
+      return res.status(400).json({
+        success: false,
+        error: `Failed to connect to Google Sheet (${metaResp.status}). Check spreadsheet sharing permissions.`
+      });
+    }
+
+    const meta = await metaResp.json();
+    const title = meta.properties?.title || 'Spreadsheet';
+    const sheetName = cfg.sheetName || 'Email Subscribers';
+
+    // Test reading data range
+    let rowCount = 0;
+    try {
+      const valResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A:B`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (valResp.ok) {
+        const valData = await valResp.json();
+        rowCount = (valData.values || []).length;
+      }
+    } catch {}
+
+    return res.json({
+      success: true,
+      message: `Connection verified! Successfully connected to "${title}" (tab: "${sheetName}").`,
+      spreadsheetTitle: title,
+      sheetName,
+      rowCount,
+      connectedEmail: cfg.connectedEmail,
+      permissionsVerified: true
+    });
+  } catch (err: any) {
+    console.error('Error testing Google Sheets connection:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Connection test failed' });
+  }
+});
+
+// 9. POST /api/admin/google-sheets/sync - Synchronize CMS subscribers to Google Sheets with duplicate prevention
+app.post('/api/admin/google-sheets/sync', verifyAdminAuth, async (req, res) => {
+  try {
+    const accessToken = await getOrRefreshGoogleAccessToken();
+    const cfg = googleSheetsConfigState;
+
+    if (!cfg.spreadsheetId) {
+      return res.status(400).json({
+        success: false,
+        error: 'No spreadsheet selected. Please create or choose a spreadsheet first.'
+      });
+    }
+
+    const sheetName = cfg.sheetName || 'Email Subscribers';
+    const subscribers = Array.from(serverAlertSubscribersMap.values());
+
+    // 1. Fetch current rows from destination worksheet
+    const getResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A:T`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    let existingRows: string[][] = [];
+    if (getResp.ok) {
+      const sheetData = await getResp.json();
+      existingRows = sheetData.values || [];
+    }
+
+    const headers = [
+      'Subscriber ID',
+      'Email Address',
+      'Subscription Status',
+      'Scholarships',
+      'Grants & Funding',
+      'Jobs',
+      'Internships',
+      'Courses & Training',
+      'Fellowships',
+      'Admissions & Institutions',
+      'Competitions',
+      'Entrepreneurship',
+      'Graduate Programmes',
+      'Government Programmes',
+      'Skills Preferences',
+      'Location Preferences',
+      'Dispatch Frequency',
+      'Subscription Source',
+      'Date Subscribed',
+      'Last Updated'
+    ];
+
+    // If worksheet is empty or missing headers, insert headers row at A1
+    if (existingRows.length === 0) {
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A1:T1?valueInputOption=USER_ENTERED`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          range: `${sheetName}!A1:T1`,
+          majorDimension: 'ROWS',
+          values: [headers]
+        })
+      });
+      existingRows = [headers];
+    }
+
+    // Map existing rows by email (column B / index 1) and by Subscriber ID (column A / index 0)
+    // 1-indexed for Google Sheets row numbers: row 1 is headers, data starts at row 2
+    const existingRowIndexByEmail = new Map<string, number>();
+    const existingRowIndexById = new Map<string, number>();
+
+    for (let i = 1; i < existingRows.length; i++) {
+      const row = existingRows[i];
+      const rowId = (row[0] || '').trim();
+      const rowEmail = normalizeAlertEmail(row[1] || '');
+      const sheetRowNum = i + 1;
+
+      if (rowId) existingRowIndexById.set(rowId, sheetRowNum);
+      if (rowEmail) existingRowIndexByEmail.set(rowEmail, sheetRowNum);
+    }
+
+    // Helper to format subscriber into exact spreadsheet row values
+    const formatSubscriberRow = (sub: any): string[] => {
+      const cats = Array.isArray(sub.categories) ? sub.categories : [];
+      const has = (re: RegExp) => cats.some((c: string) => re.test(c)) ? 'Yes' : 'No';
+      const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join(', ') : 'All Ghana';
+      const createdDate = sub.createdAt ? new Date(sub.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+      const updatedDate = sub.updatedAt ? new Date(sub.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+      const statusLabel = (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed';
+
+      return [
+        sub.id || '',
+        sub.email || '',
+        statusLabel,
+        has(/scholarship/i),
+        has(/grant/i),
+        has(/job/i),
+        has(/intern/i),
+        has(/course|training/i),
+        has(/fellowship/i),
+        has(/admiss/i),
+        has(/compet/i),
+        has(/entrepreneur/i),
+        has(/graduate/i),
+        has(/government/i),
+        has(/skill/i),
+        regs,
+        (sub.frequency || 'Daily').toUpperCase(),
+        sub.source || 'Website',
+        createdDate,
+        updatedDate
+      ];
+    };
+
+    const batchUpdates: { range: string; values: string[][] }[] = [];
+    const rowsToAppend: string[][] = [];
+
+    let updatedCount = 0;
+    let addedCount = 0;
+
+    for (const sub of subscribers) {
+      const emailKey = normalizeAlertEmail(sub.email);
+      const targetRowNum = existingRowIndexByEmail.get(emailKey) || existingRowIndexById.get(sub.id);
+      const rowValues = formatSubscriberRow(sub);
+
+      if (targetRowNum) {
+        // Update existing row in place without creating duplicates
+        batchUpdates.push({
+          range: `${sheetName}!A${targetRowNum}:T${targetRowNum}`,
+          values: [rowValues]
+        });
+        updatedCount++;
+      } else {
+        // Append as new row
+        rowsToAppend.push(rowValues);
+        addedCount++;
+      }
+    }
+
+    // Execute Batch Updates for existing rows
+    if (batchUpdates.length > 0) {
+      // Chunk batch updates to max 200 per call for API safety
+      const chunkSize = 200;
+      for (let i = 0; i < batchUpdates.length; i += chunkSize) {
+        const chunk = batchUpdates.slice(i, i + chunkSize);
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values:batchUpdate`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            valueInputOption: 'USER_ENTERED',
+            data: chunk
+          })
+        });
+      }
+    }
+
+    // Append new subscriber rows
+    if (rowsToAppend.length > 0) {
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A:T:append?valueInputOption=USER_ENTERED`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          range: `${sheetName}!A:T`,
+          majorDimension: 'ROWS',
+          values: rowsToAppend
+        })
+      });
+    }
+
+    const now = new Date().toISOString();
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...cfg,
+      lastSyncAt: now,
+      lastSyncCount: subscribers.length,
+      lastSyncStatus: 'success',
+      lastSyncError: null
+    };
+    saveGoogleSheetsConfig(updatedConfig);
+
+    console.info(`[GoogleSheets Sync] Successfully synchronized ${subscribers.length} subscribers (${addedCount} added, ${updatedCount} updated).`);
+
+    return res.json({
+      success: true,
+      message: `Synchronized ${subscribers.length} subscriber records to Google Sheet (${addedCount} added, ${updatedCount} updated in-place).`,
+      totalSubscribers: subscribers.length,
+      addedCount,
+      updatedCount,
+      lastSyncAt: now,
+      spreadsheetUrl: cfg.spreadsheetUrl
+    });
+  } catch (err: any) {
+    console.error('Error synchronizing to Google Sheets:', err);
+    const now = new Date().toISOString();
+    saveGoogleSheetsConfig({
+      ...googleSheetsConfigState,
+      lastSyncStatus: 'failed',
+      lastSyncError: err.message || 'Synchronization failed',
+      lastSyncAt: now
+    });
+    return res.status(500).json({ success: false, error: err.message || 'Synchronization failed' });
+  }
+});
+
+// 10. POST /api/admin/google-sheets/disconnect - Safely disconnect Google Sheets
+app.post('/api/admin/google-sheets/disconnect', verifyAdminAuth, async (req, res) => {
+  try {
+    const updatedConfig: GoogleSheetsConfigState = {
+      ...googleSheetsConfigState,
+      isConnected: false,
+      connectedEmail: undefined,
+      connectedAt: null,
+      tokens: undefined,
+      lastSyncStatus: 'idle',
+      lastSyncError: null
+    };
+    saveGoogleSheetsConfig(updatedConfig);
+    console.info('[GoogleSheets] Disconnected Google Sheets integration.');
+    return res.json({
+      success: true,
+      message: 'Google Sheets disconnected safely.'
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
