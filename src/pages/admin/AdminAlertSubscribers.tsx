@@ -28,10 +28,8 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  FileSpreadsheet,
-  Workflow
+  FileSpreadsheet
 } from 'lucide-react';
-import { ActivepiecesAutomationTab } from './ActivepiecesAutomationTab';
 
 interface AdminAlertSubscribersProps {
   onNavigate: (path: string) => void;
@@ -66,7 +64,6 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
   const [dispatching, setDispatching] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'subscribers' | 'activepieces'>('subscribers');
 
   // Fetch subscribers from server & database
   const loadSubscribers = async (showRefreshIndicator = false) => {
@@ -331,42 +328,7 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
         </div>
       </div>
 
-      {/* Tab Navigation Switcher */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-1">
-        <button
-          onClick={() => setActiveTab('subscribers')}
-          className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === 'subscribers'
-              ? 'bg-[#006B3F] text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
-          <Mail className="w-4 h-4" />
-          <span>Subscribers Directory</span>
-          <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${activeTab === 'subscribers' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
-            {metrics.total}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('activepieces')}
-          className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === 'activepieces'
-              ? 'bg-[#006B3F] text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
-          <Workflow className="w-4 h-4" />
-          <span>Activepieces Daily Automation Engine</span>
-          <span className="w-2 h-2 rounded-full bg-[#FCD116]" />
-        </button>
-      </div>
-
-      {activeTab === 'activepieces' ? (
-        <ActivepiecesAutomationTab onTriggerSuccess={() => loadSubscribers(true)} />
-      ) : (
-        <>
-          {/* Notifications */}
+      {/* Notifications */}
       {actionSuccess && (
         <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -807,8 +769,6 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
           </div>
         )}
       </div>
-        </>
-      )}
     </div>
   );
 };

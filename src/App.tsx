@@ -302,7 +302,6 @@ export function AppContent() {
         <Navbar
           currentPath={currentPath}
           onNavigate={navigate}
-          onOpenSearch={() => setSearchModalOpen(true)}
         />
       )}
 

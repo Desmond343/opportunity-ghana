@@ -255,59 +255,5 @@
       "job-newmont-it-analyst-ahafo",
       "job-paystack-devrel-ghana-remote"
     ]
-  },
-  {
-    "id": "sub_YWN0aXZlcGllY2VzX3VzZXJA_mv5ff9d7",
-    "email": "activepieces_user@example.com",
-    "phone": "+233241112233",
-    "whatsappEnabled": true,
-    "categories": [
-      "Technology",
-      "Internships"
-    ],
-    "regions": [
-      "Greater Accra"
-    ],
-    "frequency": "daily",
-    "status": "active",
-    "active": true,
-    "source": "Activepieces Integration Test",
-    "lastAlertSentAt": "2026-10-15T01:53:53.635Z",
-    "lastAlertTitle": "Mastercard Foundation Scholars Program 2027/2028 (University of Edinburgh)",
-    "alertsCount": 8,
-    "unsubscribedAt": null,
-    "createdAt": "2026-10-12T15:48:19.627Z",
-    "updatedAt": "2026-10-15T01:53:53.635Z",
-    "sentOpportunityIds": [
-      "job-telecel-solutions-architect",
-      "job-calbank-network-security-engineer",
-      "intern-google-swe-accra",
-      "intern-mtn-global-graduate-programme",
-      "intern-telecel-nextgen-graduate-programme",
-      "intern-giz-data-science-accra",
-      "intern-stanbic-graduate-trainee-accra",
-      "intern-absa-gen-a-graduate-programme",
-      "intern-nestle-graduate-trainee-accra",
-      "intern-unicef-ghana-advocacy",
-      "intern-mest-ai-startup-traineeship-2027",
-      "intern-pwc-trust-ambassador-vacation",
-      "intern-kpmg-graduate-trainee-accra",
-      "intern-deloitte-graduate-experience-programme",
-      "intern-guinness-ghana-nss-programme",
-      "intern-undp-ghana-communications-intern",
-      "comp-cyberx-ghana-ctf-championship",
-      "opp_sub_1791752052687_i7byg",
-      "opp-chevening-uk-2027",
-      "opp-commonwealth-masters-2027",
-      "opp-commonwealth-phd-2027",
-      "opp-gates-cambridge-2027",
-      "opp-knight-hennessy-stanford-2027",
-      "opp-government-of-ireland-postgrad-2027",
-      "opp-mandela-washington-fellowship-2027",
-      "opp-swiss-government-excellence-2027",
-      "opp-edinburgh-mastercard-foundation-2027",
-      "opp-eiffel-excellence-france-2027",
-      "opp-oxford-weidenfeld-hoffmann-2027"
-    ]
   }
 ]

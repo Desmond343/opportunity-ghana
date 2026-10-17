@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/activepiecesApiKey.test.ts && tsx tests/activepiecesProductionApi.test.ts",
+    "test": "tsx src/services/__tests__/deadlineService.test.ts",
     "set-admin": "tsx scripts/set-admin.ts"
   },
   "dependencies": {

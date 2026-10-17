@@ -13,22 +13,6 @@ import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndIn
 import { VERIFIED_REAL_COMPETITIONS } from './src/data/verifiedCompetitions.ts';
 import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
 import * as XLSX from 'xlsx';
-import {
-  getActivepiecesConfig,
-  getPublicActivepiecesConfig,
-  saveActivepiecesConfig,
-  getDeliveryReports,
-  verifyActivepiecesAuth,
-  triggerActivepiecesSubscriberWebhook,
-  generateActivepiecesFlowJson,
-  executeActivepiecesAlertRun,
-  generateNewApiKey,
-  generateNewApiKeyAsync,
-  revokeCurrentApiKey,
-  revokeCurrentApiKeyAsync,
-  fetchActivepiecesConfigFromFirestore,
-  PRODUCTION_ACTIVEPIECES_BASE_URL
-} from './server/activepiecesService.ts';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
@@ -54,14 +38,14 @@ app.use((req, res, next) => {
 
 // Normalize incoming request path for Vercel Serverless Function rewrites
 app.use((req, res, next) => {
-  const forwardedUri = (req.headers['x-forwarded-uri'] || req.headers['x-matched-path']) as string | undefined;
-  if (forwardedUri && forwardedUri.startsWith('/api') && (req.url === '/api' || req.url === '/api/' || !req.url.startsWith('/api'))) {
-    req.url = forwardedUri;
-  } else if ((req.url === '/api' || req.url === '/api/') && req.query && req.query.path) {
-    const subpath = Array.isArray(req.query.path) ? req.query.path.join('/') : String(req.query.path);
-    req.url = '/api/' + subpath.replace(/^\/+/, '');
-  } else if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/@') && !req.url.startsWith('/src')) {
-    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  if (process.env.VERCEL) {
+    const forwardedUri = (req.headers['x-forwarded-uri'] || req.headers['x-matched-path']) as string | undefined;
+    if (forwardedUri && forwardedUri.startsWith('/api') && (req.url === '/api' || req.url === '/api/' || !req.url.startsWith('/api'))) {
+      req.url = forwardedUri;
+    } else if ((req.url === '/api' || req.url === '/api/') && req.query && req.query.path) {
+      const subpath = Array.isArray(req.query.path) ? req.query.path.join('/') : String(req.query.path);
+      req.url = '/api/' + subpath.replace(/^\/+/, '');
+    }
   }
   next();
 });
@@ -1721,6 +1705,13 @@ function loadServerAlertSubscribers(): Map<string, any> {
 
 const serverAlertSubscribersMap = loadServerAlertSubscribers();
 
+// Purge legacy Activepieces integration configuration from Firestore if present
+if (adminDb && isInitialized) {
+  try {
+    adminDb.collection('settings').doc('activepieces_config').delete().catch(() => {});
+  } catch {}
+}
+
 function persistServerAlertSubscribers() {
   try {
     if (!fs.existsSync(path.dirname(ALERT_SUBSCRIBERS_FILE))) {
@@ -1822,13 +1813,6 @@ app.post('/api/alerts/subscribe', async (req, res) => {
       }
     }
 
-    // Trigger Activepieces webhook asynchronously (server-side, never exposes secrets to frontend)
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
-    const webhookEvent = !existing ? 'subscriber.created' : 'subscriber.updated';
-    triggerActivepiecesSubscriberWebhook(webhookEvent, subscriberRecord, baseUrl).catch((err) => {
-      console.warn('[Activepieces Webhook trigger error]:', err);
-    });
-
     let message = 'Thank you! You are now subscribed to verified daily opportunity alerts.';
     if (alreadySubscribed) {
       message = 'Your alert preferences have been updated. You are already subscribed to daily alerts.';
@@ -1891,12 +1875,6 @@ app.post('/api/alerts/unsubscribe', async (req, res) => {
         console.warn('Firestore admin unsubscribe notice:', err.message);
       }
     }
-
-    // Trigger Activepieces webhook asynchronously on unsubscribe
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
-    triggerActivepiecesSubscriberWebhook('subscriber.unsubscribed', updated, baseUrl).catch((err) => {
-      console.warn('[Activepieces Webhook unsubscribe error]:', err);
-    });
 
     return res.json({ success: true, message: 'You have been successfully unsubscribed from daily alerts.' });
   } catch (err: any) {
@@ -2278,336 +2256,6 @@ app.post('/api/admin/alerts/audit-export', verifyAdminAuth, async (req, res) => 
     return res.json({ success: true, auditEntry });
   } catch (err: any) {
     return res.json({ success: false, error: err.message });
-  }
-});
-
-// =========================================================================
-// ACTIVEPIECES AUTOMATION PLATFORM INTEGRATION ENDPOINTS
-// =========================================================================
-
-// GET /api/activepieces/subscribers - Secured endpoint for Activepieces to fetch active subscribers
-app.get('/api/activepieces/subscribers', verifyActivepiecesAuth, async (req, res) => {
-  try {
-    const limit = Math.max(1, Math.min(1000, parseInt((req.query.limit as string) || '500', 10)));
-    const page = Math.max(1, parseInt((req.query.page as string) || '1', 10));
-
-    const activeList = Array.from(serverAlertSubscribersMap.values())
-      .filter((s) => s.status === 'active' && s.active !== false)
-      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-
-    const total = activeList.length;
-    const paginated = activeList.slice((page - 1) * limit, page * limit);
-    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
-
-    const formatted = paginated.map((sub) => ({
-      id: sub.id,
-      email: sub.email,
-      categories: sub.categories || ['Scholarships', 'Jobs', 'Internships', 'Grants', 'Training'],
-      regions: sub.regions || ['All Ghana'],
-      frequency: sub.frequency || 'daily',
-      phone: sub.phone || '',
-      whatsappEnabled: Boolean(sub.whatsappEnabled),
-      status: sub.status || 'active',
-      sentOpportunityIds: sub.sentOpportunityIds || [],
-      lastAlertSentAt: sub.lastAlertSentAt || null,
-      alertsCount: sub.alertsCount || 0,
-      createdAt: sub.createdAt,
-      unsubscribeUrl: `${baseUrl}/alerts?email=${encodeURIComponent(sub.email)}&action=unsubscribe`,
-      preferencesUrl: `${baseUrl}/alerts?email=${encodeURIComponent(sub.email)}`
-    }));
-
-    return res.json({
-      success: true,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit) || 1,
-      subscribers: formatted
-    });
-  } catch (err: any) {
-    console.error('[Activepieces API /subscribers Error]', err);
-    return res.status(500).json({ error: 'Failed to retrieve active alert subscribers' });
-  }
-});
-
-// GET /api/activepieces/opportunities - Secured endpoint for Activepieces to fetch approved, published listings
-app.get('/api/activepieces/opportunities', verifyActivepiecesAuth, async (req, res) => {
-  try {
-    const limit = Math.max(1, Math.min(500, parseInt((req.query.limit as string) || '100', 10)));
-    const category = (req.query.category as string || '').toLowerCase().trim();
-    const now = new Date();
-
-    const allOppsMap = new Map<string, any>();
-    for (const opp of serverPublishedOppsMap.values()) {
-      if (opp && opp.id) allOppsMap.set(opp.id, opp);
-    }
-    for (const v of ALL_VERIFIED_INITIAL) {
-      if (v && v.id && !allOppsMap.has(v.id)) allOppsMap.set(v.id, v);
-    }
-
-    let opportunities = Array.from(allOppsMap.values()).filter((opp) => {
-      // Must be published and approved
-      if (opp.status !== 'published' && opp.status !== 'approved') return false;
-      if (opp.submissionStatus === 'rejected' || opp.submissionStatus === 'pending') return false;
-
-      // Filter out past deadlines
-      if (opp.deadline) {
-        try {
-          const d = new Date(opp.deadline.includes('T') ? opp.deadline : `${opp.deadline}T23:59:59Z`);
-          if (!isNaN(d.getTime()) && d.getTime() < now.getTime()) {
-            return false;
-          }
-        } catch {}
-      }
-
-      // Category filter if supplied
-      if (category) {
-        const oppCat = (opp.category || '').toLowerCase();
-        if (!oppCat.includes(category)) return false;
-      }
-
-      return true;
-    });
-
-    // Sort newest updated / published first
-    opportunities.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime());
-
-    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
-    const results = opportunities.slice(0, limit).map((opp) => ({
-      id: opp.id,
-      slug: opp.slug,
-      title: opp.title,
-      organizationName: opp.organizationName || 'Verified Partner',
-      category: opp.category,
-      subcategory: opp.subcategory,
-      opportunityType: opp.opportunityType,
-      fundingType: opp.fundingType,
-      location: opp.location,
-      region: opp.region,
-      deadline: opp.deadline,
-      description: opp.description,
-      applicationUrl: opp.applicationUrl || opp.officialApplicationUrl,
-      publicUrl: `${baseUrl}/opportunities/${opp.slug || opp.id}`,
-      imageUrl: opp.imageUrl ? (opp.imageUrl.startsWith('http') ? opp.imageUrl : `${baseUrl}${opp.imageUrl}`) : undefined,
-      publishedAt: opp.updatedAt || opp.createdAt
-    }));
-
-    return res.json({
-      success: true,
-      total: results.length,
-      opportunities: results
-    });
-  } catch (err: any) {
-    console.error('[Activepieces API /opportunities Error]', err);
-    return res.status(500).json({ error: 'Failed to retrieve active opportunities' });
-  }
-});
-
-// POST /api/activepieces/trigger-daily-run - Automation execution endpoint
-app.post('/api/activepieces/trigger-daily-run', verifyActivepiecesAuth, async (req, res) => {
-  try {
-    const { fallbackPolicy, simulateOnly } = req.body || {};
-    const baseUrl = PRODUCTION_ACTIVEPIECES_BASE_URL;
-
-    const result = await executeActivepiecesAlertRun(
-      baseUrl,
-      serverAlertSubscribersMap,
-      persistServerAlertSubscribers,
-      serverPublishedOppsMap,
-      ALL_VERIFIED_INITIAL,
-      adminDb,
-      { fallbackPolicy, simulateOnly: Boolean(simulateOnly) }
-    );
-
-    return res.json(result);
-  } catch (err: any) {
-    console.error('[Activepieces Trigger Daily Run Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Execution failed' });
-  }
-});
-
-// GET /api/admin/activepieces/config - Admin route to retrieve current Activepieces settings & metrics
-app.get('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
-  try {
-    const safeConfig = getPublicActivepiecesConfig();
-    const reports = getDeliveryReports(20);
-    const flowJson = generateActivepiecesFlowJson(PRODUCTION_ACTIVEPIECES_BASE_URL);
-
-    return res.json({
-      success: true,
-      config: safeConfig,
-      reports,
-      flowJson,
-      endpoints: {
-        subscribers: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/subscribers`,
-        opportunities: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/opportunities`,
-        triggerDailyRun: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/activepieces/trigger-daily-run`,
-        webhookTarget: safeConfig.webhookUrl || 'Not configured yet',
-        flowImport: `${PRODUCTION_ACTIVEPIECES_BASE_URL}/api/admin/activepieces/flow.json`
-      }
-    });
-  } catch (err: any) {
-    console.error('[Activepieces Get Config Error]', err);
-    return res.status(500).json({ error: 'Failed to retrieve Activepieces configuration' });
-  }
-});
-
-// POST /api/admin/activepieces/api-key/generate - Admin endpoint to generate a new cryptographically secure API key
-app.post('/api/admin/activepieces/api-key/generate', verifyAdminAuth, async (req, res) => {
-  try {
-    const user = (req as any).user || {};
-    const authHeader = (req.headers.authorization || '') as string;
-    const adminToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-
-    const result = await generateNewApiKeyAsync(
-      {
-        name: user.name || 'Administrator',
-        email: user.email || 'admin@opportunityghana.com'
-      },
-      adminToken
-    );
-
-    return res.json({
-      success: true,
-      apiKey: result.rawKey,
-      keyInfo: {
-        status: result.keyInfo.status,
-        keyPrefix: result.keyInfo.keyPrefix,
-        keySuffix: result.keyInfo.keySuffix,
-        maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
-        createdAt: result.keyInfo.createdAt,
-        revokedAt: result.keyInfo.revokedAt,
-        lastUsedAt: result.keyInfo.lastUsedAt,
-        createdByName: result.keyInfo.createdByName,
-        createdByEmail: result.keyInfo.createdByEmail
-      },
-      message: 'New Activepieces API key generated successfully. Copy this key now, as it will never be displayed again.'
-    });
-  } catch (err: any) {
-    console.error('[Activepieces Key Generate Error]', err);
-    return res.status(500).json({ success: false, error: err?.message || 'Failed to generate Activepieces API key' });
-  }
-});
-
-// POST /api/admin/activepieces/api-key/revoke - Admin endpoint to revoke current API key
-app.post('/api/admin/activepieces/api-key/revoke', verifyAdminAuth, async (req, res) => {
-  try {
-    const user = (req as any).user || {};
-    const authHeader = (req.headers.authorization || '') as string;
-    const adminToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-
-    const result = await revokeCurrentApiKeyAsync(
-      {
-        name: user.name || 'Administrator',
-        email: user.email || 'admin@opportunityghana.com'
-      },
-      adminToken
-    );
-
-    if (!result.success) {
-      return res.status(400).json({ success: false, error: result.error || 'Failed to revoke API key' });
-    }
-
-    return res.json({
-      success: true,
-      keyInfo: result.keyInfo
-        ? {
-            status: result.keyInfo.status,
-            keyPrefix: result.keyInfo.keyPrefix,
-            keySuffix: result.keyInfo.keySuffix,
-            maskedDisplay: `${result.keyInfo.keyPrefix}••••••••${result.keyInfo.keySuffix}`,
-            createdAt: result.keyInfo.createdAt,
-            revokedAt: result.keyInfo.revokedAt,
-            lastUsedAt: result.keyInfo.lastUsedAt
-          }
-        : undefined,
-      message: 'Activepieces API key has been revoked. All incoming integration requests using this key will now be rejected.'
-    });
-  } catch (err: any) {
-    console.error('[Activepieces Key Revoke Error]', err);
-    return res.status(500).json({ success: false, error: err?.message || 'Failed to revoke Activepieces API key' });
-  }
-});
-
-// GET /api/admin/activepieces/api-key/status - Admin endpoint to retrieve current key status
-app.get('/api/admin/activepieces/api-key/status', verifyAdminAuth, (req, res) => {
-  try {
-    const safeConfig = getPublicActivepiecesConfig();
-    return res.json({
-      success: true,
-      keyInfo: safeConfig.apiKeyInfo
-    });
-  } catch (err: any) {
-    return res.status(500).json({ success: false, error: 'Failed to fetch API key status' });
-  }
-});
-
-// POST /api/admin/activepieces/config - Admin route to update Activepieces settings
-app.post('/api/admin/activepieces/config', verifyAdminAuth, (req, res) => {
-  try {
-    const { webhookUrl, webhookSecret, scheduleCron, scheduleTime, enabled, fallbackPolicy, emailProvider, fromEmail, fromName } = req.body || {};
-    saveActivepiecesConfig({
-      ...(webhookUrl !== undefined ? { webhookUrl: webhookUrl.trim() } : {}),
-      ...(webhookSecret !== undefined && webhookSecret.trim() ? { webhookSecret: webhookSecret.trim() } : {}),
-      ...(scheduleCron !== undefined ? { scheduleCron: scheduleCron.trim() } : {}),
-      ...(scheduleTime !== undefined ? { scheduleTime: scheduleTime.trim() } : {}),
-      ...(enabled !== undefined ? { enabled: Boolean(enabled) } : {}),
-      ...(fallbackPolicy !== undefined ? { fallbackPolicy } : {}),
-      ...(emailProvider !== undefined ? { emailProvider } : {}),
-      ...(fromEmail !== undefined ? { fromEmail: fromEmail.trim() } : {}),
-      ...(fromName !== undefined ? { fromName: fromName.trim() } : {})
-    });
-
-    return res.json({
-      success: true,
-      config: getPublicActivepiecesConfig(),
-      message: 'Activepieces configuration updated successfully.'
-    });
-  } catch (err: any) {
-    console.error('[Activepieces Update Config Error]', err);
-    return res.status(500).json({ error: 'Failed to save Activepieces configuration' });
-  }
-});
-
-// GET /api/admin/activepieces/flow.json - Downloadable or importable JSON for Activepieces workflow builder
-app.get('/api/admin/activepieces/flow.json', verifyAdminAuth, (req, res) => {
-  try {
-    const user = (req as any).user || {};
-    // Always generate workflow with canonical production base URL
-    const flowJson = generateActivepiecesFlowJson(PRODUCTION_ACTIVEPIECES_BASE_URL);
-
-    console.info(`[Activepieces] Authorized admin (${user.email || user.uid || 'admin'}) accessed/downloaded Activepieces flow.json`);
-
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Content-Disposition', 'attachment; filename="opportunity-ghana-activepieces-flow.json"');
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-
-    return res.status(200).send(JSON.stringify(flowJson, null, 2));
-  } catch (err: any) {
-    console.error('[Activepieces] Error generating flow JSON:', err.message);
-    return res.status(500).json({ error: 'Failed to generate Activepieces flow definition' });
-  }
-});
-
-// POST /api/admin/activepieces/test-run - Admin manual trigger test using Activepieces engine
-app.post('/api/admin/activepieces/test-run', verifyAdminAuth, async (req, res) => {
-  try {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'localhost:3000'}`;
-    const result = await executeActivepiecesAlertRun(
-      baseUrl,
-      serverAlertSubscribersMap,
-      persistServerAlertSubscribers,
-      serverPublishedOppsMap,
-      ALL_VERIFIED_INITIAL,
-      adminDb,
-      { simulateOnly: false }
-    );
-
-    return res.json(result);
-  } catch (err: any) {
-    console.error('[Activepieces Test Run Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Test run failed' });
   }
 });
 
