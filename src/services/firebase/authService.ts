@@ -156,6 +156,36 @@ export const FirebaseAuthService = {
     }
   },
 
+  /**
+   * Request Google Sheets authorization with offline access and required spreadsheets scopes.
+   * Obtains an OAuth 2.0 access token for Google Sheets API operations.
+   */
+  async authorizeGoogleSheets(): Promise<{ accessToken: string; email: string; user: FirebaseUser }> {
+    if (!auth) {
+      throw new Error('Authentication service is not initialized.');
+    }
+    const sheetsProvider = new GoogleAuthProvider();
+    sheetsProvider.addScope('https://www.googleapis.com/auth/spreadsheets');
+    sheetsProvider.addScope('https://www.googleapis.com/auth/drive.file');
+    sheetsProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+    sheetsProvider.setCustomParameters({
+      prompt: 'consent',
+      access_type: 'offline'
+    });
+
+    const result = await signInWithPopup(auth, sheetsProvider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential?.accessToken) {
+      throw new Error('Failed to obtain Google Sheets access token from authentication.');
+    }
+
+    return {
+      accessToken: credential.accessToken,
+      email: result.user.email || '',
+      user: result.user
+    };
+  },
+
   async signOut(): Promise<void> {
     if (auth) {
       await fbSignOut(auth);

@@ -1,0 +1,18 @@
+{
+  "isConnected": true,
+  "connectedEmail": "alerts@opportunityghana.site",
+  "connectedAt": "2026-10-18T00:25:00.593Z",
+  "sheetName": "Email Subscribers",
+  "lastSyncStatus": "idle",
+  "lastSyncCount": 0,
+  "customCredentials": {
+    "clientId": "123456789-test.apps.googleusercontent.com",
+    "clientSecret": "GOCSPX-testSecret"
+  },
+  "tokens": {
+    "access_token": "ya29.test-demo-access-token",
+    "expiry_date": 1792286700593,
+    "token_type": "Bearer"
+  },
+  "lastSyncError": null
+}

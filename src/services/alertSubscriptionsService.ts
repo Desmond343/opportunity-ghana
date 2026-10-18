@@ -38,6 +38,51 @@ function normalizeEmail(email: string): string {
   return (email || '').trim().toLowerCase();
 }
 
+/**
+ * Safe API response parser conforming to production error handling guidelines.
+ * Reads HTTP status, inspects content-type, trims raw text, and extracts diagnostic details
+ * without crashing with "Unexpected token 'A', 'A server e'... is not valid JSON".
+ */
+export async function parseApiResponse<T = any>(response: Response, context = 'API request'): Promise<T> {
+  const contentType = (response.headers.get('content-type') || '').toLowerCase();
+  const rawBody = await response.text();
+  const trimmed = rawBody.trim();
+
+  let data: any = null;
+
+  if (trimmed) {
+    if (contentType.includes('application/json') || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        data = JSON.parse(trimmed);
+      } catch {
+        const snippet = trimmed.slice(0, 160);
+        throw new Error(`The server returned invalid JSON (HTTP ${response.status}) for ${context}. Response: "${snippet}"`);
+      }
+    } else {
+      // Server returned HTML (502/504 Bad Gateway, Cloudflare, etc.) or plain-text error (Vercel FUNCTION_INVOCATION_FAILED)
+      const cleanSnippet = trimmed.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+      const isHtml = contentType.includes('text/html') || trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html');
+      const detail = cleanSnippet || (isHtml ? 'HTML error page' : contentType || 'unknown non-JSON response');
+      throw new Error(`Server returned non-JSON response (HTTP ${response.status}) for ${context}: ${detail}`);
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      data?.error?.message ||
+      data?.error ||
+      data?.message ||
+      data?.details ||
+      `Request to ${context} failed with HTTP ${response.status}.`;
+    const err: any = new Error(typeof message === 'string' ? message : JSON.stringify(message));
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+
+  return (data as T) ?? ({} as T);
+}
+
 export const AlertSubscriptionsService = {
   /**
    * Subscribe an email address to Opportunity Ghana alerts.
@@ -61,13 +106,11 @@ export const AlertSubscriptionsService = {
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.subscriber) {
-          this.cacheLocalSubscriber(data.subscriber);
-          window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: data.subscriber }));
-          return data;
-        }
+      const data = await parseApiResponse<any>(response, 'Alert subscription');
+      if (data && data.success && data.subscriber) {
+        this.cacheLocalSubscriber(data.subscriber);
+        window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: data.subscriber }));
+        return data;
       }
     } catch (apiErr) {
       console.warn('[AlertSubscriptionsService] API subscribe fallback note:', apiErr);
@@ -128,8 +171,8 @@ export const AlertSubscriptionsService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: normalized })
       });
-      if (response.ok) {
-        const data = await response.json();
+      const data = await parseApiResponse<{ success: boolean; message: string }>(response, 'Alerts unsubscribe');
+      if (data && data.success) {
         // Update local cache
         const cached = this.getLocalCachedSubscribers();
         const found = cached.find((s) => s.email.toLowerCase() === normalized);
@@ -219,13 +262,8 @@ export const AlertSubscriptionsService = {
         } catch {}
       }
 
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      } else if (response.status === 401 || response.status === 403) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || `Access restricted (${response.status}): Administrator credentials required.`);
-      }
+      const data = await parseApiResponse<AdminSubscribersResult>(response, 'Admin alert subscribers retrieval');
+      return data;
     } catch (err: any) {
       if (err.message && (err.message.includes('Access restricted') || err.message.includes('Forbidden') || err.message.includes('Administrator credentials'))) {
         throw err;
@@ -294,13 +332,11 @@ export const AlertSubscriptionsService = {
         },
         body: JSON.stringify({ status })
       });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.subscriber) {
-          this.cacheLocalSubscriber(data.subscriber);
-          window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: data.subscriber }));
-          return true;
-        }
+      const data = await parseApiResponse<any>(response, 'Subscriber status update');
+      if (data && data.success && data.subscriber) {
+        this.cacheLocalSubscriber(data.subscriber);
+        window.dispatchEvent(new CustomEvent('alert-subscribers-changed', { detail: data.subscriber }));
+        return true;
       }
     } catch (err) {
       console.warn('[AlertSubscriptionsService] API update status note:', err);
@@ -340,11 +376,10 @@ export const AlertSubscriptionsService = {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         }
       });
-      if (response.ok) {
-        this.removeLocalCachedSubscriber(id);
-        window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
-        return true;
-      }
+      await parseApiResponse<any>(response, 'Subscriber deletion');
+      this.removeLocalCachedSubscriber(id);
+      window.dispatchEvent(new CustomEvent('alert-subscribers-changed'));
+      return true;
     } catch (err) {
       console.warn('[AlertSubscriptionsService] API delete note:', err);
     }
@@ -373,12 +408,7 @@ export const AlertSubscriptionsService = {
       }
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to dispatch daily alert digest');
-    }
-
-    return response.json();
+    return parseApiResponse(response, 'Daily alert digest dispatch');
   },
 
   /**
@@ -639,7 +669,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets status check');
   },
 
   async getGoogleSheetsAuthUrl(tokenGetter?: () => Promise<string | null>): Promise<{ success: boolean; authUrl?: string; error?: string; redirectUri?: string }> {
@@ -654,7 +684,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets OAuth URL generation');
   },
 
   async connectGoogleSheetsToken(accessToken: string, email?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -671,7 +701,7 @@ export const AlertSubscriptionsService = {
       },
       body: JSON.stringify({ accessToken, email })
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets token connection');
   },
 
   async saveGoogleSheetsCredentials(clientId: string, clientSecret: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -688,7 +718,7 @@ export const AlertSubscriptionsService = {
       },
       body: JSON.stringify({ clientId, clientSecret })
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets credentials configuration');
   },
 
   async createGoogleSpreadsheet(title?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -703,9 +733,9 @@ export const AlertSubscriptionsService = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ title: title || 'Opportunity Ghana - Email Subscribers' })
+      body: JSON.stringify({ title: title || 'Opportunity Ghana Daily Alerts' })
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Spreadsheet creation');
   },
 
   async selectGoogleSpreadsheet(spreadsheetId: string, sheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -722,7 +752,7 @@ export const AlertSubscriptionsService = {
       },
       body: JSON.stringify({ spreadsheetId, sheetName })
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Spreadsheet selection');
   },
 
   async testGoogleSheetsConnection(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -738,7 +768,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets connection & permission test');
   },
 
   async syncGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -754,7 +784,47 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets subscriber synchronization');
+  },
+
+  async readGoogleSheetsSubscribers(tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/read-subscribers', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return parseApiResponse(res, 'Google Sheets subscribers read');
+  },
+
+  async logGoogleSheetsSentAlert(entry: {
+    subscriberEmail: string;
+    subscriberId?: string;
+    opportunityId?: string;
+    opportunityTitle?: string;
+    category?: string;
+    deliveryStatus: 'delivered' | 'failed' | 'queued';
+    details?: string;
+  }, tokenGetter?: () => Promise<string | null>): Promise<any> {
+    let token: string | null = null;
+    if (tokenGetter) {
+      try { token = await tokenGetter(); } catch {}
+    }
+
+    const res = await fetch('/api/admin/google-sheets/log-sent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(entry)
+    });
+    return parseApiResponse(res, 'Google Sheets SentLog recording');
   },
 
   async disconnectGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -770,7 +840,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return parseApiResponse(res, 'Google Sheets disconnect');
   },
 
   getLocalCachedSubscribers(): AlertSubscription[] {

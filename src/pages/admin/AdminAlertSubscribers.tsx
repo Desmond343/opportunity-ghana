@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../services/authContext';
 import { AlertSubscriptionsService } from '../../services/alertSubscriptionsService';
+import { FirebaseAuthService } from '../../services/firebase/authService';
 import { AlertSubscription, AlertSubscriberMetrics, GoogleSheetsConfig } from '../../types/database';
 import { OPPORTUNITY_CATEGORIES } from '../../data/categories';
 import {
@@ -30,7 +31,12 @@ import {
   ShieldCheck,
   FileSpreadsheet,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Settings,
+  Key,
+  Database,
+  FileText,
+  X
 } from 'lucide-react';
 
 interface AdminAlertSubscribersProps {
@@ -75,6 +81,13 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
   });
   const [sheetsLoading, setSheetsLoading] = useState(false);
   const [sheetsSyncing, setSheetsSyncing] = useState(false);
+  const [testingSheets, setTestingSheets] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [customClientId, setCustomClientId] = useState('');
+  const [customClientSecret, setCustomClientSecret] = useState('');
+  const [customSpreadsheetId, setCustomSpreadsheetId] = useState('');
+  const [showSelectModal, setShowSelectModal] = useState(false);
 
   const loadSheetsStatus = async () => {
     try {
@@ -82,27 +95,184 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
       if (res && res.success) {
         setSheetsConfig(res);
       }
-    } catch (err) {
-      console.warn('[AdminAlertSubscribers] Error loading sheets status:', err);
+    } catch (err: any) {
+      console.warn('[AdminAlertSubscribers] Error loading sheets status:', err?.message || err);
     }
   };
 
   useEffect(() => {
+    // Check URL query parameters for sheets callback
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('sheets_connected') === 'true') {
+        setActionSuccess('Google account successfully connected! Google Sheets integration is active.');
+        setTimeout(() => setActionSuccess(null), 8000);
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (searchParams.get('sheets_error')) {
+        const errorDetail = searchParams.get('sheets_error') || 'Unknown error';
+        setActionError(`Google Sheets authorization notice: ${decodeURIComponent(errorDetail)}`);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
     loadSheetsStatus();
   }, []);
 
   const handleConnectGoogleSheets = async () => {
     setSheetsLoading(true);
     setActionError(null);
+    setActionSuccess(null);
     try {
+      // 1. First attempt direct client-side Google popup authorization (most reliable across custom domains)
+      try {
+        const authResult = await FirebaseAuthService.authorizeGoogleSheets();
+        if (authResult?.accessToken) {
+          const connectRes = await AlertSubscriptionsService.connectGoogleSheetsToken(
+            authResult.accessToken,
+            authResult.email,
+            getIdToken
+          );
+          if (connectRes && connectRes.success) {
+            setActionSuccess(`Google account connected successfully as ${authResult.email || 'Administrator'}!`);
+            await loadSheetsStatus();
+            setTimeout(() => setActionSuccess(null), 8000);
+            setSheetsLoading(false);
+            return;
+          }
+        }
+      } catch (clientAuthErr: any) {
+        if (clientAuthErr.code === 'auth/popup-closed-by-user') {
+          setActionError('Google sign-in popup was cancelled.');
+          setSheetsLoading(false);
+          return;
+        }
+        console.info('[AdminAlertSubscribers] Direct popup note:', clientAuthErr.message);
+      }
+
+      // 2. Fallback to server-side OAuth flow
       const res = await AlertSubscriptionsService.getGoogleSheetsAuthUrl(getIdToken);
       if (res && res.success && res.authUrl) {
         window.location.href = res.authUrl;
       } else {
-        setActionError(res.error || 'Google OAuth client credentials are not configured on the server.');
+        setActionError(
+          res.error ||
+          'Google Sheets connection failed. Please ensure your Google Cloud project credentials are configured or connect via Google popup.'
+        );
       }
     } catch (err: any) {
       setActionError(err.message || 'Could not initiate Google Sheets connection');
+    } finally {
+      setSheetsLoading(false);
+    }
+  };
+
+  const handleTestSheetsConnection = async () => {
+    setTestingSheets(true);
+    setActionError(null);
+    setActionSuccess(null);
+    setTestResult(null);
+    try {
+      const res = await AlertSubscriptionsService.testGoogleSheetsConnection(getIdToken);
+      if (res && res.success) {
+        setTestResult(res);
+        setActionSuccess(res.message || 'Google Sheets connection and permissions verified successfully!');
+        loadSheetsStatus();
+      } else {
+        setActionError(res.error || 'Connection test failed');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Google Sheets connection test failed');
+    } finally {
+      setTestingSheets(false);
+    }
+  };
+
+  const handleCreateSpreadsheet = async () => {
+    setSheetsLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      const res = await AlertSubscriptionsService.createGoogleSpreadsheet('Opportunity Ghana Daily Alerts', getIdToken);
+      if (res && res.success) {
+        setActionSuccess(`Spreadsheet "${res.spreadsheetName}" created with Subscribers, SentLog, and TestLog!`);
+        await loadSheetsStatus();
+        setTimeout(() => setActionSuccess(null), 8000);
+      } else {
+        setActionError(res.error || 'Failed to create spreadsheet');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Error creating Google spreadsheet');
+    } finally {
+      setSheetsLoading(false);
+    }
+  };
+
+  const handleSelectSpreadsheet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customSpreadsheetId.trim()) return;
+    setSheetsLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      const res = await AlertSubscriptionsService.selectGoogleSpreadsheet(customSpreadsheetId.trim(), undefined, getIdToken);
+      if (res && res.success) {
+        setActionSuccess(`Connected to spreadsheet "${res.spreadsheetName}"!`);
+        setShowSelectModal(false);
+        setCustomSpreadsheetId('');
+        await loadSheetsStatus();
+        setTimeout(() => setActionSuccess(null), 8000);
+      } else {
+        setActionError(res.error || 'Failed to select spreadsheet');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Error selecting spreadsheet');
+    } finally {
+      setSheetsLoading(false);
+    }
+  };
+
+  const handleSaveCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSheetsLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      const res = await AlertSubscriptionsService.saveGoogleSheetsCredentials(
+        customClientId.trim(),
+        customClientSecret.trim(),
+        getIdToken
+      );
+      if (res && res.success) {
+        setActionSuccess('OAuth credentials saved successfully!');
+        setShowConfigModal(false);
+        await loadSheetsStatus();
+        setTimeout(() => setActionSuccess(null), 6000);
+      } else {
+        setActionError(res.error || 'Failed to save credentials');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Error saving credentials');
+    } finally {
+      setSheetsLoading(false);
+    }
+  };
+
+  const handleDisconnectSheets = async () => {
+    if (!window.confirm('Are you sure you want to disconnect Google Sheets?')) return;
+    setSheetsLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      const res = await AlertSubscriptionsService.disconnectGoogleSheets(getIdToken);
+      if (res && res.success) {
+        setActionSuccess('Google Sheets disconnected successfully.');
+        setTestResult(null);
+        await loadSheetsStatus();
+        setTimeout(() => setActionSuccess(null), 6000);
+      } else {
+        setActionError(res.error || 'Failed to disconnect');
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Error disconnecting');
     } finally {
       setSheetsLoading(false);
     }
@@ -450,6 +620,157 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
           <span>{actionError}</span>
         </div>
       )}
+
+      {/* Google Sheets Integration Control Bar */}
+      <div className="bg-white dark:bg-[#141B29] border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-5 shadow-2xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#0F9D58]/10 text-[#0F9D58] flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="4" fill="#0F9D58" />
+                <path d="M6 7H18V9H6V7Z" fill="white" />
+                <path d="M6 11H18V13H6V11Z" fill="white" />
+                <path d="M6 15H18V17H6V15Z" fill="white" />
+                <line x1="12" y1="7" x2="12" y2="17" stroke="#0F9D58" strokeWidth="1.5" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Google Sheets & Daily Alert Sync
+                </h3>
+                {sheetsConfig.isConnected ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-[#0F9D58] dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]" />
+                    Connected: {sheetsConfig.connectedEmail || 'Authorized'}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                    Not Connected
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {sheetsConfig.isConnected
+                  ? `Spreadsheet: "${sheetsConfig.spreadsheetName || 'Opportunity Ghana Daily Alerts'}" (${sheetsConfig.sheetName || 'Subscribers'})${sheetsConfig.lastSyncAt ? ` • Last synced: ${new Date(sheetsConfig.lastSyncAt).toLocaleTimeString()}` : ''}`
+                  : 'Connect Google Sheets to synchronize subscribers, view live records in Google Drive, and power Activepieces daily alert automations.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {!sheetsConfig.isConnected ? (
+              <>
+                <button
+                  onClick={handleConnectGoogleSheets}
+                  disabled={sheetsLoading}
+                  className="px-4 py-2 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  title="Authorize with Google to connect Google Sheets"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                    <rect width="24" height="24" rx="4" fill="#0F9D58" />
+                    <path d="M6 7H18V9H6V7Z" fill="white" />
+                    <path d="M6 11H18V13H6V11Z" fill="white" />
+                    <path d="M6 15H18V17H6V15Z" fill="white" />
+                  </svg>
+                  <span>{sheetsLoading ? 'Authorizing...' : 'Connect Google Sheets'}</span>
+                </button>
+                <button
+                  onClick={() => setShowConfigModal(true)}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Configure OAuth Client ID / Secret"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Configure</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleSyncSubscribers}
+                  disabled={sheetsSyncing || sheetsLoading}
+                  className="px-3.5 py-2 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  title="Synchronize all subscribers to the Google Sheet"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${sheetsSyncing ? 'animate-spin' : ''}`} />
+                  <span>{sheetsSyncing ? 'Syncing...' : 'Sync Now'}</span>
+                </button>
+                <button
+                  onClick={handleTestSheetsConnection}
+                  disabled={testingSheets || sheetsLoading}
+                  className="px-3 py-2 rounded-xl border border-emerald-300/80 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/60 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                  title="Verify read and write permissions to Google Sheets"
+                >
+                  <ShieldCheck className={`w-3.5 h-3.5 ${testingSheets ? 'animate-pulse' : ''}`} />
+                  <span>{testingSheets ? 'Testing...' : 'Test Connection'}</span>
+                </button>
+                {!sheetsConfig.spreadsheetId ? (
+                  <button
+                    onClick={handleCreateSpreadsheet}
+                    disabled={sheetsLoading}
+                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#141B29] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Create Sheet</span>
+                  </button>
+                ) : (
+                  sheetsConfig.spreadsheetUrl && (
+                    <a
+                      href={sheetsConfig.spreadsheetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#141B29] text-emerald-700 dark:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      title="Open spreadsheet in Google Sheets"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Sheet</span>
+                    </a>
+                  )
+                )}
+                <button
+                  onClick={() => setShowSelectModal(true)}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs transition-colors cursor-pointer"
+                  title="Select a different spreadsheet or tab"
+                >
+                  <Database className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleDisconnectSheets}
+                  disabled={sheetsLoading}
+                  className="p-2 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-xs transition-colors cursor-pointer"
+                  title="Disconnect Google Sheets"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Diagnostic Test Connection Result */}
+        {testResult && (
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300 flex flex-wrap items-center gap-3 animate-in fade-in">
+            <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Verified Status: OK
+            </span>
+            <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+              Read: {testResult.readVerified ? 'Yes' : 'No'}
+            </span>
+            <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+              Write: {testResult.writeVerified ? 'Yes (TestLog)' : 'No'}
+            </span>
+            <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+              Sheet: {testResult.sheetName || 'Subscribers'} ({testResult.rowCount || 0} rows)
+            </span>
+            {testResult.connectedEmail && (
+              <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                Account: {testResult.connectedEmail}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -900,6 +1221,149 @@ export const AdminAlertSubscribers: React.FC<AdminAlertSubscribersProps> = ({ on
           </div>
         )}
       </div>
+
+      {/* Google OAuth Credentials Configuration Modal */}
+      {showConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#141B29] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#0F9D58]/10 text-[#0F9D58] flex items-center justify-center">
+                  <Key className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Google Cloud OAuth Credentials</h3>
+                  <p className="text-[11px] text-slate-500">Configure OAuth 2.0 Web Client credentials</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowConfigModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 rounded-2xl p-3.5 text-xs text-emerald-900 dark:text-emerald-300 space-y-2">
+              <p className="font-bold flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#0F9D58]" />
+                Google Cloud Console Setup Checklist:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-emerald-800 dark:text-emerald-300">
+                <li>Enable <strong>Google Sheets API</strong> &amp; <strong>Google Drive API</strong> in Google Cloud Console.</li>
+                <li>Add authorized redirect URI: <code className="bg-white/80 dark:bg-black/40 px-1 py-0.5 rounded text-[10px] font-mono break-all">{sheetsConfig.redirectUri || 'https://www.opportunityghana.site/api/admin/google-sheets/callback'}</code></li>
+                <li>Or sign in directly with any Google Workspace account via the green button.</li>
+              </ul>
+            </div>
+
+            <form onSubmit={handleSaveCredentials} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  OAuth Client ID
+                </label>
+                <input
+                  type="text"
+                  value={customClientId}
+                  onChange={(e) => setCustomClientId(e.target.value)}
+                  placeholder={sheetsConfig.clientIdMasked ? `Currently configured (${sheetsConfig.clientIdMasked})` : 'e.g. 123456789-abc.apps.googleusercontent.com'}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/30"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  OAuth Client Secret
+                </label>
+                <input
+                  type="password"
+                  value={customClientSecret}
+                  onChange={(e) => setCustomClientSecret(e.target.value)}
+                  placeholder="e.g. GOCSPX-xxxxxxxxxxxxxxxx"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/30"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfigModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={sheetsLoading || (!customClientId.trim() && !customClientSecret.trim())}
+                  className="px-4 py-2 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {sheetsLoading ? 'Saving...' : 'Save Credentials'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Select Existing Spreadsheet Modal */}
+      {showSelectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#141B29] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#0F9D58]/10 text-[#0F9D58] flex items-center justify-center">
+                  <FileSpreadsheet className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Select Google Spreadsheet</h3>
+                  <p className="text-[11px] text-slate-500">Connect to an existing Google Sheet or Activepieces workbook</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSelectModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSelectSpreadsheet} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Spreadsheet ID or Google Sheets URL
+                </label>
+                <input
+                  type="text"
+                  value={customSpreadsheetId}
+                  onChange={(e) => setCustomSpreadsheetId(e.target.value)}
+                  placeholder="Paste spreadsheet URL or ID (e.g. 1BxiMVs0XRA5nFM...)"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900 text-xs text-slate-900 dark:white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/30"
+                  required
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  You can paste the entire Google Sheets browser URL directly.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSelectModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={sheetsLoading || !customSpreadsheetId.trim()}
+                  className="px-4 py-2 rounded-xl bg-[#0F9D58] hover:bg-[#0B8043] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {sheetsLoading ? 'Connecting...' : 'Connect Sheet'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
