@@ -27,18 +27,16 @@ service firebase.storage {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Opportunity photos: Publicly viewable, authenticated user upload for submissions, admin/editor upload and deletion
+    // Opportunity photos: Publicly viewable, strictly admin/editor upload and deletion
     match /opportunities/{opportunityId}/{filename} {
       allow read: if true;
-      allow write: if isAuthenticated() && isValidImage();
-      allow delete: if isAdminOrEditor();
+      allow write, delete: if isAdminOrEditor() && isValidImage();
     }
 
-    // Resource photos: Publicly viewable, authenticated user upload for submissions, admin/editor upload and deletion
+    // Resource photos: Publicly viewable, strictly admin/editor upload and deletion
     match /resources/{resourceId}/{filename} {
       allow read: if true;
-      allow write: if isAuthenticated() && isValidImage();
-      allow delete: if isAdminOrEditor();
+      allow write, delete: if isAdminOrEditor() && isValidImage();
     }
 
     // Public assets (organization logos, verified attachments)

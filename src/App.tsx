@@ -6,10 +6,8 @@ import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { OpportunitiesPage } from './pages/OpportunitiesPage';
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
-import { SubmitOpportunityPage } from './pages/SubmitOpportunityPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { ResourceDetailPage } from './pages/ResourceDetailPage';
-import { SubmitResourcePage } from './pages/SubmitResourcePage';
 import { InstitutionsPage } from './pages/InstitutionsPage';
 import { InstitutionDetailPage } from './pages/InstitutionDetailPage';
 import { CareersPage } from './pages/CareersPage';
@@ -114,9 +112,16 @@ export function AppContent() {
       );
     }
 
-    // 4. User Opportunity Submission: /opportunities/submit
+    // 4. Decommissioned User Opportunity Submission: route admins to CMS, visitors to directory
     if (pathname === '/opportunities/submit') {
-      return <SubmitOpportunityPage onNavigate={navigate} />;
+      if (isEditorOrAdmin) {
+        return (
+          <AdminLayout currentPath="/admin/opportunities" onNavigate={navigate}>
+            <AdminOpportunities onNavigate={navigate} />
+          </AdminLayout>
+        );
+      }
+      return <OpportunitiesPage onNavigate={navigate} />;
     }
 
     // 5. Opportunities Detail: /opportunities/:slug
@@ -140,9 +145,16 @@ export function AppContent() {
       );
     }
 
-    // 7. User Resource Submission: /resources/submit
+    // 7. Decommissioned User Resource Submission: route admins to CMS, visitors to directory
     if (pathname === '/resources/submit') {
-      return <SubmitResourcePage onNavigate={navigate} />;
+      if (isEditorOrAdmin) {
+        return (
+          <AdminLayout currentPath="/admin/resources" onNavigate={navigate}>
+            <AdminResources onNavigate={navigate} />
+          </AdminLayout>
+        );
+      }
+      return <ResourcesPage onNavigate={navigate} />;
     }
 
     // 8. Resources & Courses Detail: /resources/:slug, /courses/:slug, /course/:slug
@@ -162,14 +174,12 @@ export function AppContent() {
       const isFree = pathname === '/free-courses' || searchParams.get('free') === 'true';
       const isPaid = searchParams.get('paid') === 'true';
       const type = searchParams.get('type') || 'All';
-      const openSubmit = searchParams.get('action') === 'submit';
       return (
         <ResourcesPage
           onNavigate={navigate}
           initialFree={isFree}
           initialPaid={isPaid}
           initialType={type}
-          initialOpenSubmit={openSubmit}
         />
       );
     }

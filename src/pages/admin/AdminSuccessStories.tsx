@@ -32,7 +32,7 @@ interface AdminSuccessStoriesProps {
 }
 
 export const AdminSuccessStories: React.FC<AdminSuccessStoriesProps> = ({ onNavigate }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, getIdToken } = useAuth();
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [metrics, setMetrics] = useState<SuccessStoryMetrics>({
     total: 0,
@@ -160,8 +160,13 @@ export const AdminSuccessStories: React.FC<AdminSuccessStoriesProps> = ({ onNavi
       data.append('entityType', 'public');
       data.append('entityId', `story_${Date.now()}`);
 
+      const token = await getIdToken().catch(() => null);
+
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: data
       });
 

@@ -965,145 +965,15 @@ export const OpportunitiesService = {
   },
 
   /**
-   * Submits a new opportunity from an authenticated community member directly to the CMS endpoint.
-   * Transmits form fields and optional image payload directly without intermediate Firebase Storage uploads.
-   * Saved strictly with status: 'pending' and does NOT appear on public website until approved by admin.
+   * Public opportunity submission is permanently decommissioned.
+   * All opportunity publishing is strictly restricted to authorized administrators via the CMS.
    */
   async submitUserOpportunity(
-    data: Partial<Opportunity>,
-    user: { uid: string; email: string; name: string },
-    imageFile?: File | null
+    _data?: Partial<Opportunity>,
+    _user?: { uid: string; email: string; name: string },
+    _imageFile?: File | null
   ): Promise<Opportunity> {
-    if (!data.title?.trim()) {
-      throw new Error('Opportunity title is required.');
-    }
-    if (!data.category?.trim()) {
-      throw new Error('Opportunity category is required.');
-    }
-    if (!data.description?.trim() || data.description.trim().length < 25) {
-      throw new Error('Please provide an informative description of at least 25 characters.');
-    }
-    if (!data.applicationUrl?.trim() || !data.applicationUrl.trim().startsWith('http')) {
-      throw new Error('Application link must start with http:// or https://');
-    }
-
-    if (imageFile) {
-      const val = validateImageFile(imageFile);
-      if (!val.valid) {
-        throw new Error(val.error || 'Invalid image file.');
-      }
-    }
-
-    // Direct CMS submission via FormData
-    const formData = new FormData();
-    formData.append('title', data.title.trim());
-    formData.append('organizationName', data.organizationName?.trim() || 'Community Partner');
-    formData.append('category', data.category);
-    if (data.subcategory) formData.append('subcategory', data.subcategory.trim());
-    if (data.opportunityType) formData.append('opportunityType', data.opportunityType);
-    if (data.location) formData.append('location', data.location.trim());
-    if (data.region) formData.append('region', data.region.trim());
-    if (data.country) formData.append('country', data.country.trim());
-    if (data.educationLevel) formData.append('educationLevel', data.educationLevel);
-    if (data.fieldOfStudy) formData.append('fieldOfStudy', data.fieldOfStudy.trim());
-    if (data.nationality) formData.append('nationality', data.nationality);
-    if (data.fundingType) formData.append('fundingType', data.fundingType);
-    if (data.tuition) formData.append('tuition', data.tuition.trim());
-    if (data.stipend) formData.append('stipend', data.stipend.trim());
-    if (data.accommodation) formData.append('accommodation', data.accommodation.trim());
-    if (data.description) formData.append('description', data.description.trim());
-    if (data.applicationUrl) formData.append('applicationUrl', data.applicationUrl.trim());
-    if (data.officialApplicationUrl) formData.append('officialApplicationUrl', data.officialApplicationUrl.trim());
-    if (data.sourceUrl) formData.append('sourceUrl', data.sourceUrl.trim());
-    if (data.deadline) formData.append('deadline', data.deadline);
-    if (data.applicationInstructions) formData.append('applicationInstructions', data.applicationInstructions.trim());
-    if (data.contactInfo) formData.append('contactInfo', data.contactInfo.trim());
-    if (data.contactEmail) formData.append('contactEmail', data.contactEmail.trim());
-
-    if (data.benefits) {
-      formData.append('benefits', JSON.stringify(Array.isArray(data.benefits) ? data.benefits : [data.benefits]));
-    }
-    if (data.requirements) {
-      formData.append('requirements', JSON.stringify(Array.isArray(data.requirements) ? data.requirements : [data.requirements]));
-    }
-    if (data.documentsRequired) {
-      formData.append('documentsRequired', JSON.stringify(data.documentsRequired));
-    }
-
-    formData.append('submittedBy', user.uid);
-    formData.append('submittedByName', user.name || 'User');
-    formData.append('submittedByEmail', user.email);
-
-    if (imageFile) {
-      formData.append('image', imageFile);
-    } else if (data.imageUrl) {
-      formData.append('imageUrl', data.imageUrl);
-      if (data.imagePath) formData.append('imagePath', data.imagePath);
-    }
-
-    let token: string | null = null;
-    try {
-      if (auth?.currentUser) {
-        token = await auth.currentUser.getIdToken().catch(() => null);
-      }
-    } catch {}
-
-    const res = await fetch('/api/submissions/opportunity', {
-      method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: formData
-    });
-
-    if (!res.ok) {
-      let errDetail = 'Failed to submit opportunity. Please check details and try again.';
-      try {
-        const body = await res.json();
-        if (body.error) errDetail = body.error;
-      } catch {}
-      throw new Error(errDetail);
-    }
-
-    const json = await res.json();
-    if (!json.success || !json.submission) {
-      throw new Error(json.error || 'Server did not confirm receipt of your submission.');
-    }
-
-    const submission: Opportunity = json.submission;
-
-    // Cache locally in client
-    const items = getStoredOpportunities();
-    const existingIdx = items.findIndex(i => i.id === submission.id);
-    if (existingIdx >= 0) {
-      items[existingIdx] = submission;
-    } else {
-      items.unshift(submission);
-    }
-    saveStoredOpportunities(items);
-
-    // Optional firestore sync if available (safe, non-blocking)
-    if (isFirebaseConfigured && db) {
-      try {
-        const cleanData = sanitizeForFirestore(submission);
-        await setDoc(doc(db, 'opportunities', submission.id), cleanData, { merge: true });
-      } catch (err: any) {
-        console.debug('Client firestore sync notice:', err?.message || err);
-      }
-    }
-
-    AuditService.log({
-      entityType: 'opportunity',
-      entityId: submission.id,
-      entityTitle: submission.title,
-      action: 'created',
-      performedByEmail: user.email,
-      performedByName: user.name || 'User',
-      details: `User submitted opportunity for editorial review: "${submission.title}". Status: pending review.`,
-      newStatus: 'pending'
-    });
-
-    return submission;
+    throw new Error('Public submissions have been permanently disabled. All opportunity listings must be created and published by authorized administrators.');
   },
 
   /**

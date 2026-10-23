@@ -10,8 +10,7 @@ import {
   Menu,
   X,
   Bookmark,
-  Bell,
-  Sparkles
+  Bell
 } from 'lucide-react';
 import { InstallAppPrompt } from '../pwa/InstallAppPrompt';
 import { ThemeToggle } from '../common/ThemeToggle';
@@ -195,20 +194,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                         My Profile & Applications
                       </button>
                       <button
-                        onClick={() => handleNavClick('/opportunities/submit')}
-                        className="w-full px-4 py-2 text-xs text-[#006B3F] dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer font-bold"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
-                        Submit an Opportunity
-                      </button>
-                      <button
-                        onClick={() => handleNavClick('/resources/submit')}
-                        className="w-full px-4 py-2 text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer font-medium"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        Submit a Resource
-                      </button>
-                      <button
                         onClick={() => handleNavClick('/saved')}
                         className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
                       >
@@ -308,32 +293,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
               />
             </div>
 
-            {currentUser && (
-              <>
-                <button
-                  onClick={() => handleNavClick('/opportunities/submit')}
-                  className={`text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 ${
-                    currentPath === '/opportunities/submit'
-                      ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300'
-                      : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
-                  Submit an Opportunity
-                </button>
-                <button
-                  onClick={() => handleNavClick('/resources/submit')}
-                  className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 ${
-                    currentPath === '/resources/submit'
-                      ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 font-bold'
-                      : 'text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
-                  Submit a Resource
-                </button>
-              </>
-            )}
+
 
             {isEditorOrAdmin && (
               <button

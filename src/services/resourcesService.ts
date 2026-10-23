@@ -387,185 +387,15 @@ export const ResourcesService = {
   },
 
   /**
-   * Normal Authenticated User Resource Submission
-   * Submits a resource in 'pending_review' status with moderation status 'pending'
+   * Public resource submission is permanently decommissioned.
+   * All resource and course listings must be created and published by authorized administrators via the CMS.
    */
   async submitUserResource(
-    submissionData: {
-      title: string;
-      description: string;
-      category: string;
-      resourceType: Resource['resourceType'];
-      format?: Resource['format'];
-      level?: Resource['level'];
-      providerName?: string;
-      location?: string;
-      enrollmentUrl: string;
-      isFree: boolean;
-      cost?: number;
-      currency?: string;
-      hasCertificate: boolean;
-      skills?: string[];
-      contactInfo?: string;
-      imageUrl?: string;
-      imagePath?: string;
-    },
-    user: {
-      uid: string;
-      email: string;
-      name: string;
-    },
-    imageFile?: File | null
+    _submissionData?: any,
+    _user?: any,
+    _imageFile?: any
   ): Promise<Resource> {
-    if (!submissionData.title?.trim()) {
-      throw new Error('Please enter a resource title.');
-    }
-    if (!submissionData.description?.trim() || submissionData.description.trim().length < 25) {
-      throw new Error('Please provide a descriptive overview of at least 25 characters.');
-    }
-    if (!submissionData.enrollmentUrl?.trim() || !submissionData.enrollmentUrl.trim().startsWith('http')) {
-      throw new Error('Please enter a valid website link starting with http:// or https://');
-    }
-
-    if (imageFile) {
-      const val = validateImageFile(imageFile);
-      if (!val.valid) {
-        throw new Error(val.error || 'Invalid image file.');
-      }
-    }
-
-    const formData = new FormData();
-    formData.append('title', submissionData.title.trim());
-    formData.append('description', submissionData.description.trim());
-    formData.append('category', submissionData.category || 'Technology');
-    formData.append('resourceType', submissionData.resourceType || 'course');
-    if (submissionData.level) formData.append('level', submissionData.level);
-    if (submissionData.format) formData.append('format', submissionData.format);
-    if (submissionData.location) formData.append('location', submissionData.location.trim());
-    formData.append('providerName', submissionData.providerName?.trim() || 'Community Contributor');
-    formData.append('enrollmentUrl', submissionData.enrollmentUrl.trim());
-    formData.append('isFree', String(Boolean(submissionData.isFree)));
-    formData.append('cost', String(submissionData.isFree ? 0 : Number(submissionData.cost || 0)));
-    formData.append('currency', submissionData.currency || 'GHS');
-    formData.append('hasCertificate', String(Boolean(submissionData.hasCertificate)));
-    if (submissionData.contactInfo) formData.append('contactInfo', submissionData.contactInfo.trim());
-
-    if (submissionData.skills && submissionData.skills.length > 0) {
-      formData.append('skills', JSON.stringify(submissionData.skills));
-    }
-
-    formData.append('createdByUserId', user.uid);
-    formData.append('createdByName', user.name || 'User');
-    formData.append('createdByEmail', user.email);
-    formData.append('submittedBy', user.uid);
-    formData.append('submittedByName', user.name || 'User');
-    formData.append('submittedByEmail', user.email);
-
-    if (imageFile) {
-      formData.append('image', imageFile);
-    } else if (submissionData.imageUrl) {
-      formData.append('imageUrl', submissionData.imageUrl);
-      if (submissionData.imagePath) formData.append('imagePath', submissionData.imagePath);
-    }
-
-    let token: string | null = null;
-    try {
-      if (auth?.currentUser) {
-        token = await auth.currentUser.getIdToken().catch(() => null);
-      }
-    } catch {}
-
-    const res = await fetch('/api/submissions/resource', {
-      method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: formData
-    });
-
-    if (!res.ok) {
-      let errDetail = 'Could not submit resource. Please check fields and try again.';
-      try {
-        const body = await res.json();
-        if (body.error) errDetail = body.error;
-      } catch {}
-      throw new Error(errDetail);
-    }
-
-    const json = await res.json();
-    if (!json.success || !json.submission) {
-      throw new Error(json.error || 'Server did not confirm receipt of your submission.');
-    }
-
-    const newResource: Resource = json.submission;
-
-    const items = getStoredResources();
-    const existingIdx = items.findIndex(i => i.id === newResource.id);
-    if (existingIdx >= 0) {
-      items[existingIdx] = newResource;
-    } else {
-      items.unshift(newResource);
-    }
-    saveStoredResources(items);
-
-    if (isFirebaseConfigured && db) {
-      try {
-        const cleanData = sanitizeForFirestore(newResource);
-        await setDoc(doc(db, 'resources', newResource.id), cleanData, { merge: true });
-      } catch (err) {
-        console.debug('Firestore client mirror notice:', err);
-      }
-    }
-
-    // Mirror to unified submissions store
-    try {
-      const rawSub = localStorage.getItem('opp_gh_submissions_store');
-      let subList: any[] = [];
-      if (rawSub) {
-        try { subList = JSON.parse(rawSub) || []; } catch {}
-      }
-      const submissionRecord = {
-        id: 'sub_' + newResource.id,
-        type: 'resource',
-        title: newResource.title,
-        organizationName: newResource.providerName || 'Community Submitter',
-        submittedByEmail: user.email,
-        submittedByName: user.name,
-        submittedByUserId: user.uid,
-        category: newResource.category,
-        location: newResource.location,
-        data: newResource,
-        status: 'pending',
-        createdAt: newResource.submittedAt || new Date().toISOString(),
-        updatedAt: newResource.updatedAt || new Date().toISOString()
-      };
-      const foundIdx = subList.findIndex((s: any) => s.id === submissionRecord.id);
-      if (foundIdx >= 0) {
-        subList[foundIdx] = submissionRecord;
-      } else {
-        subList.unshift(submissionRecord);
-      }
-      localStorage.setItem('opp_gh_submissions_store', JSON.stringify(subList));
-
-      if (isFirebaseConfigured && db) {
-        const cleanSub = sanitizeForFirestore(submissionRecord);
-        setDoc(doc(db, 'submissions', submissionRecord.id), cleanSub, { merge: true }).catch(() => {});
-      }
-    } catch (e) {
-      console.warn('Failed to mirror resource to submissions store:', e);
-    }
-
-    AuditService.log({
-      entityType: 'resource',
-      entityId: newResource.id,
-      entityTitle: newResource.title,
-      action: 'created',
-      performedByEmail: user.email,
-      performedByName: user.name,
-      details: `User submitted new resource for administrative verification: "${newResource.title}". Status: pending review.`
-    });
-
-    return newResource;
+    throw new Error('Public submissions have been permanently disabled. All resource listings must be created and published by authorized administrators.');
   },
 
   /**
@@ -900,41 +730,15 @@ export const ResourcesService = {
   },
 
   /**
-   * Allows normal authenticated users to submit a resource for review.
-   * Enforces status: 'pending' and submittedBy: user.uid
+   * Public resource submission is permanently decommissioned.
+   * All resource and course listings must be created and published by authorized administrators via the CMS.
    */
   async submitResource(
-    data: Omit<Resource, 'id' | 'createdAt' | 'updatedAt' | 'views' | 'saves' | 'status'>,
-    user: { uid: string; email: string; name: string },
-    imageFile?: File | null
+    _data?: any,
+    _user?: any,
+    _imageFile?: any
   ): Promise<Resource> {
-    if (!user || !user.uid) {
-      throw new Error('You must be signed in to submit a resource.');
-    }
-
-    return this.submitUserResource(
-      {
-        title: data.title,
-        description: data.description,
-        category: data.category,
-        resourceType: data.resourceType,
-        level: data.level,
-        format: data.format,
-        location: data.location,
-        providerName: data.providerName,
-        enrollmentUrl: data.enrollmentUrl,
-        isFree: data.isFree,
-        cost: data.cost,
-        currency: data.currency,
-        hasCertificate: data.hasCertificate,
-        skills: data.skills,
-        contactInfo: data.contactEmail ? `Email: ${data.contactEmail}` : undefined,
-        imageUrl: data.imageUrl,
-        imagePath: data.imagePath
-      },
-      user,
-      imageFile
-    );
+    throw new Error('Public submissions have been permanently disabled. All resource listings must be created and published by authorized administrators.');
   },
 
   /**

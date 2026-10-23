@@ -62,30 +62,18 @@ service cloud.firestore {
 
     // 3. Opportunities collection:
     // Public read for published listings.
-    // Authenticated users can submit new opportunities with status == 'pending' or 'pending_review'.
-    // Admin/editor have full permissions to review, approve, publish, edit, or delete.
+    // Strictly Administrator and Editor write access ONLY. Public submissions are disabled.
     match /opportunities/{opportunityId} {
       allow read: if true;
-      allow create: if isAdminOrEditor() || (
-        isAuthenticated() &&
-        (request.resource.data.status == 'pending' || request.resource.data.status == 'pending_review') &&
-        (request.resource.data.submittedBy == request.auth.uid || request.resource.data.createdByUserId == request.auth.uid || request.resource.data.organizationId == request.auth.uid)
-      );
-      allow update, delete: if isAdminOrEditor();
+      allow write: if isAdminOrEditor();
     }
 
     // 4. Resources collection:
     // Public can read verified resources and courses.
-    // Authenticated users can submit new resources with status == 'pending_review'.
-    // Admin/editor have full permissions to review, approve, publish, edit, or delete.
+    // Strictly Administrator and Editor write access ONLY. Public submissions are disabled.
     match /resources/{resourceId} {
       allow read: if true;
-      allow create: if isAdminOrEditor() || (
-        isAuthenticated() &&
-        (request.resource.data.status == 'pending_review' || request.resource.data.status == 'pending') &&
-        (request.resource.data.createdByUserId == request.auth.uid || request.resource.data.submittedBy == request.auth.uid)
-      );
-      allow update, delete: if isAdminOrEditor();
+      allow write: if isAdminOrEditor();
     }
 
     // 5. Skills collection
@@ -140,10 +128,9 @@ service cloud.firestore {
       allow read, update, delete: if isAdminOrEditor();
     }
 
-    // 12. Submissions: Users can submit; only admin/editor can review/approve
+    // 12. Submissions: Administrator/Editor review only. Public submission creation is disabled.
     match /submissions/{submissionId} {
-      allow create: if isAuthenticated();
-      allow read, update, delete: if isAdminOrEditor();
+      allow read, write: if isAdminOrEditor();
     }
 
     // 13. Verification Records: Only admin/editor

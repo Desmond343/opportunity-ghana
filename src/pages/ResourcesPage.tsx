@@ -4,22 +4,20 @@ import { ResourcesService, ResourceFilters } from '../services/resourcesService'
 import { ResourceCard } from '../components/cards/ResourceCard';
 import { RESOURCE_CATEGORIES } from '../data/categories';
 import { EmptyState, LoadingState } from '../components/common/CommonUI';
-import { BookOpen, Award, CheckCircle2, SlidersHorizontal, Sparkles, ShieldCheck, DollarSign, ExternalLink, HelpCircle } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, SlidersHorizontal, ShieldCheck, DollarSign, ExternalLink, HelpCircle } from 'lucide-react';
 
 interface ResourcesPageProps {
   onNavigate: (path: string) => void;
   initialType?: string;
   initialFree?: boolean;
   initialPaid?: boolean;
-  initialOpenSubmit?: boolean;
 }
 
 export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   onNavigate,
   initialType = 'All',
   initialFree = false,
-  initialPaid = false,
-  initialOpenSubmit = false
+  initialPaid = false
 }) => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +29,6 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
   );
   const [selectedPricingModel, setSelectedPricingModel] = useState<string>('All');
   const [onlyCert, setOnlyCert] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (initialOpenSubmit) {
-      onNavigate('/resources/submit');
-    }
-  }, [initialOpenSubmit, onNavigate]);
 
   useEffect(() => {
     async function loadResources() {
@@ -98,14 +90,6 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
             Discover verified paid and free online courses, cloud certifications, and executive masterclasses. All paid courses feature transparent costs, official syllabi, and verified accessibility for learners in Ghana.
           </p>
         </div>
-
-        <button
-          onClick={() => onNavigate('/resources/submit')}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors shrink-0 self-start sm:self-auto"
-        >
-          <Sparkles className="w-4 h-4 text-emerald-200" />
-          <span>Submit a Course</span>
-        </button>
       </div>
 
       {/* Main Cost Filter Tabs: All vs Paid Courses vs Free */}

@@ -1,7 +1,9 @@
-// @ts-ignore
-import bundledHandler from './index.js';
+import app from '../server.ts';
 
+/**
+ * Vercel Serverless Function entry point for Opportunity Ghana API.
+ * Delegates incoming requests to Express app.
+ */
 export default function handler(req: any, res: any) {
-  const fn = (bundledHandler && (bundledHandler as any).default) ? (bundledHandler as any).default : bundledHandler;
-  return fn(req, res);
+  return app(req, res);
 }

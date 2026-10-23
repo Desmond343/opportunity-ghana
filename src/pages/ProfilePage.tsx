@@ -15,11 +15,9 @@ import {
   LogOut,
   MapPin,
   GraduationCap,
-  Sparkles,
   ExternalLink,
   BookOpen,
   Compass,
-  Plus,
   Clock,
   CheckCircle2,
   XCircle,
@@ -75,7 +73,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-space">Your Profile</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Sign in to track applications, save scholarships, submit resources, and customize your opportunity alerts.
+            Sign in to track applications, save scholarships, manage bookmarks, and customize your opportunity alerts.
           </p>
         </div>
         <div className="flex flex-col gap-2.5">
@@ -175,35 +173,25 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         </button>
       </div>
 
-      {/* User Contributed Opportunities Section */}
-      <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-5 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E8F5EF] dark:bg-emerald-950/50 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
-              <Compass className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                My Opportunity Submissions
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Track status of scholarships, jobs, and programs you submitted for review
-              </p>
+      {/* Historical Submissions (Read-Only Status Tracking for Existing Records) */}
+      {myOpportunities.length > 0 && (
+        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-5 transition-colors">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#E8F5EF] dark:bg-emerald-950/50 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center">
+                <Compass className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  Opportunity Submissions History
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Review status of scholarships, jobs, or programs you previously submitted
+                </p>
+              </div>
             </div>
           </div>
 
-          <button
-            onClick={() => onNavigate('/opportunities/submit')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#006B3F] hover:bg-[#005530] text-white text-xs font-bold rounded-xl shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Submit an Opportunity</span>
-          </button>
-        </div>
-
-        {loadingSubmissions ? (
-          <div className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">Loading your opportunity submissions...</div>
-        ) : myOpportunities.length > 0 ? (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {myOpportunities.map((opp) => {
               const isApproved = opp.submissionStatus === 'approved' || opp.status === 'published';
@@ -266,53 +254,28 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
               );
             })}
           </div>
-        ) : (
-          <div className="text-center py-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
-            <Compass className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto" />
-            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No opportunities submitted yet</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              Know of a verified scholarship, graduate role, or training program? Submit it to help fellow Ghanaians advance.
-            </p>
-            <button
-              onClick={() => onNavigate('/opportunities/submit')}
-              className="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl shadow-2xs cursor-pointer transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Submit First Opportunity</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* User Contributed Learning Resources Section */}
-      <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-5 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400 flex items-center justify-center">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                My Resource Submissions
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Track status of learning courses and bootcamps you submitted for review
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => onNavigate('/resources/submit')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Submit a Resource</span>
-          </button>
         </div>
+      )}
 
-        {loadingSubmissions ? (
-          <div className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">Loading your submissions...</div>
-        ) : mySubmissions.length > 0 ? (
+      {/* Historical Resource Submissions (Read-Only Status Tracking for Existing Records) */}
+      {mySubmissions.length > 0 && (
+        <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-5 transition-colors">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400 flex items-center justify-center">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  Resource Submissions History
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Review status of learning courses or certifications you previously submitted
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {mySubmissions.map((sub) => {
               const status = sub.submissionStatus || (sub.status === 'published' ? 'approved' : 'pending');
@@ -370,23 +333,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
               );
             })}
           </div>
-        ) : (
-          <div className="text-center py-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
-            <BookOpen className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto" />
-            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No resources submitted yet</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              Know of an impactful scholarship, coding bootcamp, or certification course in Ghana? Share it with our community.
-            </p>
-            <button
-              onClick={() => onNavigate('/resources/submit')}
-              className="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl shadow-2xs cursor-pointer transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Submit First Resource</span>
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* PWA & Device Status Card */}
       <div className="bg-white dark:bg-[#141B29] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-4 transition-colors">

@@ -1,5 +1,5 @@
-import type { Resource } from '../types/database.ts';
-import { NEW_VERIFIED_FREE_COURSES } from './courses/newVerifiedCourses.ts';
+import { Resource } from '../types/database';
+import { NEW_VERIFIED_FREE_COURSES } from './courses/newVerifiedCourses';
 
 const BASE_VERIFIED_RESOURCES: Resource[] = [
   {

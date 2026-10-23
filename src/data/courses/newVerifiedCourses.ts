@@ -1,4 +1,4 @@
-import type { Resource } from '../../types/database.ts';
+import { Resource } from '../../types/database';
 
 export const NEW_VERIFIED_FREE_COURSES: Resource[] = [
   {
