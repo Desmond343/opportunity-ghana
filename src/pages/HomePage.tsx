@@ -6,6 +6,7 @@ import { SkillsService } from '../services/skillsService';
 import { SuccessStoriesService } from '../services/successStoriesService';
 import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
+import { OpportunityCategorySection } from '../components/home/OpportunityCategorySection';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
 import { SkillCard } from '../components/cards/SkillCard';
@@ -62,9 +63,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [alertSuccessMessage, setAlertSuccessMessage] = useState('');
   const [alertErrorMessage, setAlertErrorMessage] = useState('');
   const [alertLoading, setAlertLoading] = useState(false);
-
-  // Horizontal scroll container ref for "What's available right now?"
-  const availableScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -149,92 +147,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       setAlertLoading(false);
     }
   };
-
-  const scrollAvailable = (direction: 'left' | 'right') => {
-    if (availableScrollRef.current) {
-      const scrollAmount = 320;
-      availableScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  // Section 8: "What's Available Right Now?" (Jobberman-style "Who's hiring right now?" concept)
-  const availableTracks = [
-    {
-      category: 'Scholarships',
-      label: 'Scholarships & Grants',
-      subtitle: 'Tuition waivers, living stipends, study abroad',
-      tag: 'Academic Funding',
-      tagColor: 'bg-white/95 text-[#006B3F] border border-white/40',
-      icon: GraduationCap,
-      href: '/scholarships',
-      ctaText: 'Explore scholarships',
-      backgroundImage: '/images/categories/scholarships.jpg',
-      brandTint: 'from-transparent via-[#006B3F]/15 to-[#003820]/75'
-    },
-    {
-      category: 'Jobs',
-      label: 'Graduate & Career Jobs',
-      subtitle: 'Corporate recruitments, tech startups & public service',
-      tag: 'Employment',
-      tagColor: 'bg-white/95 text-blue-800 border border-white/40',
-      icon: Briefcase,
-      href: '/jobs',
-      ctaText: 'Explore jobs',
-      backgroundImage: '/images/categories/jobs.jpg',
-      brandTint: 'from-transparent via-blue-950/15 to-slate-950/75'
-    },
-    {
-      category: 'Internships',
-      label: 'Internships & Attachments',
-      subtitle: 'Student vacation attachments & NSS postings',
-      tag: 'Entry Level',
-      tagColor: 'bg-white/95 text-emerald-800 border border-white/40',
-      icon: Compass,
-      href: '/internships',
-      ctaText: 'Explore internships',
-      backgroundImage: '/images/categories/internships.jpg',
-      brandTint: 'from-transparent via-emerald-950/15 to-[#003820]/75'
-    },
-    {
-      category: 'Fellowships',
-      label: 'Fellowships & Leadership',
-      subtitle: 'African leadership institutes & policy academies',
-      tag: 'Leadership',
-      tagColor: 'bg-white/95 text-amber-900 border border-white/40',
-      icon: Award,
-      href: '/opportunities?category=Fellowships',
-      ctaText: 'Explore fellowships',
-      backgroundImage: '/images/categories/fellowships.jpg',
-      brandTint: 'from-transparent via-amber-950/15 to-amber-950/75'
-    },
-    {
-      category: 'Grants',
-      label: 'Startup & Innovation Grants',
-      subtitle: 'Seed funding, SME acceleration & incubation',
-      tag: 'Capital',
-      tagColor: 'bg-white/95 text-purple-900 border border-white/40',
-      icon: Coins,
-      href: '/opportunities?category=Grants',
-      ctaText: 'Explore grants',
-      backgroundImage: '/images/categories/grants.jpg',
-      brandTint: 'from-transparent via-purple-950/15 to-purple-950/75'
-    },
-    {
-      category: 'Training',
-      label: 'Free Certified Courses',
-      subtitle: 'Tech, data analytics, business certifications',
-      tag: 'Upskilling',
-      tagColor: 'bg-white/95 text-[#006B3F] border border-white/40',
-      icon: Sparkles,
-      href: '/courses',
-      ctaText: 'Explore free courses',
-      backgroundImage: '/images/categories/courses.jpg',
-      brandTint: 'from-transparent via-[#006B3F]/15 to-[#003820]/75'
-    }
-  ];
 
   return (
     <div className="space-y-16 sm:space-y-20 pb-20 stage-ambient-surface">
@@ -524,111 +436,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* ==================================================
-          3. "WHAT'S AVAILABLE RIGHT NOW?" SECTION (Jobberman-inspired horizontal cards)
+          3. OPPORTUNITY CATEGORY SECTION (Redesigned with reference image layout, format and visual styling)
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
-              Live Category Tracks
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight mt-0.5">
-              What&apos;s Available Right Now?
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Browse major opportunity pathways curated for Ghanaian youth, students, and professionals.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-end">
-            <button
-              onClick={() => scrollAvailable('left')}
-              aria-label="Scroll left"
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#141B29] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shadow-2xs"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => scrollAvailable('right')}
-              aria-label="Scroll right"
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#141B29] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shadow-2xs"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Horizontal Scrollable Row */}
-        <div
-          ref={availableScrollRef}
-          className="flex items-stretch gap-5 sm:gap-6 overflow-x-auto pb-6 pt-2 px-1 snap-x scrollbar-none"
-        >
-          {availableTracks.map((track) => {
-            const Icon = track.icon;
-            return (
-              <div
-                key={track.category}
-                onClick={() => onNavigate(track.href)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onNavigate(track.href);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`Explore ${track.label}`}
-                className="group relative overflow-hidden w-72 sm:w-80 min-h-[260px] shrink-0 snap-start rounded-2xl sm:rounded-[22px] p-3.5 cursor-pointer flex flex-col justify-between border border-white/10 bg-slate-950 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B3F] focus-visible:ring-offset-2"
-              >
-                {/* Layer 1: Sharp Background Photograph */}
-                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
-                  <img
-                    src={track.backgroundImage}
-                    alt=""
-                    loading="lazy"
-                    className="w-full h-full object-cover object-[center_20%] brightness-[0.98] contrast-[1.04] saturate-[1.05]"
-                  />
-                  {/* Layer 2: Directional Contrast Gradient */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        'linear-gradient(180deg, rgba(2, 10, 18, 0.10) 0%, rgba(2, 12, 18, 0.28) 40%, rgba(2, 16, 12, 0.82) 75%, rgba(2, 12, 10, 0.94) 100%)'
-                    }}
-                  />
-                </div>
-
-                {/* Top Badges */}
-                <div className="relative z-10 flex items-center justify-between p-1">
-                  <div className="w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-[#006B3F] border border-white/80 flex items-center justify-center shadow-xs">
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${track.tagColor}`}>
-                    {track.tag}
-                  </span>
-                </div>
-
-                {/* Flat Glass Content Panel */}
-                <div className="relative z-10 mt-14 p-3.5 rounded-xl bg-slate-950/75 dark:bg-slate-950/80 backdrop-blur-md border border-white/10 shadow-sm space-y-2">
-                  <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-[#FCD116] transition-colors font-space tracking-tight">
-                      {track.label}
-                    </h3>
-                    <p className="text-xs text-slate-200/90 font-normal mt-1 line-clamp-2 leading-relaxed">
-                      {track.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors">
-                    <span>{track.ctaText || 'Explore opportunities'}</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#FCD116] group-hover:text-white" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <OpportunityCategorySection onNavigate={onNavigate} />
 
       {/* ==================================================
           4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Targeted visual tracks)
