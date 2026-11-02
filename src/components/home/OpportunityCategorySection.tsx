@@ -83,7 +83,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
       pillText: 'text-[#0369A1]',
       image: '/images/institutions/ghana_campus_students.jpg',
       fallbackImage: '/images/categories/scholarships.jpg',
-      href: '/institutions?status=OPEN'
+      href: '/institutions'
     },
     {
       id: 'fellowships',
@@ -142,9 +142,10 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
     setCanScrollLeft(scrollLeft > 10);
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
 
-    // Approximate active card index
-    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 24 : 480;
-    const index = Math.round(scrollLeft / cardWidth);
+    // Approximate active card index based on dynamic card width + gap
+    const firstChild = el.firstElementChild as HTMLElement | null;
+    const cardStep = firstChild ? firstChild.offsetWidth + 16 : 340;
+    const index = Math.round(scrollLeft / cardStep);
     setActiveIndex(Math.min(Math.max(0, index), categoryTracks.length - 1));
   };
 
@@ -163,7 +164,9 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
   const handleScroll = (direction: 'left' | 'right') => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const scrollAmount = Math.max(el.clientWidth * 0.75, 360);
+    const firstChild = el.firstElementChild as HTMLElement | null;
+    const cardStep = firstChild ? firstChild.offsetWidth + 16 : 340;
+    const scrollAmount = Math.max(cardStep * 2, el.clientWidth * 0.7);
     el.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth'
@@ -173,35 +176,36 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
   const scrollToIndex = (index: number) => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 24 : 480;
+    const firstChild = el.firstElementChild as HTMLElement | null;
+    const cardStep = firstChild ? firstChild.offsetWidth + 16 : 340;
     el.scrollTo({
-      left: index * cardWidth,
+      left: index * cardStep,
       behavior: 'smooth'
     });
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-5">
       {/* Section Header with Title, Description and Navigation Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3.5 sm:pb-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
             <span className="text-xs font-bold uppercase tracking-wider text-[#006B3F] dark:text-emerald-400 font-space">
               Live Category Tracks
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
             Explore Opportunities by Category
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5 max-w-2xl">
             Browse verified opportunity pathways curated for Ghanaian youth, students, and professionals.
           </p>
         </div>
 
         {/* Carousel Prev/Next Buttons */}
-        <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
-          <div className="hidden md:flex items-center gap-1.5 mr-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+          <div className="hidden md:flex items-center gap-1 mr-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <span>{activeIndex + 1}</span>
             <span>/</span>
             <span>{categoryTracks.length}</span>
@@ -210,33 +214,33 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
             onClick={() => handleScroll('left')}
             disabled={!canScrollLeft}
             aria-label="Scroll left to previous category"
-            className={`w-11 h-11 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-sm ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-xs ${
               canScrollLeft
                 ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-[#141B29] text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-105 active:scale-95'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/40 text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50'
             }`}
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4.5 h-4.5" />
           </button>
           <button
             onClick={() => handleScroll('right')}
             disabled={!canScrollRight}
             aria-label="Scroll right to next category"
-            className={`w-11 h-11 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-sm ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-xs ${
               canScrollRight
                 ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-[#141B29] text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-105 active:scale-95'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/40 text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50'
             }`}
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4.5 h-4.5" />
           </button>
         </div>
       </div>
 
-      {/* Horizontally arranged row of large, image-based opportunity category cards */}
+      {/* Horizontally arranged row of compact, image-based opportunity category cards (approx. 3-4 visible on desktop) */}
       <div
         ref={scrollContainerRef}
-        className="flex items-stretch gap-6 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+        className="flex items-stretch gap-3.5 sm:gap-4 overflow-x-auto pb-3 pt-1 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
         style={{ scrollBehavior: 'smooth' }}
       >
         {categoryTracks.map((track) => {
@@ -254,7 +258,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
                 }
               }}
               aria-label={`${track.heading} - ${track.description}`}
-              className="group relative shrink-0 snap-start w-[85vw] sm:w-[460px] md:w-[490px] lg:w-[520px] h-[370px] sm:h-[400px] lg:h-[420px] rounded-[24px] overflow-hidden cursor-pointer shadow-xl border border-white/20 dark:border-white/10 select-none focus:outline-none focus-visible:ring-3 focus-visible:ring-[#FCD116] focus-visible:ring-offset-2 transition-transform duration-300 hover:-translate-y-1"
+              className="group relative shrink-0 snap-start w-[76vw] sm:w-[310px] md:w-[330px] lg:w-[340px] xl:w-[350px] h-[285px] sm:h-[305px] md:h-[315px] lg:h-[325px] rounded-[20px] overflow-hidden cursor-pointer shadow-md hover:shadow-xl border border-white/20 dark:border-white/10 select-none focus:outline-none focus-visible:ring-3 focus-visible:ring-[#FCD116] focus-visible:ring-offset-2 transition-all duration-300 hover:-translate-y-1"
             >
               {/* 1. Large landscape photograph filling the card */}
               <img
@@ -271,50 +275,65 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
                 className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
               />
 
-              {/* 2. Dark forest-green gradient overlay across the lower portion of the photograph */}
+              {/* 2. Dark forest-green gradient overlay preserving top photograph visibility */}
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   background:
-                    'linear-gradient(180deg, rgba(0, 35, 25, 0.05) 0%, rgba(0, 35, 25, 0.18) 32%, rgba(0, 42, 30, 0.72) 60%, rgba(0, 36, 26, 0.94) 84%, #00261A 100%)'
+                    'linear-gradient(180deg, rgba(0, 30, 20, 0.02) 0%, rgba(0, 30, 20, 0.16) 28%, rgba(0, 38, 26, 0.72) 56%, rgba(0, 32, 22, 0.94) 82%, #002217 100%)'
                 }}
               />
 
-              {/* 3. Top Row: Small white icon container in upper-left corner & pill-shaped category label in upper-right */}
-              <div className="absolute top-5 sm:top-6 left-5 sm:left-6 right-5 sm:right-6 flex items-center justify-between z-10 pointer-events-none">
+              {/* 3. Top Row: Small white icon container in upper-left & pill category label in upper-right */}
+              <div className="absolute top-3.5 sm:top-4 left-3.5 sm:left-4 right-3.5 sm:right-4 flex items-center justify-between z-10 pointer-events-none">
                 {/* White square icon container with rounded corners */}
-                <div className="w-13 h-13 sm:w-14 sm:h-14 bg-white/95 backdrop-blur-sm rounded-[18px] flex items-center justify-center shadow-lg border border-white/90">
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[#005030]" strokeWidth={2.2} />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/95 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-md border border-white/90">
+                  <Icon className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#005030]" strokeWidth={2.2} />
                 </div>
 
                 {/* Pill-shaped category label near upper-right corner */}
                 <span
-                  className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-full font-bold text-xs sm:text-sm tracking-normal shadow-sm border border-white/50 backdrop-blur-md ${track.pillBg} ${track.pillText}`}
+                  className={`px-2.5 sm:px-3 py-1 rounded-full font-bold text-[11px] sm:text-xs tracking-tight shadow-xs border border-white/50 backdrop-blur-md ${track.pillBg} ${track.pillText}`}
                 >
                   {track.categoryLabel}
                 </span>
               </div>
 
-              {/* 4. Lower Card Content: Large bold white heading, short white description, and yellow call-to-action styling */}
-              <div className="absolute bottom-5 sm:bottom-6 left-5 sm:left-6 right-5 sm:right-6 z-10 flex flex-col justify-end space-y-2 pointer-events-none">
-                {/* Large, bold white heading */}
-                <h3 className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-white tracking-tight leading-tight drop-shadow-xs">
+              {/* 4. Lower Card Content */}
+              <div className="absolute bottom-3.5 sm:bottom-4 left-3.5 sm:left-4 right-3.5 sm:right-4 z-10 flex flex-col justify-end space-y-1.5 pointer-events-none">
+                {/* Heading */}
+                <h3 className="text-base sm:text-lg lg:text-[19px] font-bold text-white tracking-tight leading-snug drop-shadow-xs line-clamp-2">
                   {track.heading}
                 </h3>
 
-                {/* Short white descriptive sentence */}
-                <p className="text-xs sm:text-sm lg:text-[15px] text-white/90 font-normal leading-relaxed line-clamp-2 max-w-lg">
+                {/* Short descriptive sentence */}
+                <p className="text-[11px] sm:text-xs text-white/90 font-normal leading-relaxed line-clamp-2">
                   {track.description}
                 </p>
 
-                {/* Bottom CTA Row: Yellow "Explore opportunities" on bottom-left, yellow right-arrow on bottom-right */}
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="text-[#FCD116] font-bold text-sm sm:text-base group-hover:underline flex items-center gap-1.5 tracking-tight">
+                {/* Bottom CTA Row: Clickable Explore opportunities text and arrow */}
+                <div className="pt-1.5 flex items-center justify-between pointer-events-auto">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNavigate(track.href);
+                    }}
+                    className="text-[#FCD116] hover:text-[#FFE052] font-bold text-xs sm:text-sm group-hover:underline flex items-center gap-1 tracking-tight cursor-pointer focus:outline-none"
+                  >
                     Explore opportunities
-                  </span>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#FCD116] transform group-hover:translate-x-1.5 transition-transform duration-200" />
-                  </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNavigate(track.href);
+                    }}
+                    aria-label={`Explore ${track.heading}`}
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer text-[#FCD116] hover:text-[#FFE052] focus:outline-none"
+                  >
+                    <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 transform group-hover:translate-x-1 transition-transform duration-200" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -323,7 +342,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
       </div>
 
       {/* Pagination dots for quick touch navigation */}
-      <div className="flex items-center justify-center gap-2 pt-2">
+      <div className="flex items-center justify-center gap-1.5 pt-1">
         {categoryTracks.map((track, i) => (
           <button
             key={track.id}
@@ -331,7 +350,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
             aria-label={`Jump to category ${track.heading}`}
             className={`transition-all duration-300 rounded-full cursor-pointer ${
               activeIndex === i
-                ? 'w-7 h-2 bg-[#006B3F] dark:bg-emerald-400'
+                ? 'w-6 h-2 bg-[#006B3F] dark:bg-emerald-400'
                 : 'w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600'
             }`}
           />

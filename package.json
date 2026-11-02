@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx src/services/__tests__/deadlineService.test.ts && tsx src/services/__tests__/securityPermissions.test.ts && tsx src/components/institutions/__tests__/institutionCardLayout.test.ts",
+    "test": "tsx src/services/__tests__/deadlineService.test.ts && tsx src/services/__tests__/securityPermissions.test.ts && tsx src/components/institutions/__tests__/institutionCardLayout.test.ts && tsx src/components/home/__tests__/opportunityCategorySection.test.ts",
     "set-admin": "tsx scripts/set-admin.ts"
   },
   "dependencies": {

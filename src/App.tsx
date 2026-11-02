@@ -185,13 +185,13 @@ export function AppContent() {
     }
 
     // 5. Tertiary Institutions & Admissions Directory
-    if (currentPath.startsWith('/institutions/') && currentPath !== '/institutions') {
-      const slug = currentPath.replace('/institutions/', '').replace(/\/$/, '');
+    if (pathname.startsWith('/institutions/') && pathname !== '/institutions') {
+      const slug = pathname.replace('/institutions/', '').replace(/\/$/, '');
       return <InstitutionDetailPage slug={slug} onNavigate={navigate} />;
     }
 
-    if (currentPath === '/institutions' || currentPath === '/admissions') {
-      const searchParams = new URLSearchParams(window.location.search);
+    if (pathname === '/institutions' || pathname === '/admissions') {
+      const searchParams = new URLSearchParams(queryString || window.location.search);
       const type = searchParams.get('type') || 'All Types';
       const region = searchParams.get('region') || 'All Regions';
       const search = searchParams.get('search') || '';
@@ -220,22 +220,22 @@ export function AppContent() {
     }
 
     // 6. Tools: /tools
-    if (currentPath === '/tools') {
+    if (pathname === '/tools') {
       return <ToolsPage onNavigate={navigate} />;
     }
 
     // 7. Alerts: /alerts
-    if (currentPath === '/alerts') {
+    if (pathname === '/alerts') {
       return <AlertsPage onNavigate={navigate} />;
     }
 
     // 8. Saved: /saved
-    if (currentPath === '/saved') {
+    if (pathname === '/saved') {
       return <SavedPage onNavigate={navigate} />;
     }
 
     // 9. Profile: /profile
-    if (currentPath === '/profile') {
+    if (pathname === '/profile') {
       return <ProfilePage onNavigate={navigate} />;
     }
 
