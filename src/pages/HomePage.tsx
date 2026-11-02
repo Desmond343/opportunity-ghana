@@ -5,7 +5,6 @@ import { ResourcesService } from '../services/resourcesService';
 import { SkillsService } from '../services/skillsService';
 import { SuccessStoriesService } from '../services/successStoriesService';
 import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
-import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { OpportunityCategorySection } from '../components/home/OpportunityCategorySection';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
@@ -31,8 +30,6 @@ import {
   X,
   Target,
   Users,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
   CheckCircle2
 } from 'lucide-react';
@@ -42,7 +39,6 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
-  const [slideshowOpps, setSlideshowOpps] = useState<Opportunity[]>([]);
   const [featuredOpps, setFeaturedOpps] = useState<Opportunity[]>([]);
   const [closingSoon, setClosingSoon] = useState<Opportunity[]>([]);
   const [newlyAdded, setNewlyAdded] = useState<Opportunity[]>([]);
@@ -68,8 +64,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     async function loadData() {
       try {
         setLoading(true);
-        const [slides, featured, closing, recent, courses, count, stories] = await Promise.all([
-          OpportunitiesService.getSlideshowOpportunities(6),
+        const [featured, closing, recent, courses, count, stories] = await Promise.all([
           OpportunitiesService.getFeatured(6),
           OpportunitiesService.getClosingSoon(4),
           OpportunitiesService.getNewlyAdded(6),
@@ -77,7 +72,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           OpportunitiesService.getPublishedOpportunityCount(),
           SuccessStoriesService.getPublishedStories(3)
         ]);
-        setSlideshowOpps(slides);
         setFeaturedOpps(featured);
         setClosingSoon(closing);
         setNewlyAdded(recent);
@@ -343,72 +337,73 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ==================================================
-          2. FEATURED OPPORTUNITIES SLIDESHOW SECTION
-         ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
-              Featured Opportunities Carousel
-            </h2>
-          </div>
-          <button
-            onClick={() => onNavigate('/opportunities')}
-            className="text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>View all listings</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <OpportunitySlideshow
-          opportunities={slideshowOpps}
-          onNavigate={onNavigate}
-          loading={loading}
-        />
-      </section>
 
       {/* ==================================================
           ACCREDITED TERTIARY INSTITUTIONS & ADMISSIONS DIRECTORY
          ================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
+        <div className="relative rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl overflow-hidden border border-emerald-900/50 bg-[#00261b]">
+          {/* Background Photograph */}
+          <img
+            src="/images/institutions/ghana_campus_students.jpg"
+            alt="Ghanaian tertiary university students on campus"
+            className="absolute inset-0 w-full h-full object-cover object-[center_35%] pointer-events-none select-none"
+            loading="lazy"
+          />
+
+          {/* Deep Green Brand Gradient Overlays for High Legibility */}
+          {/* Directional Horizontal Gradient: Stronger dark green on the left for maximum text contrast, gently revealing campus photography on the right */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(0, 38, 27, 0.97) 0%, rgba(0, 48, 35, 0.94) 45%, rgba(0, 59, 45, 0.82) 75%, rgba(0, 45, 32, 0.68) 100%)',
+            }}
+          />
+          {/* Vertical gradient: provides deep contrast across lower content */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(0, 30, 20, 0.45) 0%, rgba(0, 25, 17, 0.7) 60%, rgba(0, 20, 14, 0.92) 100%)',
+            }}
+          />
+
+          {/* Content layer (relative z-10 ensures full opacity, crisp contrast and keyboard interactability) */}
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider backdrop-blur-xs">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 GTEC Master Source Directory
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-space tracking-tight text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-space tracking-tight text-white drop-shadow-sm">
                 Accredited Tertiary Institutions & Admissions
               </h2>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-xl">
                 Explore verified accreditation, cut-off points, application voucher fees, dynamic deadline countdowns, and official application portals for universities, technical universities, and colleges across Ghana.
               </p>
               <div className="pt-2 flex flex-wrap gap-2 text-xs">
                 <button
                   onClick={() => onNavigate('/institutions?type=Public+Traditional+University')}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/30 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-xs"
                 >
                   Public Universities
                 </button>
                 <button
                   onClick={() => onNavigate('/institutions?type=Public+Technical+University')}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/30 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-xs"
                 >
                   Technical Universities
                 </button>
                 <button
                   onClick={() => onNavigate('/institutions?type=Public+College+of+Education')}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/30 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-xs"
                 >
                   Colleges of Education
                 </button>
                 <button
                   onClick={() => onNavigate('/institutions?type=Public+Nursing+%26+Health+Training+College')}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/30 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-xs"
                 >
                   Nursing Training (MOH)
                 </button>
@@ -418,14 +413,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
               <button
                 onClick={() => onNavigate('/institutions')}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg transition-colors text-center cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg hover:shadow-emerald-500/25 transition-all text-center cursor-pointer"
               >
                 <span>Browse All Institutions</span>
                 <ArrowRight className="w-4 h-4 text-slate-950" />
               </button>
               <button
                 onClick={() => onNavigate('/institutions?status=OPEN')}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs transition-colors text-center cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-900/80 border border-emerald-400/30 hover:border-emerald-400/50 text-white font-semibold text-xs transition-colors text-center cursor-pointer backdrop-blur-xs"
               >
                 <Clock className="w-3.5 h-3.5 text-emerald-400" />
                 <span>View Open Admissions</span>
