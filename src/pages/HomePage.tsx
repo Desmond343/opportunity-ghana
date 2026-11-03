@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import heroTrainingImage from '../assets/images/ghana_internship_training_1793142343043.jpg';
 import { Opportunity, Resource, SuccessStory, Skill } from '../types/database';
 import { OpportunitiesService } from '../services/opportunitiesService';
 import { ResourcesService } from '../services/resourcesService';
@@ -235,26 +234,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
               {/* Main Visual Frame */}
               <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 group">
-                <div className="aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <div className="aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] relative overflow-hidden">
                   <img
-                    src={heroTrainingImage || "/images/ghana_internship_training_1793142343043.jpg"}
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.dataset.triedPublic) {
-                        target.dataset.triedPublic = 'true';
-                        target.src = '/images/ghana_internship_training_1793142343043.jpg';
-                      } else if (!target.dataset.triedAlias) {
-                        target.dataset.triedAlias = 'true';
-                        target.src = '/images/ghana_internship_training.jpg';
-                      } else if (!target.dataset.triedHero) {
-                        target.dataset.triedHero = 'true';
-                        target.src = '/images/ghana_hero_professionals.jpg';
-                      }
-                    }}
+                    src="/src/assets/images/ghana_internship_training_1793142343043.jpg"
                     alt="Young Ghanaian university students and professionals collaborating with laptops and learning digital skills"
                     className="w-full h-full object-cover object-center transform group-hover:scale-103 transition-transform duration-700 ease-out"
                     loading="eager"
-                    decoding="async"
                   />
                   {/* Subtle editorial scrim overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-slate-950/15 to-transparent pointer-events-none" />
