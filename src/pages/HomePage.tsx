@@ -147,126 +147,169 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F2F7F4] via-[#F8FAF9] to-white dark:from-[#0B0F17] dark:via-[#0F141F] dark:to-[#121826] pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 lg:pb-20 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
-        {/* Subtle decorative Ghanaian ambient glow */}
+      {/* ==================================================
+          1. MODERN ANIMATED HERO SECTION (Inspired by GlobalWave Tech Reference)
+         ================================================== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F6FBF8] via-[#F8FAF9] to-white dark:from-[#0B0F17] dark:via-[#0E1420] dark:to-[#121826] pt-12 sm:pt-16 lg:pt-20 pb-14 sm:pb-18 lg:pb-22 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+        {/* Subtle decorative Ghanaian ambient gradient glow */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#006B3F] to-[#FCD116]" />
-        <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#006B3F]/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-12 right-10 w-96 h-96 bg-[#FCD116]/10 dark:bg-[#FCD116]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 left-1/4 w-[550px] h-[550px] bg-gradient-to-br from-[#006B3F]/10 via-emerald-400/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-gradient-to-bl from-teal-400/10 via-[#FCD116]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* HERO LEFT: Brand Messaging & CTAs */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* HERO LEFT COLUMN: Prominent Headline & Actions */}
+            <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-left">
               {/* Ghanaian Platform Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white dark:bg-slate-900/90 border border-[#006B3F]/25 dark:border-emerald-500/35 shadow-xs text-xs font-bold text-[#006B3F] dark:text-emerald-300 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-emerald-200/80 dark:border-emerald-800/70 shadow-xs text-xs font-semibold text-[#006B3F] dark:text-emerald-300 backdrop-blur-md">
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B3F] dark:bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B3F] dark:bg-emerald-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600 dark:bg-emerald-400" />
                 </span>
-                <span className="tracking-wide">The Modern Ghanaian Opportunity Portal</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116]" />
+                <span className="font-sans">Empowering Ghanaian Talent</span>
+                <span className="text-slate-300 dark:text-slate-600">|</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 font-sans">
+                  {totalCount > 0 ? `${totalCount}+ Verified Listings` : '100+ Verified Listings'}
+                </span>
               </div>
 
-              {/* Article-Style Main Headline */}
-              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-semibold text-[#111111] dark:text-white leading-tight font-serif text-left">
-                Discover Opportunities.
-                <span className="text-[#006B3F] dark:text-emerald-400 block mt-1">Build Your Future in Ghana.</span>
+              {/* Large, Bold, Prominent Headline with Animated Colour-Changing Words */}
+              <h1 className="hero-headline text-4xl sm:text-5xl md:text-6xl lg:text-[58px] xl:text-[66px] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.08] text-balance">
+                <span className="block animated-gradient-text-1">Discover opportunities.</span>
+                <span className="block animated-gradient-text-2 mt-1 sm:mt-2">Build your skills.</span>
+                <span className="block animated-gradient-text-3 mt-1 sm:mt-2">Shape your future.</span>
               </h1>
 
-              {/* Supporting Editorial Paragraph */}
-              <p className="text-[16px] sm:text-[17px] text-[#333333] dark:text-slate-200 max-w-xl leading-[1.6] font-normal font-serif text-left">
-                Find scholarships, jobs, internships, fellowships, grants, and free certified training programmes across Ghana — all gathered and verified in one editorial directory.
+              {/* Concise Hero Description */}
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed font-normal font-sans pt-1">
+                Your gateway to scholarships, jobs, internships, free courses, admissions, grants, and opportunities to build a successful future.
               </p>
 
               {/* Hero Action Buttons */}
-              <div className="pt-2 flex flex-wrap items-center gap-3.5">
+              <div className="pt-2 flex flex-wrap items-center gap-3.5 sm:gap-4 font-sans">
+                {/* Primary Button: Explore Opportunities */}
                 <button
                   onClick={() => onNavigate('/opportunities')}
-                  className="group px-7 py-4 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-md hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-98 flex items-center gap-2.5"
+                  className="group px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-[#006B3F] hover:bg-[#005530] text-white text-sm sm:text-base font-bold transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-98 flex items-center gap-2.5"
                 >
                   <span>Explore Opportunities</span>
-                  <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1.5 transition-transform" />
                 </button>
+
+                {/* Secondary Button: Discover Skills */}
                 <button
-                  onClick={() => onNavigate('/resources')}
-                  className="px-6 py-4 rounded-xl bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 text-slate-800 dark:text-slate-100 text-xs sm:text-sm font-bold transition-all duration-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+                  onClick={() => onNavigate('/skills')}
+                  className="px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-slate-900/90 hover:bg-emerald-50/70 dark:hover:bg-slate-800/90 border-2 border-[#006B3F] dark:border-emerald-500 text-[#006B3F] dark:text-emerald-400 text-sm sm:text-base font-bold transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer flex items-center gap-2"
                 >
-                  Browse Resources
+                  <Sparkles className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
+                  <span>Discover Skills</span>
                 </button>
               </div>
 
               {/* Micro Trust Indicators */}
-              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-600 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800">
+              <div className="pt-6 sm:pt-8 flex flex-wrap items-center gap-5 sm:gap-7 text-xs sm:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800/80 font-sans">
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#E8F5EF] dark:bg-emerald-950/80 flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
                   </div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">100% Verified Sources</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">100% Verified Sources</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FCD116] ring-4 ring-[#FFF8D6] dark:ring-amber-950/60" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">All 16 Regions of Ghana</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FCD116] ring-4 ring-amber-100 dark:ring-amber-950/60 shrink-0" />
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">All 16 Regions of Ghana</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400 ring-4 ring-[#E8F5EF] dark:ring-emerald-950/60" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Zero Application Fees Policy</span>
+                  <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950/80 flex items-center justify-center shrink-0">
+                    <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">Zero Application Fees Policy</span>
                 </div>
               </div>
             </div>
 
-            {/* HERO RIGHT: Large Ghanaian Lifestyle Photograph */}
-            <div className="lg:col-span-5 relative">
-              {/* Subtle ambient decorative glow behind image */}
-              <div className="absolute -inset-2 bg-gradient-to-tr from-[#006B3F]/20 via-[#FCD116]/15 to-transparent rounded-3xl blur-xl opacity-75 pointer-events-none" />
+            {/* HERO RIGHT COLUMN: Visual Composition with Floating Information Panels */}
+            <div className="lg:col-span-5 relative mt-4 lg:mt-0">
+              {/* Soft ambient gradient aura */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#006B3F]/20 via-teal-500/15 to-transparent rounded-3xl blur-2xl opacity-75 pointer-events-none" />
 
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-4/3 sm:aspect-16/11 lg:aspect-4/3 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
-                <img
-                  src="/images/ghana_hero_professionals.jpg"
-                  alt="Young Ghanaian professionals and university students collaborating"
-                  className="w-full h-full object-cover object-center transform hover:scale-102 transition-transform duration-700"
-                  loading="eager"
-                />
+              {/* Main Visual Frame */}
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 group">
+                <div className="aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] relative overflow-hidden">
+                  <img
+                    src="/src/assets/images/ghana_internship_training_1793142343043.jpg"
+                    alt="Young Ghanaian university students and professionals collaborating with laptops and learning digital skills"
+                    className="w-full h-full object-cover object-center transform group-hover:scale-103 transition-transform duration-700 ease-out"
+                    loading="eager"
+                  />
+                  {/* Subtle editorial scrim overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-slate-950/15 to-transparent pointer-events-none" />
+                </div>
 
-                {/* Subtle protective gradient over image bottom */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
-
-                {/* Floating Information Card on Image */}
-                <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-2xl p-4 border border-white/50 dark:border-slate-700/80 shadow-2xl flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-xl bg-[#E8F5EF] dark:bg-emerald-950/80 border border-[#006B3F]/20 dark:border-emerald-700/50 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 shadow-xs">
-                      <GraduationCap className="w-6 h-6" />
+                {/* Floating Information Panel 1: Top Right - Verified Opportunities */}
+                <div className="absolute -top-3 sm:-top-4 -right-2 sm:-right-4 bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700/80 shadow-xl max-w-[210px] sm:max-w-[230px] animate-float-gentle transition-all hover:scale-102">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/60 dark:border-emerald-800/60 text-[#006B3F] dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#006B3F] dark:bg-emerald-400 animate-pulse" />
-                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100 font-space truncate">
-                          Verified Opportunities Active
-                        </p>
-                      </div>
-                      <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                        {totalCount > 0 ? `${totalCount} Nationwide Listings` : 'Nationwide Listings'}
-                      </p>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-sans">Directory</p>
+                      <p className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white font-sans truncate">Verified Opportunities</p>
+                      <p className="text-[10px] sm:text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold font-sans">{totalCount > 0 ? `${totalCount}+ Active Listings` : '100+ Active Listings'}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => onNavigate('/opportunities')}
-                    className="p-2.5 rounded-xl bg-[#006B3F] text-white hover:bg-[#005530] transition-colors cursor-pointer shrink-0 shadow-xs"
-                    title="Explore Opportunities"
-                  >
-                    <ArrowRight className="w-4 h-4 text-[#FCD116]" />
-                  </button>
+                </div>
+
+                {/* Floating Information Panel 2: Bottom Left - Scholarships & Grants */}
+                <div className="absolute -bottom-3 sm:-bottom-4 -left-2 sm:-left-4 bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700/80 shadow-xl max-w-[210px] sm:max-w-[240px] animate-float-slow transition-all hover:scale-102">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 dark:bg-amber-950/80 border border-amber-200/60 dark:border-amber-800/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                      <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-sans">Funding</p>
+                      <p className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white font-sans truncate">Scholarships & Grants</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium font-sans">Full tuition & stipends</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Information Panel 3: Top Left - Career Development Pill Badge */}
+                <div className="hidden sm:flex absolute top-5 -left-3 bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-xl py-1.5 px-3 border border-slate-200/80 dark:border-slate-700/80 shadow-lg items-center gap-2 animate-float-slow">
+                  <div className="flex items-end gap-1 h-3.5">
+                    <span className="w-1 h-2 rounded-xs bg-[#CE1126]" />
+                    <span className="w-1 h-2.5 rounded-xs bg-[#FCD116]" />
+                    <span className="w-1 h-3.5 rounded-xs bg-[#006B3F]" />
+                    <span className="w-1 h-2.5 rounded-xs bg-blue-500" />
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 font-sans">Career Development</span>
+                </div>
+
+                {/* Floating Information Panel 4: Bottom Right - Free Learning Resources */}
+                <div className="hidden sm:flex absolute bottom-4 right-3 bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-xl py-2 px-3.5 border border-slate-200/80 dark:border-slate-700/80 shadow-lg items-center gap-2.5 animate-float-gentle">
+                  <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/80 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white font-sans">Free Learning Resources</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">Certified tech & business</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* ==================================================
-              HERO SEARCH BAR (Jobberman-Style Horizontal Bar)
+              HERO SEARCH BAR (Modern Minimalist Card)
              ================================================== */}
-          <div className="mt-10 sm:mt-14 max-w-5xl mx-auto">
+          <div className="mt-12 sm:mt-16 max-w-5xl mx-auto">
+            <div className="text-center mb-3">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 font-sans">
+                Search opportunities, scholarships, internships, and certified courses across Ghana
+              </span>
+            </div>
             <form
               onSubmit={handleSearchSubmit}
-              className="bg-white dark:bg-[#141B29] rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row items-center gap-2 transition-colors"
+              className="bg-white/95 dark:bg-[#141B29]/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 shadow-xl border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row items-center gap-2 transition-all font-sans"
             >
               {/* Keyword Search Field */}
               <div className="relative flex-1 w-full flex items-center pl-3">
@@ -275,8 +318,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Job title, scholarship name, field of study..."
-                  className="w-full pl-2.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
+                  placeholder="Job title, scholarship name, field of study, skills..."
+                  className="w-full pl-2.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none font-sans"
                 />
                 {searchTerm && (
                   <button
@@ -295,7 +338,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <select
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer font-sans"
                 >
                   <option value="All Regions" className="dark:bg-slate-900 dark:text-slate-100">All Locations / Ghana</option>
                   <option value="Remote" className="dark:bg-slate-900 dark:text-slate-100">Remote / Online</option>
@@ -312,7 +355,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 py-2 focus:outline-none cursor-pointer font-sans"
                 >
                   <option value="All" className="dark:bg-slate-900 dark:text-slate-100">All Categories</option>
                   <option value="Scholarships" className="dark:bg-slate-900 dark:text-slate-100">Scholarships</option>
@@ -327,7 +370,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               {/* Primary Search Submit Button */}
               <button
                 type="submit"
-                className="w-full md:w-auto px-7 py-3.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                className="w-full md:w-auto px-7 py-3.5 rounded-xl bg-[#006B3F] hover:bg-[#005530] text-white text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 cursor-pointer flex items-center justify-center gap-2 active:scale-98 font-sans"
               >
                 <span>Search</span>
                 <ArrowRight className="w-4 h-4" />

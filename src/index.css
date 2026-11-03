@@ -4,8 +4,8 @@
 
 @theme {
   --font-serif: "Times New Roman", Times, serif;
-  --font-sans: "Times New Roman", Times, serif;
-  --font-space: "Times New Roman", Times, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-space: "Plus Jakarta Sans", system-ui, sans-serif;
   --color-ghana-green: #006B3F;
   --color-ghana-green-hover: #005632;
   --color-ghana-green-light: #E6F0EB;
@@ -583,4 +583,172 @@
     radial-gradient(at 100% 0%, rgba(252, 209, 22, 0.035) 0px, transparent 45%),
     radial-gradient(at 50% 100%, rgba(5, 150, 105, 0.04) 0px, transparent 45%);
 }
+
+/* =========================================================================
+   ANIMATED COLOUR-CHANGING HERO GRADIENT & FLOATING PANELS
+   Design Reference: GlobalWave Tech Ghana layout with continuous flowing colors
+   ========================================================================= */
+
+@keyframes gradientShiftOpp {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes heroCardFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes heroCardFloatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* Hero Headline: Modern, bold geometric styling */
+.hero-headline {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+/* Phrase 1: "Discover opportunities." — emerald green, lime green, teal, and blue */
+.animated-gradient-text-1 {
+  background: linear-gradient(
+    90deg,
+    #006B3F 0%,
+    #10B981 22%,
+    #84CC16 45%,
+    #0D9488 68%,
+    #0284C7 88%,
+    #006B3F 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShiftOpp 8s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* Phrase 2: "Build your skills." — green, turquoise, blue, and violet */
+.animated-gradient-text-2 {
+  background: linear-gradient(
+    90deg,
+    #059669 0%,
+    #14B8A6 24%,
+    #0284C7 50%,
+    #2563EB 72%,
+    #7C3AED 88%,
+    #059669 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShiftOpp 10s ease-in-out infinite reverse;
+  display: inline-block;
+}
+
+/* Phrase 3: "Shape your future." — yellow-green, emerald, and cyan */
+.animated-gradient-text-3 {
+  background: linear-gradient(
+    90deg,
+    #65A30D 0%,
+    #10B981 26%,
+    #06B6D4 52%,
+    #059669 76%,
+    #EAB308 90%,
+    #65A30D 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShiftOpp 7s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* Dark Mode Variants: Enhanced luminance for deep slate canvas */
+.dark .animated-gradient-text-1 {
+  background: linear-gradient(
+    90deg,
+    #34D399 0%,
+    #4ADE80 22%,
+    #A3E635 45%,
+    #2DD4BF 68%,
+    #38BDF8 88%,
+    #34D399 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .animated-gradient-text-2 {
+  background: linear-gradient(
+    90deg,
+    #10B981 0%,
+    #2DD4BF 24%,
+    #38BDF8 50%,
+    #60A5FA 72%,
+    #C084FC 88%,
+    #10B981 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .animated-gradient-text-3 {
+  background: linear-gradient(
+    90deg,
+    #BEF264 0%,
+    #34D399 26%,
+    #22D3EE 52%,
+    #4ADE80 76%,
+    #FDE047 90%,
+    #BEF264 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.animate-float-gentle {
+  animation: heroCardFloat 5.5s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: heroCardFloatSlow 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient-text-1,
+  .animated-gradient-text-2,
+  .animated-gradient-text-3,
+  .animate-float-gentle,
+  .animate-float-slow {
+    animation: none !important;
+  }
+}
+
 
