@@ -152,9 +152,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
             {/* Primary Action Button */}
             <button
               onClick={() => handleNavClick('/opportunities')}
-              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-[#006B3F] hover:bg-[#005530] rounded-xl transition-all shadow-xs cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center px-4.5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#006B3F] hover:bg-[#005530] rounded-xl transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-98"
             >
-              Find Opportunities
+              Explore Opportunities
             </button>
 
             {/* User Profile / Auth Menu */}
