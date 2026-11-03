@@ -45,7 +45,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
       icon: GraduationCap,
       pillBg: 'bg-[#E8F5EE]',
       pillText: 'text-[#005A36]',
-      image: '/src/assets/images/ghana_scholarships_students_1793142405390.jpg',
+      image: '/images/ghana_scholarships_students_1793142405390.jpg',
       fallbackImage: '/images/categories/scholarships.jpg',
       href: '/scholarships'
     },
@@ -57,7 +57,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
       icon: Briefcase,
       pillBg: 'bg-[#EBF3FF]',
       pillText: 'text-[#1E40AF]',
-      image: '/src/assets/images/ghana_corporate_professionals_1793142343322.jpg',
+      image: '/images/ghana_corporate_professionals_1793142343322.jpg',
       fallbackImage: '/images/categories/jobs.jpg',
       href: '/jobs'
     },
@@ -69,7 +69,7 @@ export const OpportunityCategorySection: React.FC<OpportunityCategorySectionProp
       icon: Compass,
       pillBg: 'bg-[#E8F5EE]',
       pillText: 'text-[#046A38]',
-      image: '/src/assets/images/ghana_internship_training_1793142343043.jpg',
+      image: '/images/ghana_internship_training_1793142343043.jpg',
       fallbackImage: '/images/categories/internships.jpg',
       href: '/internships'
     },
