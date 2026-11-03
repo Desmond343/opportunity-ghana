@@ -1,9 +1,11 @@
 {
   "projectId": "opportunity-ghana",
-  "appId": "1:819918980574:web:60476801ff66efd572094f",
+  "appId": "1:819918980574:web:f30a40f0f0b682be72094f",
   "apiKey": "AIzaSyAkLcE44CGtDEdkNnoaKQve2XAuA-UyRjk",
   "authDomain": "opportunity-ghana.firebaseapp.com",
   "storageBucket": "opportunity-ghana.firebasestorage.app",
   "messagingSenderId": "819918980574",
-  "measurementId": "G-MLL1K4KFKK"
+  "measurementId": "",
+  "oAuthClientId": "819918980574-brc0t54hjaqk56pge7aqm68ivoc31ai5.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
 }

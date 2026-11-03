@@ -1571,6 +1571,9 @@ app.post('/api/alerts/subscribe', async (req, res) => {
       }
     }
 
+    // Auto-sync to connected Google Sheets
+    autoSyncSubscriberToGoogleSheet(subscriberRecord).catch(() => {});
+
     let message = 'Thank you! You are now subscribed to verified daily opportunity alerts.';
     if (alreadySubscribed) {
       message = 'Your alert preferences have been successfully updated. You are already an active subscriber.';
@@ -1633,6 +1636,9 @@ app.post('/api/alerts/unsubscribe', async (req, res) => {
         console.warn('Firestore admin unsubscribe notice:', err.message);
       }
     }
+
+    // Auto-sync to connected Google Sheets
+    autoSyncSubscriberToGoogleSheet(updated).catch(() => {});
 
     return res.json({ success: true, message: 'You have been successfully unsubscribed from daily alerts.' });
   } catch (err: any) {
@@ -1793,6 +1799,9 @@ app.post('/api/admin/alerts/subscribers/:id/status', verifyAdminAuth, async (req
         console.warn('Firestore update alert status notice:', err.message);
       }
     }
+
+    // Auto-sync to connected Google Sheets
+    autoSyncSubscriberToGoogleSheet(updated).catch(() => {});
 
     return res.json({ success: true, subscriber: updated });
   } catch (err: any) {
@@ -2265,6 +2274,124 @@ async function getOrRefreshGoogleAccessToken(): Promise<string> {
   }
 
   throw new Error('Google authorization token expired. Please click "Connect Google Sheets" to reconnect.');
+}
+
+function formatSubscriberSheetRow(sub: any): string[] {
+  const cats = Array.isArray(sub.categories) ? sub.categories : [];
+  const has = (re: RegExp) => (cats.some((c: string) => re.test(c)) ? 'Yes' : 'No');
+  const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join('; ') : 'All Ghana';
+  const createdDate = sub.createdAt ? new Date(sub.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+  const updatedDate = sub.updatedAt ? new Date(sub.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
+  const statusLabel = sub.status === 'active' || sub.active === true ? 'Active' : 'Unsubscribed';
+
+  return [
+    sub.id || '',
+    sub.email || '',
+    statusLabel,
+    has(/scholarship/i),
+    has(/grant/i),
+    has(/job/i),
+    has(/intern/i),
+    has(/course|training/i),
+    has(/fellowship/i),
+    has(/admiss/i),
+    has(/compet/i),
+    has(/entrepreneur/i),
+    has(/graduate/i),
+    has(/government/i),
+    has(/skill/i),
+    regs,
+    (sub.frequency || 'Daily').toUpperCase(),
+    sub.source || 'Website',
+    createdDate,
+    updatedDate
+  ];
+}
+
+async function autoSyncSubscriberToGoogleSheet(sub: any): Promise<void> {
+  const cfg = googleSheetsConfigState;
+  if (!cfg.isConnected || !cfg.spreadsheetId) {
+    return;
+  }
+
+  try {
+    const accessToken = await getOrRefreshGoogleAccessToken();
+    const sheetName = cfg.sheetName || 'Email Subscribers';
+
+    // Fetch existing rows (ID and Email) to locate matching row
+    const getResp = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A:B`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    let existingRows: string[][] = [];
+    if (getResp.ok) {
+      const data = await getResp.json();
+      existingRows = data.values || [];
+    }
+
+    const rowValues = formatSubscriberSheetRow(sub);
+    const subEmail = normalizeAlertEmail(sub.email);
+    let targetRowIndex = -1;
+
+    for (let i = 1; i < existingRows.length; i++) {
+      const rowId = (existingRows[i][0] || '').trim();
+      const rowEmail = normalizeAlertEmail(existingRows[i][1] || '');
+      if (rowId === sub.id || (subEmail && rowEmail === subEmail)) {
+        targetRowIndex = i + 1; // 1-indexed for Sheets row
+        break;
+      }
+    }
+
+    if (targetRowIndex > 0) {
+      // In-place update to prevent duplicates
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A${targetRowIndex}:T${targetRowIndex}?valueInputOption=USER_ENTERED`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            range: `${sheetName}!A${targetRowIndex}:T${targetRowIndex}`,
+            majorDimension: 'ROWS',
+            values: [rowValues]
+          })
+        }
+      );
+      console.info(`[GoogleSheets AutoSync] In-place updated subscriber "${sub.email}" at row ${targetRowIndex}`);
+    } else {
+      // Append new row
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${cfg.spreadsheetId}/values/${encodeURIComponent(sheetName)}!A:T:append?valueInputOption=USER_ENTERED`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            range: `${sheetName}!A:T`,
+            majorDimension: 'ROWS',
+            values: [rowValues]
+          })
+        }
+      );
+      console.info(`[GoogleSheets AutoSync] Appended new subscriber "${sub.email}" to Google Sheet`);
+    }
+
+    // Refresh last sync timestamp in config
+    const now = new Date().toISOString();
+    saveGoogleSheetsConfig({
+      ...googleSheetsConfigState,
+      lastSyncAt: now,
+      lastSyncStatus: 'success',
+      lastSyncError: null
+    });
+  } catch (err: any) {
+    console.warn('[GoogleSheets AutoSync] Notice while auto-syncing subscriber:', err.message);
+  }
 }
 
 // 1. GET /api/admin/google-sheets/status - Get current connection and sync status
@@ -2859,39 +2986,6 @@ app.post('/api/admin/google-sheets/sync', verifyAdminAuth, async (req, res) => {
       if (rowEmail) existingRowIndexByEmail.set(rowEmail, sheetRowNum);
     }
 
-    // Helper to format subscriber into exact spreadsheet row values
-    const formatSubscriberRow = (sub: any): string[] => {
-      const cats = Array.isArray(sub.categories) ? sub.categories : [];
-      const has = (re: RegExp) => cats.some((c: string) => re.test(c)) ? 'Yes' : 'No';
-      const regs = Array.isArray(sub.regions) && sub.regions.length > 0 ? sub.regions.join(', ') : 'All Ghana';
-      const createdDate = sub.createdAt ? new Date(sub.createdAt).toISOString().replace('T', ' ').substring(0, 19) : '';
-      const updatedDate = sub.updatedAt ? new Date(sub.updatedAt).toISOString().replace('T', ' ').substring(0, 19) : '';
-      const statusLabel = (sub.status === 'active' || sub.active === true) ? 'Active' : 'Unsubscribed';
-
-      return [
-        sub.id || '',
-        sub.email || '',
-        statusLabel,
-        has(/scholarship/i),
-        has(/grant/i),
-        has(/job/i),
-        has(/intern/i),
-        has(/course|training/i),
-        has(/fellowship/i),
-        has(/admiss/i),
-        has(/compet/i),
-        has(/entrepreneur/i),
-        has(/graduate/i),
-        has(/government/i),
-        has(/skill/i),
-        regs,
-        (sub.frequency || 'Daily').toUpperCase(),
-        sub.source || 'Website',
-        createdDate,
-        updatedDate
-      ];
-    };
-
     const batchUpdates: { range: string; values: string[][] }[] = [];
     const rowsToAppend: string[][] = [];
 
@@ -2901,7 +2995,7 @@ app.post('/api/admin/google-sheets/sync', verifyAdminAuth, async (req, res) => {
     for (const sub of subscribers) {
       const emailKey = normalizeAlertEmail(sub.email);
       const targetRowNum = existingRowIndexByEmail.get(emailKey) || existingRowIndexById.get(sub.id);
-      const rowValues = formatSubscriberRow(sub);
+      const rowValues = formatSubscriberSheetRow(sub);
 
       if (targetRowNum) {
         // Update existing row in place without creating duplicates

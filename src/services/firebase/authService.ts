@@ -22,6 +22,11 @@ export const auth: Auth | null = (app && isFirebaseConfigured) ? getAuth(app) : 
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+export const sheetsGoogleProvider = new GoogleAuthProvider();
+sheetsGoogleProvider.addScope('https://www.googleapis.com/auth/spreadsheets');
+sheetsGoogleProvider.addScope('https://www.googleapis.com/auth/drive.file');
+sheetsGoogleProvider.setCustomParameters({ prompt: 'consent' });
+
 function withTimeout<T>(promise: Promise<T>, ms = 2500): Promise<T> {
   return Promise.race([
     promise,
@@ -296,5 +301,20 @@ export const FirebaseAuthService = {
       console.debug('[Opportunity Ghana] Profile lookup fallback used:', e);
     }
     return null;
+  },
+
+  async requestSheetsAccessToken(): Promise<{ accessToken: string; email: string }> {
+    if (!auth) {
+      throw new Error('Authentication service is not initialized.');
+    }
+    const result = await signInWithPopup(auth, sheetsGoogleProvider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential?.accessToken) {
+      throw new Error('Google authorization succeeded but no access token was returned.');
+    }
+    return {
+      accessToken: credential.accessToken,
+      email: result.user.email || ''
+    };
   }
 };
