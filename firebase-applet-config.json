@@ -5,5 +5,6 @@
   "authDomain": "opportunity-ghana.firebaseapp.com",
   "storageBucket": "opportunity-ghana.firebasestorage.app",
   "messagingSenderId": "819918980574",
-  "measurementId": "G-MLL1K4KFKK"
+  "measurementId": "G-MLL1K4KFKK",
+  "oAuthClientId": "167870130575-0716vgmd31kc0obe4qc7ttu43fer2mf4.apps.googleusercontent.com"
 }

@@ -627,6 +627,18 @@ export const AlertSubscriptionsService = {
   // GOOGLE SHEETS INTEGRATION CLIENT METHODS
   // =========================================================================
 
+  async _safeFetchJson<T = any>(res: Response): Promise<T> {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      if (!res.ok) {
+        throw new Error(`Server returned error (${res.status}): ${text.slice(0, 150)}`);
+      }
+      throw new Error(`Server returned non-JSON response: ${text.slice(0, 150)}`);
+    }
+  },
+
   async getGoogleSheetsStatus(tokenGetter?: () => Promise<string | null>): Promise<any> {
     let token: string | null = null;
     if (tokenGetter) {
@@ -639,7 +651,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   async getGoogleSheetsAuthUrl(tokenGetter?: () => Promise<string | null>): Promise<{ success: boolean; authUrl?: string; error?: string; redirectUri?: string }> {
@@ -654,7 +666,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   async connectGoogleSheetsToken(accessToken: string, email?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -671,7 +683,7 @@ export const AlertSubscriptionsService = {
       },
       body: JSON.stringify({ accessToken, email })
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   async saveGoogleSheetsCredentials(clientId: string, clientSecret: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -688,10 +700,10 @@ export const AlertSubscriptionsService = {
       },
       body: JSON.stringify({ clientId, clientSecret })
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
-  async createGoogleSpreadsheet(title?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+  async createGoogleSpreadsheet(title?: string, sheetName?: string, sentLogSheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
     let token: string | null = null;
     if (tokenGetter) {
       try { token = await tokenGetter(); } catch {}
@@ -703,12 +715,16 @@ export const AlertSubscriptionsService = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ title: title || 'Opportunity Ghana - Email Subscribers' })
+      body: JSON.stringify({
+        title: title || 'Opportunity Ghana Daily Alerts',
+        sheetName: sheetName || 'Subscribers',
+        sentLogSheetName: sentLogSheetName || 'SentLog'
+      })
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
-  async selectGoogleSpreadsheet(spreadsheetId: string, sheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
+  async selectGoogleSpreadsheet(spreadsheetId: string, sheetName?: string, sentLogSheetName?: string, tokenGetter?: () => Promise<string | null>): Promise<any> {
     let token: string | null = null;
     if (tokenGetter) {
       try { token = await tokenGetter(); } catch {}
@@ -720,9 +736,13 @@ export const AlertSubscriptionsService = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ spreadsheetId, sheetName })
+      body: JSON.stringify({
+        spreadsheetId,
+        sheetName: sheetName || 'Subscribers',
+        sentLogSheetName: sentLogSheetName || 'SentLog'
+      })
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   async testGoogleSheetsConnection(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -738,7 +758,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   async syncGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -754,7 +774,26 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return this._safeFetchJson(res);
+  },
+
+  async logAlertDeliveryToSheets(logData: {
+    dedupeKey?: string;
+    subscriberId?: string;
+    opportunityId?: string;
+    email: string;
+    opportunityTitle?: string;
+    deliveryStatus?: string;
+    sentAt?: string;
+    runId?: string;
+    error?: string;
+  }): Promise<any> {
+    const res = await fetch('/api/alerts/log-delivery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(logData)
+    });
+    return this._safeFetchJson(res);
   },
 
   async disconnectGoogleSheets(tokenGetter?: () => Promise<string | null>): Promise<any> {
@@ -770,7 +809,7 @@ export const AlertSubscriptionsService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
-    return res.json();
+    return this._safeFetchJson(res);
   },
 
   getLocalCachedSubscribers(): AlertSubscription[] {
