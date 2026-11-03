@@ -2181,11 +2181,20 @@ function getGoogleOAuthCredentials(): { clientId: string; clientSecret: string }
   const envClientId = (process.env.GOOGLE_CLIENT_ID || '').trim();
   const envClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
 
+  let appletClientId = '';
+  try {
+    const configPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
+    if (fs.existsSync(configPath)) {
+      const parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      appletClientId = (parsed.oAuthClientId || '').trim();
+    }
+  } catch {}
+
   const customId = (googleSheetsConfigState.customCredentials?.clientId || '').trim();
   const customSecret = (googleSheetsConfigState.customCredentials?.clientSecret || '').trim();
 
   return {
-    clientId: envClientId || customId,
+    clientId: envClientId || customId || appletClientId,
     clientSecret: envClientSecret || customSecret
   };
 }
