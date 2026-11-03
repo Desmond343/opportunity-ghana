@@ -446,13 +446,11 @@ export interface AlertSubscriberMetrics {
 
 export interface GoogleSheetsConfig {
   isConnected: boolean;
-  status?: 'connected' | 'disconnected' | 'error';
   connectedEmail?: string;
   connectedAt?: string | null;
   spreadsheetId?: string;
   spreadsheetName?: string;
-  sheetName?: string; // "Subscribers"
-  sentLogSheetName?: string; // "SentLog"
+  sheetName?: string;
   spreadsheetUrl?: string;
   lastSyncAt?: string | null;
   lastSyncCount?: number;
@@ -462,10 +460,6 @@ export interface GoogleSheetsConfig {
   clientIdConfigured?: boolean;
   clientIdMasked?: string;
   redirectUri?: string;
-  customCredentials?: {
-    clientId?: string;
-    clientSecret?: string;
-  };
 }
 
 export type SuccessStoryStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'archived';
