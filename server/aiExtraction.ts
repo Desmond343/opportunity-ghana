@@ -115,7 +115,7 @@ Remember: If a field is not found in the text, assign "Not found" or "Needs veri
         );
 
         const geminiPromise = ai.models.generateContent({
-          model: 'gemini-3.1-flash-lite',
+          model: 'gemini-2.5-flash',
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
