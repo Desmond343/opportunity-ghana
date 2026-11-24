@@ -58,7 +58,8 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({
     { id: 'All', label: 'All Formats' },
     { id: 'certification', label: 'Certifications' },
     { id: 'course', label: 'Courses' },
-    { id: 'bootcamp', label: 'Bootcamps' }
+    { id: 'bootcamp', label: 'Bootcamps' },
+    { id: 'event', label: 'Conferences & Events' }
   ];
 
   const pricingModels = [

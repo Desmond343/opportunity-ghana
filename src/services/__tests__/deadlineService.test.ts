@@ -3,6 +3,8 @@ import {
   getDeadlineStatus,
   parseDeadlineDate,
   isOpportunityActuallyClosed,
+  getOpportunityLifecycleStatus,
+  getReopeningInfo,
   DEADLINE_THRESHOLDS 
 } from '../deadlineService';
 
@@ -118,10 +120,68 @@ const mockNow = new Date('2026-10-02T13:35:00Z');
 
 // TEST 10: isOpportunityActuallyClosed helper
 {
-  assert(isOpportunityActuallyClosed('published', '2026-10-01'), 'Past deadline should be closed');
-  assert(!isOpportunityActuallyClosed('published', '2026-11-15'), 'Future deadline should NOT be closed');
-  assert(isOpportunityActuallyClosed('closed', '2026-11-15'), 'Status closed must return true');
-  assert(!isOpportunityActuallyClosed('published', undefined), 'Undefined deadline should not be closed');
+  assert(isOpportunityActuallyClosed('published', '2026-10-01', mockNow), 'Past deadline should be closed');
+  assert(!isOpportunityActuallyClosed('published', '2026-11-15', mockNow), 'Future deadline should NOT be closed');
+  assert(isOpportunityActuallyClosed('closed', '2026-11-15', mockNow), 'Status closed must return true');
+  assert(!isOpportunityActuallyClosed('published', undefined, mockNow), 'Undefined deadline should not be closed');
 }
 
-console.log('--- ALL 10 TESTS PASSED SUCCESSFULLY! ---');
+// TEST 11: getOpportunityLifecycleStatus (OPEN, CLOSING_SOON, UPCOMING, CLOSED)
+{
+  const openLife = getOpportunityLifecycleStatus(
+    { status: 'published', openingDate: '2026-09-01', deadline: '2026-11-15' },
+    mockNow
+  );
+  assert(openLife.code === 'OPEN', `Expected OPEN, got ${openLife.code}`);
+
+  const closingSoonLife = getOpportunityLifecycleStatus(
+    { status: 'published', openingDate: '2026-09-01', deadline: '2026-10-05' },
+    mockNow
+  );
+  assert(closingSoonLife.code === 'CLOSING_SOON', `Expected CLOSING_SOON, got ${closingSoonLife.code}`);
+
+  const upcomingLife = getOpportunityLifecycleStatus(
+    { status: 'published', openingDate: '2026-10-15', deadline: '2026-12-01' },
+    mockNow
+  );
+  assert(upcomingLife.code === 'UPCOMING', `Expected UPCOMING, got ${upcomingLife.code}`);
+  assert(upcomingLife.opensFormatted === '15 Oct 2026', `Expected opensFormatted 15 Oct 2026, got ${upcomingLife.opensFormatted}`);
+
+  const closedLife = getOpportunityLifecycleStatus(
+    { status: 'closed', deadline: '2026-12-01' },
+    mockNow
+  );
+  assert(closedLife.code === 'CLOSED', `Expected CLOSED when status is closed, got ${closedLife.code}`);
+}
+
+// TEST 12: getReopeningInfo (confirmed, estimated, unknown)
+{
+  const confirmed = getReopeningInfo({
+    status: 'closed',
+    previousDeadline: '2026-05-15',
+    nextOpeningType: 'confirmed',
+    nextOpeningDate: '1 February 2027'
+  });
+  assert(confirmed.type === 'confirmed', 'Expected confirmed type');
+  assert(confirmed.previousDeadlineFormatted === '15 May 2026', `Expected 15 May 2026, got ${confirmed.previousDeadlineFormatted}`);
+  assert(confirmed.headline.includes('1 February 2027'), `Expected confirmed date in headline, got ${confirmed.headline}`);
+
+  const estimated = getReopeningInfo({
+    status: 'closed',
+    deadline: '2026-10-06T11:00:00Z',
+    nextOpeningType: 'estimated',
+    nextOpeningDate: 'August 2027'
+  });
+  assert(estimated.type === 'estimated', 'Expected estimated type');
+  assert(estimated.message.includes('Estimated based on previous application cycles'), `Expected estimated cycle disclaimer, got ${estimated.message}`);
+
+  const unknown = getReopeningInfo({
+    status: 'closed',
+    deadline: '2026-09-30',
+    nextOpeningType: 'unknown'
+  });
+  assert(unknown.type === 'unknown', 'Expected unknown type');
+  assert(unknown.message.includes('not yet been announced'), `Expected unannounced message, got ${unknown.message}`);
+}
+
+console.log('--- ALL 12 TESTS PASSED SUCCESSFULLY! ---');

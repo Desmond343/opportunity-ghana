@@ -374,6 +374,18 @@ export const CATEGORY_GRADIENTS: Record<string, CategoryGradientConfig> = {
     badgeBg: 'bg-cyan-950/80 border-cyan-500/30',
     badgeText: 'text-cyan-300'
   },
+  'graduate programmes': {
+    id: 'graduate programmes',
+    name: 'Graduate Programmes',
+    gradientClass: 'bg-gradient-to-br from-[#081A2E] via-[#0F3D5E] to-[#006B3F]',
+    cssGradient: 'linear-gradient(135deg, #051120 0%, #0F3D5E 55%, #006B3F 100%)',
+    accentColor: '#34D399',
+    accentTextColor: '#34D399',
+    pattern: 'rings',
+    iconName: 'GraduationCap',
+    badgeBg: 'bg-emerald-950/80 border-emerald-500/30',
+    badgeText: 'text-emerald-300'
+  },
 
   // --- DEFAULT / FALLBACK ---
   default: {
@@ -397,6 +409,9 @@ function normalizeCategoryKey(category?: string | null): string {
   if (!category) return 'default';
   const raw = category.trim().toLowerCase();
 
+  if (CATEGORY_GRADIENTS[raw]) return raw;
+  if (raw.includes('gov') || raw.includes('ministry') || raw.includes('public sector') || raw.includes('statutory')) return 'government programmes';
+  if (raw.includes('graduate program') || raw.includes('management trainee')) return 'graduate programmes';
   if (raw.includes('tech') || raw.includes('software') || raw.includes('computer')) return 'technology';
   if (raw.includes('program') || raw.includes('coding') || raw.includes('developer') || raw.includes('web dev')) return 'programming';
   if (raw.includes('ai') || raw.includes('artificial') || raw.includes('machine learning')) return 'ai';
@@ -407,7 +422,6 @@ function normalizeCategoryKey(category?: string | null): string {
   if (raw.includes('intern') || raw.includes('national service') || raw.includes('nss')) return 'internships';
   if (raw.includes('grant') || raw.includes('funding')) return 'grants';
   if (raw.includes('fellowship')) return 'fellowships';
-  if (raw.includes('gov') || raw.includes('ministry') || raw.includes('public sector') || raw.includes('statutory')) return 'government programmes';
   if (raw.includes('abroad') || raw.includes('international') || raw.includes('global') || raw.includes('mobility')) return 'study abroad';
   if (raw.includes('compete') || raw.includes('hackathon') || raw.includes('contest') || raw.includes('challenge')) return 'competitions';
   if (raw.includes('admiss') || raw.includes('entry') || raw.includes('tertiary')) return 'admissions';
@@ -425,7 +439,7 @@ function normalizeCategoryKey(category?: string | null): string {
   if (raw.includes('educat') || raw.includes('teach') || raw.includes('school') || raw.includes('tutor') || raw.includes('classroom')) return 'education';
   if (raw.includes('prof') || raw.includes('skill') || raw.includes('workplace') || raw.includes('public speak')) return 'professional development';
 
-  return CATEGORY_GRADIENTS[raw] ? raw : 'default';
+  return 'default';
 }
 
 /**

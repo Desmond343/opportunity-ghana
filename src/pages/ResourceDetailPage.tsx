@@ -390,7 +390,13 @@ export const ResourceDetailPage: React.FC<ResourceDetailPageProps> = ({ slug, on
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
               >
-                <span>{resource.isFree ? 'Enroll / Access Free Course' : 'Enroll / Register Now'}</span>
+                <span>
+                  {resource.resourceType === 'event'
+                    ? 'Register / Event Portal'
+                    : resource.isFree
+                    ? 'Enroll / Access Free Course'
+                    : 'Enroll / Register Now'}
+                </span>
                 <ExternalLink className="w-4 h-4" />
               </a>
             )}

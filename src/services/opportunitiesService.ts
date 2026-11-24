@@ -4,10 +4,11 @@ import { sanitizeForFirestore } from './firebase/firestoreService';
 import { auth } from './firebase/authService';
 import { FirebaseStorageService, validateImageFile } from './firebase/storageService';
 import { AuditService } from './auditService';
-import { isOpportunityActuallyClosed, calculateDeadlineInfo } from './deadlineService';
+import { isOpportunityActuallyClosed, calculateDeadlineInfo, getOpportunityLifecycleStatus } from './deadlineService';
 import { VERIFIED_REAL_SCHOLARSHIPS } from '../data/verifiedOpportunities';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from '../data/verifiedJobsAndInternships';
 import { VERIFIED_REAL_COMPETITIONS } from '../data/verifiedCompetitions';
+import { VERIFIED_EXPANDED_OPPORTUNITIES } from '../data/verifiedExpandedOpportunities';
 import { ALL_INSTITUTIONS } from '../data/institutions/index';
 import { Institution } from '../types/institution';
 import { ensureUniqueOpportunityImages } from '../utils/cardBackgrounds';
@@ -29,12 +30,13 @@ const LOCAL_STORAGE_KEY = 'opp_gh_opportunities_store';
 export function convertInstitutionToOpportunity(inst: Institution): Opportunity {
   const primaryCycle = inst.admissionCycles?.[0];
   const deadline = primaryCycle?.extendedDeadline || primaryCycle?.applicationCloseDate || '2026-11-30';
-  
+  const isClosed = isOpportunityActuallyClosed('published', deadline);
+
   return {
     id: inst.id,
     slug: inst.slug,
     title: `${inst.name} Admissions (${inst.primaryAcademicYear || '2026/2027'})`,
-    description: inst.accreditationDetails || `${inst.name} is a GTEC-accredited institution in ${inst.location.city || ''}, ${inst.location.region} Region. Official admission cycles are currently active for undergraduate, mature, and postgraduate applicants.`,
+    description: inst.accreditationDetails || `${inst.name} is a GTEC-accredited institution in ${inst.location.city || ''}, ${inst.location.region} Region. Official admission cycles are currently listed for undergraduate, mature, and postgraduate applicants.`,
     category: 'Admissions',
     subcategory: inst.institutionType,
     opportunityType: inst.institutionType,
@@ -66,8 +68,16 @@ export function convertInstitutionToOpportunity(inst: Institution): Opportunity 
     applicationMethod: 'external_portal',
     applicationInstructions: inst.highlightNotice || 'Purchase the official application e-voucher through designated bank branches or authorized USSD codes, then complete your application online.',
     deadline: deadline,
-    status: 'published',
-    verificationStatus: 'verified',
+    previousDeadline: isClosed ? deadline : undefined,
+    nextOpeningDate: isClosed ? 'March–May 2027' : undefined,
+    nextOpeningType: isClosed ? 'estimated' : undefined,
+    nextOpeningNote: isClosed
+      ? 'Estimated based on previous annual Ghanaian tertiary admission cycles. Official 2027/2028 dates are announced by each institution.'
+      : undefined,
+    lastCycleYear: isClosed ? (inst.primaryAcademicYear || '2026/2027') : undefined,
+    status: isClosed ? 'closed' : 'published',
+    verificationStatus: isClosed ? 'closed' : 'verified',
+    closedAt: isClosed ? deadline : undefined,
     publishedAt: '2026-01-01T00:00:00.000Z',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: new Date().toISOString(),
@@ -212,19 +222,52 @@ export function matchesCategory(o: Opportunity, category?: string): boolean {
 export const ALL_VERIFIED_INITIAL_OPPORTUNITIES: Opportunity[] = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
   ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS,
-  ...VERIFIED_REAL_COMPETITIONS
+  ...VERIFIED_REAL_COMPETITIONS,
+  ...VERIFIED_EXPANDED_OPPORTUNITIES
 ];
+
+const VERIFIED_BY_ID_MAP = new Map<string, Opportunity>();
+const VERIFIED_BY_SLUG_MAP = new Map<string, Opportunity>();
+for (const v of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
+  VERIFIED_BY_ID_MAP.set(v.id, v);
+  if (v.slug) VERIFIED_BY_SLUG_MAP.set(v.slug, v);
+}
+
+function overlayVerifiedLifecycle(opp: Opportunity): Opportunity {
+  const verified = VERIFIED_BY_ID_MAP.get(opp.id) || (opp.slug ? VERIFIED_BY_SLUG_MAP.get(opp.slug) : undefined);
+  if (!verified) return opp;
+
+  const curatedIsClosed = verified.status === 'closed';
+  return {
+    ...opp,
+    deadline: verified.deadline,
+    openingDate: verified.openingDate ?? opp.openingDate,
+    previousDeadline: verified.previousDeadline ?? opp.previousDeadline,
+    nextOpeningDate: verified.nextOpeningDate ?? opp.nextOpeningDate,
+    nextOpeningType: verified.nextOpeningType ?? opp.nextOpeningType,
+    nextOpeningNote: verified.nextOpeningNote ?? opp.nextOpeningNote,
+    lastCycleYear: verified.lastCycleYear ?? opp.lastCycleYear,
+    verificationNotes: verified.verificationNotes ?? opp.verificationNotes,
+    lastVerifiedAt: verified.lastVerifiedAt ?? opp.lastVerifiedAt,
+    closedAt: verified.closedAt ?? opp.closedAt,
+    status: curatedIsClosed ? 'closed' : (opp.status === 'archived' || opp.status === 'draft' ? opp.status : verified.status),
+    verificationStatus: curatedIsClosed ? 'closed' : (opp.status === 'archived' || opp.status === 'draft' ? opp.verificationStatus : verified.verificationStatus)
+  };
+}
 
 function syncWithDeadlineAutomation(opp: Opportunity): Opportunity {
   if (opp.status !== 'archived' && opp.status !== 'draft') {
-    if (isOpportunityActuallyClosed(opp.status, opp.deadline) && opp.status !== 'closed') {
-      return {
-        ...opp,
-        status: 'closed',
-        verificationStatus: 'closed',
-        closedAt: opp.closedAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+    if (isOpportunityActuallyClosed(opp.status, opp.deadline)) {
+      if (opp.status !== 'closed' || !opp.previousDeadline) {
+        return {
+          ...opp,
+          status: 'closed',
+          verificationStatus: 'closed',
+          closedAt: opp.closedAt || new Date().toISOString(),
+          previousDeadline: opp.previousDeadline || opp.deadline,
+          updatedAt: new Date().toISOString()
+        };
+      }
     }
   }
   return opp;
@@ -314,6 +357,7 @@ export interface OpportunityFilters {
   isGhanaEligible?: boolean;
   status?: OpportunityStatus;
   verificationStatus?: VerificationStatus;
+  availabilityStatus?: 'all' | 'open' | 'closing_soon' | 'upcoming' | 'closed';
   onlyActive?: boolean;
   includeUnpublished?: boolean; // True for admin views, false for public
 }
@@ -332,14 +376,18 @@ export const OpportunitiesService = {
         );
         const snapshot: any = await Promise.race([getDocs(q), timeout]);
         const results = snapshot.docs
-          .map((d: any) => syncWithDeadlineAutomation({ id: d.id, ...d.data() } as Opportunity))
+          .map((d: any) =>
+            syncWithDeadlineAutomation(
+              overlayVerifiedLifecycle({ id: d.id, ...d.data() } as Opportunity)
+            )
+          )
           .filter((o: Opportunity) => !o.id.startsWith('opp-demo-') && !o.title?.includes('[DEMO RECORD]'));
         
         if (results.length > 0) {
-          // Merge in any missing verified opportunities (scholarships, jobs, and internships)
+          // Merge in any missing verified opportunities (scholarships, jobs, internships, competitions, expanded)
           for (const verified of ALL_VERIFIED_INITIAL_OPPORTUNITIES) {
             if (!results.some((r: Opportunity) => r.id === verified.id || r.slug === verified.slug)) {
-              results.push(verified);
+              results.push(syncWithDeadlineAutomation(verified));
               setDoc(doc(db, 'opportunities', verified.id), verified, { merge: true }).catch(() => {});
             }
           }
@@ -359,7 +407,7 @@ export const OpportunitiesService = {
     }
 
     // Merge verified tertiary institutions into the platform directory
-    const institutionOpps = getInstitutionOpportunities();
+    const institutionOpps = getInstitutionOpportunities().map(syncWithDeadlineAutomation);
     for (const instOpp of institutionOpps) {
       if (!items.some(it => it.id === instOpp.id || it.slug === instOpp.slug)) {
         items.push(instOpp);
@@ -464,6 +512,16 @@ export const OpportunitiesService = {
       if (filters.onlyActive) {
         items = items.filter(o => o.status === 'published' && !isOpportunityActuallyClosed(o.status, o.deadline));
       }
+      if (filters.availabilityStatus && filters.availabilityStatus !== 'all') {
+        items = items.filter(o => {
+          const lifecycle = getOpportunityLifecycleStatus(o);
+          if (filters.availabilityStatus === 'open') return lifecycle.code === 'OPEN';
+          if (filters.availabilityStatus === 'closing_soon') return lifecycle.code === 'CLOSING_SOON';
+          if (filters.availabilityStatus === 'upcoming') return lifecycle.code === 'UPCOMING';
+          if (filters.availabilityStatus === 'closed') return lifecycle.code === 'CLOSED';
+          return true;
+        });
+      }
       if (filters.search && filters.search.trim().length > 0) {
         const rawQ = filters.search.toLowerCase().trim();
         // Split into tokens for multi-term matching (e.g. "software engineer accra" or "graduate internship")
@@ -513,7 +571,9 @@ export const OpportunitiesService = {
       try {
         const docSnap = await getDoc(doc(db, 'opportunities', id));
         if (docSnap.exists()) {
-          const item = syncWithDeadlineAutomation({ id: docSnap.id, ...docSnap.data() } as Opportunity);
+          const item = syncWithDeadlineAutomation(
+            overlayVerifiedLifecycle({ id: docSnap.id, ...docSnap.data() } as Opportunity)
+          );
           if (!item.id.startsWith('opp-demo-') && !item.title.includes('[DEMO RECORD]')) {
             return item;
           }
@@ -540,7 +600,9 @@ export const OpportunitiesService = {
         const snap = await getDocs(q);
         if (!snap.empty) {
           const doc = snap.docs[0];
-          const item = syncWithDeadlineAutomation({ id: doc.id, ...doc.data() } as Opportunity);
+          const item = syncWithDeadlineAutomation(
+            overlayVerifiedLifecycle({ id: doc.id, ...doc.data() } as Opportunity)
+          );
           if (!item.id.startsWith('opp-demo-') && !item.title.includes('[DEMO RECORD]')) {
             return item;
           }
@@ -928,9 +990,9 @@ export const OpportunitiesService = {
   async getClosingSoon(limit: number = 4): Promise<Opportunity[]> {
     const items = await this.getAll({ onlyActive: true });
     return items
-      .map(o => ({ item: o, info: calculateDeadlineInfo(o.deadline) }))
-      .filter(({ info }) => !info.isClosed && info.diffMs > 0 && info.status !== 'rolling')
-      .sort((a, b) => a.info.diffMs - b.info.diffMs)
+      .map(o => ({ item: o, lifecycle: getOpportunityLifecycleStatus(o) }))
+      .filter(({ lifecycle }) => !lifecycle.isClosed && !lifecycle.isUpcoming && lifecycle.deadlineInfo.diffMs > 0 && lifecycle.deadlineInfo.status !== 'rolling')
+      .sort((a, b) => a.lifecycle.deadlineInfo.diffMs - b.lifecycle.deadlineInfo.diffMs)
       .map(({ item }) => item)
       .slice(0, limit);
   },

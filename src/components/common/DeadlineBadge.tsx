@@ -1,10 +1,20 @@
 import React from 'react';
-import { Clock, AlertTriangle, Archive, Calendar } from 'lucide-react';
-import { useDeadlineInfo } from '../../services/deadlineService';
+import { Clock, AlertTriangle, Archive, Calendar, CalendarClock } from 'lucide-react';
+import {
+  useCurrentTime,
+  getOpportunityLifecycleStatus,
+  getReopeningInfo
+} from '../../services/deadlineService';
 
 interface DeadlineBadgeProps {
   deadline?: string;
   isDeadlineSpecified?: boolean;
+  status?: string;
+  openingDate?: string;
+  previousDeadline?: string;
+  nextOpeningDate?: string;
+  nextOpeningType?: 'confirmed' | 'estimated' | 'unknown';
+  nextOpeningNote?: string;
   className?: string;
   compact?: boolean;
   showDate?: boolean;
@@ -13,46 +23,118 @@ interface DeadlineBadgeProps {
 export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
   deadline,
   isDeadlineSpecified,
+  status,
+  openingDate,
+  previousDeadline,
+  nextOpeningDate,
+  nextOpeningType,
+  nextOpeningNote,
   className = '',
   compact = false,
   showDate = false
 }) => {
-  // If the employer did not specify a deadline (Section 7 critical requirement)
-  if (isDeadlineSpecified === false) {
-    return (
-      <span
-        title="Application deadline is not specified by the employer — check the official listing."
-        className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs ${className}`}
-        role="status"
-      >
-        <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
-        <span>{compact ? 'No deadline' : 'Deadline not specified'}</span>
-      </span>
-    );
-  }
-
-  // Live reactive hook that recalculates automatically as time advances
-  const info = useDeadlineInfo(deadline);
+  const now = useCurrentTime();
+  const lifecycle = getOpportunityLifecycleStatus(
+    {
+      status,
+      deadline,
+      openingDate,
+      previousDeadline,
+      nextOpeningDate,
+      nextOpeningType,
+      nextOpeningNote,
+      isDeadlineSpecified
+    },
+    now
+  );
+  const info = lifecycle.deadlineInfo;
 
   // Closed / Expired State
-  if (info.isClosed) {
+  if (lifecycle.isClosed) {
+    const reopening = getReopeningInfo({
+      status,
+      deadline,
+      openingDate,
+      previousDeadline,
+      nextOpeningDate,
+      nextOpeningType,
+      nextOpeningNote
+    });
+    const closedTooltip = [
+      reopening.previousDeadlineFormatted
+        ? `Previous deadline: ${reopening.previousDeadlineFormatted}.`
+        : info.detailText,
+      reopening.message
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     return (
       <div className={`inline-flex items-center gap-1.5 ${className}`}>
-        {showDate && (
+        {showDate && reopening.previousDeadlineFormatted && (
           <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium font-mono">
-            Deadline: {info.formattedDate}
+            Was: {reopening.previousDeadlineFormatted}
           </span>
         )}
         <span
-          title={info.detailText}
-          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shadow-2xs"
+          title={closedTooltip}
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 shadow-2xs"
           role="status"
-          aria-label={info.detailText}
+          aria-label={closedTooltip}
         >
           <Archive className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
-          <span>{compact ? 'Closed' : 'Deadline passed'}</span>
+          <span>{compact ? 'Closed' : 'Closed • Deadline passed'}</span>
         </span>
       </div>
+    );
+  }
+
+  // Upcoming Cycle State (openingDate is in the future)
+  if (lifecycle.isUpcoming) {
+    const label = lifecycle.opensFormatted
+      ? `Upcoming • Opens ${lifecycle.opensFormatted}`
+      : 'Upcoming';
+    const tooltip = `${label}. Applications close ${info.formattedDeadline}.`;
+    return (
+      <div className={`inline-flex items-center gap-1.5 ${className}`}>
+        {showDate && info.targetDate && (
+          <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium font-mono">
+            Closes: {info.formattedDate}
+          </span>
+        )}
+        <span
+          title={tooltip}
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700/60 shadow-2xs"
+          role="status"
+          aria-label={tooltip}
+        >
+          <CalendarClock className="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
+          <span>{label}</span>
+        </span>
+      </div>
+    );
+  }
+
+  // Open without specified fixed deadline
+  if (isDeadlineSpecified === false || info.status === 'rolling') {
+    const rollingText =
+      isDeadlineSpecified === false && info.status !== 'rolling'
+        ? compact
+          ? 'Open • No deadline'
+          : 'Open • Deadline not specified'
+        : compact
+        ? 'Open • Rolling'
+        : 'Open • Rolling Basis';
+    return (
+      <span
+        title={info.detailText}
+        className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/20 dark:border-emerald-700/60 shadow-2xs ${className}`}
+        role="status"
+        aria-label={info.detailText}
+      >
+        <Clock className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />
+        <span>{rollingText}</span>
+      </span>
     );
   }
 
@@ -74,7 +156,7 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
           aria-label={info.detailText}
         >
           <AlertTriangle className="w-3 h-3 text-[#CE1126] dark:text-rose-400 shrink-0" />
-          <span>{info.label}</span>
+          <span>{compact ? info.label : `Closing Soon • ${info.label}`}</span>
         </span>
       </div>
     );
@@ -96,24 +178,9 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
           aria-label={info.detailText}
         >
           <Clock className="w-3 h-3 text-[#8C6D00] dark:text-amber-400 shrink-0" />
-          <span>{info.label}</span>
+          <span>{compact ? info.label : `Closing Soon • ${info.label}`}</span>
         </span>
       </div>
-    );
-  }
-
-  // Rolling basis state
-  if (info.status === 'rolling') {
-    return (
-      <span
-        title={info.detailText}
-        className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 ${className}`}
-        role="status"
-        aria-label={info.detailText}
-      >
-        <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
-        <span>Rolling Basis</span>
-      </span>
     );
   }
 
@@ -132,7 +199,7 @@ export const DeadlineBadge: React.FC<DeadlineBadgeProps> = ({
         aria-label={info.detailText}
       >
         <Calendar className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />
-        <span>{info.label}</span>
+        <span>{compact ? `Open • ${info.label}` : `Open • ${info.label}`}</span>
       </span>
     </div>
   );

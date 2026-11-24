@@ -138,15 +138,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply through the official MTN Ghana Careers portal. Register an applicant profile, upload certified academic certificates, and submit your CV before the deadline.',
     deadline: '2026-11-15T23:59:59Z',
+    previousDeadline: '2026-11-15T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'MTN Ghana Official Careers Archive',
     sourceUrl: 'https://www.mtn.com.gh/careers/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-15T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified through MTN Ghana official recruitment announcements for technical and analytics professionals.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 3. Telecel Ghana - Digital Solutions Architect (Cloud & Enterprise)
@@ -210,15 +214,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the Telecel Ghana recruitment portal. Complete the online candidate profile and attach your updated resume.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Telecel Ghana Official Careers',
     sourceUrl: 'https://telecel.com.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Telecel Ghana talent acquisition publications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 4. GIZ Ghana - Technical Advisor, Governance for Inclusive Development (GOVID)
@@ -280,15 +288,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'email',
     applicationInstructions: 'Interested candidates must email their 1-page Cover Letter and detailed CV to recruitment-ghana@giz.de quoting the reference job code \'GIZ_GOVID_TA_2026\' in the email subject line.',
     deadline: '2026-11-10T17:00:00Z',
+    previousDeadline: '2026-11-10T17:00:00Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'GIZ Ghana Recruitment Office',
     sourceUrl: 'https://www.giz.de/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-10T17:00:00Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified official vacancy advertised by GIZ Ghana Country Office.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 5. Nestlé Ghana - Maintenance Engineer (Tema Factory)
@@ -496,15 +508,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply exclusively online via the Newmont Global Careers portal. Newmont warns applicants that it NEVER asks for money or processing fees at any stage of recruitment.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Newmont Global Careers Portal',
     sourceUrl: 'https://jobs.newmont.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Newmont Ahafo North official career announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 8. Paystack - Developer Relations & Technical Support Engineer (Ghana Remote)
@@ -711,15 +727,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply through the mPharma official careers page. Complete the online questionnaire and attach your credentials.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'mPharma Official Careers Portal',
     sourceUrl: 'https://mpharma.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via mPharma Ghana recruitment announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 11. Zeepay - Senior Mobile Money Compliance & AML Analyst (Accra)
@@ -855,15 +875,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via the Diageo Global Careers portal. Search for positions filtered by country \'Ghana\' and upload your application materials.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Diageo Official Global Careers (Ghana)',
     sourceUrl: 'https://www.diageo.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified through Diageo Careers for Guinness Ghana Breweries PLC.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 13. Stanbic Bank Ghana - Senior Commercial Credit Risk Manager
@@ -927,15 +951,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through Stanbic Bank Ghana’s official careers page on the Standard Bank Group portal.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Stanbic Bank Ghana Official Careers Portal',
     sourceUrl: 'https://www.stanbicbank.com.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Stanbic Bank Ghana Risk Division recruitment notifications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 14. Gold Fields Ghana - Geotechnical Engineer (Tarkwa Mine)
@@ -1000,15 +1028,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply through Gold Fields global careers portal. Search under Ghana Operations, Tarkwa Mine.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Gold Fields Official Career Portal',
     sourceUrl: 'https://www.goldfields.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Gold Fields Ghana Tarkwa mine technical operations recruitment.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 15. Andela - Senior Full-Stack Engineer (Remote - Ghana Eligible)
@@ -1145,15 +1177,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the Ecobank Group Careers portal. Select Ghana as the operating affiliate and upload your CV.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Ecobank Group Official Careers Portal',
     sourceUrl: 'https://www.ecobank.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Ecobank Ghana digital banking talent acquisition.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 17. Flutterwave - Senior Backend Engineer (Africa Remote - Ghana Eligible)
@@ -1265,15 +1301,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply directly through Hubtel’s careers portal. Include links to your published Android apps.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Hubtel Official Careers Portal',
     sourceUrl: 'https://hubtel.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Hubtel talent acquisition in Kokomlemle, Accra.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 19. Zeepay - Senior UI/UX & Product Designer (Cantonments, Accra)
@@ -1383,15 +1423,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via the Tullow Oil Global Careers page under Ghana vacancies.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Tullow Oil Official Careers Portal',
     sourceUrl: 'https://www.tullowoil.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Tullow Oil Ghana Petroleum Commission local content recruitment drive.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 21. AngloGold Ashanti - Senior Long-Term Mine Planning Engineer (Obuasi Mine)
@@ -1442,15 +1486,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through AngloGold Ashanti’s global careers portal filtered by Obuasi, Ghana.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'AngloGold Ashanti Global Careers',
     sourceUrl: 'https://www.anglogoldashanti.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified through AngloGold Ashanti Obuasi Mine operational staffing.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 22. Unilever Ghana - Customer Development Executive (Accra & Central Region)
@@ -1501,15 +1549,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via Unilever Global Careers portal. Filter by location \'Ghana\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Unilever Official Careers Portal',
     sourceUrl: 'https://careers.unilever.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Unilever Ghana customer development recruitment.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 23. KPMG Ghana - Senior Associate, IT Audit & Cybersecurity Assurance
@@ -1619,15 +1671,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply directly through Deloitte Careers portal. Outline your transaction and valuation modeling experience in your cover letter.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Deloitte Ghana Official Careers',
     sourceUrl: 'https://www.deloitte.com/gh',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Deloitte Ghana Financial Advisory practice.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 25. Ernst & Young (EY) Ghana - Senior Tax & Regulatory Consultant
@@ -1678,15 +1734,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via EY Global Careers portal. Filter by location \'Ghana\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'EY Ghana Official Careers Portal',
     sourceUrl: 'https://www.ey.com/en_gh',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via EY Ghana Tax practice announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 26. CalBank PLC - Senior Network & Security Infrastructure Engineer
@@ -1737,15 +1797,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via CalBank’s official careers portal. Attach all networking certifications.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'CalBank PLC Official Careers Portal',
     sourceUrl: 'https://calbank.net/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via CalBank PLC Information Technology division.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 27. Chipper Cash - Customer Operations Specialist (Remote — Ghana Eligible)
@@ -1857,15 +1921,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through the British Council Global Careers portal. Search by location \'Ghana\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'British Council Global Careers Portal',
     sourceUrl: 'https://www.britishcouncil.org.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via British Council Ghana recruitment publications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 29. Care International Ghana - Regional Food Security & Resilience Specialist (Tamale)
@@ -1916,15 +1984,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'email',
     applicationInstructions: 'Email your Cover Letter and CV to gha.recruitment@care.org referencing \'Food_Security_Specialist_Tamale\' in the subject line.',
     deadline: '2026-11-20T17:00:00Z',
+    previousDeadline: '2026-11-20T17:00:00Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'CARE International in Ghana Recruitment Office',
     sourceUrl: 'https://www.care.org/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T17:00:00Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via CARE International in Ghana Country Office.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 30. TechnoServe Ghana - Agribusiness Commercial Enterprise Advisor (Sunyani & Accra)
@@ -1975,15 +2047,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through the TechnoServe Global Careers portal. Filter by country \'Ghana\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'TechnoServe Official Careers Portal',
     sourceUrl: 'https://www.technoserve.org/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via TechnoServe Ghana Country Office in Accra and Sunyani.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 31. Plan International Ghana - Child Protection & Inclusion Specialist (Wa, Upper West)
@@ -2034,15 +2110,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through Plan International’s global careers portal filtered by country \'Ghana\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Plan International Official Careers',
     sourceUrl: 'https://plan-international.org/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Plan International Ghana Upper West Programme Unit.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 32. Marie Stopes Ghana (MSI Reproductive Choices) - Regional Clinical Quality Lead (Kumasi)
@@ -2093,15 +2173,19 @@ export const VERIFIED_REAL_JOBS: Opportunity[] = [
     applicationMethod: 'email',
     applicationInstructions: 'Email your CV and Cover Letter to recruitment@mariestopes.org.gh referencing \'Clinical_Quality_Lead_Kumasi\' in the email subject line.',
     deadline: '2026-11-20T17:00:00Z',
+    previousDeadline: '2026-11-20T17:00:00Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'Application window for this specific role has closed. Monitor the official employer portal for future openings.',
     isDeadlineSpecified: true,
     sourceName: 'Marie Stopes Ghana Recruitment Office',
     sourceUrl: 'https://www.msichoices.org.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T17:00:00Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Marie Stopes Ghana clinical management notifications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   }
 ];
 
@@ -2173,15 +2257,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply exclusively online via the AfDB careers portal between 28 September 2026 and 12 October 2026. Attach all required university enrollment verification letters.',
     deadline: '2026-10-12T23:59:59Z',
+    previousDeadline: '2026-10-12T23:59:59Z',
+    nextOpeningDate: 'February 2027 (Session 2)',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous AfDB semi-annual internship cycles (Session 2 typically opens February–March). Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'African Development Bank Official Careers Portal',
     sourceUrl: 'https://www.afdb.org/en/about-us/careers/internship-programme',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-10-12T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified official Session 1 intake schedule: Applications open 28 Sept 2026 and close 12 Oct 2026.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 2. Google Ghana - Software Engineering Student Internship (Accra AI Lab)
@@ -2322,15 +2411,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the MTN Group Graduate Careers portal. Qualified candidates sit for online cognitive and behavioral aptitude tests followed by an Assessment Centre evaluation.',
     deadline: '2026-11-15T23:59:59Z',
+    previousDeadline: '2026-11-15T23:59:59Z',
+    nextOpeningDate: 'June 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual MTN Ghana Global Graduate Programme cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'MTN Global Graduate Careers Portal',
     sourceUrl: 'https://www.mtn.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-15T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via MTN Group and MTN Ghana graduate talent publications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 4. International Monetary Fund (IMF) - Fund Internship Program (FIP 2027)
@@ -2475,15 +2569,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply directly via Telecel Ghana Careers online portal. Complete the candidate application form and attach academic proof.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'July 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Telecel Ghana NextGen graduate cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Telecel Ghana Official Careers',
     sourceUrl: 'https://telecel.com.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Telecel Ghana talent development announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 6. GIZ Ghana - Data Science & Digitalisation Intern (Accra)
@@ -2548,15 +2647,19 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'email',
     applicationInstructions: 'Email your Cover Letter and CV to recruitment-ghana@giz.de quoting \'GIZ_DATA_INTERN_2026\' in the email subject line before the closing date.',
     deadline: '2026-11-15T17:00:00Z',
+    previousDeadline: '2026-11-15T17:00:00Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'This specific GIZ Ghana internship requisition has closed. Next opening has not yet been announced.',
     isDeadlineSpecified: true,
     sourceName: 'GIZ Ghana Recruitment Office',
     sourceUrl: 'https://www.giz.de/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-15T17:00:00Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified official internship vacancy posted by GIZ Ghana.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 7. Stanbic Bank Ghana - Graduate Trainee Programme (Banking & Finance Acceleration)
@@ -2623,15 +2726,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through Stanbic Bank Ghana’s official careers page on the Standard Bank Group portal.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'August 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Stanbic Bank Ghana graduate recruitment cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Stanbic Bank Ghana Official Careers Portal',
     sourceUrl: 'https://www.stanbicbank.com.gh/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Stanbic Bank Ghana People & Culture department.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 8. Absa Bank Ghana - Gen A Graduate Programme
@@ -2773,15 +2881,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply through the Nestlé CWAR careers portal. Complete the candidate profile and upload certified documents.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'July 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Nestlé Ghana Graduate Trainee recruitment windows. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Nestlé Central and West Africa Careers',
     sourceUrl: 'https://www.nestle-cwa.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Nestlé Ghana Graduate Trainee Assessment Centre notifications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 10. Farmerline - Agritech & Research Fellowship Programme (Kumasi & Accra)
@@ -2920,15 +3033,19 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the global UNICEF e-Recruitment portal. Search for internship positions in Accra, Ghana, and create a candidate profile.',
     deadline: '2026-11-15T23:59:59Z',
+    previousDeadline: '2026-11-15T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'This UNICEF Ghana internship posting has closed. Future internship openings are published on UNICEF Careers as needed.',
     isDeadlineSpecified: true,
     sourceName: 'UNICEF Global Careers Portal',
     sourceUrl: 'https://www.unicef.org/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-15T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via UNICEF Ghana Country Office official announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 12. World Health Organization (WHO) - Global Internship Programme (Africa Region / Geneva)
@@ -3057,15 +3174,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via MEST Africa’s official portal. Shortlisted candidates undergo online aptitude assessments, video interviews, and an in-person workshop in Accra.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'June 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual MEST Africa training cohort admissions (typically June–August). Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'MEST Africa Official Admissions Portal',
     sourceUrl: 'https://meltwater.org/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via MEST Africa announcements for next continental startup cohort.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 14. PwC Ghana - Trust Ambassador & Vacation Internship Programme
@@ -3119,15 +3241,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through PwC Ghana student careers portal. Email inquiries can be directed to gh_pwcrecruitment@pwc.com.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'April 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous PwC Ghana vacation internship cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'PwC Ghana Student Careers Portal',
     sourceUrl: 'https://www.pwc.com/gh',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via PwC Ghana People & Culture student intake announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 15. KPMG Ghana - Graduate Trainee Programme (Audit, Tax & Advisory)
@@ -3181,15 +3308,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the KPMG Ghana Careers portal. Shortlisted candidates take numerical and verbal aptitude tests followed by partner panel interviews.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'August 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual KPMG Ghana graduate intake cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'KPMG Ghana Official Careers Portal',
     sourceUrl: 'https://kpmg.com/gh',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via KPMG Ghana Human Resources publications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 16. Deloitte Ghana - Graduate Experience Programme (Deloitte Place, Accra)
@@ -3243,15 +3375,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via Deloitte Careers portal. Complete the online psychometric assessments when invited.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'August 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Deloitte Ghana graduate recruitment cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Deloitte Ghana Early Careers Portal',
     sourceUrl: 'https://www.deloitte.com/gh',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Deloitte Ghana Talent acquisition notifications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 17. Ecobank Ghana - Junior Bankers & National Service Internship Programme
@@ -3305,15 +3442,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Submit application via Ecobank Group Careers portal. Select Ghana and specify your preferred operating region in your cover letter.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'June 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Ecobank Ghana NSS & junior bankers cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Ecobank Ghana Human Resources Division',
     sourceUrl: 'https://www.ecobank.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Ecobank Ghana retail banking recruitment notifications.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 18. Guinness Ghana Breweries PLC - National Service Trainee Programme (Achimota & Kaase, Kumasi)
@@ -3367,15 +3509,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online through the Diageo Global Careers portal under early careers in Ghana.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'June 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous annual Guinness Ghana NSS & graduate cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Diageo / Guinness Ghana Breweries HR Department',
     sourceUrl: 'https://www.diageo.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Guinness Ghana Breweries PLC annual National Service announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 19. Newmont Ghana - Graduate Development Programme (Mining, Metallurgy & Engineering)
@@ -3429,15 +3576,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply exclusively online via Newmont Global Careers. Newmont does not charge any application or recruitment fees.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'July 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous Newmont Ghana graduate development intake cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Newmont Global Early Careers Portal',
     sourceUrl: 'https://jobs.newmont.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Newmont Ghana official talent and graduate recruitment drive.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 20. Gold Fields Ghana - Graduate Engineering Trainee Scheme (Tarkwa Mine)
@@ -3491,15 +3643,20 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply online via the Gold Fields Global Careers portal. Filter by location \'Ghana, Tarkwa\'.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningDate: 'July 2027',
+    nextOpeningType: 'estimated',
+    nextOpeningNote: 'Estimated based on previous Gold Fields Ghana graduate engineering trainee cycles. Not officially confirmed.',
     isDeadlineSpecified: true,
     sourceName: 'Gold Fields Official Career Portal',
     sourceUrl: 'https://www.goldfields.com/',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via Gold Fields Ghana Tarkwa mine HR announcements.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   },
 
   // 21. World Bank Group - Pioneers Internship Programme (West & Central Africa, Accra / Washington)
@@ -3614,15 +3771,19 @@ export const VERIFIED_REAL_INTERNSHIPS: Opportunity[] = [
     applicationMethod: 'external_portal',
     applicationInstructions: 'Apply via the UNDP Jobs e-Recruitment portal. Attach your resume and media portfolio links.',
     deadline: '2026-11-20T23:59:59Z',
+    previousDeadline: '2026-11-20T23:59:59Z',
+    nextOpeningType: 'unknown',
+    nextOpeningNote: 'This UNDP Accra internship posting has closed. Check UNDP Jobs for newly advertised internships.',
     isDeadlineSpecified: true,
     sourceName: 'UNDP Ghana Official Careers Portal',
     sourceUrl: 'https://www.undp.org/ghana',
-    status: 'published',
-    verificationStatus: 'verified',
+    status: 'closed',
+    verificationStatus: 'closed',
+    closedAt: '2026-11-20T23:59:59Z',
     lastVerifiedAt: '2026-10-01T00:00:00Z',
     verificationNotes: 'Verified via UNDP Ghana Country Office communications division.',
     createdAt: '2026-10-01T00:00:00Z',
-    updatedAt: '2026-10-01T00:00:00Z'
+    updatedAt: '2026-11-24T00:00:00Z'
   }
 ];
 

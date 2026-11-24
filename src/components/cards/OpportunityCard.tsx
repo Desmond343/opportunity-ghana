@@ -7,6 +7,11 @@ import { SavedService } from '../../services/savedService';
 import { useAuth } from '../../services/authContext';
 import { resolveOpportunityMedia } from '../../utils/cardBackgrounds';
 import { CardVisualHeader } from './CardVisualHeader';
+import {
+  getOpportunityLifecycleStatus,
+  getReopeningInfo,
+  useCurrentTime
+} from '../../services/deadlineService';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -60,6 +65,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   };
 
+  const now = useCurrentTime();
+  const lifecycle = getOpportunityLifecycleStatus(opportunity, now);
+  const reopening = lifecycle.isClosed ? getReopeningInfo(opportunity) : null;
   const isActuallyFeatured = featured || opportunity.featured;
   const media = resolveOpportunityMedia(opportunity);
   const isJob = opportunity.category === 'Jobs';
@@ -241,11 +249,38 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         </div>
       </div>
 
+      {/* Cycle Summary Line for Closed / Upcoming Opportunities */}
+      {lifecycle.isClosed && reopening && (
+        <div className="mx-3 sm:mx-3.5 mb-2 px-2.5 py-1 rounded-lg bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/70 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 flex items-center justify-between gap-2 truncate">
+          <span className="truncate">
+            {reopening.previousDeadlineFormatted
+              ? `Closed (${reopening.previousDeadlineFormatted})`
+              : 'Closed'}
+            {' • '}
+            {reopening.type === 'unknown'
+              ? 'Next cycle unannounced'
+              : reopening.headline}
+          </span>
+        </div>
+      )}
+      {lifecycle.isUpcoming && lifecycle.opensFormatted && (
+        <div className="mx-3 sm:mx-3.5 mb-2 px-2.5 py-1 rounded-lg bg-sky-50/90 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60 text-[10px] sm:text-[11px] text-sky-800 dark:text-sky-300 truncate">
+          Opens {lifecycle.opensFormatted}
+          {lifecycle.deadlineInfo.targetDate ? ` • Closes ${lifecycle.deadlineInfo.formattedDate}` : ''}
+        </div>
+      )}
+
       {/* Layered Frosted Glass Footer Shelf */}
       <div className="glass-subpanel mx-2.5 mb-2.5 sm:mx-3 sm:mb-3 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl flex items-center justify-between gap-1.5 sm:gap-2">
         <DeadlineBadge
           deadline={opportunity.deadline}
           isDeadlineSpecified={opportunity.isDeadlineSpecified}
+          status={opportunity.status}
+          openingDate={opportunity.openingDate}
+          previousDeadline={opportunity.previousDeadline}
+          nextOpeningDate={opportunity.nextOpeningDate}
+          nextOpeningType={opportunity.nextOpeningType}
+          nextOpeningNote={opportunity.nextOpeningNote}
           compact
         />
         <div className="flex items-center gap-1.5">

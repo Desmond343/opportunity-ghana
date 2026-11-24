@@ -308,11 +308,182 @@ export const getDeadlineStatus = calculateDeadlineInfo;
 /**
  * Checks if a given opportunity status should be resolved to 'closed'
  */
-export function isOpportunityActuallyClosed(status: string, deadline?: string): boolean {
+export function isOpportunityActuallyClosed(status: string, deadline?: string, now?: Date): boolean {
   if (status === 'closed' || status === 'archived') return true;
   if (!deadline) return false;
-  const info = calculateDeadlineInfo(deadline);
+  const info = calculateDeadlineInfo(deadline, now ? { now } : undefined);
   return info.isClosed;
+}
+
+export type OpportunityLifecycleCode = 'OPEN' | 'CLOSING_SOON' | 'UPCOMING' | 'CLOSED';
+
+export interface OpportunityLifecycleInput {
+  status?: string;
+  deadline?: string;
+  openingDate?: string;
+  previousDeadline?: string;
+  nextOpeningDate?: string;
+  nextOpeningType?: 'confirmed' | 'estimated' | 'unknown';
+  nextOpeningNote?: string;
+  isDeadlineSpecified?: boolean;
+}
+
+export interface OpportunityLifecycleStatus {
+  code: OpportunityLifecycleCode;
+  badgeLabel: string;
+  detailLabel: string;
+  isClosed: boolean;
+  isUpcoming: boolean;
+  isClosingSoon: boolean;
+  deadlineInfo: DeadlineInfo;
+  opensAt: Date | null;
+  opensFormatted: string | null;
+}
+
+export interface ReopeningInfo {
+  type: 'confirmed' | 'estimated' | 'unknown';
+  headline: string;
+  message: string;
+  previousDeadlineFormatted: string | null;
+  nextOpeningDate?: string;
+}
+
+/**
+ * Parses an openingDate string at start-of-day UTC (00:00:00.000Z) when YYYY-MM-DD is provided.
+ */
+export function parseOpeningDate(raw?: string): Date | null {
+  if (!raw || typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  if (dateOnlyMatch) {
+    const year = parseInt(dateOnlyMatch[1], 10);
+    const month = parseInt(dateOnlyMatch[2], 10) - 1;
+    const day = parseInt(dateOnlyMatch[3], 10);
+    return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+  }
+
+  const parsed = new Date(trimmed);
+  if (isNaN(parsed.getTime())) return null;
+  return parsed;
+}
+
+/**
+ * Computes normalized lifecycle status (OPEN, CLOSING_SOON, UPCOMING, CLOSED)
+ * taking both openingDate and deadline/status into account.
+ */
+export function getOpportunityLifecycleStatus(
+  opp: OpportunityLifecycleInput,
+  now: Date = new Date()
+): OpportunityLifecycleStatus {
+  const deadlineInfo = calculateDeadlineInfo(opp.deadline, { now });
+  const opensAt = parseOpeningDate(opp.openingDate);
+  const opensFormatted = opensAt ? formatDeadlineDate(opensAt, false) : null;
+
+  const explicitlyClosed = opp.status === 'closed' || opp.status === 'archived';
+  if (explicitlyClosed || deadlineInfo.isClosed) {
+    return {
+      code: 'CLOSED',
+      badgeLabel: 'CLOSED',
+      detailLabel: 'Closed / Deadline Passed',
+      isClosed: true,
+      isUpcoming: false,
+      isClosingSoon: false,
+      deadlineInfo,
+      opensAt,
+      opensFormatted
+    };
+  }
+
+  if (opensAt && opensAt.getTime() > now.getTime()) {
+    return {
+      code: 'UPCOMING',
+      badgeLabel: 'UPCOMING',
+      detailLabel: opensFormatted ? `Opens ${opensFormatted}` : 'Upcoming Cycle',
+      isClosed: false,
+      isUpcoming: true,
+      isClosingSoon: false,
+      deadlineInfo,
+      opensAt,
+      opensFormatted
+    };
+  }
+
+  if (deadlineInfo.isClosingSoon || deadlineInfo.isToday) {
+    return {
+      code: 'CLOSING_SOON',
+      badgeLabel: 'CLOSING SOON',
+      detailLabel: deadlineInfo.label,
+      isClosed: false,
+      isUpcoming: false,
+      isClosingSoon: true,
+      deadlineInfo,
+      opensAt,
+      opensFormatted
+    };
+  }
+
+  return {
+    code: 'OPEN',
+    badgeLabel: 'OPEN',
+    detailLabel: deadlineInfo.label,
+    isClosed: false,
+    isUpcoming: false,
+    isClosingSoon: false,
+    deadlineInfo,
+    opensAt,
+    opensFormatted
+  };
+}
+
+/**
+ * Produces transparent, accurate reopening expectations for closed opportunities,
+ * strictly separating confirmed dates, cycle-based estimates, and unannounced schedules.
+ */
+export function getReopeningInfo(opp: OpportunityLifecycleInput): ReopeningInfo {
+  const prevRaw = opp.previousDeadline || opp.deadline;
+  const prevParsed = parseDeadlineDate(prevRaw);
+  const previousDeadlineFormatted = prevParsed
+    ? formatDeadlineDate(prevParsed, false)
+    : prevRaw && !/roll|ongoing|open|filled/i.test(prevRaw)
+    ? prevRaw
+    : null;
+
+  const type = opp.nextOpeningType || 'unknown';
+
+  if (type === 'confirmed' && opp.nextOpeningDate) {
+    return {
+      type: 'confirmed',
+      headline: `Next cycle confirmed: ${opp.nextOpeningDate}`,
+      message:
+        opp.nextOpeningNote ||
+        `Officially confirmed by the organiser to open ${opp.nextOpeningDate}.`,
+      previousDeadlineFormatted,
+      nextOpeningDate: opp.nextOpeningDate
+    };
+  }
+
+  if (type === 'estimated' && opp.nextOpeningDate) {
+    return {
+      type: 'estimated',
+      headline: `Expected around ${opp.nextOpeningDate} (Estimated)`,
+      message:
+        opp.nextOpeningNote ||
+        `Estimated based on previous application cycles (${opp.nextOpeningDate}). Not officially confirmed.`,
+      previousDeadlineFormatted,
+      nextOpeningDate: opp.nextOpeningDate
+    };
+  }
+
+  return {
+    type: 'unknown',
+    headline: 'Next opening not yet announced',
+    message:
+      opp.nextOpeningNote ||
+      'Next application period has not yet been announced by the organiser.',
+    previousDeadlineFormatted
+  };
 }
 
 // ============================================================================

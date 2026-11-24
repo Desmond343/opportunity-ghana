@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Opportunity } from '../types/database';
 import { OpportunitiesService, OpportunityFilters } from '../services/opportunitiesService';
-import { calculateDeadlineInfo } from '../services/deadlineService';
+import { getOpportunityLifecycleStatus, parseDeadlineDate } from '../services/deadlineService';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { OpportunitySlideshow } from '../components/home/OpportunitySlideshow';
 import { SearchBar } from '../components/common/SearchBar';
@@ -47,29 +47,55 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
       setLoading(true);
       try {
         const results = await OpportunitiesService.getAll({
-          ...filters,
-          onlyActive: true
+          ...filters
         });
 
         // Apply in-memory sort
         if (sortBy === 'deadline') {
-          results.sort((a, b) => {
-            const infoA = calculateDeadlineInfo(a.deadline);
-            const infoB = calculateDeadlineInfo(b.deadline);
+          const now = new Date();
+          const rankOf = (code: string, isRolling: boolean) => {
+            if (code === 'CLOSING_SOON' || (code === 'OPEN' && !isRolling)) return 0;
+            if (code === 'OPEN' && isRolling) return 1;
+            if (code === 'UPCOMING') return 2;
+            return 3; // CLOSED
+          };
 
-            // Active open deadlines come first
-            if (infoA.isClosed !== infoB.isClosed) {
-              return infoA.isClosed ? 1 : -1;
+          results.sort((a, b) => {
+            const lifeA = getOpportunityLifecycleStatus(a, now);
+            const lifeB = getOpportunityLifecycleStatus(b, now);
+            const rankA = rankOf(lifeA.code, lifeA.deadlineInfo.status === 'rolling');
+            const rankB = rankOf(lifeB.code, lifeB.deadlineInfo.status === 'rolling');
+
+            if (rankA !== rankB) return rankA - rankB;
+
+            if (rankA === 0) {
+              return lifeA.deadlineInfo.diffMs - lifeB.deadlineInfo.diffMs;
             }
-            // Definite deadlines before rolling basis
-            if ((infoA.status === 'rolling') !== (infoB.status === 'rolling')) {
-              return infoA.status === 'rolling' ? 1 : -1;
+            if (rankA === 2) {
+              const openA = lifeA.opensAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
+              const openB = lifeB.opensAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
+              return openA - openB;
             }
-            // Sort ascending by remaining milliseconds
-            return infoA.diffMs - infoB.diffMs;
+            if (rankA === 3) {
+              const prevA =
+                parseDeadlineDate(a.previousDeadline || a.deadline)?.getTime() ??
+                new Date(a.closedAt || a.updatedAt).getTime();
+              const prevB =
+                parseDeadlineDate(b.previousDeadline || b.deadline)?.getTime() ??
+                new Date(b.closedAt || b.updatedAt).getTime();
+              return prevB - prevA;
+            }
+            return (
+              new Date(b.publishedAt || b.createdAt).getTime() -
+              new Date(a.publishedAt || a.createdAt).getTime()
+            );
           });
         } else {
-          results.sort((a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime());
+          results.sort(
+            (a, b) =>
+              new Date(b.publishedAt || b.createdAt).getTime() -
+              new Date(a.publishedAt || a.createdAt).getTime()
+          );
         }
 
         setOpportunities(results);
@@ -98,7 +124,16 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
       category: 'All',
       region: 'All Ghana',
       educationLevel: 'All Education Levels',
-      verificationStatus: undefined
+      verificationStatus: undefined,
+      availabilityStatus: undefined,
+      locationType: undefined,
+      workArrangement: undefined,
+      employmentType: undefined,
+      internshipType: undefined,
+      experienceLevel: undefined,
+      fundingType: undefined,
+      studyLevel: undefined,
+      isGhanaEligible: undefined
     });
   };
 
@@ -263,7 +298,13 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
               Showing <strong className="text-slate-800 dark:text-slate-200">{displayedItems.length}</strong> of{' '}
               <strong className="text-slate-800 dark:text-slate-200">{opportunities.length}</strong> opportunities
             </span>
-            {(filters.category !== 'All' || filters.search || filters.region !== 'All Ghana') && (
+            {(filters.category !== 'All' ||
+              filters.search ||
+              filters.region !== 'All Ghana' ||
+              filters.availabilityStatus ||
+              filters.locationType ||
+              filters.verificationStatus ||
+              filters.isGhanaEligible) && (
               <button
                 onClick={handleResetFilters}
                 className="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"

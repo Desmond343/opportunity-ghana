@@ -85,6 +85,44 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
         </div>
 
+        {/* Availability Status Filter */}
+        <div className="py-4">
+          <label className="block text-xs font-bold text-[#111111] dark:text-slate-200 uppercase tracking-wider mb-2">
+            Availability Status
+          </label>
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
+            {[
+              { id: 'all', label: 'All Statuses' },
+              { id: 'open', label: 'Open Now' },
+              { id: 'closing_soon', label: 'Closing Soon' },
+              { id: 'upcoming', label: 'Upcoming' },
+              { id: 'closed', label: 'Closed' }
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() =>
+                  onFilterChange({
+                    ...filters,
+                    availabilityStatus:
+                      item.id === 'all'
+                        ? undefined
+                        : (item.id as OpportunityFilters['availabilityStatus'])
+                  })
+                }
+                className={`px-2 py-1.5 rounded-lg font-medium text-left transition-all cursor-pointer ${
+                  filters.availabilityStatus === item.id ||
+                  (!filters.availabilityStatus && item.id === 'all')
+                    ? 'bg-[#006B3F] text-white font-bold'
+                    : 'bg-[#F7F9F8] dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#E6F0EB] dark:hover:bg-slate-700'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Location Scope (Ghana vs Abroad vs Online) */}
         <div className="py-4">
           <label className="block text-xs font-bold text-[#111111] dark:text-slate-200 uppercase tracking-wider mb-2">

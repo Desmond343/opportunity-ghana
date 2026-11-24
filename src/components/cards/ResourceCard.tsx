@@ -192,7 +192,13 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onNavigate
             }}
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-[#006B3F] text-white hover:bg-emerald-800 transition-all cursor-pointer shadow-xs"
           >
-            <span>{resource.isFree ? 'Free Course' : 'View'}</span>
+            <span>
+              {resource.resourceType === 'event'
+                ? 'View Event'
+                : resource.isFree
+                ? 'Free Course'
+                : 'View'}
+            </span>
             <ArrowUpRight className="w-3 h-3 text-[#FCD116]" />
           </button>
         </div>

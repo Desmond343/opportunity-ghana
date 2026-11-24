@@ -11,13 +11,15 @@ import { executeCompetitionResearch, recheckCompetitionDeadlines } from './serve
 import { VERIFIED_REAL_SCHOLARSHIPS } from './src/data/verifiedOpportunities.ts';
 import { VERIFIED_REAL_JOBS_AND_INTERNSHIPS } from './src/data/verifiedJobsAndInternships.ts';
 import { VERIFIED_REAL_COMPETITIONS } from './src/data/verifiedCompetitions.ts';
+import { VERIFIED_EXPANDED_OPPORTUNITIES } from './src/data/verifiedExpandedOpportunities.ts';
 import { VERIFIED_REAL_RESOURCES } from './src/data/verifiedResources.ts';
 import * as XLSX from 'xlsx';
 
 const ALL_VERIFIED_INITIAL = [
   ...VERIFIED_REAL_SCHOLARSHIPS,
   ...VERIFIED_REAL_JOBS_AND_INTERNSHIPS,
-  ...VERIFIED_REAL_COMPETITIONS
+  ...VERIFIED_REAL_COMPETITIONS,
+  ...VERIFIED_EXPANDED_OPPORTUNITIES
 ];
 
 const app = express();
@@ -881,12 +883,28 @@ app.get('/api/opportunities', async (req, res) => {
     }
   }
   for (const verified of ALL_VERIFIED_INITIAL) {
-    const exists = merged.some(m => 
-      m.id === verified.id || 
-      m.slug === verified.slug || 
-      (m.applicationUrl && verified.applicationUrl && m.applicationUrl.toLowerCase() === verified.applicationUrl.toLowerCase())
+    const existingIdx = merged.findIndex(m =>
+      m.id === verified.id ||
+      m.slug === verified.slug
     );
-    if (!exists) {
+    if (existingIdx >= 0) {
+      const existing = merged[existingIdx];
+      merged[existingIdx] = {
+        ...existing,
+        deadline: verified.deadline,
+        openingDate: verified.openingDate ?? existing.openingDate,
+        previousDeadline: verified.previousDeadline ?? existing.previousDeadline,
+        nextOpeningDate: verified.nextOpeningDate ?? existing.nextOpeningDate,
+        nextOpeningType: verified.nextOpeningType ?? existing.nextOpeningType,
+        nextOpeningNote: verified.nextOpeningNote ?? existing.nextOpeningNote,
+        lastCycleYear: verified.lastCycleYear ?? existing.lastCycleYear,
+        verificationNotes: verified.verificationNotes ?? existing.verificationNotes,
+        lastVerifiedAt: verified.lastVerifiedAt ?? existing.lastVerifiedAt,
+        closedAt: verified.closedAt ?? existing.closedAt,
+        status: verified.status === 'closed' ? 'closed' : existing.status,
+        verificationStatus: verified.status === 'closed' ? 'closed' : existing.verificationStatus
+      };
+    } else {
       merged.push(verified);
     }
   }

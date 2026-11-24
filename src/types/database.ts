@@ -127,6 +127,11 @@ export interface Opportunity {
   deadlineAt?: string; // Optional precise timestamp
   deadlineTimezone?: string; // e.g. 'GMT', 'UTC', 'Africa/Accra'
   openingDate?: string;
+  previousDeadline?: string;
+  nextOpeningDate?: string;
+  nextOpeningType?: 'confirmed' | 'estimated' | 'unknown';
+  nextOpeningNote?: string;
+  lastCycleYear?: string;
   academicYear?: string;
   studyLevel?: string;
   fundingDetails?: string;

@@ -7,12 +7,19 @@ import { DeadlineBadge } from '../components/common/DeadlineBadge';
 import { VerificationBadge } from '../components/common/VerificationBadge';
 import { Badge } from '../components/common/Badge';
 import { LoadingState, EmptyState } from '../components/common/CommonUI';
-import { calculateDeadlineInfo, useDeadlineInfo } from '../services/deadlineService';
+import {
+  calculateDeadlineInfo,
+  useDeadlineInfo,
+  useCurrentTime,
+  getOpportunityLifecycleStatus,
+  getReopeningInfo
+} from '../services/deadlineService';
 import { resolveOpportunityMedia } from '../utils/cardBackgrounds';
 import { EditorialParagraphs } from '../components/common/EditorialArticle';
 import {
   MapPin,
   Calendar,
+  CalendarClock,
   Building,
   ExternalLink,
   ChevronRight,
@@ -47,6 +54,7 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const now = useCurrentTime();
   const deadlineInfo = useDeadlineInfo(opportunity?.deadline);
 
   useEffect(() => {
@@ -150,7 +158,10 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
     );
   }
 
-  const isClosed = opportunity.status === 'closed' || deadlineInfo.isClosed;
+  const lifecycle = getOpportunityLifecycleStatus(opportunity, now);
+  const reopening = getReopeningInfo(opportunity);
+  const isClosed = lifecycle.isClosed;
+  const isUpcoming = lifecycle.isUpcoming;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -231,16 +242,26 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
       {/* CLOSED BANNER - Section 7 requirement */}
       {isClosed && (
         <div className="p-5 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-800 shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
               <Archive className="w-5 h-5 text-amber-400" />
             </div>
-            <div>
-              <h3 className="text-base font-bold text-white font-space">
-                This opportunity has closed.
-              </h3>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Applications are no longer being accepted for this cohort. We retain this page for eligibility requirements and past stipend reference.
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-bold text-white font-space">
+                  Closed — Application Window Ended
+                </h3>
+                {reopening.previousDeadlineFormatted && (
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-200 border border-slate-700">
+                    Previous deadline: {reopening.previousDeadlineFormatted}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-200 font-semibold">
+                {reopening.headline}
+              </p>
+              <p className="text-xs text-slate-300">
+                {reopening.message} We retain this page so applicants can review official eligibility criteria and prepare ahead of the next cycle.
               </p>
             </div>
           </div>
@@ -249,6 +270,34 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 cursor-pointer transition-colors"
           >
             Explore Active Alternatives
+          </button>
+        </div>
+      )}
+
+      {/* UPCOMING BANNER */}
+      {!isClosed && isUpcoming && (
+        <div className="p-5 rounded-3xl bg-sky-950 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-sky-800 shadow-md">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-sky-900 text-sky-300 flex items-center justify-center shrink-0 mt-0.5">
+              <CalendarClock className="w-5 h-5 text-sky-300" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-white font-space">
+                Upcoming Application Window{lifecycle.opensFormatted ? ` — Opens ${lifecycle.opensFormatted}` : ''}
+              </h3>
+              <p className="text-xs text-sky-100">
+                Applications for this cycle have not opened yet
+                {deadlineInfo.targetDate ? ` and are scheduled to close on ${deadlineInfo.formattedDeadline}` : ''}.
+                Save this opportunity and review eligibility requirements now so you are ready when the portal opens.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleToggleSave}
+            disabled={isSaving}
+            className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 cursor-pointer transition-colors"
+          >
+            {isSaved ? 'Saved for Opening' : 'Save Reminder'}
           </button>
         </div>
       )}
@@ -382,9 +431,17 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                 href={opportunity.applicationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-all shadow-xs cursor-pointer"
+                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-xl transition-all shadow-xs cursor-pointer ${
+                  isUpcoming
+                    ? 'bg-sky-700 hover:bg-sky-800'
+                    : 'bg-emerald-700 hover:bg-emerald-800'
+                }`}
               >
-                <span>Apply on Official Portal</span>
+                <span>
+                  {isUpcoming && lifecycle.opensFormatted
+                    ? `Official Portal (Opens ${lifecycle.opensFormatted})`
+                    : 'Apply on Official Portal'}
+                </span>
                 <ExternalLink className="w-4 h-4" />
               </a>
             ) : (
@@ -407,11 +464,19 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
         {/* Highlight Grid Specs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           <div className="p-3 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
-            <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">Deadline</p>
+            <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">
+              {isClosed ? 'Status & Prev. Deadline' : 'Status & Deadline'}
+            </p>
             <div className="mt-1">
               <DeadlineBadge
                 deadline={opportunity.deadline}
                 isDeadlineSpecified={opportunity.isDeadlineSpecified}
+                status={opportunity.status}
+                openingDate={opportunity.openingDate}
+                previousDeadline={opportunity.previousDeadline}
+                nextOpeningDate={opportunity.nextOpeningDate}
+                nextOpeningType={opportunity.nextOpeningType}
+                nextOpeningNote={opportunity.nextOpeningNote}
               />
             </div>
           </div>
@@ -676,7 +741,13 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <DeadlineBadge deadline={alt.deadline} compact />
+                      <DeadlineBadge
+                        deadline={alt.deadline}
+                        isDeadlineSpecified={alt.isDeadlineSpecified}
+                        status={alt.status}
+                        openingDate={alt.openingDate}
+                        compact
+                      />
                       <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" />
                     </div>
                   </div>
@@ -695,17 +766,53 @@ export const OpportunityDetailPage: React.FC<OpportunityDetailPageProps> = ({ sl
             </h3>
             <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
               <div>
-                <span className="text-slate-400 dark:text-slate-400 font-medium block">Application Deadline:</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
-                  {opportunity.isDeadlineSpecified === false ? 'Not specified by employer' : deadlineInfo.formattedDeadline}
-                </span>
+                <span className="text-slate-400 dark:text-slate-400 font-medium block">Application Status:</span>
                 <div className="mt-1">
                   <DeadlineBadge
                     deadline={opportunity.deadline}
                     isDeadlineSpecified={opportunity.isDeadlineSpecified}
+                    status={opportunity.status}
+                    openingDate={opportunity.openingDate}
+                    previousDeadline={opportunity.previousDeadline}
+                    nextOpeningDate={opportunity.nextOpeningDate}
+                    nextOpeningType={opportunity.nextOpeningType}
+                    nextOpeningNote={opportunity.nextOpeningNote}
                   />
                 </div>
               </div>
+              {lifecycle.opensFormatted && (
+                <div>
+                  <span className="text-slate-400 dark:text-slate-400 font-medium block">Opening Date:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
+                    {lifecycle.opensFormatted}
+                  </span>
+                </div>
+              )}
+              <div>
+                <span className="text-slate-400 dark:text-slate-400 font-medium block">
+                  {isClosed ? 'Previous Deadline:' : 'Application Deadline:'}
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
+                  {isClosed
+                    ? reopening.previousDeadlineFormatted || deadlineInfo.formattedDeadline
+                    : opportunity.isDeadlineSpecified === false
+                    ? 'Not specified / Rolling basis'
+                    : deadlineInfo.formattedDeadline}
+                </span>
+              </div>
+              {isClosed && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                  <span className="text-slate-500 dark:text-slate-400 font-semibold block text-[11px]">
+                    Next Expected Cycle:
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 block">
+                    {reopening.headline}
+                  </span>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {reopening.message}
+                  </p>
+                </div>
+              )}
               {opportunity.workArrangement && (
                 <div>
                   <span className="text-slate-400 dark:text-slate-400 font-medium block">Work Arrangement:</span>
