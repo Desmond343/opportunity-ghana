@@ -161,7 +161,7 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
   subtitle,
   badgeTopLeft,
   actionsTopRight,
-  heightClass = 'h-24 sm:h-28 md:h-32',
+  heightClass = 'h-[104px] min-[431px]:h-[88px] md:h-32',
   hoverScale = true
 }) => {
   const [usedFallback, setUsedFallback] = useState(false);
@@ -200,36 +200,36 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
               }
             }}
             className={`w-full h-full object-cover object-[center_25%] transition-transform duration-700 ease-out contrast-[1.05] saturate-[1.06] ${
-              hoverScale ? 'group-hover:scale-105' : ''
+              hoverScale ? 'md:group-hover:scale-105' : ''
             }`}
             loading="lazy"
           />
 
           {/* Subtle bottom gradient to ground the visual header and blend into card body without dimming subjects */}
-          <div className="absolute inset-x-0 bottom-0 h-10 sm:h-12 bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-7 md:h-12 bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
 
           {/* Subtle top vignette for crisp floating badge legibility */}
-          <div className="absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-8 md:h-10 bg-gradient-to-b from-black/45 to-transparent pointer-events-none" />
         </>
       ) : (
         /* Professional Category Gradient Banner */
-        <div className="relative w-full h-full flex flex-col justify-end p-2.5 sm:p-3 overflow-hidden">
+        <div className="relative w-full h-full flex flex-col justify-end p-2 md:p-3 overflow-hidden">
           {/* Subtle Geometric SVG Pattern Overlay */}
           <PatternOverlay pattern={gradient.pattern} accentColor={gradient.accentColor} />
 
           {/* Large decorative watermark icon in background */}
           <div
-            className="absolute -right-2 -bottom-2 opacity-15 pointer-events-none text-white transition-transform duration-500 group-hover:scale-110"
+            className="absolute -right-2 -bottom-2 opacity-15 pointer-events-none text-white transition-transform duration-500 md:group-hover:scale-110"
             style={{ color: gradient.accentColor }}
           >
-            <IconComponent className="w-20 h-20 sm:w-24 sm:h-24" />
+            <IconComponent className="w-12 h-12 md:w-24 md:h-24" />
           </div>
 
           {/* Center/Bottom Content within Banner */}
-          <div className="relative z-10 space-y-0.5 max-w-[85%]">
+          <div className="relative z-10 space-y-0.5 max-w-[90%] md:max-w-[85%]">
             <div className="flex items-center gap-1">
               <span
-                className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest font-space block"
+                className="text-[8.5px] md:text-[10px] font-extrabold uppercase tracking-wider md:tracking-widest font-space block truncate"
                 style={{ color: gradient.accentColor }}
               >
                 {gradient.name}
@@ -237,13 +237,13 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
             </div>
 
             {subtitle && (
-              <p className="text-[11px] sm:text-xs font-bold text-white/95 truncate font-space">
+              <p className="hidden md:block text-xs font-bold text-white/95 truncate font-space">
                 {subtitle}
               </p>
             )}
 
             {title && (
-              <p className="text-[10px] sm:text-[11px] font-medium text-slate-300/90 line-clamp-1">
+              <p className="hidden md:block text-[11px] font-medium text-slate-300/90 line-clamp-1">
                 {title}
               </p>
             )}
@@ -253,14 +253,14 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
 
       {/* Floating Top Left Badge / Tags */}
       {badgeTopLeft && (
-        <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 flex items-center gap-1 sm:gap-1.5 pointer-events-auto">
+        <div className="absolute top-1.5 left-1.5 right-8 md:right-12 md:top-2.5 md:left-2.5 z-20 flex items-center gap-1 md:gap-1.5 pointer-events-auto">
           {badgeTopLeft}
         </div>
       )}
 
       {/* Floating Top Right Action Controls */}
       {actionsTopRight && (
-        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 pointer-events-auto">
+        <div className="absolute top-1.5 right-1.5 md:top-2.5 md:right-2.5 z-20 pointer-events-auto">
           {actionsTopRight}
         </div>
       )}

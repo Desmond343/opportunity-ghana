@@ -19,7 +19,7 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Verified against official institutional source."
-          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/30 dark:border-emerald-700/60 shadow-2xs ${className}`}
+          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-[1px] sm:py-0.5 rounded-full bg-[#E6F0EB] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 border border-[#006B3F]/30 dark:border-emerald-700/60 shadow-2xs whitespace-nowrap ${className}`}
         >
           {showIcon && <ShieldCheck className="w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />}
           <span>Verified</span>
@@ -30,10 +30,11 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Community submitted or waiting for primary source check."
-          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FEF9E7] dark:bg-amber-950/60 text-[#8C6D00] dark:text-amber-300 border border-[#FCD116]/50 dark:border-amber-700/60 ${className}`}
+          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-[1px] sm:py-0.5 rounded-full bg-[#FEF9E7] dark:bg-amber-950/60 text-[#8C6D00] dark:text-amber-300 border border-[#FCD116]/50 dark:border-amber-700/60 whitespace-nowrap ${className}`}
         >
           {showIcon && <Clock className="w-3 h-3 text-[#8C6D00] dark:text-amber-400 shrink-0" />}
-          <span>Needs Verification</span>
+          <span className="sm:hidden">Pending Check</span>
+          <span className="hidden sm:inline">Needs Verification</span>
         </span>
       );
 
@@ -41,7 +42,7 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Caution: Unconfirmed details, reported discrepancies, or broken links."
-          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FCE8EA] dark:bg-rose-950/60 text-[#CE1126] dark:text-rose-300 border border-[#CE1126]/30 dark:border-rose-700/60 ${className}`}
+          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-[1px] sm:py-0.5 rounded-full bg-[#FCE8EA] dark:bg-rose-950/60 text-[#CE1126] dark:text-rose-300 border border-[#CE1126]/30 dark:border-rose-700/60 whitespace-nowrap ${className}`}
         >
           {showIcon && <AlertTriangle className="w-3 h-3 text-[#CE1126] dark:text-rose-400 shrink-0" />}
           <span>Warning</span>
@@ -53,7 +54,7 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       return (
         <span
           title="Opportunity or resource listing is currently closed."
-          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F7F9F8] dark:bg-slate-800 text-[#5F6368] dark:text-slate-400 border border-[#E5E7EB] dark:border-slate-700 ${className}`}
+          className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-[1px] sm:py-0.5 rounded-full bg-[#F7F9F8] dark:bg-slate-800 text-[#5F6368] dark:text-slate-400 border border-[#E5E7EB] dark:border-slate-700 whitespace-nowrap ${className}`}
         >
           {showIcon && <Archive className="w-3 h-3 text-[#737373] dark:text-slate-400 shrink-0" />}
           <span>Closed</span>

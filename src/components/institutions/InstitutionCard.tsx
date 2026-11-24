@@ -62,10 +62,34 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
     }
   };
 
+  const mobileStatus = (() => {
+    switch (institution.overallAdmissionStatus) {
+      case 'OPEN':
+        return { label: 'Open', labelClass: 'text-[#006B3F] dark:text-emerald-400' };
+      case 'CLOSING_SOON':
+        return { label: 'Closing Soon', labelClass: 'text-amber-700 dark:text-amber-400' };
+      case 'CLOSED':
+        return { label: 'Closed', labelClass: 'text-slate-500 dark:text-slate-400' };
+      default:
+        return { label: 'TBA', labelClass: 'text-slate-500 dark:text-slate-400' };
+    }
+  })();
+
+  const mobileDeadlineText = nearest
+    ? nearest.deadlineInfo.label
+        .replace(' days left', 'd left')
+        .replace(' day left', 'd left')
+        .replace('Closes today', 'Today')
+        .replace('Deadline passed', 'Ended')
+    : 'Portal';
+
   return (
-    <div className="bg-white dark:bg-[#141B29] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full overflow-hidden group hover:-translate-y-1">
-      {/* 1. Dedicated Image Section (approx 35-42% of card height) */}
-      <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+    <div
+      onClick={() => onNavigate(`/institutions/${institution.slug}`)}
+      className="bg-white dark:bg-[#141B29] rounded-xl md:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-2xs md:shadow-sm md:hover:shadow-xl transition-all duration-200 flex flex-col h-full overflow-hidden group cursor-pointer md:hover:-translate-y-1"
+    >
+      {/* 1. Dedicated Image Section */}
+      <div className="relative h-[104px] min-[431px]:h-[88px] md:h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
         <img
           src={imgSrc}
           alt={media.alt}
@@ -75,7 +99,7 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
               setImgSrc('/images/institutions/ghana_campus_students.jpg');
             }
           }}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-105"
           style={{
             objectPosition: media.position,
           }}
@@ -83,15 +107,22 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
         />
 
         {/* Subtle Scrim for Top Badge Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/35 pointer-events-none" />
 
-        {/* Top Badges: Institution Type & GTEC Accreditation */}
-        <div className="absolute top-3 left-3 right-12 flex items-center gap-1.5 flex-wrap z-10 pointer-events-none">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-semibold bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 border border-white/60 dark:border-slate-700 shadow-xs">
-            <Building2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span className="truncate max-w-[150px] sm:max-w-[180px]">{institution.institutionType}</span>
+        {/* Mobile Single Compact Badge (top-left) */}
+        <div className="md:hidden absolute top-1.5 left-1.5 z-10 pointer-events-none">
+          <span className="inline-block px-1.5 py-[2px] rounded text-[9px] min-[431px]:text-[8.5px] font-extrabold bg-slate-950/80 text-white border border-white/20 tracking-wider">
+            {institution.shortName}
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-semibold bg-emerald-700/90 dark:bg-emerald-600/90 backdrop-blur-md text-white border border-emerald-600/50 shadow-xs">
+        </div>
+
+        {/* Desktop Top Badges: Institution Type & GTEC Accreditation */}
+        <div className="hidden md:flex absolute top-3 left-3 right-12 items-center gap-1.5 flex-wrap z-10 pointer-events-none">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 border border-white/60 dark:border-slate-700 shadow-xs">
+            <Building2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="truncate max-w-[180px]">{institution.institutionType}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-700/90 dark:bg-emerald-600/90 backdrop-blur-md text-white border border-emerald-600/50 shadow-xs">
             <ShieldCheck className="w-3 h-3 text-white shrink-0" />
             <span>GTEC Accredited</span>
           </span>
@@ -106,18 +137,18 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
             }}
             title={isSaved ? 'Remove from saved' : 'Save institution'}
             aria-label={isSaved ? 'Remove from saved' : 'Save institution'}
-            className={`absolute top-3 right-3 z-10 p-2 rounded-xl backdrop-blur-md transition-all cursor-pointer shadow-md ${
+            className={`absolute top-1.5 right-1.5 md:top-3 md:right-3 z-10 p-1 md:p-2 rounded-md md:rounded-xl backdrop-blur-md transition-all cursor-pointer shadow-xs md:shadow-md ${
               isSaved
                 ? 'bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-700'
                 : 'bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white border border-white/60 dark:border-slate-700 hover:bg-white'
             }`}
           >
-            <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
+            <Bookmark className={`w-3 h-3 md:w-4 md:h-4 ${isSaved ? 'fill-white' : ''}`} />
           </button>
         )}
 
-        {/* Short Name Pill at bottom-right of image */}
-        <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
+        {/* Short Name Pill at bottom-right of image (Desktop only) */}
+        <div className="hidden md:block absolute bottom-3 right-3 z-10 pointer-events-none">
           <span className="px-2.5 py-1 rounded-md text-xs font-black bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 shadow-md border border-white/50 dark:border-slate-700 tracking-wider">
             {institution.shortName}
           </span>
@@ -125,20 +156,28 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
       </div>
 
       {/* 2. Structured Content Section (Solid White / Dark Slate Background) */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between bg-white dark:bg-[#141B29]">
-        <div className="space-y-3">
-          {/* Institution Title */}
+      <div className="p-2 min-[431px]:p-1.5 md:p-5 flex-1 flex flex-col justify-between gap-1.5 md:gap-0 bg-white dark:bg-[#141B29]">
+        <div className="space-y-0.5 md:space-y-3 min-w-0">
+          {/* Mobile Compact 1-Line Location */}
+          <p className="md:hidden text-[10.5px] min-[431px]:text-[10px] text-slate-500 dark:text-slate-400 truncate font-medium leading-tight">
+            {institution.location.city}, {institution.location.region}
+          </p>
+
+          {/* Institution Title & Desktop Location */}
           <div>
             <h3
-              onClick={() => onNavigate(`/institutions/${institution.slug}`)}
-              className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors cursor-pointer leading-snug line-clamp-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigate(`/institutions/${institution.slug}`);
+              }}
+              className="text-[12.5px] min-[431px]:text-[11.5px] md:text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors cursor-pointer leading-[1.25] min-[431px]:leading-[1.22] md:leading-snug line-clamp-2 md:line-clamp-1"
               title={institution.name}
             >
               {institution.name}
             </h3>
 
-            {/* Location */}
-            <p className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            {/* Desktop Location */}
+            <p className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
               <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">
                 {institution.location.city}, {institution.location.region} Region
@@ -146,8 +185,8 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
             </p>
           </div>
 
-          {/* Admission Status & Deadline Countdown Box */}
-          <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/80 dark:border-slate-700/60 space-y-2">
+          {/* Desktop Admission Status & Deadline Countdown Box */}
+          <div className="hidden md:block bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/80 dark:border-slate-700/60 space-y-2">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                 {institution.primaryAcademicYear} Admissions:
@@ -180,9 +219,9 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
             )}
           </div>
 
-          {/* Voucher Information */}
+          {/* Desktop Voucher Information */}
           {primaryCycle?.feeInfo && (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-800/40 px-2.5 py-1.5 rounded-lg border border-slate-200/70 dark:border-slate-700/50">
+            <div className="hidden md:flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-800/40 px-2.5 py-1.5 rounded-lg border border-slate-200/70 dark:border-slate-700/50">
               <CreditCard className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate font-medium">
                 Voucher: {primaryCycle.feeInfo.amountGHS ? `GH¢${primaryCycle.feeInfo.amountGHS}` : 'Not published'}
@@ -191,10 +230,10 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
             </div>
           )}
 
-          {/* Popular Programmes */}
+          {/* Desktop Popular Programmes */}
           {institution.programmesSummary.featuredProgrammes.length > 0 && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
+            <div className="hidden md:block pt-2 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
                 Popular Programmes
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -217,12 +256,23 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
           )}
         </div>
 
-        {/* 3. Separate Footer Actions (Bottom of Card) */}
-        <div className="pt-3.5 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3">
+        {/* Mobile Compact Status & Deadline Strip */}
+        <div className="md:hidden pt-1.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-1 text-[10px] min-[431px]:text-[9.5px] leading-tight min-w-0">
+          <span className={`font-bold truncate ${mobileStatus.labelClass}`}>
+            {mobileStatus.label}
+          </span>
+          <span className="font-semibold text-slate-600 dark:text-slate-300 tabular-nums shrink-0 truncate max-w-[68px]">
+            {mobileDeadlineText}
+          </span>
+        </div>
+
+        {/* 3. Desktop Separate Footer Actions (Bottom of Card) */}
+        <div className="hidden md:flex pt-3.5 mt-4 border-t border-slate-100 dark:border-slate-800/80 items-center justify-between gap-3">
           <a
             href={institution.applicationPortalUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-1.5"
           >
             <span>Portal</span>
@@ -230,7 +280,10 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
           </a>
 
           <button
-            onClick={() => onNavigate(`/institutions/${institution.slug}`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(`/institutions/${institution.slug}`);
+            }}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#006B3F] hover:bg-emerald-800 text-white shadow-sm hover:shadow transition-all cursor-pointer"
           >
             <span>Details</span>

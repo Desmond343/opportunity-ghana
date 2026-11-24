@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../services/authContext';
 import { SavedService } from '../../services/savedService';
-import { usePublishedStoriesCount } from '../../services/successStoriesService';
 import {
   ShieldCheck,
   User,
@@ -12,7 +11,6 @@ import {
   Bookmark,
   Bell
 } from 'lucide-react';
-import { InstallAppPrompt } from '../pwa/InstallAppPrompt';
 import { ThemeToggle } from '../common/ThemeToggle';
 
 interface NavbarProps {
@@ -35,20 +33,28 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
     return () => window.removeEventListener('saved-opportunities-changed', handleUpdate);
   }, []);
 
-  const { count: publishedStoriesCount } = usePublishedStoriesCount();
+  const [pathname] = currentPath.split('?');
 
   const navLinks = [
     { label: 'Home', path: '/' },
-    { label: 'Jobs', path: '/jobs' },
-    { label: 'Internships', path: '/internships' },
-    { label: 'Scholarships', path: '/scholarships' },
-    { label: 'Free Courses', path: '/courses' },
-    { label: 'Skills', path: '/skills' },
-    { label: 'Institutions', path: '/institutions' },
-    ...(publishedStoriesCount > 0 ? [{ label: 'Success Stories', path: '/success-stories' }] : []),
-    { label: 'All Opportunities', path: '/opportunities' },
-    { label: 'Saved', path: '/saved' }
+    { label: 'Opportunities', path: '/opportunities' },
+    { label: 'Categories', path: '/categories' },
+    { label: 'About', path: '/about' }
   ];
+
+  const isLinkActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    if (path === '/opportunities') {
+      return (
+        pathname === '/opportunities' ||
+        pathname.startsWith('/opportunities/') ||
+        pathname === '/jobs' ||
+        pathname === '/internships' ||
+        pathname === '/scholarships'
+      );
+    }
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
 
   const handleNavClick = (path: string) => {
     onNavigate(path);
@@ -57,119 +63,93 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors duration-200">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-18">
-          {/* LEFT: Official Logo & Brand */}
-          <div className="flex items-center gap-6 lg:gap-10">
-            <button
-              onClick={() => handleNavClick('/')}
-              className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
-            >
-              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-0.5 shadow-2xs group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
-                <img
-                  src="/icon-192.png"
-                  alt="Opportunity Ghana Logo"
-                  className="w-full h-full object-contain rounded-xl"
-                />
-              </div>
-              <div>
-                <span className="text-lg font-black text-[#111111] dark:text-white tracking-tight flex items-center gap-1 font-space">
-                  Opportunity <span className="text-[#006B3F] dark:text-emerald-400">Ghana</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FCD116] inline-block mb-1" title="Ghana Gold Accent" />
-                </span>
-                <span className="hidden sm:block text-[10px] text-slate-500 dark:text-slate-400 font-medium -mt-1 tracking-wide">
-                  Find Opportunities • Build Your Future
-                </span>
-              </div>
-            </button>
+        <div className="flex items-center justify-between h-12 sm:h-15 gap-3">
+          {/* LEFT: Compact Brand Mark + Wordmark */}
+          <button
+            onClick={() => handleNavClick('/')}
+            className="flex items-center gap-2 text-left cursor-pointer focus:outline-none shrink-0"
+          >
+            <img
+              src="/icon-192.png"
+              alt="Opportunity Ghana"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-contain border border-slate-200 dark:border-slate-700 bg-white"
+            />
+            <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
+              Opportunity <span className="text-[#006B3F] dark:text-emerald-400">Ghana</span>
+            </span>
+          </button>
 
-            {/* CENTER/LEFT: Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const isActive =
-                  link.path === '/'
-                    ? currentPath === '/'
-                    : currentPath.startsWith(link.path.split('?')[0]);
-                return (
-                  <button
-                    key={link.label}
-                    onClick={() => handleNavClick(link.path)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                      isActive
-                        ? 'text-[#006B3F] dark:text-emerald-300 bg-[#E8F5EF] dark:bg-emerald-950/60 font-bold shadow-2xs'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+          {/* CENTER: 4 Primary Navigation Links (Desktop) */}
+          <nav aria-label="Primary Navigation" className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const active = isLinkActive(link.path);
+              return (
+                <button
+                  key={link.path}
+                  onClick={() => handleNavClick(link.path)}
+                  className={`px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                    active
+                      ? 'text-[#006B3F] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </nav>
 
-          {/* RIGHT: Saved, Theme Toggle, Admin, Login/Profile */}
-          <div className="hidden md:flex items-center gap-2.5">
-            <InstallAppPrompt variant="navbar" />
-
-            {/* Saved Opportunities Direct Shortcut */}
+          {/* RIGHT: Theme, Saved, Admin (if authorized), Account */}
+          <div className="hidden md:flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => handleNavClick('/saved')}
               aria-label="Saved opportunities"
               title="Saved Opportunities"
-              className={`relative p-2.5 rounded-xl transition-colors cursor-pointer ${
-                currentPath === '/saved'
-                  ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-[#111111] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              className={`relative min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
+                pathname === '/saved'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Bookmark className="w-4 h-4" />
               {savedCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-[#006B3F] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] px-1 bg-[#006B3F] text-white text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums">
                   {savedCount > 99 ? '99+' : savedCount}
                 </span>
               )}
             </button>
 
-            {/* Theme Toggle Button */}
             <ThemeToggle />
 
-            {/* Admin CMS Direct Shortcut - Displayed only for verified custom claim admins/editors */}
             {isEditorOrAdmin && (
               <button
                 onClick={() => handleNavClick('/admin')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                  currentPath.startsWith('/admin')
-                    ? 'bg-[#006B3F] text-white shadow-xs'
-                    : 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 hover:bg-[#d6e7df] dark:hover:bg-emerald-900/60'
+                className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                  pathname.startsWith('/admin')
+                    ? 'bg-[#006B3F] text-white'
+                    : 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
-                Admin Dashboard
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Admin</span>
               </button>
             )}
 
-            {/* Primary Action Button */}
-            <button
-              onClick={() => handleNavClick('/opportunities')}
-              className="inline-flex items-center justify-center px-4.5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#006B3F] hover:bg-[#005530] rounded-xl transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-98"
-            >
-              Explore Opportunities
-            </button>
-
-            {/* User Profile / Auth Menu */}
             {currentUser ? (
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-700 cursor-pointer"
+                  aria-label="Account menu"
+                  className="flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-[#E8F5EF] dark:bg-emerald-950/80 text-[#006B3F] dark:text-emerald-300 flex items-center justify-center text-xs font-bold">
+                  <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-[#006B3F] dark:text-emerald-300 flex items-center justify-center text-xs font-bold">
                     {currentUser.photoURL ? (
                       <img
                         src={currentUser.photoURL}
                         alt={currentUser.name}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-cover rounded-md"
                       />
                     ) : (
                       currentUser.name.charAt(0).toUpperCase()
@@ -179,88 +159,87 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#141B29] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in zoom-in-95">
-                    <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{currentUser.name}</p>
+                  <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#141B29] rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 py-1.5 z-50">
+                    <div className="px-3.5 py-2 border-b border-slate-100 dark:border-slate-800">
+                      <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">{currentUser.name}</p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{currentUser.email}</p>
                     </div>
-
                     <div className="py-1">
                       <button
                         onClick={() => handleNavClick('/profile')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
                       >
-                        <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        My Profile & Applications
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Profile</span>
                       </button>
                       <button
                         onClick={() => handleNavClick('/saved')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
                       >
-                        <Bookmark className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        Saved Opportunities
+                        <Bookmark className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Saved Opportunities</span>
                       </button>
                       <button
                         onClick={() => handleNavClick('/alerts')}
-                        className="w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 cursor-pointer"
                       >
-                        <Bell className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        Opportunity Alerts
+                        <Bell className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Deadline Alerts</span>
                       </button>
-
                       {isEditorOrAdmin && (
                         <button
                           onClick={() => handleNavClick('/admin')}
-                          className="w-full px-4 py-2 text-xs font-bold text-[#006B3F] dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer"
+                          className="w-full px-3.5 py-2 text-xs font-semibold text-[#006B3F] dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer"
                         >
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#006B3F] dark:text-emerald-400" />
-                          Admin CMS Console
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>Admin CMS</span>
                         </button>
                       )}
                     </div>
-
                     <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
                       <button
                         onClick={() => {
                           logout();
                           setUserMenuOpen(false);
                         }}
-                        className="w-full px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
+                        className="w-full px-3.5 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        Sign Out
+                        <span>Sign Out</span>
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleNavClick('/login')}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-[#006B3F] dark:hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => handleNavClick('/signup')}
-                  className="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
-                >
-                  Register
-                </button>
-              </div>
+              <button
+                onClick={() => handleNavClick('/login')}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                Sign In
+              </button>
             )}
           </div>
 
-          {/* Mobile Menu & Theme Toggle Actions */}
-          <div className="flex items-center gap-1.5 md:hidden">
-            <InstallAppPrompt variant="navbar" />
+          {/* MOBILE RIGHT: Saved, Theme, Drawer Toggle */}
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              onClick={() => handleNavClick('/saved')}
+              aria-label="Saved opportunities"
+              className="relative min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300"
+            >
+              <Bookmark className="w-4 h-4" />
+              {savedCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[14px] h-[14px] px-1 bg-[#006B3F] text-white text-[9px] font-bold rounded-full flex items-center justify-center tabular-nums">
+                  {savedCount > 99 ? '99+' : savedCount}
+                </span>
+              )}
+            </button>
             <ThemeToggle />
-
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
-              className="p-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
+              className="min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-700 dark:text-slate-200 rounded-lg cursor-pointer"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -268,83 +247,70 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Compact Mobile Drawer (Secondary links & Account) */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F141F] px-4 pt-3 pb-6 space-y-4 shadow-xl animate-in slide-in-from-top-2">
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
+        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F141F] px-4 py-3 space-y-3 shadow-lg">
+          <nav className="grid grid-cols-2 gap-1.5">
+            {[
+              { label: 'Home', path: '/' },
+              { label: 'Opportunities', path: '/opportunities' },
+              { label: 'Categories', path: '/categories' },
+              { label: 'About', path: '/about' },
+              { label: 'Institutions', path: '/institutions' },
+              { label: 'Free Courses', path: '/courses' },
+              { label: 'Saved', path: '/saved' },
+              { label: 'Deadline Alerts', path: '/alerts' }
+            ].map((link) => (
               <button
-                key={link.label}
+                key={link.path}
                 onClick={() => handleNavClick(link.path)}
-                className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  currentPath === link.path.split('?')[0]
-                    ? 'bg-[#E8F5EF] dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 font-bold'
+                className={`text-left px-3 py-2.5 rounded-lg text-xs font-medium min-h-[44px] ${
+                  isLinkActive(link.path)
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#006B3F] dark:text-emerald-300 font-semibold'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70'
                 }`}
               >
                 {link.label}
               </button>
             ))}
-
-            <div className="pt-1">
-              <InstallAppPrompt
-                variant="mobile-menu"
-                onActionComplete={() => setMobileMenuOpen(false)}
-              />
-            </div>
-
-
-
-            {isEditorOrAdmin && (
-              <button
-                onClick={() => handleNavClick('/admin')}
-                className="text-left px-4 py-2.5 rounded-xl text-sm font-bold text-[#006B3F] dark:text-emerald-300 bg-[#E8F5EF] dark:bg-emerald-950/60 flex items-center gap-2"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#006B3F] dark:text-emerald-400" />
-                Admin CMS Console
-              </button>
-            )}
           </nav>
 
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          {isEditorOrAdmin && (
+            <button
+              onClick={() => handleNavClick('/admin')}
+              className="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold text-[#006B3F] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 flex items-center gap-2 min-h-[44px]"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Admin Dashboard</span>
+            </button>
+          )}
+
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
             {currentUser ? (
               <>
-                <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px]">{currentUser.name}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-semibold">
-                    {currentUser.role}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleNavClick('/profile')}
-                    className="text-xs font-semibold text-[#006B3F] dark:text-emerald-400 hover:underline cursor-pointer"
-                  >
-                    Profile
-                  </button>
-                  <button
-                    onClick={() => logout()}
-                    className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleNavClick('/profile')}
+                  className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate py-2"
+                >
+                  {currentUser.name}
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-xs font-semibold text-rose-600 dark:text-rose-400 py-2 px-3"
+                >
+                  Sign Out
+                </button>
               </>
             ) : (
-              <div className="w-full flex items-center gap-2">
-                <button
-                  onClick={() => handleNavClick('/login')}
-                  className="flex-1 py-2.5 rounded-xl bg-[#006B3F] text-white font-bold text-xs text-center shadow-xs cursor-pointer"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => handleNavClick('/signup')}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-200 dark:border-slate-700 cursor-pointer"
-                >
-                  Register
-                </button>
-              </div>
+              <button
+                onClick={() => handleNavClick('/login')}
+                className="w-full py-2.5 rounded-lg bg-[#006B3F] text-white font-semibold text-xs text-center min-h-[44px]"
+              >
+                Sign In / Register
+              </button>
             )}
           </div>
         </div>
@@ -352,4 +318,3 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
     </header>
   );
 };
-

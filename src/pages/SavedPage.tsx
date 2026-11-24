@@ -120,7 +120,7 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
   }, [items, selectedCategory, searchQuery]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 py-4 md:py-12 space-y-5 sm:space-y-8">
       {/* Guest Mode Notice Banner */}
       {!currentUser && !authLoading && (
         <div className="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
@@ -225,21 +225,21 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
 
       {/* Loading Skeleton State */}
       {isLoading && items.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
           {[1, 2, 3].map((idx) => (
             <div
               key={idx}
-              className="bg-white dark:bg-[#141B29] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-4 animate-pulse"
+              className="bg-white dark:bg-[#141B29] rounded-xl md:rounded-2xl border border-slate-200 dark:border-slate-800 p-2.5 md:p-5 shadow-2xs space-y-2.5 md:space-y-4 animate-pulse"
             >
               <div className="flex items-center justify-between">
-                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28" />
-                <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                <div className="h-3 md:h-4 bg-slate-200 dark:bg-slate-800 rounded w-16 md:w-28" />
+                <div className="w-5 h-5 md:w-6 md:h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
               </div>
-              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-lg w-5/6" />
-              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20" />
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24" />
-                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16" />
+              <div className="h-4 md:h-6 bg-slate-200 dark:bg-slate-800 rounded-lg w-5/6" />
+              <div className="h-3 md:h-4 bg-slate-200 dark:bg-slate-800 rounded w-14 md:w-20" />
+              <div className="pt-2 md:pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                <div className="h-3 md:h-4 bg-slate-200 dark:bg-slate-800 rounded w-14 md:w-24" />
+                <div className="h-3 md:h-4 bg-slate-200 dark:bg-slate-800 rounded w-10 md:w-16" />
               </div>
             </div>
           ))}
@@ -284,51 +284,51 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
         </div>
       ) : (
         /* Saved Items Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => onNavigate(`/opportunities/${item.slug}`)}
-              className="floating-glass-tablet specular-rim-highlight group rounded-xl sm:rounded-2xl p-3.5 sm:p-4 pb-2.5 sm:pb-3 cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200"
+              onClick={() => onNavigate(item.targetPath || `/opportunities/${item.slug}`)}
+              className="floating-glass-tablet specular-rim-highlight group rounded-xl md:rounded-2xl p-2 min-[431px]:p-1.5 md:p-4 md:pb-3 cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200"
             >
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    <Building className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
-                    <span className="truncate max-w-[170px]">{item.organizationName || 'Verified Partner'}</span>
+              <div className="space-y-1 md:space-y-2 min-w-0">
+                <div className="flex items-center justify-between gap-1.5 md:gap-2.5">
+                  <div className="flex items-center gap-1 md:gap-1.5 text-[10.5px] min-[431px]:text-[10px] md:text-xs font-semibold text-slate-600 dark:text-slate-300 min-w-0">
+                    <Building className="hidden md:block w-3 h-3 text-[#006B3F] dark:text-emerald-400 shrink-0" />
+                    <span className="truncate">{item.organizationName || item.category || 'Verified Partner'}</span>
                   </div>
                   <button
                     onClick={(e) => handleRemove(e, item)}
                     disabled={removingId === item.id}
                     title="Remove from saved"
                     aria-label="Remove from saved"
-                    className="p-1.5 rounded-lg glass-floating-btn text-slate-400 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
+                    className="p-1 md:p-1.5 rounded-md md:rounded-lg glass-floating-btn text-slate-400 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer shrink-0"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
                   </button>
                 </div>
 
-                <h3 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug font-space">
+                <h3 className="text-[12.5px] min-[431px]:text-[11.5px] md:text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-[1.25] min-[431px]:leading-[1.22] md:leading-snug font-space">
                   {item.title}
                 </h3>
 
                 <div className="flex flex-wrap items-center gap-1">
                   {item.category && (
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-50/90 dark:bg-emerald-950/70 backdrop-blur-xs text-[#006B3F] dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold shadow-2xs">
+                    <span className="inline-block px-1.5 md:px-2 py-[1px] md:py-0.5 rounded bg-emerald-50/90 dark:bg-emerald-950/70 text-[#006B3F] dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60 text-[9px] md:text-[11px] font-bold truncate max-w-full">
                       {item.category}
                     </span>
                   )}
                   {item.type && (
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-white/85 dark:bg-slate-800/80 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700/70 text-slate-700 dark:text-slate-200 text-[10px] sm:text-[11px] font-medium shadow-2xs">
+                    <span className="hidden md:inline-block px-2 py-0.5 rounded-md bg-white/85 dark:bg-slate-800/80 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700/70 text-slate-700 dark:text-slate-200 text-[11px] font-medium shadow-2xs">
                       {item.type}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="glass-subpanel mt-3 -mx-1 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs">
+              <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800/80 md:border-t-0 md:glass-subpanel md:mt-3 md:-mx-1 md:px-3 md:py-1.5 md:rounded-xl flex items-center justify-between text-[10px] min-[431px]:text-[9.5px] md:text-xs gap-1 min-w-0">
                 <DeadlineBadge deadline={item.deadline} compact />
-                <span className="text-[11px] font-bold text-[#006B3F] dark:text-emerald-400 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span className="hidden md:flex text-[11px] font-bold text-[#006B3F] dark:text-emerald-400 items-center gap-1 group-hover:translate-x-0.5 transition-transform shrink-0">
                   View <ArrowRight className="w-3 h-3" />
                 </span>
               </div>

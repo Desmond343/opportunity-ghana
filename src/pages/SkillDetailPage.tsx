@@ -124,7 +124,7 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 py-5 sm:py-8 space-y-8">
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         <button
@@ -500,7 +500,7 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 md:gap-5">
             {relatedOpportunities.map((opp) => (
               <OpportunityCard key={opp.id} opportunity={opp} onNavigate={onNavigate} />
             ))}
@@ -532,7 +532,7 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({ slug, onNaviga
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 md:gap-5">
             {relatedCourses.map((course) => (
               <ResourceCard key={course.id} resource={course} onNavigate={onNavigate} />
             ))}

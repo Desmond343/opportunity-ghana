@@ -14,17 +14,16 @@ export const LoadingState: React.FC<{ message?: string }> = ({
 
 export const OpportunitySkeleton: React.FC = () => {
   return (
-    <div className="floating-glass-tablet specular-rim-highlight rounded-xl sm:rounded-2xl p-3.5 sm:p-4 animate-pulse flex flex-col gap-2.5">
-      <div className="h-24 sm:h-28 bg-slate-200/80 dark:bg-slate-700/70 rounded-lg w-full" />
-      <div className="flex items-center gap-2">
-        <div className="w-3.5 h-3.5 bg-slate-200/80 dark:bg-slate-700/70 rounded" />
-        <div className="h-3 bg-slate-200/80 dark:bg-slate-700/70 rounded w-1/3" />
-      </div>
-      <div className="h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded w-4/5" />
-      <div className="h-8 bg-slate-100 dark:bg-slate-800 rounded w-full" />
-      <div className="flex gap-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
-        <div className="h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded-md w-16" />
-        <div className="h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded-md w-20" />
+    <div className="floating-glass-tablet specular-rim-highlight rounded-xl md:rounded-2xl overflow-hidden animate-pulse flex flex-col">
+      <div className="h-[104px] min-[431px]:h-[88px] md:h-32 bg-slate-200/80 dark:bg-slate-700/70 w-full" />
+      <div className="p-2 min-[431px]:p-1.5 md:p-4 flex flex-col gap-1.5 md:gap-2.5">
+        <div className="h-2.5 md:h-3 bg-slate-200/80 dark:bg-slate-700/70 rounded w-2/5" />
+        <div className="h-3.5 md:h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded w-5/6" />
+        <div className="hidden md:block h-8 bg-slate-100 dark:bg-slate-800 rounded w-full" />
+        <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
+          <div className="h-3 md:h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded w-12 md:w-16" />
+          <div className="h-3 md:h-4 bg-slate-200/80 dark:bg-slate-700/70 rounded w-10 md:w-20" />
+        </div>
       </div>
     </div>
   );

@@ -3,9 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-serif: "Times New Roman", Times, serif;
+  --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-space: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-space: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   --color-ghana-green: #006B3F;
   --color-ghana-green-hover: #005632;
   --color-ghana-green-light: #E6F0EB;
@@ -16,11 +16,8 @@
   --color-ghana-red-hover: #B50E20;
   --color-ghana-red-light: #FCE8EA;
   --color-ghana-black: #111111;
-  --color-ghana-neutral-bg: #F7F9F8;
-  --color-ghana-border: #E5E7EB;
-  --color-ghana-text: #222222;
-  --color-ghana-secondary-text: #555555;
-  --color-ghana-muted-text: #666666;
+  --color-ghana-neutral-bg: #F8FAFC;
+  --color-ghana-border: #E2E8F0;
 }
 
 @layer base {
@@ -29,70 +26,41 @@
     --ghana-green-hover: #005632;
     --ghana-green-light: #E6F0EB;
     --ghana-gold: #FCD116;
-    --ghana-gold-hover: #E5BC0B;
-    --ghana-gold-light: #FEF9E7;
     --ghana-red: #CE1126;
-    --ghana-red-hover: #B50E20;
-    --ghana-red-light: #FCE8EA;
-    --ghana-black: #222222;
     --background: #FFFFFF;
     --background-secondary: #F8FAFC;
     --card-surface: #FFFFFF;
     --card-subpanel: #F1F5F9;
     --border: #E2E8F0;
-    --border-subtle: #F1F5F9;
-    --text-primary: #222222;
-    --text-secondary: #444444;
-    --text-muted: #666666;
-    --text-metadata: #555555;
-    --text-heading: #111111;
-    --text-link: #0056B3;
-    --text-accent: #006B3F;
-    --text-disabled: #94A3B8;
-
-    font-family: 'Times New Roman', Times, serif;
-    letter-spacing: normal;
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --text-heading: #0F172A;
+    font-family: var(--font-sans);
   }
 
   .dark {
     --ghana-green: #10B981;
     --ghana-green-hover: #34D399;
-    --ghana-green-light: rgba(16, 185, 129, 0.18);
-    --ghana-gold: #FCD116;
-    --ghana-gold-hover: #FEDC44;
-    --ghana-gold-light: rgba(252, 209, 22, 0.16);
-    --ghana-red: #F43F5E;
-    --ghana-red-hover: #FB7185;
-    --ghana-red-light: rgba(244, 63, 94, 0.22);
-    --ghana-black: #F8FAFC;
+    --ghana-green-light: rgba(16, 185, 129, 0.16);
     --background: #0B0F17;
     --background-secondary: #0F141F;
     --card-surface: #141B29;
     --card-subpanel: #1A2234;
     --border: #1F293D;
-    --border-subtle: #192131;
     --text-primary: #E2E8F0;
     --text-secondary: #CBD5E1;
     --text-muted: #94A3B8;
-    --text-metadata: #94A3B8;
-    --text-heading: #FFFFFF;
-    --text-link: #60A5FA;
-    --text-accent: #10B981;
-    --text-disabled: #64748B;
+    --text-heading: #F8FAFC;
   }
 
   html {
     color-scheme: light;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: var(--font-sans);
     font-size: 16px;
-    line-height: 1.6;
-    letter-spacing: normal;
-  }
-
-  @media (min-width: 768px) {
-    html {
-      font-size: 17px;
-    }
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
 
   html.dark {
@@ -102,298 +70,113 @@
   body {
     background-color: var(--background-secondary);
     color: var(--text-primary);
-    font-family: 'Times New Roman', Times, serif;
-    font-weight: 400;
-    font-style: normal;
-    text-align: left;
-    letter-spacing: normal;
-    line-height: 1.6;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    overflow-x: clip;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Editorial Headings System: Simple, traditional article style */
-  h1, .editorial-heading-1 {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 28px;
-    line-height: 1.25;
-    font-weight: 600;
+  h1, h2, h3, h4 {
     color: var(--text-heading);
-    letter-spacing: normal;
-    text-transform: none !important;
-    text-shadow: none !important;
-  }
-  @media (min-width: 768px) {
-    h1, .editorial-heading-1 {
-      font-size: 32px;
-    }
-  }
-
-  h2, .editorial-heading-2 {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 21px;
-    line-height: 1.3;
-    font-weight: 600;
-    color: var(--text-heading);
-    letter-spacing: normal;
-    text-transform: none !important;
-    text-shadow: none !important;
-  }
-  @media (min-width: 768px) {
-    h2, .editorial-heading-2 {
-      font-size: 24px;
-    }
-  }
-
-  h3, .editorial-heading-3 {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 22px;
-    line-height: 1.35;
-    font-weight: 600;
-    color: var(--text-heading);
-    letter-spacing: normal;
-    text-transform: none !important;
-    text-shadow: none !important;
-  }
-  @media (min-width: 768px) {
-    h3, .editorial-heading-3 {
-      font-size: 26px;
-    }
-  }
-
-  p {
-    line-height: 1.6;
-    letter-spacing: normal;
+    text-wrap: balance;
   }
 }
 
-/* Override font-space to traditional serif */
-.font-space {
-  font-family: 'Times New Roman', Times, serif !important;
-  letter-spacing: normal !important;
-  text-transform: none;
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-/* =========================================================================
-   TRADITIONAL EDITORIAL & SPORTS NEWSPAPER ARTICLE TYPOGRAPHY
-   Reference: Clean, professional journalism formatting
-   ========================================================================= */
+.stage-ambient-surface {
+  background-color: var(--background-secondary);
+}
+
+/* Clean Editorial Article Typography (Details & Guides) */
+.editorial-heading-1 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+@media (min-width: 640px) {
+  .editorial-heading-1 {
+    font-size: 1.875rem;
+  }
+}
+
+.editorial-heading-2 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--text-heading);
+}
 
 .editorial-prose,
 .article-prose {
-  font-family: 'Times New Roman', Times, serif;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #222222;
-  text-align: left;
-  letter-spacing: normal;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-primary);
 }
-@media (min-width: 768px) {
-  .editorial-prose,
-  .article-prose {
-    font-size: 17px;
-  }
-}
-.dark .editorial-prose,
-.dark .article-prose {
-  color: #E2E8F0;
-}
-
-/* Paragraph spacing: 12-16px between paragraphs */
 .editorial-prose p,
 .editorial-p,
 .article-prose p {
-  margin-bottom: 14px;
-  line-height: 1.6;
-  letter-spacing: normal;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 16px;
-  font-weight: 400;
-  color: #222222;
-  text-align: left;
+  margin-bottom: 0.875rem;
+  line-height: 1.65;
   word-wrap: break-word;
   overflow-wrap: break-word;
-}
-@media (min-width: 768px) {
-  .editorial-prose p,
-  .editorial-p,
-  .article-prose p {
-    font-size: 17px;
-  }
-}
-.dark .editorial-prose p,
-.dark .editorial-p,
-.dark .article-prose p {
-  color: #E2E8F0;
 }
 .editorial-prose p:last-child,
 .article-prose p:last-child {
   margin-bottom: 0;
 }
-
-/* Traditional Editorial Links: standard clean blue with underline */
-.editorial-link,
 .editorial-prose a,
-.article-prose a {
-  color: #0056B3;
+.article-prose a,
+.editorial-link {
+  color: #006B3F;
   text-decoration: underline;
-  text-underline-offset: 2.5px;
-  font-weight: 400;
-  transition: color 0.15s ease;
+  text-underline-offset: 2px;
 }
-.editorial-link:hover,
-.editorial-prose a:hover,
-.article-prose a:hover {
-  color: #003875;
-}
-.dark .editorial-link,
 .dark .editorial-prose a,
-.dark .article-prose a {
-  color: #60A5FA;
-}
-.dark .editorial-link:hover,
-.dark .editorial-prose a:hover,
-.dark .article-prose a:hover {
-  color: #93C5FD;
+.dark .article-prose a,
+.dark .editorial-link {
+  color: #34D399;
 }
 
-/* Supporting Information: 15px mobile, 16px desktop */
 .editorial-supporting,
 .editorial-meta {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 15px;
+  font-size: 0.875rem;
   line-height: 1.5;
-  color: #555555;
-  letter-spacing: normal;
+  color: var(--text-secondary);
+}
+
+/* Clean Card Surface (Used across cards & secondary directories) */
+.floating-glass-tablet {
+  background-color: var(--card-surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+.dark .floating-glass-tablet {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
 }
 @media (min-width: 768px) {
-  .editorial-supporting,
-  .editorial-meta {
-    font-size: 16px;
+  .floating-glass-tablet {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+  }
+  .dark .floating-glass-tablet {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+  .floating-glass-tablet:hover {
+    border-color: rgba(0, 107, 63, 0.45);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+  }
+  .dark .floating-glass-tablet:hover {
+    border-color: rgba(52, 211, 153, 0.4);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
   }
 }
-.dark .editorial-supporting,
-.dark .editorial-meta {
-  color: #94A3B8;
-}
-
-/* Reusable Ghana Brand Button System */
-.btn-ghana-primary {
-  background-color: #006B3F;
-  color: #FFFFFF;
-  font-weight: 700;
-  border-radius: 0.75rem;
-  transition: all 0.15s ease-in-out;
-}
-.btn-ghana-primary:hover {
-  background-color: #005632;
-}
-
-.btn-ghana-secondary {
-  background-color: #FFFFFF;
-  color: #006B3F;
-  border: 1.5px solid #006B3F;
-  font-weight: 700;
-  border-radius: 0.75rem;
-  transition: all 0.15s ease-in-out;
-}
-.btn-ghana-secondary:hover {
-  background-color: #E6F0EB;
-}
-
-.btn-ghana-accent {
-  background-color: #FCD116;
-  color: #111111;
-  font-weight: 700;
-  border-radius: 0.75rem;
-  transition: all 0.15s ease-in-out;
-}
-.btn-ghana-accent:hover {
-  background-color: #E5BC0B;
-}
-
-.btn-ghana-danger {
-  background-color: #CE1126;
-  color: #FFFFFF;
-  font-weight: 700;
-  border-radius: 0.75rem;
-  transition: all 0.15s ease-in-out;
-}
-.btn-ghana-danger:hover {
-  background-color: #B50E20;
-}
-
-/* =========================================================================
-   PREMIUM FLOATING GLASS TABLET DESIGN SYSTEM
-   Protruding, layered, frosted glass panels with specular highlights & depth
-   ========================================================================= */
-
-/* Floating Glass Tablet Shell (Light Cards) */
-.floating-glass-tablet {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.065),
-    0 2px 5px -1px rgba(15, 23, 42, 0.05),
-    0 12px 28px -6px rgba(15, 23, 42, 0.09),
-    0 24px 52px -14px rgba(15, 23, 42, 0.08),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(15, 23, 42, 0.025);
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease,
-              background-color 0.25s ease;
-  transform: translateZ(0);
-}
-
-/* =========================================================================
-   FLAT PREMIUM GLASS HERO / FEATURED SCHOLARSHIP SHOWCASE
-   Full-bleed sharp photography + clean directional contrast gradient
-   + subtle flat glass surface + thin clean border + soft shadow
-   ========================================================================= */
-.floating-glass-hero-3d {
-  position: relative;
-  background-color: #030f0a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px -2px rgba(2, 6, 23, 0.25);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.floating-glass-hero-3d:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 6px 20px -2px rgba(2, 6, 23, 0.35);
-}
-
-/* Foreground Flat Glass Content Panel inside the Hero */
-.glass-hero-content-panel {
-  background: rgba(3, 14, 20, 0.78);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Foreground Flat Glass Badge / Subpanel inside Hero */
-.glass-hero-badge-card {
-  background: rgba(2, 16, 12, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.dark .floating-glass-tablet {
-  background: rgba(18, 25, 38, 0.88);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 2px 4px 0 rgba(0, 0, 0, 0.3),
-    0 12px 30px -6px rgba(0, 0, 0, 0.55),
-    0 26px 56px -12px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.14);
+.glass-subpanel {
+  background-color: var(--card-subpanel);
+  border-top: 1px solid var(--border);
 }
 
 /* Institution Card & Detail Hero Readability Overlays (Light & Dark Adaptive) */
@@ -401,24 +184,20 @@
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.30) 28%,
-    rgba(255, 255, 255, 0.64) 58%,
-    rgba(255, 255, 255, 0.90) 84%,
+    rgba(255, 255, 255, 0.35) 30%,
+    rgba(255, 255, 255, 0.72) 60%,
     rgba(255, 255, 255, 0.96) 100%
   );
 }
-
 .dark .institution-card-overlay {
   background: linear-gradient(
     180deg,
     rgba(11, 15, 23, 0.22) 0%,
-    rgba(15, 20, 31, 0.42) 28%,
-    rgba(18, 25, 38, 0.78) 58%,
-    rgba(18, 25, 38, 0.94) 84%,
+    rgba(15, 20, 31, 0.45) 30%,
+    rgba(18, 25, 38, 0.82) 60%,
     rgba(18, 25, 38, 0.98) 100%
   );
 }
-
 .institution-hero-overlay {
   background: linear-gradient(
     135deg,
@@ -427,7 +206,6 @@
     rgba(255, 255, 255, 0.95) 100%
   );
 }
-
 .dark .institution-hero-overlay {
   background: linear-gradient(
     135deg,
@@ -437,318 +215,11 @@
   );
 }
 
-.floating-glass-tablet:hover {
-  transform: translateY(-3px) scale(1.002) translateZ(0);
-  border-color: rgba(255, 255, 255, 1);
-  box-shadow:
-    0 0 0 1px rgba(0, 107, 63, 0.28),
-    0 6px 14px -3px rgba(15, 23, 42, 0.06),
-    0 22px 44px -8px rgba(15, 23, 42, 0.14),
-    0 38px 72px -14px rgba(0, 107, 63, 0.14),
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(0, 107, 63, 0.05);
+/* Hide scrollbar helper for horizontal mobile filter strips */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-
-.dark .floating-glass-tablet:hover {
-  border-color: rgba(52, 211, 153, 0.4);
-  box-shadow:
-    0 6px 12px -2px rgba(0, 0, 0, 0.45),
-    0 22px 46px -8px rgba(0, 0, 0, 0.7),
-    0 42px 80px -16px rgba(5, 150, 105, 0.22),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.22);
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
-
-/* Featured Tablet Variation */
-.floating-glass-tablet.featured-tablet {
-  box-shadow:
-    0 0 0 1px rgba(0, 107, 63, 0.22),
-    0 3px 7px -1px rgba(15, 23, 42, 0.06),
-    0 14px 32px -6px rgba(0, 107, 63, 0.10),
-    0 28px 56px -14px rgba(15, 23, 42, 0.09),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
-}
-.floating-glass-tablet.featured-tablet:hover {
-  box-shadow:
-    0 0 0 1.5px rgba(0, 107, 63, 0.42),
-    0 8px 16px -3px rgba(15, 23, 42, 0.07),
-    0 24px 48px -8px rgba(15, 23, 42, 0.15),
-    0 40px 76px -14px rgba(0, 107, 63, 0.18),
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1);
-}
-.dark .floating-glass-tablet.featured-tablet {
-  border-color: rgba(52, 211, 153, 0.3);
-}
-
-/* Secondary internal frosted glass panel for layered depth */
-.glass-subpanel {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.86) 0%,
-    rgba(244, 248, 246, 0.78) 100%
-  );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow:
-    0 2px 6px -1px rgba(15, 23, 42, 0.04),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
-}
-
-.dark .glass-subpanel {
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  box-shadow:
-    0 1px 2px 0 rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-}
-
-/* Floating Glass Control Buttons (e.g. Bookmark, share, quick actions) */
-.glass-floating-btn {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.06),
-    0 3px 8px -1px rgba(15, 23, 42, 0.12),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-floating-btn:hover {
-  background: rgba(255, 255, 255, 0.98);
-  transform: translateY(-1px) scale(1.06);
-  box-shadow:
-    0 0 0 1px rgba(0, 107, 63, 0.2),
-    0 6px 14px -2px rgba(15, 23, 42, 0.18),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1);
-}
-
-.dark .glass-floating-btn {
-  background: rgba(15, 23, 42, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 2px 6px -1px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-.dark .glass-floating-btn:hover {
-  background: rgba(24, 34, 54, 0.92);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: scale(1.06);
-  box-shadow:
-    0 4px 14px -2px rgba(0, 0, 0, 0.6),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-/* Polished Specular Top Highlight Rim */
-.specular-rim-highlight {
-  position: relative;
-}
-.specular-rim-highlight::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1.5px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.85) 25%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(255, 255, 255, 0.85) 75%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 25;
-}
-.dark .specular-rim-highlight::before {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 70%, rgba(255,255,255,0) 100%);
-}
-
-/* Stage Lighting Mesh: Gentle Ambient Depth Behind Floating Panels */
-.stage-ambient-surface {
-  background-color: #F2F6F4;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(0, 107, 63, 0.055) 0px, transparent 48%),
-    radial-gradient(at 100% 10%, rgba(252, 209, 22, 0.05) 0px, transparent 45%),
-    radial-gradient(at 50% 100%, rgba(0, 107, 63, 0.04) 0px, transparent 50%);
-}
-
-.dark .stage-ambient-surface {
-  background-color: #0B0F17;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.05) 0px, transparent 45%),
-    radial-gradient(at 100% 0%, rgba(252, 209, 22, 0.035) 0px, transparent 45%),
-    radial-gradient(at 50% 100%, rgba(5, 150, 105, 0.04) 0px, transparent 45%);
-}
-
-/* =========================================================================
-   ANIMATED COLOUR-CHANGING HERO GRADIENT & FLOATING PANELS
-   Design Reference: GlobalWave Tech Ghana layout with continuous flowing colors
-   ========================================================================= */
-
-@keyframes gradientShiftOpp {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes heroCardFloat {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes heroCardFloatSlow {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-}
-
-/* Hero Headline: Modern, bold geometric styling */
-.hero-headline {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-  text-wrap: balance;
-}
-
-/* Phrase 1: "Discover opportunities." — emerald green, lime green, teal, and blue */
-.animated-gradient-text-1 {
-  background: linear-gradient(
-    90deg,
-    #006B3F 0%,
-    #10B981 22%,
-    #84CC16 45%,
-    #0D9488 68%,
-    #0284C7 88%,
-    #006B3F 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShiftOpp 8s ease-in-out infinite;
-  display: inline-block;
-}
-
-/* Phrase 2: "Build your skills." — green, turquoise, blue, and violet */
-.animated-gradient-text-2 {
-  background: linear-gradient(
-    90deg,
-    #059669 0%,
-    #14B8A6 24%,
-    #0284C7 50%,
-    #2563EB 72%,
-    #7C3AED 88%,
-    #059669 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShiftOpp 10s ease-in-out infinite reverse;
-  display: inline-block;
-}
-
-/* Phrase 3: "Shape your future." — yellow-green, emerald, and cyan */
-.animated-gradient-text-3 {
-  background: linear-gradient(
-    90deg,
-    #65A30D 0%,
-    #10B981 26%,
-    #06B6D4 52%,
-    #059669 76%,
-    #EAB308 90%,
-    #65A30D 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShiftOpp 7s ease-in-out infinite;
-  display: inline-block;
-}
-
-/* Dark Mode Variants: Enhanced luminance for deep slate canvas */
-.dark .animated-gradient-text-1 {
-  background: linear-gradient(
-    90deg,
-    #34D399 0%,
-    #4ADE80 22%,
-    #A3E635 45%,
-    #2DD4BF 68%,
-    #38BDF8 88%,
-    #34D399 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.dark .animated-gradient-text-2 {
-  background: linear-gradient(
-    90deg,
-    #10B981 0%,
-    #2DD4BF 24%,
-    #38BDF8 50%,
-    #60A5FA 72%,
-    #C084FC 88%,
-    #10B981 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.dark .animated-gradient-text-3 {
-  background: linear-gradient(
-    90deg,
-    #BEF264 0%,
-    #34D399 26%,
-    #22D3EE 52%,
-    #4ADE80 76%,
-    #FDE047 90%,
-    #BEF264 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.animate-float-gentle {
-  animation: heroCardFloat 5.5s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: heroCardFloatSlow 7s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animated-gradient-text-1,
-  .animated-gradient-text-2,
-  .animated-gradient-text-3,
-  .animate-float-gentle,
-  .animate-float-slow {
-    animation: none !important;
-  }
-}
-
-

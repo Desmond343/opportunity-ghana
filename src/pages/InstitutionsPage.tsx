@@ -106,7 +106,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
   const closingSoonCount = institutions.filter((i) => i.overallAdmissionStatus === 'CLOSING_SOON').length;
 
   return (
-    <div className="min-h-screen stage-ambient-surface py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen stage-ambient-surface py-4 sm:py-6 md:py-8 px-2.5 sm:px-3 md:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 rounded-2xl p-6 sm:p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
@@ -322,7 +322,7 @@ export const InstitutionsPage: React.FC<InstitutionsPageProps> = ({
 
         {/* Institutions Grid */}
         {filteredInstitutions.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
             {filteredInstitutions.map((institution) => (
               <InstitutionCard
                 key={institution.id}

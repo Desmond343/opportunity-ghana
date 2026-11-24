@@ -58,7 +58,7 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
     selectedDemand !== 'All';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 space-y-5 sm:space-y-8">
       {/* Header Banner */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2 mb-1">
@@ -164,7 +164,7 @@ export const CareersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
 
       {/* Grid of Skill Cards */}
       {skills.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+        <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-7">
           {skills.map((skill) => (
             <SkillCard key={skill.id} skill={skill} onNavigate={onNavigate} />
           ))}

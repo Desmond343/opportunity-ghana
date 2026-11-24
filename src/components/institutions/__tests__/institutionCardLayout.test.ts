@@ -52,9 +52,9 @@ assert.ok(
 );
 console.log('PASS: Full-card background image and overlay have been completely removed');
 
-// Check that dedicated top image section exists (35-45% height ~ h-44 sm:h-48)
+// Check that dedicated top image section exists (35-45% height on desktop ~ md:h-48)
 assert.ok(
-  cardCode.includes('h-44 sm:h-48') && cardCode.includes('object-cover'),
+  (cardCode.includes('h-44 sm:h-48') || cardCode.includes('md:h-48')) && cardCode.includes('object-cover'),
   'FAIL: Dedicated top image section with object-cover must exist'
 );
 console.log('PASS: Dedicated top image section occupies ~35-45% card height with object-cover');

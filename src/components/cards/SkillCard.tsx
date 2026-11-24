@@ -82,7 +82,7 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
   return (
     <article
       onClick={() => onNavigate(`/skills/${skill.slug}`)}
-      className="floating-glass-tablet specular-rim-highlight group relative rounded-2xl sm:rounded-[22px] cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      className="floating-glass-tablet specular-rim-highlight group relative rounded-xl md:rounded-[22px] cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-300 md:hover:-translate-y-1 md:hover:shadow-lg"
     >
       {/* Visual Header Banner */}
       <CardVisualHeader
@@ -90,14 +90,14 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
         alt={skill.imageAlt || skill.name}
         title={skill.name}
         subtitle={skill.category}
-        heightClass="h-36 sm:h-40"
+        heightClass="h-[104px] min-[431px]:h-[88px] md:h-40"
         badgeTopLeft={
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-lg bg-slate-950/80 backdrop-blur-md text-white border border-white/10 shadow-xs">
+          <div className="flex items-center gap-1 md:gap-1.5 flex-wrap">
+            <span className="text-[9px] min-[431px]:text-[8.5px] md:text-[10px] font-extrabold uppercase tracking-wider px-1.5 md:px-2 py-[2px] md:py-0.5 rounded md:rounded-lg bg-slate-950/80 md:backdrop-blur-md text-white border border-white/10 shadow-xs truncate max-w-[96px] min-[431px]:max-w-[76px] md:max-w-none">
               {skill.category}
             </span>
             {skill.level && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 border border-white/20 shadow-xs">
+              <span className="hidden md:inline-block text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 border border-white/20 shadow-xs">
                 {skill.level}
               </span>
             )}
@@ -109,22 +109,27 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
             onClick={toggleSave}
             title={isSaved ? 'Remove from saved' : 'Save skill'}
             aria-label={isSaved ? 'Remove from saved' : 'Save skill'}
-            className={`p-2 rounded-xl backdrop-blur-md transition-all shadow-xs cursor-pointer ${
+            className={`p-1 md:p-2 rounded-md md:rounded-xl backdrop-blur-md transition-all shadow-xs cursor-pointer ${
               isSaved
                 ? 'bg-[#006B3F] text-[#FCD116] ring-1 ring-emerald-400'
                 : 'bg-slate-950/60 text-white/90 hover:bg-slate-950/80 hover:text-white'
             }`}
           >
-            <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
+            <Bookmark className={`w-3 h-3 md:w-4 md:h-4 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
           </button>
         }
       />
 
       {/* Main Content Body */}
-      <div className="p-5 pb-3.5 flex-1 flex flex-col justify-between space-y-3.5">
-        <div className="space-y-2.5">
-          {/* Header Row: Demand Level */}
-          <div className="flex items-center justify-between text-xs">
+      <div className="p-2 min-[431px]:p-1.5 md:p-5 md:pb-3.5 flex-1 flex flex-col justify-between gap-1.5 md:gap-0 md:space-y-3.5">
+        <div className="space-y-0.5 md:space-y-2.5 min-w-0">
+          {/* Mobile Compact Demand Label */}
+          <p className="md:hidden text-[10.5px] min-[431px]:text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 truncate leading-tight">
+            {skill.demandLevel || 'High'} Demand
+          </p>
+
+          {/* Desktop Header Row: Demand Level */}
+          <div className="hidden md:flex items-center justify-between text-xs">
             <span
               className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${getDemandBadgeColor(
                 skill.demandLevel
@@ -143,18 +148,18 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
           </div>
 
           {/* Skill Title */}
-          <h3 className="text-base sm:text-lg font-semibold text-[#111111] dark:text-white group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors font-serif leading-snug text-left">
+          <h3 className="text-[12.5px] min-[431px]:text-[11.5px] md:text-lg font-semibold text-[#111111] dark:text-white group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors font-serif leading-[1.25] min-[431px]:leading-[1.22] md:leading-snug line-clamp-2 text-left">
             {skill.name}
           </h3>
 
-          {/* Short Description */}
-          <p className="text-[15px] sm:text-[16px] text-[#333333] dark:text-slate-200 line-clamp-3 leading-relaxed font-serif text-left">
+          {/* Short Description (Desktop only) */}
+          <p className="hidden md:block text-[16px] text-[#333333] dark:text-slate-200 line-clamp-3 leading-relaxed font-serif text-left">
             {skill.description}
           </p>
 
-          {/* Top Careers */}
+          {/* Top Careers (Desktop only) */}
           {skill.topCareers && skill.topCareers.length > 0 && (
-            <div className="pt-1">
+            <div className="hidden md:block pt-1">
               <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <Briefcase className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
                 <span>Target Career Roles</span>
@@ -177,9 +182,9 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
             </div>
           )}
 
-          {/* Related Skills Pills */}
+          {/* Related Skills Pills (Desktop only) */}
           {skill.relatedSkills && skill.relatedSkills.length > 0 && (
-            <div>
+            <div className="hidden md:block">
               <div className="flex flex-wrap gap-1 pt-0.5">
                 {skill.relatedSkills.slice(0, 3).map((sub, i) => (
                   <span
@@ -194,8 +199,18 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
           )}
         </div>
 
-        {/* Card Footer Actions */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+        {/* Mobile Compact Footer */}
+        <div className="md:hidden pt-1.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-1 text-[10px] min-[431px]:text-[9.5px] leading-tight min-w-0">
+          <span className="font-medium text-slate-500 dark:text-slate-400 truncate">
+            {skill.level || 'All Levels'}
+          </span>
+          <span className="font-bold text-[#006B3F] dark:text-emerald-400 shrink-0">
+            Explore
+          </span>
+        </div>
+
+        {/* Desktop Card Footer Actions */}
+        <div className="hidden md:flex pt-3 border-t border-slate-100 dark:border-slate-800/80 items-center justify-between gap-2">
           <div className="flex items-center gap-3 text-xs">
             <button
               type="button"

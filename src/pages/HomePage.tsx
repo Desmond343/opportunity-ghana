@@ -144,7 +144,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="space-y-16 sm:space-y-20 pb-20 stage-ambient-surface">
+    <div className="space-y-12 sm:space-y-20 pb-16 sm:pb-20 stage-ambient-surface">
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
@@ -496,7 +496,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* ==================================================
           4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Targeted visual tracks)
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
             Tailored Journeys
@@ -509,11 +509,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-7">
           {/* Track 1: Students & Undergraduates (Featured Scholarship Pathway) */}
           <div
             onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[260px] sm:min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
           >
             {/* Layer 1: Scholarship Background Image */}
             <img
@@ -559,7 +559,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 2: Early Career Professionals */}
           <div
             onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[260px] sm:min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
           >
             {/* Layer 1: Career Background Image */}
             <img
@@ -605,7 +605,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
           <div
             onClick={() => onNavigate('/resources?paid=true')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-6 flex flex-col justify-between min-h-[340px] text-white cursor-pointer border border-white/10 shadow-sm"
+            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-4.5 sm:p-6 flex flex-col justify-between min-h-[260px] sm:min-h-[340px] text-white cursor-pointer border border-white/10 shadow-sm"
           >
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -658,8 +658,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* ==================================================
           5. FEATURED OPPORTUNITIES GRID (3 columns desktop, 2 tablet, 1 mobile)
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <section className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 space-y-3 sm:space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#006B3F] dark:bg-emerald-400" />
@@ -681,13 +681,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
             {[1, 2, 3].map((n) => (
               <OpportunitySkeleton key={n} />
             ))}
           </div>
         ) : featuredOpps.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
             {featuredOpps.map((opp) => (
               <OpportunityCard
                 key={opp.id}
@@ -720,8 +720,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           6. CLOSING SOON (URGENT DEADLINES)
          ================================================== */}
       {closingSoon.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <section className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 space-y-3 sm:space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#CE1126] dark:bg-rose-500 animate-ping" />
@@ -742,7 +742,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 md:gap-5">
             {closingSoon.map((opp) => (
               <OpportunityCard
                 key={opp.id}
@@ -864,8 +864,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           8. RESOURCES & LEARNING PATHS
          ================================================== */}
       {freeCourses.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <section className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 space-y-3 sm:space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
@@ -886,7 +886,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-3 gap-2 sm:gap-2.5 md:gap-6">
             {freeCourses.map((resource) => (
               <ResourceCard
                 key={resource.id}
@@ -902,8 +902,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           8B. HIGH-DEMAND SKILLS & CAREER PATHWAYS
          ================================================== */}
       {featuredSkills.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <section className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 space-y-3 sm:space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#006B3F] dark:text-emerald-400" />
@@ -924,7 +924,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-3 gap-2 sm:gap-2.5 md:gap-6">
             {featuredSkills.map((skill) => (
               <SkillCard
                 key={skill.id}

@@ -13,12 +13,14 @@ interface OpportunitiesPageProps {
   onNavigate: (path: string) => void;
   initialQuery?: string;
   initialCategory?: string;
+  initialStatus?: OpportunityFilters['availabilityStatus'];
 }
 
 export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
   onNavigate,
   initialQuery = '',
-  initialCategory = 'All'
+  initialCategory = 'All',
+  initialStatus
 }) => {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,16 +33,18 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
     search: initialQuery,
     category: initialCategory,
     region: 'All Ghana',
-    educationLevel: 'All Education Levels'
+    educationLevel: 'All Education Levels',
+    availabilityStatus: initialStatus
   });
 
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
       category: initialCategory,
-      search: initialQuery
+      search: initialQuery,
+      availabilityStatus: initialStatus
     }));
-  }, [initialCategory, initialQuery]);
+  }, [initialCategory, initialQuery, initialStatus]);
 
   useEffect(() => {
     async function fetchOpportunities() {
@@ -144,7 +148,7 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
     .slice(0, 6);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-2.5 sm:px-3 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6">
       {/* Top Banner / Heading */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
@@ -315,14 +319,14 @@ export const OpportunitiesPage: React.FC<OpportunitiesPageProps> = ({
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
                 <OpportunitySkeleton key={i} />
               ))}
             </div>
           ) : displayedItems.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              <div className="grid grid-cols-2 min-[431px]:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-5">
                 {displayedItems.map((opp) => (
                   <OpportunityCard
                     key={opp.id}
