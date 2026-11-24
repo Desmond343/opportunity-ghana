@@ -10,7 +10,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { isEditorOrAdmin } = useAuth();
 
   return (
-    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 py-8 pb-20 md:pb-8">
+    <footer className="hidden md:block bg-slate-900 text-slate-300 border-t border-slate-800 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-md">

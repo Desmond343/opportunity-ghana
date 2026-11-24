@@ -7,6 +7,7 @@ import { SkillsService } from '../services/skillsService';
 import { SuccessStoriesService } from '../services/successStoriesService';
 import { AlertSubscriptionsService } from '../services/alertSubscriptionsService';
 import { OpportunityCategorySection } from '../components/home/OpportunityCategorySection';
+import { TailoredJourneysCarousel } from '../components/home/TailoredJourneysCarousel';
 import { OpportunityCard } from '../components/cards/OpportunityCard';
 import { ResourceCard } from '../components/cards/ResourceCard';
 import { SkillCard } from '../components/cards/SkillCard';
@@ -14,7 +15,6 @@ import { OpportunitySkeleton } from '../components/common/CommonUI';
 import { GHANA_REGIONS } from '../data/categories';
 import {
   GraduationCap,
-  Briefcase,
   Compass,
   BookOpen,
   ArrowRight,
@@ -24,8 +24,7 @@ import {
   Award,
   Search,
   MapPin,
-  X,
-  CheckCircle2
+  X
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -137,7 +136,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="flex flex-col gap-12 sm:gap-20 [&>*]:w-full pb-10 md:pb-20 stage-ambient-surface">
+    <div className="flex flex-col gap-12 sm:gap-20 [&>*]:w-full pb-4 md:pb-20 stage-ambient-surface">
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
@@ -394,166 +393,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <OpportunityCategorySection onNavigate={onNavigate} />
 
       {/* ==================================================
-          4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Targeted visual tracks)
+          4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Mobile Slideshow + Desktop 3-Column Grid)
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
-            Tailored Journeys
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-space tracking-tight">
-            Opportunities for Your Next Step
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-            Whether you are completing SHS, graduating university, or seeking funding for a Ghanaian enterprise.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-7">
-          {/* Track 1: Students & Undergraduates (Featured Scholarship Pathway) */}
-          <div
-            onClick={() => onNavigate('/opportunities?category=Scholarships')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[260px] sm:min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
-          >
-            {/* Layer 1: Scholarship Background Image */}
-            <img
-              src="/images/ghana_student_workspace.jpg"
-              alt="Young Ghanaian student studying in modern university commons"
-              className="absolute inset-0 w-full h-full object-cover object-[center_20%] contrast-[1.04] saturate-[1.05]"
-            />
-            {/* Layer 2: Directional Contrast Gradient */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 12, 0.25) 38%, rgba(2, 18, 13, 0.80) 72%, rgba(2, 14, 10, 0.95) 100%)'
-              }}
-            />
-
-            {/* Top Badge */}
-            <div className="relative z-10 p-4 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#FCD116] text-[#0A0F0D] font-space">
-                Students &amp; Graduates
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white">
-                <GraduationCap className="w-3 h-3 text-[#FCD116]" />
-                Full Funding
-              </span>
-            </div>
-
-            {/* Layer 3: Flat Glass Content Panel */}
-            <div className="relative z-10 m-3.5 mt-auto p-4 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 space-y-2 text-white shadow-sm">
-              <h3 className="text-base sm:text-lg font-bold font-space text-white group-hover:text-[#FCD116] transition-colors leading-snug">
-                Scholarships &amp; University Fellowships
-              </h3>
-              <p className="text-xs text-slate-200/90 leading-relaxed font-normal">
-                Full tuition waivers, Mastercard Foundation awards, and international graduate programs for Ghanaian students.
-              </p>
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FCD116] group-hover:text-white transition-colors">
-                <span>Discover Scholarships</span>
-                <ArrowRight className="w-4 h-4 text-[#FCD116] group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-
-          {/* Track 2: Early Career Professionals */}
-          <div
-            onClick={() => onNavigate('/opportunities?category=Jobs')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between min-h-[260px] sm:min-h-[340px] border border-white/10 bg-slate-950 shadow-sm"
-          >
-            {/* Layer 1: Career Background Image */}
-            <img
-              src="/images/ghana_hero_professionals.jpg"
-              alt="Young Ghanaian professionals in modern workplace"
-              className="absolute inset-0 w-full h-full object-cover object-[center_20%] contrast-[1.04] saturate-[1.05]"
-            />
-            {/* Layer 2: Directional Contrast Gradient */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(2, 12, 20, 0.08) 0%, rgba(2, 16, 24, 0.25) 38%, rgba(2, 14, 24, 0.80) 72%, rgba(2, 10, 20, 0.95) 100%)'
-              }}
-            />
-
-            {/* Top Badge */}
-            <div className="relative z-10 p-4 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-space">
-                Early Career &amp; NSS
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white">
-                <Briefcase className="w-3 h-3 text-emerald-300" />
-                Verified Roles
-              </span>
-            </div>
-
-            {/* Layer 3: Flat Glass Content Panel */}
-            <div className="relative z-10 m-3.5 mt-auto p-4 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 space-y-2 text-white shadow-sm">
-              <h3 className="text-base sm:text-lg font-bold font-space text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                Jobs, Internships &amp; Graduate Schemes
-              </h3>
-              <p className="text-xs text-slate-200/90 leading-relaxed font-normal">
-                Verified entry-level vacancies, management trainee programs, and paid corporate attachments across Ghana.
-              </p>
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-300 group-hover:text-white transition-colors">
-                <span>View Open Vacancies</span>
-                <ArrowRight className="w-4 h-4 text-emerald-300 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-
-          {/* Track 3: Practical Skills, Paid Certifications & Upskilling */}
-          <div
-            onClick={() => onNavigate('/resources?paid=true')}
-            className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-[#00482B] via-[#006B3F] to-slate-950 p-4.5 sm:p-6 flex flex-col justify-between min-h-[260px] sm:min-h-[340px] text-white cursor-pointer border border-white/10 shadow-sm"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FCD116] text-[#111111] font-mono">
-                  Verified Pricing
-                </span>
-                <span className="text-[10px] font-semibold text-emerald-200">
-                  Global Credentials
-                </span>
-              </div>
-              <h3 className="text-xl font-bold font-space text-white group-hover:text-[#FCD116] transition-colors">
-                Paid Certifications &amp; Professional Training
-              </h3>
-              <p className="text-xs text-emerald-100/90 leading-relaxed">
-                Vetted courses from AWS, Google, Microsoft, Harvard, PMI and ACCA. Full transparency on tuition, exam fees, and accessibility for learners in Ghana.
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-white/15 space-y-3">
-              <div className="space-y-1.5 text-xs text-emerald-100">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
-                  <span>Accredited global certificates &amp; digital badges</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#FCD116]" />
-                  <span>Exam centers in Accra &amp; online proctoring verified</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#FCD116]">
-                  <span>Explore Paid Courses</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('/resources?free=true');
-                  }}
-                  className="text-[11px] text-white hover:text-[#FCD116] underline font-medium cursor-pointer"
-                >
-                  View Free Only
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TailoredJourneysCarousel onNavigate={onNavigate} />
 
       {/* ==================================================
           5. FEATURED OPPORTUNITIES GRID (3 columns desktop, 2 tablet, 1 mobile)
