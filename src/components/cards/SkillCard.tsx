@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Skill } from '../../types/database';
-import { Badge } from '../common/Badge';
 import { CardVisualHeader } from './CardVisualHeader';
 import { resolveSkillMedia } from '../../utils/cardBackgrounds';
 import { SavedService } from '../../services/savedService';
 import { useAuth } from '../../services/authContext';
-import {
-  Briefcase,
-  Bookmark,
-  ArrowRight,
-  TrendingUp,
-  Sparkles,
-  Award,
-  Layers,
-  ChevronRight
-} from 'lucide-react';
+import { Bookmark, ArrowRight, TrendingUp } from 'lucide-react';
 
 interface SkillCardProps {
   skill: Skill;
@@ -65,7 +55,6 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
 
   const media = resolveSkillMedia(skill);
 
-  // Demand badge styling helper
   const getDemandBadgeColor = (demand?: string) => {
     switch (demand) {
       case 'Very High':
@@ -82,7 +71,7 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
   return (
     <article
       onClick={() => onNavigate(`/skills/${skill.slug}`)}
-      className="floating-glass-tablet specular-rim-highlight group relative rounded-xl md:rounded-[22px] cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-300 md:hover:-translate-y-1 md:hover:shadow-lg"
+      className="floating-glass-tablet specular-rim-highlight group relative rounded-xl md:rounded-2xl cursor-pointer flex flex-col justify-between overflow-hidden transition-all duration-200 h-full"
     >
       {/* Visual Header Banner */}
       <CardVisualHeader
@@ -92,16 +81,9 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
         subtitle={skill.category}
         heightClass="h-[104px] min-[431px]:h-[88px] md:h-40"
         badgeTopLeft={
-          <div className="flex items-center gap-1 md:gap-1.5 flex-wrap">
-            <span className="text-[9px] min-[431px]:text-[8.5px] md:text-[10px] font-extrabold uppercase tracking-wider px-1.5 md:px-2 py-[2px] md:py-0.5 rounded md:rounded-lg bg-slate-950/80 md:backdrop-blur-md text-white border border-white/10 shadow-xs truncate max-w-[96px] min-[431px]:max-w-[76px] md:max-w-none">
-              {skill.category}
-            </span>
-            {skill.level && (
-              <span className="hidden md:inline-block text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 border border-white/20 shadow-xs">
-                {skill.level}
-              </span>
-            )}
-          </div>
+          <span className="text-[9px] min-[431px]:text-[8.5px] md:text-[10px] font-bold uppercase tracking-wider px-1.5 md:px-2.5 py-[2px] md:py-0.5 rounded md:rounded-md bg-slate-950/80 md:backdrop-blur-md text-white border border-white/15 shadow-xs truncate max-w-[96px] min-[431px]:max-w-[76px] md:max-w-[180px]">
+            {skill.category}
+          </span>
         }
         actionsTopRight={
           <button
@@ -109,26 +91,26 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
             onClick={toggleSave}
             title={isSaved ? 'Remove from saved' : 'Save skill'}
             aria-label={isSaved ? 'Remove from saved' : 'Save skill'}
-            className={`p-1 md:p-2 rounded-md md:rounded-xl backdrop-blur-md transition-all shadow-xs cursor-pointer ${
+            className={`p-1 md:p-1.5 rounded-md md:rounded-lg backdrop-blur-md transition-all shadow-xs cursor-pointer ${
               isSaved
-                ? 'bg-[#006B3F] text-[#FCD116] ring-1 ring-emerald-400'
-                : 'bg-slate-950/60 text-white/90 hover:bg-slate-950/80 hover:text-white'
+                ? 'bg-[#006B3F] text-[#FCD116] border border-emerald-400/50'
+                : 'bg-slate-950/70 text-white/90 hover:bg-slate-950/90 hover:text-white border border-white/20'
             }`}
           >
-            <Bookmark className={`w-3 h-3 md:w-4 md:h-4 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
+            <Bookmark className={`w-3 h-3 md:w-3.5 md:h-3.5 ${isSaved ? 'fill-[#FCD116]' : ''}`} />
           </button>
         }
       />
 
       {/* Main Content Body */}
-      <div className="p-2 min-[431px]:p-1.5 md:p-5 md:pb-3.5 flex-1 flex flex-col justify-between gap-1.5 md:gap-0 md:space-y-3.5">
-        <div className="space-y-0.5 md:space-y-2.5 min-w-0">
+      <div className="p-2 min-[431px]:p-1.5 md:p-4 flex-1 flex flex-col justify-between gap-1.5 md:gap-3 min-w-0">
+        <div className="space-y-0.5 md:space-y-1.5 min-w-0">
           {/* Mobile Compact Demand Label */}
           <p className="md:hidden text-[10.5px] min-[431px]:text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 truncate leading-tight">
             {skill.demandLevel || 'High'} Demand
           </p>
 
-          {/* Desktop Header Row: Demand Level */}
+          {/* Desktop Demand Label */}
           <div className="hidden md:flex items-center justify-between text-xs">
             <span
               className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${getDemandBadgeColor(
@@ -138,65 +120,12 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
               <TrendingUp className="w-3 h-3 shrink-0" />
               <span>{skill.demandLevel || 'High'} Demand</span>
             </span>
-
-            {skill.certifications && skill.certifications.length > 0 && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                <Award className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
-                <span>Certified Path</span>
-              </span>
-            )}
           </div>
 
           {/* Skill Title */}
-          <h3 className="text-[12.5px] min-[431px]:text-[11.5px] md:text-lg font-semibold text-[#111111] dark:text-white group-hover:text-[#0056B3] dark:group-hover:text-sky-300 transition-colors font-serif leading-[1.25] min-[431px]:leading-[1.22] md:leading-snug line-clamp-2 text-left">
+          <h3 className="text-[12.5px] min-[431px]:text-[11.5px] md:text-[17px] font-semibold md:font-bold text-[#111111] dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors font-serif md:font-sans leading-[1.25] min-[431px]:leading-[1.22] md:leading-snug md:min-h-[46px] line-clamp-2 text-left">
             {skill.name}
           </h3>
-
-          {/* Short Description (Desktop only) */}
-          <p className="hidden md:block text-[16px] text-[#333333] dark:text-slate-200 line-clamp-3 leading-relaxed font-serif text-left">
-            {skill.description}
-          </p>
-
-          {/* Top Careers (Desktop only) */}
-          {skill.topCareers && skill.topCareers.length > 0 && (
-            <div className="hidden md:block pt-1">
-              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                <Briefcase className="w-3 h-3 text-[#006B3F] dark:text-emerald-400" />
-                <span>Target Career Roles</span>
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {skill.topCareers.slice(0, 2).map((career, i) => (
-                  <span
-                    key={i}
-                    className="text-[11px] font-semibold bg-slate-100/90 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700/80 truncate max-w-[210px]"
-                  >
-                    {career}
-                  </span>
-                ))}
-                {skill.topCareers.length > 2 && (
-                  <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 self-center">
-                    +{skill.topCareers.length - 2} more
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Related Skills Pills (Desktop only) */}
-          {skill.relatedSkills && skill.relatedSkills.length > 0 && (
-            <div className="hidden md:block">
-              <div className="flex flex-wrap gap-1 pt-0.5">
-                {skill.relatedSkills.slice(0, 3).map((sub, i) => (
-                  <span
-                    key={i}
-                    className="text-[10px] font-medium bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40 px-2 py-0.5 rounded-md"
-                  >
-                    {sub}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Mobile Compact Footer */}
@@ -209,33 +138,12 @@ export const SkillCard: React.FC<SkillCardProps> = ({ skill, onNavigate }) => {
           </span>
         </div>
 
-        {/* Desktop Card Footer Actions */}
-        <div className="hidden md:flex pt-3 border-t border-slate-100 dark:border-slate-800/80 items-center justify-between gap-2">
-          <div className="flex items-center gap-3 text-xs">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigate(`/opportunities?search=${encodeURIComponent(skill.name)}`);
-              }}
-              className="font-bold text-[#006B3F] dark:text-emerald-400 hover:underline cursor-pointer"
-            >
-              Jobs
-            </button>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigate(`/resources?search=${encodeURIComponent(skill.name)}`);
-              }}
-              className="font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
-            >
-              Courses
-            </button>
-          </div>
-
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#006B3F] dark:group-hover:text-emerald-400 transition-colors">
+        {/* Desktop Compact Footer */}
+        <div className="hidden md:flex pt-2.5 border-t border-slate-100 dark:border-slate-800/80 items-center justify-between gap-2 text-xs">
+          <span className="font-medium text-slate-500 dark:text-slate-400 truncate">
+            {skill.level || 'All Levels'}
+          </span>
+          <span className="inline-flex items-center gap-1 font-bold text-[#006B3F] dark:text-emerald-400">
             <span>Explore</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </span>

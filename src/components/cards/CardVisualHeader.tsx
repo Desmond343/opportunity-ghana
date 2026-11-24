@@ -241,12 +241,6 @@ export const CardVisualHeader: React.FC<CardVisualHeaderProps> = ({
                 {subtitle}
               </p>
             )}
-
-            {title && (
-              <p className="hidden md:block text-[11px] font-medium text-slate-300/90 line-clamp-1">
-                {title}
-              </p>
-            )}
           </div>
         </div>
       )}
