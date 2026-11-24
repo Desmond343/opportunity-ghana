@@ -143,7 +143,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* ==================================================
           1. MODERN ANIMATED HERO SECTION (Inspired by GlobalWave Tech Reference)
          ================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F6FBF8] via-[#F8FAF9] to-white dark:from-[#0B0F17] dark:via-[#0E1420] dark:to-[#121826] pt-12 sm:pt-16 lg:pt-20 pb-14 sm:pb-18 lg:pb-22 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+      <section className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#F6FBF8] via-[#F8FAF9] to-white dark:from-[#0B0F17] dark:via-[#0E1420] dark:to-[#121826] pt-12 sm:pt-16 lg:pt-20 pb-14 sm:pb-18 lg:pb-22 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
         {/* Subtle decorative Ghanaian ambient gradient glow */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#006B3F] to-[#FCD116]" />
         <div className="absolute -top-24 left-1/4 w-[550px] h-[550px] bg-gradient-to-br from-[#006B3F]/10 via-emerald-400/5 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -390,7 +390,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* ==================================================
           2. OPPORTUNITY CATEGORY SECTION
          ================================================== */}
-      <OpportunityCategorySection onNavigate={onNavigate} />
+      <div className="hidden md:block">
+        <OpportunityCategorySection onNavigate={onNavigate} />
+      </div>
 
       {/* ==================================================
           4. "OPPORTUNITIES FOR YOUR NEXT STEP" (Mobile Slideshow + Desktop 3-Column Grid)

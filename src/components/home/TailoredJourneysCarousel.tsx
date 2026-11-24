@@ -219,7 +219,7 @@ export const TailoredJourneysCarousel: React.FC<TailoredJourneysCarouselProps> =
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-0 space-y-4 sm:space-y-6">
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#006B3F] dark:text-emerald-400 font-space">
           Tailored Journeys
