@@ -137,7 +137,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="space-y-12 sm:space-y-20 pb-16 sm:pb-20 stage-ambient-surface">
+    <div className="flex flex-col gap-12 sm:gap-20 [&>*]:w-full pb-10 md:pb-20 stage-ambient-surface">
       {/* ==================================================
           1. HOMEPAGE HERO WITH PHOTOGRAPHY & SEARCH BAR (ONE LARGE PREMIUM BANNER)
          ================================================== */}
@@ -837,9 +837,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       )}
 
       {/* ==================================================
-          9. CALL TO ACTION (Your next opportunity could be here)
+          9. CALL TO ACTION (Your next opportunity could be here) — Desktop & Tablet (>= 768px) only
          ================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-br from-[#003822] via-[#006B3F] to-slate-950 rounded-3xl p-8 sm:p-12 text-white text-center space-y-6 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FCD116_1px,transparent_1px)] [background-size:20px_20px]" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-4">
